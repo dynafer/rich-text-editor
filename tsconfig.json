@@ -18,6 +18,7 @@
 		"lib": ["es2017", "DOM", "DOM.Iterable"],
         "paths": {
             "finer": ["./src/ts/Finer.ts"],
+            "finer/utils": ["./src/ts/packages/utils/*"]
         }
     },
     "include": ["./src/**/*"]
