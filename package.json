@@ -1,0 +1,38 @@
+{
+  "name": "finer_editor",
+  "version": "1.0.0",
+  "devDependencies": {
+    "@rollup/plugin-typescript": "^8.5.0",
+    "@types/node": "^18.7.18",
+    "@typescript-eslint/eslint-plugin": "^5.38.0",
+    "@typescript-eslint/parser": "^5.38.0",
+    "dotenv": "^16.0.2",
+    "eslint-config-airbnb-typescript": "^17.0.0",
+    "node-sass": "^7.0.3",
+    "rollup": "^2.79.1",
+    "rollup-plugin-scss": "^3.0.0",
+    "rollup-plugin-terser": "^7.0.2",
+    "typescript": "^4.8.3"
+  },
+  "scripts": {
+    "preinstall": "sh ./scripts/preinstall.sh",
+    "build": "sh ./scripts/build.sh",
+    "watch": "sh ./scripts/watch.sh",
+    "update": "npx npm-check-updates && npm i",
+    "lint": "eslint . --ext .ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/finer-group/finer-editor.git"
+  },
+  "keywords": [],
+  "author": "Haseong Kim",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/finer-group/finer-editor/issues"
+  },
+  "homepage": "https://github.com/finer-group/finer-editor#readme",
+  "dependencies": {
+    "eslint-import-resolver-typescript": "^3.5.1"
+  }
+}
