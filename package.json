@@ -8,6 +8,7 @@
     "@typescript-eslint/parser": "^5.38.0",
     "dotenv": "^16.0.2",
     "eslint-config-airbnb-typescript": "^17.0.0",
+    "eslint-import-resolver-typescript": "^3.5.1",
     "node-sass": "^7.0.3",
     "rollup": "^2.79.1",
     "rollup-plugin-scss": "^3.0.0",
@@ -15,7 +16,7 @@
     "typescript": "^4.8.3"
   },
   "scripts": {
-    "preinstall": "sh ./scripts/preinstall.sh",
+    "pre-install": "sh ./scripts/preinstall.sh",
     "build": "sh ./scripts/build.sh",
     "watch": "sh ./scripts/watch.sh",
     "update": "npx npm-check-updates && npm i",
@@ -31,8 +32,5 @@
   "bugs": {
     "url": "https://github.com/finer-group/finer-editor/issues"
   },
-  "homepage": "https://github.com/finer-group/finer-editor#readme",
-  "dependencies": {
-    "eslint-import-resolver-typescript": "^3.5.1"
-  }
+  "homepage": "https://github.com/finer-group/finer-editor#readme"
 }

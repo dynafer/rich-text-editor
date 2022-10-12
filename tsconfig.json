@@ -1,5 +1,6 @@
 {
     "compilerOptions": {
+        "baseUrl": "./src/ts",
         "suppressImplicitAnyIndexErrors": true,
         "composite": true,
         "outDir": "./build",
@@ -17,8 +18,8 @@
         "resolveJsonModule": true,
 		"lib": ["es2017", "DOM", "DOM.Iterable"],
         "paths": {
-            "finer": ["./src/ts/Finer.ts"],
-            "finer/utils": ["./src/ts/packages/utils/*"]
+            "finer": ["Finer.ts"],
+            "finer/packages/*": ["packages/*"]
         }
     },
     "include": ["./src/**/*"]

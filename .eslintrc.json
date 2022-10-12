@@ -3,7 +3,7 @@
     "parserOptions": {
         "parser": "@typescript-eslint/parser",
         "project": "./tsconfig.json",
-        "include": ["./node_modules/@types/**/*", "./node_modules/typescript/**/*"],
+        "include": ["./node_modules/@types/**/*", "./node_modules/typescript/**/*", "./src/ts/Finer.ts"],
         "ecmaVersion": 6,
         "sourceType": "module"
     },
@@ -25,8 +25,7 @@
         "semi": [2, "always"],
         "@typescript-eslint/no-implied-eval": "off",
         "@typescript-eslint/comma-dangle": "off",
-        "@typescript-eslint/dot-notation": "off",
-        "no-unused-vars": ["error", { "vars": "local" }]
+        "@typescript-eslint/dot-notation": "off"
     },
     "settings": {
         "import/extensions": [".ts"],
