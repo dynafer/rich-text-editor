@@ -8,4 +8,5 @@ fi
 
 npm run lint
 rollup -c rollup.config.js
+rollup -c rollup.plugin.config.js
 exit 0
