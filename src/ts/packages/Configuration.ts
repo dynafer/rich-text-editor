@@ -1,5 +1,6 @@
 interface IConfiguration {
-	selector: HTMLElement
+	selector: HTMLElement,
+	plugins?: string[]
 }
 
 export default IConfiguration;

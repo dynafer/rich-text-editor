@@ -1,14 +1,21 @@
 import IConfiguration from './Configuration';
-import DOM, { IDom } from './dom/DOM';
+import DOM, { IDom } from 'finer/packages/dom/DOM';
 import Init from './Init';
+import PluginManager, { IPluginManager } from 'finer/packages/plugin/PluginManager';
 
 interface IEditor {
 	dom: IDom,
+	managers: {
+		plugin: IPluginManager
+	},
 	Init: (config: IConfiguration) => Promise<unknown>
 }
 
 const Editor: IEditor = {
 	dom: DOM(),
+	managers: {
+		plugin: PluginManager
+	},
 	Init: Init,
 };
 

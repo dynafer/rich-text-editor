@@ -5,5 +5,4 @@ if [ ! -f ./.env ]; then
     sh ./scripts/preinstall.sh
 fi
 
-rollup -c rollup.config.js -w --environment MODE:development
-exit 0
+exit 0;

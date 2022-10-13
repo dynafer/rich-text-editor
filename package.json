@@ -16,9 +16,10 @@
     "typescript": "^4.8.3"
   },
   "scripts": {
-    "pre-install": "sh ./scripts/preinstall.sh",
+    "pre-install": "sh ./scripts/pre-install.sh",
     "build": "sh ./scripts/build.sh",
-    "watch": "sh ./scripts/watch.sh",
+    "watch": "sh ./scripts/check-pre-install.sh && rollup -c rollup.config.js -w --environment MODE:development",
+    "watch:plugin": "sh ./scripts/check-pre-install.sh && rollup -c rollup.plugin.config.js -w --environment MODE:development",
     "update": "npx npm-check-updates && npm i",
     "lint": "eslint . --ext .ts"
   },

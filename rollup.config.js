@@ -1,63 +1,53 @@
 import typescript from '@rollup/plugin-typescript';
 import { terser } from 'rollup-plugin-terser';
 import scss from 'rollup-plugin-scss';
-import { run } from './rollup.hook';
-import fs from 'fs';
 import path from 'path';
+import { run } from './rollup.hook';
+import { DeleteMapFiles, ESLINT_RUN_COMMAND, IS_DEVELOPMENT, INPUT_FILE_NAME, OUTPUT_FILE_NAME, OUTPUT_PATH, SRC_PATH, USE_SCSS } from './rollup.shared';
 
 require('dotenv').config({ path: path.resolve(__dirname, './.env') });
 
-const outputPath = path.resolve(__dirname, process.env.OUTPUT_PATH);
-const isDevelopment = process.env.MODE === 'development';
-const useScss = process.env.USE_SCSS === 'true';
-const srcPath = path.resolve(__dirname, './src');
-const scssPlugin = [];
-if (useScss) {
-    scssPlugin.push( scss({
-        output: path.resolve(outputPath, `./${process.env.OUTPUT_FILE_NAME}.min.css`),
-        sourceMap: isDevelopment,
-        outputStyle: 'compressed',
-        failOnError: true,
-        watch: srcPath
-    }) );
-}
+if (!IS_DEVELOPMENT) DeleteMapFiles();
 
-const plugins = [];
-
-if (!isDevelopment) {
-    const mapFile = type => path.resolve(outputPath, `./${process.env.OUTPUT_FILE_NAME}.${type}.map`);
-    if (fs.existsSync(mapFile('js'))) fs.unlinkSync(mapFile('js'));
-    if (fs.existsSync(mapFile('min.js'))) fs.unlinkSync(mapFile('min.js'));
-    if (fs.existsSync(mapFile('min.css'))) fs.unlinkSync(mapFile('min.css'));
-} else {
-    plugins.push(run('npm run lint'))
+const ROLLUP_PLUGINS = [];
+if (IS_DEVELOPMENT) ROLLUP_PLUGINS.push(run(ESLINT_RUN_COMMAND));
+if (USE_SCSS) {
+    ROLLUP_PLUGINS.push(
+        scss({
+            output: path.resolve(OUTPUT_PATH, `./${OUTPUT_FILE_NAME}.min.css`),
+            sourceMap: IS_DEVELOPMENT,
+            outputStyle: 'compressed',
+            failOnError: true,
+            watch: SRC_PATH
+        })
+    );
 }
 
 export default {
-    input: path.resolve(srcPath, `./${useScss ? 'ts/' : ''}${process.env.MAIN_FILE}.ts`),
+    input: path.resolve(SRC_PATH, `./${USE_SCSS ? 'ts/' : ''}${INPUT_FILE_NAME}.ts`),
     output: [
         {
-            file: path.resolve(outputPath, `./${process.env.OUTPUT_FILE_NAME}.js`),
+            file: path.resolve(OUTPUT_PATH, `./${OUTPUT_FILE_NAME}.js`),
             format: 'iife',
             name: 'finer',
-            sourcemap: isDevelopment
+            sourcemap: IS_DEVELOPMENT
         },
         {
-            file: path.resolve(outputPath, `./${process.env.OUTPUT_FILE_NAME}.min.js`),
+            file: path.resolve(OUTPUT_PATH, `./${OUTPUT_FILE_NAME}.min.js`),
             format: 'iife',
             name: 'finer',
             plugins: [terser()],
-            sourcemap: isDevelopment
+            sourcemap: IS_DEVELOPMENT
         },
     ],
     plugins: [
-        ...plugins,
+        ...ROLLUP_PLUGINS,
         typescript({
             tsconfig: path.resolve(__dirname, './tsconfig.json'),
+            outputToFilesystem: true,
             compilerOptions: {
-                sourceMap: isDevelopment
+                sourceMap: IS_DEVELOPMENT
             }
-        }),
-        ...scssPlugin
-    ],
-}
+        })
+    ]
+};

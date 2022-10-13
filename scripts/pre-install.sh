@@ -13,9 +13,9 @@ read -p "Enter output file name (Default: bundle): " outputName
 if [ -z ${outputName} ]; then
     outputName='bundle'
 fi
-read -p "Enter input file name such as your project name (Default: temp): " mainFile
-if [ -z ${mainFile} ]; then
-    mainFile='temp'
+read -p "Enter input file name such as your project name (Default: temp): " inputName
+if [ -z ${inputName} ]; then
+    inputName='temp'
 fi
 echo "Do you want to use scss compiler?"
 select yn in "Yes" "No"; do
@@ -28,7 +28,7 @@ done
 cat<<EOF >.env
 OUTPUT_PATH=$outputPath
 OUTPUT_FILE_NAME=$outputName
-MAIN_FILE=$mainFile
+INPUT_FILE_NAME=$inputName
 USE_SCSS=$useScss
 EOF
 
