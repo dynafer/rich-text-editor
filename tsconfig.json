@@ -1,27 +1,27 @@
 {
-    "compilerOptions": {
-        "baseUrl": "./src/ts",
-        "suppressImplicitAnyIndexErrors": true,
-        "composite": true,
-        "outDir": "./build",
-        "preserveConstEnums": true,
-        "strictFunctionTypes": true,
-        "strictBindCallApply": true,
-        "strictNullChecks": true,
-        "strictPropertyInitialization": true,
-        "noImplicitAny": true,
-        "alwaysStrict": true,
-        "removeComments": true,
-        "module": "es6",
-        "target": "es6",
-        "moduleResolution": "node",
-        "resolveJsonModule": true,
+	"compilerOptions": {
+		"baseUrl": "./src/ts",
+		"suppressImplicitAnyIndexErrors": true,
+		"composite": true,
+		"outDir": "./build",
+		"preserveConstEnums": true,
+		"strictFunctionTypes": true,
+		"strictBindCallApply": true,
+		"strictNullChecks": true,
+		"strictPropertyInitialization": true,
+		"noImplicitAny": true,
+		"alwaysStrict": true,
+		"removeComments": true,
+		"module": "es6",
+		"target": "es6",
+		"moduleResolution": "node",
+		"resolveJsonModule": true,
 		"lib": ["es2017", "DOM", "DOM.Iterable"],
-        "paths": {
-            "finer": ["Finer.ts"],
-            "finer/packages/*": ["packages/*"],
-            "finer/plugins/*": ["plugins/*"],
-        }
-    },
-    "include": ["./src/**/*"]
+		"paths": {
+			"finer": ["Finer.ts"],
+			"finer/packages/*": ["packages/*"],
+			"finer/plugins/*": ["plugins/*"],
+		}
+	},
+	"include": ["./src/**/*"]
 }
