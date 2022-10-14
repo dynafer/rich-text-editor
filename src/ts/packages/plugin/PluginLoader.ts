@@ -1,4 +1,5 @@
 import { JoinPluginUrl } from 'finer/packages/utils/Option';
+import DOM from '../dom/DOM';
 
 export interface IPluginLoader {
 	Loaded: string[],
@@ -13,7 +14,7 @@ const PluginLoader = (): IPluginLoader => {
 		return new Promise((resolve, reject) => {
 			if (Loaded.includes(name)) return reject(`Plugin: ${name} is already loaded`);
 
-			const script = finer.dom.Create('script', {
+			const script = DOM.Create('script', {
 				attrs: {
 					src: JoinPluginUrl(name)
 				}
@@ -29,7 +30,7 @@ const PluginLoader = (): IPluginLoader => {
 				reject(`Plugin: ${name} is failed to load scripts`);
 			};
 
-			finer.dom.Insert(finer.dom.$.head, script);
+			DOM.Insert(DOM.Doc.head, script);
 		});
 	};
 

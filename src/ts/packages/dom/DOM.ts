@@ -1,10 +1,11 @@
-import { IsString, IsObject, IsArray } from 'finer/packages/utils/Type';
+import { CreateUEID } from 'finer/packages/utils/Option';
 import { CapitalToDash } from 'finer/packages/utils/String';
+import { IsString, IsObject, IsArray } from 'finer/packages/utils/Type';
 
 type TCreateOption = IMap<string> | string;
 
 export interface IDom {
-	$: Document,
+	Doc: Document,
 	Select: {
 		<T extends Node>(selector: T): T;
 		(selector: string): HTMLElement | null;
@@ -22,10 +23,12 @@ export interface IDom {
 		(tagName: string, option?: IMap<TCreateOption>): HTMLElement;
 	},
 	Insert: (selector: HTMLElement, insertion: HTMLElement | string) => void,
+	InsertAfter: (selector: HTMLElement, insertion: HTMLElement | string) => void,
+	SetUEID: (selector: HTMLElement, id: string) => string,
 }
 
 const DOM = (doc: Document = document): IDom => {
-	const $: Document = document;
+	const Doc: Document = doc;
 
 	const Select = (selector: string): HTMLElement | null => {
 		return doc.querySelector(selector);
@@ -73,8 +76,21 @@ const DOM = (doc: Document = document): IDom => {
 		else selector.insertAdjacentElement('beforeend', insertion);
 	};
 
+	const InsertAfter = (selector: HTMLElement, insertion: HTMLElement | string) => {
+		if (IsString(insertion)) selector.insertAdjacentHTML('afterend', insertion);
+		else selector.insertAdjacentElement('afterend', insertion);
+	};
+
+	const SetUEID = (selector: HTMLElement, id: string): string => {
+		const UEID: string = CreateUEID(id);
+
+		SetAttr(selector, 'id', UEID);
+
+		return UEID;
+	};
+
 	return {
-		$,
+		Doc,
 		Select,
 		SelectAll,
 		SetAttr,
@@ -83,7 +99,9 @@ const DOM = (doc: Document = document): IDom => {
 		SetStyles,
 		Create,
 		Insert,
+		InsertAfter,
+		SetUEID,
 	};
 };
 
-export default DOM;
+export default DOM();
