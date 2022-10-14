@@ -10,8 +10,8 @@ const IS_DEVELOPMENT = process.env.MODE === 'development';
 const OUTPUT_FILE_NAME = process.env.OUTPUT_FILE_NAME;
 const INPUT_FILE_NAME = process.env.INPUT_FILE_NAME;
 
-const SRC_PATH = path.resolve(__dirname, './src');
-const PLUGIN_PATH = path.resolve(SRC_PATH, './ts/plugins');
+const PACKAGE_PATH = path.resolve(__dirname, './packages');
+const PLUGIN_PATH = path.resolve(PACKAGE_PATH, './finer/ts/plugins');
 const PLUGIN_NAMES = fs.readdirSync(PLUGIN_PATH);
 
 const ESLINT_RUN_COMMAND = 'npm run lint';
@@ -49,6 +49,6 @@ export {
 	OUTPUT_PLUGIN_PATH,
 	PLUGIN_NAMES,
 	PLUGIN_PATH,
-	SRC_PATH,
+	PACKAGE_PATH,
 	USE_SCSS,
 };

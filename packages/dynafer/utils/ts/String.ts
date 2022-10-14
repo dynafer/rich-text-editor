@@ -1,4 +1,4 @@
-const regCapital = /[A-Z]/g;
+const regCapital: RegExp = /[A-Z]/g;
 
 export const CapitalToDash = (value: string): string => {
 	if (!regCapital.test(value)) return value;

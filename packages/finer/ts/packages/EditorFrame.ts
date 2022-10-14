@@ -1,5 +1,5 @@
-import DOM from './dom/DOM';
-import { CreateUEID } from './utils/Option';
+import DOM from 'finer/packages/dom/DOM';
+import { CreateUEID } from 'dynafer/utils/Option';
 
 const EditorFrame = (selector: HTMLElement, mode: string, width: string, height: string) => {
 	const tagName: string = mode === 'classic' ? 'iframe' : 'div';

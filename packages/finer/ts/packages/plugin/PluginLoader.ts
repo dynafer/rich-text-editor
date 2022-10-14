@@ -1,5 +1,5 @@
-import { JoinPluginUrl } from 'finer/packages/utils/Option';
-import DOM from '../dom/DOM';
+import { JoinPluginUrl } from 'dynafer/utils/Option';
+import DOM from 'finer/packages/dom/DOM';
 
 export interface IPluginLoader {
 	Loaded: string[],

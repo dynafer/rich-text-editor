@@ -1,6 +1,9 @@
 {
-	"extends": "./tsconfig.shared.json",
+	"extends": "../../tsconfig.shared.json",
 	"compilerOptions": {
+		"strict": true,
+		"baseUrl": "../",
+		"outDir": "./build",
 		"paths": {
 			"finer": ["finer/ts/Finer"],
 			"finer/packages/*": ["finer/ts/packages/*"],
@@ -9,11 +12,8 @@
 			"dynafer/utils/*": ["dynafer/utils/ts/*"],
 		}
 	},
+	"include": ["ts/**/*"],
 	"references": [
-		{ "path": "./packages/dynafer/utils" }
-	],
-	"include": [
-		"./packages/dynafer/**/*",
-		"./packages/finer/**/*"
+		{ "path": "../dynafer/utils" }
 	]
 }
