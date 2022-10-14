@@ -17,19 +17,11 @@ read -p "Enter input file name such as your project name (Default: temp): " inpu
 if [ -z ${inputName} ]; then
     inputName='temp'
 fi
-echo "Do you want to use scss compiler?"
-select yn in "Yes" "No"; do
-    case $yn in
-        Yes ) useScss=true break;;
-        No ) useScss=false break;;
-    esac
-done
 
 cat<<EOF >.env
 OUTPUT_PATH=$outputPath
 OUTPUT_FILE_NAME=$outputName
 INPUT_FILE_NAME=$inputName
-USE_SCSS=$useScss
 EOF
 
 mkdir -p ./src && chmod 777 ./src

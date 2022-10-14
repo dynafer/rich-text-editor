@@ -1,8 +1,8 @@
-import { CreateUEID } from 'finer/packages/utils/Option';
-import { CapitalToDash } from 'finer/packages/utils/String';
-import { IsString, IsObject, IsArray } from 'finer/packages/utils/Type';
+import { CreateUEID } from 'dynafer/utils/Option';
+import { CapitalToDash } from 'dynafer/utils/String';
+import { IsString, IsObject, IsArray } from 'dynafer/utils/Type';
 
-type TCreateOption = IMap<string> | string;
+type TCreateOption = Record<string, string> | string;
 
 export interface IDom {
 	Doc: Document,
@@ -15,12 +15,12 @@ export interface IDom {
 		(selector: string): HTMLElement[];
 	},
 	SetAttr: (element: Element, attr: string, value: string) => void,
-	SetAttrs: (element: Element, attrs: IMap<string>) => void,
+	SetAttrs: (element: Element, attrs: Record<string, string>) => void,
 	SetStyle: (selector: HTMLElement, name: string, value: string) => void,
-	SetStyles: (selector: HTMLElement, styles: IMap<string>) => void,
+	SetStyles: (selector: HTMLElement, styles: Record<string, string>) => void,
 	Create: {
-		<K extends keyof HTMLElementTagNameMap>(tagName: K, option?: IMap<TCreateOption>): HTMLElementTagNameMap[K];
-		(tagName: string, option?: IMap<TCreateOption>): HTMLElement;
+		<K extends keyof HTMLElementTagNameMap>(tagName: K, option?: Record<string, TCreateOption>): HTMLElementTagNameMap[K];
+		(tagName: string, option?: Record<string, TCreateOption>): HTMLElement;
 	},
 	Insert: (selector: HTMLElement, insertion: HTMLElement | string) => void,
 	InsertAfter: (selector: HTMLElement, insertion: HTMLElement | string) => void,
@@ -42,7 +42,7 @@ const DOM = (doc: Document = document): IDom => {
 		element.setAttribute(CapitalToDash(attr), value);
 	};
 
-	const SetAttrs = (element: Element, attrs: IMap<string>) => {
+	const SetAttrs = (element: Element, attrs: Record<string, string>) => {
 		for (const [attr, value] of Object.entries(attrs)) {
 			SetAttr(element, attr, value);
 		}
@@ -52,20 +52,20 @@ const DOM = (doc: Document = document): IDom => {
 		selector.style[name] = value;
 	};
 
-	const SetStyles = (selector: HTMLElement, styles: IMap<string>) => {
+	const SetStyles = (selector: HTMLElement, styles: Record<string, string>) => {
 		for (const [name, value] of Object.entries(styles)) {
 			SetStyle(selector, name, value);
 		}
 	};
 
-	const Create = (tagName: string, option?: IMap<TCreateOption>): HTMLElement => {
+	const Create = (tagName: string, option?: Record<string, TCreateOption>): HTMLElement => {
 		const newElement = doc.createElement(tagName);
 		if (!option) return newElement;
 
-		if (option.attrs && IsObject(option.attrs)) SetAttrs(newElement, option.attrs as IMap<string>);
-		if (option.styles && IsObject(option.styles)) SetStyles(newElement, option.styles as IMap<string>);
+		if (option.attrs && IsObject(option.attrs)) SetAttrs(newElement, option.attrs as Record<string, string>);
+		if (option.styles && IsObject(option.styles)) SetStyles(newElement, option.styles as Record<string, string>);
 
-		if (option.class && IsString(option.class)) newElement.className = option.class;
+		if (option.class && IsString(option.class)) newElement.className = option.class as string;
 		else if (option.class && IsArray(option.class)) newElement.classList.add(...option.class as string[]);
 
 		return newElement;

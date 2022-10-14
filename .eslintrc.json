@@ -2,12 +2,14 @@
 	"root": true,
 	"parserOptions": {
 		"parser": "@typescript-eslint/parser",
-		"project": "./tsconfig.json",
-		"include": ["./node_modules/@types/**/*", "./node_modules/typescript/**/*", "./src/ts/Finer.ts"],
+		"project": [
+			"./tsconfig.json",
+			"packages/*/tsconfig.json"
+		],
 		"ecmaVersion": 6,
 		"sourceType": "module"
 	},
-	"ignorePatterns": ["*.js"],
+	"ignorePatterns": ["*.js", "*.json"],
 	"extends": [
 		"airbnb-typescript/base",
 		"plugin:@typescript-eslint/recommended",
@@ -27,10 +29,17 @@
 		"@typescript-eslint/comma-dangle": "off",
 		"@typescript-eslint/dot-notation": "off"
 	},
+	"plugins": ["import"],
 	"settings": {
+		"import/parsers": {
+		  "@typescript-eslint/parser": [".ts"]
+		},
 		"import/extensions": [".ts"],
 		"import/resolver": {
-			"typescript": {}
+			"typescript": {
+				"alwaysTryTypes": true,
+				"project": "packages/*/tsconfig.json"
+			}
 		}
 	},
 	"globals": {

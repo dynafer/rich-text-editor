@@ -1,6 +1,6 @@
-import { TConfiguration } from './Configuration';
+import { TConfiguration } from 'finer/packages/Configuration';
+import Init from 'finer/packages/Init';
 import DOM, { IDom } from 'finer/packages/dom/DOM';
-import Init from './Init';
 import PluginManager, { IPluginManager } from 'finer/packages/plugin/PluginManager';
 
 interface IEditor {
@@ -8,7 +8,7 @@ interface IEditor {
 	managers: {
 		plugin: IPluginManager
 	},
-	Init: (config: IMap<TConfiguration>) => Promise<unknown>
+	Init: (config: Record<string, TConfiguration>) => Promise<unknown>
 }
 
 const Editor: IEditor = {

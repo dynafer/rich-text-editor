@@ -1,6 +1,9 @@
-import { IsArray } from './utils/Type';
+import { IsArray } from 'dynafer/utils/Type';
+
+const availableModes: string[] = ['classic', 'inline'];
 
 export type TConfiguration = HTMLElement | string[] | string;
+
 export interface IConfiguration {
 	selector: HTMLElement,
 	mode: string,
@@ -9,12 +12,11 @@ export interface IConfiguration {
 	plugins: string[],
 }
 
-const availableModes: string[] = ['classic', 'inline'];
-
-const SetDefaultToConfig = (config: IMap<TConfiguration>): IConfiguration => {
+const SetDefaultToConfig = (config: Record<string, TConfiguration>): IConfiguration => {
 	if (!config.selector || !(config.selector instanceof Element)) {
 		throw new Error('Selector of configuration must be provided');
 	}
+
 	const selector: HTMLElement = config.selector as HTMLElement;
 
 	const mode: string = (config.mode as string ?? 'classic').toLowerCase();

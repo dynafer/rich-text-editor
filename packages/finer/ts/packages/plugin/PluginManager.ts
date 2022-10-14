@@ -1,14 +1,14 @@
 type TPlugin = () => void;
 
 export interface IPluginManager {
-	Loaded: IMap<TPlugin>,
+	Loaded: Record<string, TPlugin>,
 	Add: (name: string, plugin: TPlugin) => void,
 	Load: (name: string) => Promise<void | string>,
 	LoadAll: () => Promise<void | string>,
 }
 
 const PluginManager = (): IPluginManager => {
-	const Loaded: IMap<TPlugin> = {};
+	const Loaded: Record<string, TPlugin> = {};
 
 	const Add = (name: string, plugin: TPlugin) => {
 		if (Loaded[name]) return;
