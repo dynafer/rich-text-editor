@@ -11,37 +11,37 @@ if (IS_DEVELOPMENT) ROLLUP_PLUGINS.push(run(ESLINT_RUN_COMMAND));
 
 const rollups = [];
 for (const name of PLUGIN_NAMES) {
-    rollups.push({
-        input: path.resolve(PLUGIN_PATH, `./${name}/Plugin.ts`),
-        output: [
-            {
-                file: path.resolve(OUTPUT_PLUGIN_PATH, `./${name}/${name}.js`),
-                format: 'iife',
-                globals: {
-                    finer: 'finer'
-                },
-                sourcemap: IS_DEVELOPMENT
-            },
-            {
-                file: path.resolve(OUTPUT_PLUGIN_PATH, `./${name}/${name}.min.js`),
-                format: 'iife',
-                globals: {
-                    finer: 'finer'
-                },
-                plugins: [terser()],
-                sourcemap: IS_DEVELOPMENT
-            },
-        ],
-        plugins: [
-            ...ROLLUP_PLUGINS,
-            typescript({
-                tsconfig: path.resolve(__dirname, './tsconfig.json'),
-                compilerOptions: {
-                    sourceMap: IS_DEVELOPMENT
-                }
-            })
-        ]
-    });
+	rollups.push({
+		input: path.resolve(PLUGIN_PATH, `./${name}/Plugin.ts`),
+		output: [
+			{
+				file: path.resolve(OUTPUT_PLUGIN_PATH, `./${name}/${name}.js`),
+				format: 'iife',
+				globals: {
+					finer: 'finer'
+				},
+				sourcemap: IS_DEVELOPMENT
+			},
+			{
+				file: path.resolve(OUTPUT_PLUGIN_PATH, `./${name}/${name}.min.js`),
+				format: 'iife',
+				globals: {
+					finer: 'finer'
+				},
+				plugins: [terser()],
+				sourcemap: IS_DEVELOPMENT
+			},
+		],
+		plugins: [
+			...ROLLUP_PLUGINS,
+			typescript({
+				tsconfig: path.resolve(__dirname, './tsconfig.json'),
+				compilerOptions: {
+					sourceMap: IS_DEVELOPMENT
+				}
+			})
+		]
+	});
 }
 
 export default rollups;

@@ -17,38 +17,38 @@ const PLUGIN_NAMES = fs.readdirSync(PLUGIN_PATH);
 const ESLINT_RUN_COMMAND = 'npm run lint';
 
 const DeleteMapFile = (extenstion, name = '') => {
-    const dirPath = name !== '' ? OUTPUT_PLUGIN_PATH : OUTPUT_PATH;
-    const fileName = name !== '' ? `${name}/${name}` : OUTPUT_FILE_NAME;
-    const filePath = `./${fileName}.${extenstion}.map`;
-    const realPath = path.resolve(dirPath, filePath);
+	const dirPath = name !== '' ? OUTPUT_PLUGIN_PATH : OUTPUT_PATH;
+	const fileName = name !== '' ? `${name}/${name}` : OUTPUT_FILE_NAME;
+	const filePath = `./${fileName}.${extenstion}.map`;
+	const realPath = path.resolve(dirPath, filePath);
 
-    if (fs.existsSync(realPath)) fs.unlinkSync(realPath);
+	if (fs.existsSync(realPath)) fs.unlinkSync(realPath);
 };
 
 const DeleteMapFiles = (type = '') => {
-    if (type === 'plugin') {
-        for (const name of PLUGIN_NAMES) {
-            DeleteMapFile('js', name);
-            DeleteMapFile('min.js', name);
-        }
-        return;
-    }
+	if (type === 'plugin') {
+		for (const name of PLUGIN_NAMES) {
+			DeleteMapFile('js', name);
+			DeleteMapFile('min.js', name);
+		}
+		return;
+	}
 
-    DeleteMapFile('js');
-    DeleteMapFile('min.js');
-    DeleteMapFile('min.css');
+	DeleteMapFile('js');
+	DeleteMapFile('min.js');
+	DeleteMapFile('min.css');
 };
 
 export {
-    DeleteMapFiles,
-    ESLINT_RUN_COMMAND,
-    IS_DEVELOPMENT,
-    INPUT_FILE_NAME,
-    OUTPUT_FILE_NAME,
-    OUTPUT_PATH,
-    OUTPUT_PLUGIN_PATH,
-    PLUGIN_NAMES,
-    PLUGIN_PATH,
-    SRC_PATH,
-    USE_SCSS,
+	DeleteMapFiles,
+	ESLINT_RUN_COMMAND,
+	IS_DEVELOPMENT,
+	INPUT_FILE_NAME,
+	OUTPUT_FILE_NAME,
+	OUTPUT_PATH,
+	OUTPUT_PLUGIN_PATH,
+	PLUGIN_NAMES,
+	PLUGIN_PATH,
+	SRC_PATH,
+	USE_SCSS,
 };
