@@ -1,0 +1,12 @@
+{
+	"extends": "../../tsconfig.shared.json",
+	"compilerOptions": {
+		"strict": true,
+		"baseUrl": ".",
+		"outDir": "./build",
+		"paths": {
+			"dynafer/utils": ["./utils/ts/Index"]
+		}
+	},
+	"include": ["./utils/ts/*.ts"]
+}

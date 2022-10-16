@@ -1,10 +1,11 @@
-type TPlugin = () => void;
+import Editor from 'finer/packages/Editor';
+
+type TPlugin = (editor: Editor) => void;
 
 export interface IPluginManager {
 	Loaded: Record<string, TPlugin>,
 	Add: (name: string, plugin: TPlugin) => void,
-	Load: (name: string) => Promise<void | string>,
-	LoadAll: () => Promise<void | string>,
+	Load: (editor: Editor, name: string) => Promise<void | string>,
 }
 
 const PluginManager = (): IPluginManager => {
@@ -15,10 +16,10 @@ const PluginManager = (): IPluginManager => {
 		Loaded[name] = plugin;
 	};
 
-	const Load = (name: string): Promise<void | string> => {
+	const Load = (editor: Editor, name: string): Promise<void | string> => {
 		return new Promise((resolve, reject) => {
 			try {
-				Loaded[name]();
+				Loaded[name](editor);
 				resolve();
 			} catch {
 				reject(`Plugin: ${name} runs inappropriately`);
@@ -26,24 +27,10 @@ const PluginManager = (): IPluginManager => {
 		});
 	};
 
-	const LoadAll = (): Promise<void | string> => {
-		return new Promise((resolve, reject) => {
-			const load: Promise<void | string>[] = [];
-			for (const name of Object.keys(Loaded)) {
-				load.push(Load(name));
-			}
-
-			Promise.all(load)
-				.then(() => resolve())
-				.catch(error => reject(error));
-		});
-	};
-
 	return {
 		Loaded,
 		Add,
 		Load,
-		LoadAll,
 	};
 };
 

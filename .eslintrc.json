@@ -1,15 +1,5 @@
 {
 	"root": true,
-	"parserOptions": {
-		"parser": "@typescript-eslint/parser",
-		"project": [
-			"./tsconfig.json",
-			"packages/*/tsconfig.json"
-		],
-		"ecmaVersion": 6,
-		"sourceType": "module"
-	},
-	"ignorePatterns": ["*.js", "*.json"],
 	"extends": [
 		"airbnb-typescript/base",
 		"plugin:@typescript-eslint/recommended",
@@ -18,6 +8,13 @@
 		"plugin:import/warnings",
 		"plugin:import/typescript"
 	],
+	"parserOptions": {
+		"parser": "@typescript-eslint/parser",
+		"createDefaultProgram": true,
+		"project": "**/tsconfig.json",
+		"sourceType": "module"
+	},
+	"ignorePatterns": ["*.js", "*.json"],
 	"rules": {
 		"max-len": ["warn", { "code": 200, "tabWidth": 4 }],
 		"@typescript-eslint/indent": ["warn", "tab", {"SwitchCase": 1}],
@@ -38,7 +35,7 @@
 		"import/resolver": {
 			"typescript": {
 				"alwaysTryTypes": true,
-				"project": "packages/*/tsconfig.json"
+				"project":  "**/tsconfig.json"
 			}
 		}
 	},

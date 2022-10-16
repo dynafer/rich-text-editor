@@ -1,22 +1,25 @@
-import { JoinPluginUrl } from 'dynafer/utils/Option';
+import { Utils } from 'dynafer/utils';
 import DOM from 'finer/packages/dom/DOM';
 
 export interface IPluginLoader {
 	Loaded: string[],
 	Load: (name: string) => Promise<void | string>,
+	Has: (name: string) => boolean,
 	LoadParallel: (plugins: string[]) => Promise<void | string>,
 }
 
 const PluginLoader = (): IPluginLoader => {
 	const Loaded: string[] = [];
 
+	const Has = (name: string) => Loaded.includes(name);
+
 	const Load = (name: string): Promise<void | string> => {
 		return new Promise((resolve, reject) => {
-			if (Loaded.includes(name)) return reject(`Plugin: ${name} is already loaded`);
+			if (Has(name)) return reject(`Plugin: ${name} is already loaded`);
 
 			const script = DOM.Create('script', {
 				attrs: {
-					src: JoinPluginUrl(name)
+					src: Utils.JoinPluginUrl(name)
 				}
 			});
 
@@ -49,6 +52,7 @@ const PluginLoader = (): IPluginLoader => {
 
 	return {
 		Loaded,
+		Has,
 		Load,
 		LoadParallel,
 	};
