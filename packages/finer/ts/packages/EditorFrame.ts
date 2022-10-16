@@ -1,22 +1,53 @@
 import DOM from 'finer/packages/dom/DOM';
-import { CreateUEID } from 'dynafer/utils/Option';
+import { Utils } from 'dynafer/utils';
+import Editor from './Editor';
 
-const EditorFrame = (selector: HTMLElement, mode: string, width: string, height: string) => {
-	const tagName: string = mode === 'classic' ? 'iframe' : 'div';
+export interface IEditorFrame {
+	root: HTMLElement,
+	toolbar: HTMLElement,
+	container: HTMLElement | HTMLIFrameElement
+}
 
-	const frame = DOM.Create(tagName, {
+const EditorFrame = (editor: Editor): IEditorFrame => {
+	const root = DOM.Create('div', {
 		attrs: {
-			id: CreateUEID('frame', false),
+			id: editor.id
+		},
+		styles: {
+			width: editor.width,
+		},
+		class: Utils.CreateUEID(undefined, false)
+	});
+
+	const toolbarId: string = Utils.CreateUEID('toolbar', false);
+	const toolbar = DOM.Create('div', {
+		attrs: {
+			id: toolbarId,
+		},
+		class: toolbarId
+	});
+	DOM.Insert(root, toolbar);
+
+	const container = DOM.Create(editor.GetModeTag(), {
+		attrs: {
+			id: Utils.CreateUEID('container', false),
 			frameborder: '0',
 		},
 		styles: {
-			width: width,
-			height: height
+			height: editor.height
 		},
-		class: CreateUEID(mode, false)
+		class: Utils.CreateUEID(editor.mode, false)
 	});
 
-	DOM.InsertAfter(selector, frame);
+	DOM.Insert(root, container);
+
+	DOM.InsertAfter(editor.selector, root);
+
+	return {
+		root,
+		toolbar,
+		container
+	};
 };
 
 export default EditorFrame;

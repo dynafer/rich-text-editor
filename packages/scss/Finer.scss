@@ -1,0 +1,33 @@
+@import '_mixin';
+
+.finer-editor {
+	* {
+		box-sizing: border-box;
+	}
+
+	.finer-editor-toolbar {
+		@include width(100%);
+		@include paddingAll(0.2rem);
+		background-color: #ececec;
+	
+		.finer-editor-icon {
+			@include paddingAll(0.3rem);
+			@include round(0.4rem);
+			display: inline-flex;
+			cursor: pointer;
+			border: none;
+
+			svg {
+				@include square(1rem);
+			}
+
+			&:hover {
+				background-color: rgba(255, 255, 255, 0.9);
+			}
+		}
+	}
+	
+	.finer-editor-classic {
+		@include width(100%);
+	}
+}

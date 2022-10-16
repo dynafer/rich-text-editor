@@ -1,5 +1,6 @@
 import typescript from '@rollup/plugin-typescript';
 import { terser } from 'rollup-plugin-terser';
+import InlineSvg from 'rollup-plugin-inline-svg';
 import path from 'path';
 import { run } from './rollup.hook';
 import { DeleteMapFiles, ESLINT_RUN_COMMAND, IS_DEVELOPMENT, OUTPUT_PLUGIN_PATH, PLUGIN_NAMES, PLUGIN_PATH } from './rollup.shared';
@@ -11,8 +12,9 @@ if (IS_DEVELOPMENT) ROLLUP_PLUGINS.push(run(ESLINT_RUN_COMMAND));
 
 const rollups = [];
 for (const name of PLUGIN_NAMES) {
+	if (name.includes('.d.ts')) continue;
 	rollups.push({
-		input: path.resolve(PLUGIN_PATH, `./${name}/Plugin.ts`),
+		input: path.resolve(PLUGIN_PATH, `./${name}/Index.ts`),
 		output: [
 			{
 				file: path.resolve(OUTPUT_PLUGIN_PATH, `./${name}/${name}.js`),
@@ -34,6 +36,7 @@ for (const name of PLUGIN_NAMES) {
 		],
 		plugins: [
 			...ROLLUP_PLUGINS,
+			InlineSvg(),
 			typescript({
 				tsconfig: path.resolve(__dirname, './tsconfig.json'),
 				compilerOptions: {

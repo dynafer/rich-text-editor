@@ -1,0 +1,56 @@
+@import '_function';
+
+@mixin width($width: null, $min: null, $max: null) {
+	@if $width != null {
+		width: $width;
+	}
+	@if $min != null {
+		min-width: $min;
+	}
+	@if $max != null {
+		max-width: $max;
+	}
+}
+
+@mixin height($height: null, $min: null, $max: null, $line: null) {
+	@if $height != null {
+		height: $height;
+	}
+	@if $min != null {
+		min-height: $min;
+	}
+	@if $max != null {
+		max-height: $max;
+	}
+	@if $line != null {
+		line-height: $line;
+	}
+}
+
+@mixin padding($type: px, $top: null, $right: null, $bottom: null, $left: null) {
+	@if $top != null {
+		padding-top: combineType($type, $top);
+	}
+	@if $right != null {
+		padding-right: combineType($type, $right);
+	}
+	@if $bottom != null {
+		padding-bottom: combineType($type, $bottom);
+	}
+	@if $left != null {
+		padding-left: combineType($type, $left);
+	}
+}
+
+@mixin paddingAll($size) {
+	padding: $size;
+}
+
+@mixin square($size) {
+	@include width($size);
+	@include height($size);
+}
+
+@mixin round($size) {
+	border-radius: $size;
+}

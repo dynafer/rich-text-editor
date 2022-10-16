@@ -1,0 +1,7 @@
+@function combineType($type, $size) {
+	@if $type == null {
+		@return $size;
+	} @else {
+		@return #{$size}#{$type};
+	}
+}

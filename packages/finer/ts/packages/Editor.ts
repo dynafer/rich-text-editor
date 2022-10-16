@@ -1,25 +1,61 @@
-import { TConfiguration } from 'finer/packages/Configuration';
-import Init from 'finer/packages/Init';
+import { Utils } from 'dynafer/utils';
+import { IConfiguration } from './Configuration';
+import EditorFrame, { IEditorFrame } from './EditorFrame';
 import DOM, { IDom } from 'finer/packages/dom/DOM';
-import PluginManager, { IPluginManager } from 'finer/packages/plugin/PluginManager';
 
-interface IEditor {
-	dom: IDom,
-	managers: {
-		plugin: IPluginManager
-	},
-	Init: (config: Record<string, TConfiguration>) => Promise<unknown>
+class Editor {
+	public id: string;
+	public selector: HTMLElement;
+	public dom: IDom;
+	public mode: string;
+	public width: string;
+	public height: string;
+	public frame: IEditorFrame;
+	public plugins: string[];
+	public toolbars: string[];
+
+	public constructor(config: IConfiguration) {
+		this.id = Utils.CreateUEID();
+		this.selector = config.selector;
+		this.dom = DOM;
+		this.mode = config.mode;
+		this.width = config.width;
+		this.height = config.height;
+		this.plugins = config.plugins;
+		this.toolbars = config.toolbars;
+
+		this.frame = EditorFrame(this);
+
+		this.render();
+	}
+
+	private render() {
+		DOM.SetStyle(this.selector, 'display', 'none');
+
+		this.loadPlugins();
+	}
+
+	private loadPlugins() {
+		for (const name of this.plugins) {
+			if (!finer.loaders.plugin.Has(name)) throw new Error(`Plugin: ${name} hasn't loaded`);
+
+			finer.managers.plugin.Load(this, name);
+		}
+	}
+
+	public AddToolbar() {
+
+	}
+
+	public GetModeTag() {
+		switch (this.mode) {
+			case 'inline':
+				return 'div';
+			case 'classic':
+			default:
+				return 'iframe';
+		}
+	}
 }
 
-const Editor: IEditor = {
-	dom: DOM,
-	managers: {
-		plugin: PluginManager
-	},
-	Init: Init,
-};
-
-export {
-	IEditor,
-	Editor
-};
+export default Editor;

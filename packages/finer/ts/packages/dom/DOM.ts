@@ -1,6 +1,4 @@
-import { CreateUEID } from 'dynafer/utils/Option';
-import { CapitalToDash } from 'dynafer/utils/String';
-import { IsString, IsObject, IsArray } from 'dynafer/utils/Type';
+import { Utils, Strings, Type } from 'dynafer/utils';
 
 type TCreateOption = Record<string, string> | string;
 
@@ -39,7 +37,7 @@ const DOM = (doc: Document = document): IDom => {
 	};
 
 	const SetAttr = (element: Element, attr: string, value: string) => {
-		element.setAttribute(CapitalToDash(attr), value);
+		element.setAttribute(Strings.CapitalToDash(attr), value);
 	};
 
 	const SetAttrs = (element: Element, attrs: Record<string, string>) => {
@@ -62,27 +60,29 @@ const DOM = (doc: Document = document): IDom => {
 		const newElement = doc.createElement(tagName);
 		if (!option) return newElement;
 
-		if (option.attrs && IsObject(option.attrs)) SetAttrs(newElement, option.attrs as Record<string, string>);
-		if (option.styles && IsObject(option.styles)) SetStyles(newElement, option.styles as Record<string, string>);
+		if (option.attrs && Type.IsObject(option.attrs)) SetAttrs(newElement, option.attrs as Record<string, string>);
+		if (option.styles && Type.IsObject(option.styles)) SetStyles(newElement, option.styles as Record<string, string>);
 
-		if (option.class && IsString(option.class)) newElement.className = option.class as string;
-		else if (option.class && IsArray(option.class)) newElement.classList.add(...option.class as string[]);
+		if (option.class && Type.IsString(option.class)) newElement.className = option.class as string;
+		else if (option.class && Type.IsArray(option.class)) newElement.classList.add(...option.class as string[]);
+
+		if (option.html && Type.IsString(option.html)) newElement.innerHTML = option.html;
 
 		return newElement;
 	};
 
 	const Insert = (selector: HTMLElement, insertion: HTMLElement | string) => {
-		if (IsString(insertion)) selector.insertAdjacentHTML('beforeend', insertion);
+		if (Type.IsString(insertion)) selector.insertAdjacentHTML('beforeend', insertion);
 		else selector.insertAdjacentElement('beforeend', insertion);
 	};
 
 	const InsertAfter = (selector: HTMLElement, insertion: HTMLElement | string) => {
-		if (IsString(insertion)) selector.insertAdjacentHTML('afterend', insertion);
+		if (Type.IsString(insertion)) selector.insertAdjacentHTML('afterend', insertion);
 		else selector.insertAdjacentElement('afterend', insertion);
 	};
 
 	const SetUEID = (selector: HTMLElement, id: string): string => {
-		const UEID: string = CreateUEID(id);
+		const UEID: string = Utils.CreateUEID(id);
 
 		SetAttr(selector, 'id', UEID);
 
