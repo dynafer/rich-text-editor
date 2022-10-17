@@ -1,52 +1,78 @@
 import DOM from 'finer/packages/dom/DOM';
-import { Utils } from 'dynafer/utils';
-import Editor from './Editor';
+import Editor from 'finer/packages/Editor';
+import { EModeEditor } from 'finer/packages/Configuration';
 
 export interface IEditorFrame {
-	root: HTMLElement,
-	toolbar: HTMLElement,
-	container: HTMLElement | HTMLIFrameElement
+	Root: HTMLElement,
+	Toolbar: HTMLElement,
+	Notification: HTMLElement,
+	Container: HTMLElement | HTMLIFrameElement
 }
 
 const EditorFrame = (editor: Editor): IEditorFrame => {
-	const root = DOM.Create('div', {
+	const toolbarId: string = editor.CreateUEID('toolbar', false);
+	const wrapperId: string = editor.CreateUEID('wrapper', false);
+	const notificationId: string = editor.CreateUEID('notification', false);
+	const containerId: string = editor.CreateUEID('container', false);
+
+	const Root = DOM.Create('div', {
 		attrs: {
-			id: editor.id
+			id: editor.Id
 		},
 		styles: {
-			width: editor.width,
+			width: editor.Config.Width,
 		},
-		class: Utils.CreateUEID(undefined, false)
+		class: editor.CreateUEID(undefined, false)
 	});
 
-	const toolbarId: string = Utils.CreateUEID('toolbar', false);
-	const toolbar = DOM.Create('div', {
+	const Toolbar = DOM.Create('div', {
 		attrs: {
 			id: toolbarId,
 		},
 		class: toolbarId
 	});
-	DOM.Insert(root, toolbar);
+	DOM.Insert(Root, Toolbar);
 
-	const container = DOM.Create(editor.GetModeTag(), {
+	const wrapper = DOM.Create('div', {
 		attrs: {
-			id: Utils.CreateUEID('container', false),
-			frameborder: '0',
+			id: wrapperId
 		},
-		styles: {
-			height: editor.height
-		},
-		class: Utils.CreateUEID(editor.mode, false)
+		class: wrapperId,
+		children: [
+			DOM.Create('div', {
+				attrs: {
+					id: notificationId
+				},
+				class: notificationId
+			}),
+			DOM.Create(editor.GetModeTag(), {
+				attrs: {
+					id: containerId,
+				},
+				styles: {
+					height: editor.Config.Height
+				},
+				class: editor.CreateUEID(EModeEditor[editor.Config.Mode], false)
+			})
+		]
 	});
 
-	DOM.Insert(root, container);
+	DOM.Insert(Root, wrapper);
 
-	DOM.InsertAfter(editor.selector, root);
+	DOM.InsertAfter(editor.Config.Selector, Root);
+
+	const Notification = DOM.Select(`#${notificationId}`, wrapper) as HTMLElement;
+	const Container = DOM.Select(`#${containerId}`, wrapper) as HTMLElement;
+
+	if (Container instanceof HTMLIFrameElement) {
+		DOM.SetAttr((Container.contentDocument as Document).body, 'contenteditable', 'true');
+	}
 
 	return {
-		root,
-		toolbar,
-		container
+		Root,
+		Toolbar,
+		Notification,
+		Container
 	};
 };
 

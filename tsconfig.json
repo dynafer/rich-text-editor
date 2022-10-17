@@ -12,6 +12,6 @@
 	"include": [
 		"./packages/dynafer/**/*.ts",
 		"./packages/finer/**/*.ts",
-		"./packages/finer/plugins/**/*.d.ts"
+		"./packages/finer/packages/**/*.d.ts"
 	]
 }

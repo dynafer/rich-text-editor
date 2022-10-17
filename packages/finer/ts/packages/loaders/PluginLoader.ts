@@ -1,30 +1,29 @@
-import { Utils } from 'dynafer/utils';
 import DOM from 'finer/packages/dom/DOM';
+import Options from '../../Options';
+
+const loaded: string[] = [];
 
 export interface IPluginLoader {
-	Loaded: string[],
-	Load: (name: string) => Promise<void | string>,
+	Load: (name: string) => Promise<void>,
 	Has: (name: string) => boolean,
-	LoadParallel: (plugins: string[]) => Promise<void | string>,
+	LoadParallel: (plugins: string[]) => Promise<void>,
 }
 
 const PluginLoader = (): IPluginLoader => {
-	const Loaded: string[] = [];
+	const Has = (name: string) => loaded.includes(name);
 
-	const Has = (name: string) => Loaded.includes(name);
-
-	const Load = (name: string): Promise<void | string> => {
+	const Load = (name: string): Promise<void> => {
 		return new Promise((resolve, reject) => {
-			if (Has(name)) return reject(`Plugin: ${name} is already loaded`);
+			if (Has(name)) return resolve();
 
 			const script = DOM.Create('script', {
 				attrs: {
-					src: Utils.JoinPluginUrl(name)
+					src: Options.JoinUrl('plugin', name)
 				}
 			});
 
 			script.onload = () => {
-				Loaded.push(name);
+				if (!loaded.includes(name)) loaded.push(name);
 				script.remove();
 				resolve();
 			};
@@ -37,7 +36,7 @@ const PluginLoader = (): IPluginLoader => {
 		});
 	};
 
-	const LoadParallel = (plugins: string[]): Promise<void | string> => {
+	const LoadParallel = (plugins: string[]): Promise<void> => {
 		return new Promise((resolve, reject) => {
 			const load: Promise<void | string>[] = [];
 			for (const plugin of plugins) {
@@ -51,7 +50,6 @@ const PluginLoader = (): IPluginLoader => {
 	};
 
 	return {
-		Loaded,
 		Has,
 		Load,
 		LoadParallel,

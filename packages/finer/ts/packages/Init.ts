@@ -1,11 +1,12 @@
 import SetDefaultToConfig, { TConfiguration, IConfiguration } from 'finer/packages/Configuration';
-import Editor from './Editor';
+import PluginLoader from 'finer/packages/loaders/PluginLoader';
+import Editor from 'finer/packages/Editor';
 
 const Init = (config: Record<string, TConfiguration>): Promise<Editor> => {
 	return new Promise((resolve, reject) => {
 		const configuration: IConfiguration = SetDefaultToConfig(config);
 
-		finer.loaders.plugin.LoadParallel(configuration.plugins)
+		PluginLoader.LoadParallel(configuration.Plugins)
 			.then(() => {
 				const editor = new Editor(configuration);
 				resolve(editor);
