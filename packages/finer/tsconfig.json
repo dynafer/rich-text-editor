@@ -1,7 +1,7 @@
 {
 	"extends": "../../tsconfig.shared.json",
 	"references": [
-		{ "path": "../dynafer" }
+		{ "path": "../dynafer/utils" }
 	],
 	"compilerOptions": {
 		"strict": true,
@@ -17,6 +17,6 @@
 	},
 	"include": [
 		"ts/**/*.ts",
-		"ts/plugins/**/*.d.ts"
+		"ts/packages/**/*.d.ts"
 	]
 }

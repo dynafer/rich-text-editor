@@ -1,19 +1,21 @@
+@import '_variable';
 @import '_mixin';
 
-.finer-editor {
+.#{$projectName} {
 	* {
 		box-sizing: border-box;
 	}
 
-	.finer-editor-toolbar {
+	@include setClass(toolbar) {
 		@include width(100%);
+		@include height(32px);
 		@include paddingAll(0.2rem);
 		background-color: #ececec;
-	
-		.finer-editor-icon {
+
+		@include setClass(icon) {
+			@include flex($inline: true);
 			@include paddingAll(0.3rem);
 			@include round(0.4rem);
-			display: inline-flex;
 			cursor: pointer;
 			border: none;
 
@@ -26,8 +28,47 @@
 			}
 		}
 	}
-	
-	.finer-editor-classic {
-		@include width(100%);
+
+	@include setClass(wrapper) {
+		@include position(relative);
+
+		@include setClass(notification) {
+			@include position(absolute, 0, 50%);
+			transform: translateX(-50%);
+			display: none;
+
+			&.show {
+				display: block;
+			}
+
+			@include setClass(notification-message) {
+				@include flex(space-between);
+				@include paddingAll(0.5rem);
+				@include round(0.5rem);
+				background-color: rgba(255, 250, 205, 0.7);
+				font-size: 1.15rem;
+
+				@include setClass(notification-message-text) {
+					@include padding(rem, $right: 0.5);
+				}
+
+				@include setClass(notification-message-icon) {
+					@include flex($inline: true);
+					@include round(0.4rem);
+					background: transparent;
+					cursor: pointer;
+					border: none;
+
+					svg {
+						@include square(1.15rem);
+					}
+				}
+			}
+		}
+
+		@include setClass(classic) {
+			@include width(100%);
+			border: 1px solid #ececec;;
+		}
 	}
 }

@@ -1,59 +1,65 @@
-import { Utils } from 'dynafer/utils';
-import { IConfiguration } from './Configuration';
-import EditorFrame, { IEditorFrame } from './EditorFrame';
+import { Utils, Type } from 'dynafer/utils';
+import { EModeEditor, IConfiguration } from 'finer/packages/Configuration';
+import EditorFrame, { IEditorFrame } from 'finer/packages/EditorFrame';
 import DOM, { IDom } from 'finer/packages/dom/DOM';
+import PluginLoader from 'finer/packages/loaders/PluginLoader';
+import { ENotificationStatus, INotificationManager, NotificationManager } from 'finer/packages/managers/NotificationManager';
+import Options from '../Options';
 
 class Editor {
-	public id: string;
-	public selector: HTMLElement;
-	public dom: IDom;
-	public mode: string;
-	public width: string;
-	public height: string;
-	public frame: IEditorFrame;
-	public plugins: string[];
-	public toolbars: string[];
+	public Id: string;
+	public Config: IConfiguration;
+	public DOM: IDom = DOM;
+	public Frame: IEditorFrame;
+	public Notification: INotificationManager;
 
 	public constructor(config: IConfiguration) {
-		this.id = Utils.CreateUEID();
-		this.selector = config.selector;
-		this.dom = DOM;
-		this.mode = config.mode;
-		this.width = config.width;
-		this.height = config.height;
-		this.plugins = config.plugins;
-		this.toolbars = config.toolbars;
+		this.Id = this.CreateUEID();
+		this.Config = config;
 
-		this.frame = EditorFrame(this);
+		this.Frame = EditorFrame(this);
+
+		this.Notification = NotificationManager(this);
 
 		this.render();
 	}
 
-	private render() {
-		DOM.SetStyle(this.selector, 'display', 'none');
-
-		this.loadPlugins();
-	}
-
-	private loadPlugins() {
-		for (const name of this.plugins) {
-			if (!finer.loaders.plugin.Has(name)) throw new Error(`Plugin: ${name} hasn't loaded`);
-
-			finer.managers.plugin.Load(this, name);
-		}
-	}
-
-	public AddToolbar() {
-
+	public AddToolbar(toolbar: HTMLElement) {
+		this.DOM.Insert(this.Frame.Toolbar, toolbar);
 	}
 
 	public GetModeTag() {
-		switch (this.mode) {
-			case 'inline':
+		switch (this.Config.Mode) {
+			case EModeEditor.inline:
 				return 'div';
-			case 'classic':
+			case EModeEditor.classic:
 			default:
 				return 'iframe';
+		}
+	}
+
+	public CreateUEID(id: string = '', addNumber: boolean = true): string {
+		id = Type.IsEmpty(id) ? Options.ProjectName : `${Options.ProjectName}-${id}`;
+		return Utils.CreateUEID(id, addNumber);
+	}
+
+	public Dispatch(type: ENotificationStatus, text: string) {
+		this.Notification.Dispatch(type, text);
+	}
+
+	private render() {
+		this.loadPlugins();
+
+		DOM.SetStyle(this.Config.Selector, 'display', 'none');
+	}
+
+	private loadPlugins() {
+		for (const name of this.Config.Plugins) {
+			if (!PluginLoader.Has(name)) {
+				this.Dispatch(ENotificationStatus.warning, `Plugin: ${name} hasn't loaded`);
+			}
+
+			finer.Managers.Plugin.Attach(this, name);
 		}
 	}
 }

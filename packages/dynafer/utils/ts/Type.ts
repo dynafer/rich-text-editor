@@ -22,6 +22,7 @@ export const IsString: (value: unknown) => value is string = isType('string');
 export const IsNumber: (value: unknown) => value is number = isType('number');
 export const IsArray: (value: unknown) => value is Array<unknown> = isType('array');
 export const IsObject: (value: unknown) => value is object = isType('object');
+
 export const IsElement: (value: unknown) => value is Element = isInstance(Element);
 
 export const IsEmpty: (value: unknown) => boolean = (value) => IsString(value) && value.length === 0;

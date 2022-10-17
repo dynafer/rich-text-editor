@@ -1,4 +1,5 @@
 @import '_function';
+@import '_variable';
 
 @mixin width($width: null, $min: null, $max: null) {
 	@if $width != null {
@@ -53,4 +54,44 @@
 
 @mixin round($size) {
 	border-radius: $size;
+}
+
+@mixin position($type, $top: null, $left: null, $bottom: null, $right: null) {
+	position: $type;
+	@if $top != null {
+		top: $top;
+	}
+	@if $left != null {
+		left: $left;
+	}
+	@if $bottom != null {
+		bottom: $bottom;
+	}
+	@if $right != null {
+		right: $right;
+	}
+}
+
+@mixin flex($justify: null, $align: null, $direction: null, $inline: false) {
+	@if $inline != false {
+		display: inline-flex;
+	} @else {
+		display: flex;
+	}
+
+	@if $justify != null {
+		justify-content: $justify;
+	}
+	@if $align != null {
+		align-items: $align;
+	}
+	@if $direction != null {
+		flex-direction: $direction;
+	}
+}
+
+@mixin setClass($name) {
+	.#{$projectName}-#{$name} {
+		@content;
+	}
 }

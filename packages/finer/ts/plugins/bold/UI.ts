@@ -1,15 +1,15 @@
-import { Utils } from 'dynafer/utils';
+import DOM from 'finer/packages/dom/DOM';
 import Editor from 'finer/packages/Editor';
 import { PLUGIN_NAME } from 'finer/plugins/bold/Constants';
-import Icon from './Icon.svg';
+import * as Icons from 'finer/packages/icons/Icons';
 
 export const UI = (editor: Editor) => {
-	if (!editor.toolbars.includes(PLUGIN_NAME)) return;
+	if (!editor.Config.Toolbars.includes(PLUGIN_NAME)) return;
 
-	const button: HTMLButtonElement = editor.dom.Create('button', {
-		class: Utils.CreateUEID('icon', false),
-		html: Icon
+	const button: HTMLButtonElement = DOM.Create('button', {
+		class: editor.CreateUEID('icon', false),
+		html: Icons.Bold
 	});
 
-	editor.dom.Insert(editor.frame.toolbar, button);
+	editor.AddToolbar(button);
 };
