@@ -1,6 +1,6 @@
 import { IConfiguration } from 'finer/packages/Configuration';
 import EditorDestroy from 'finer/packages/EditorDestroy';
-import { IEditorFrame } from 'finer/packages/EditorFrame';
+import EditorFrame, { IEditorFrame } from 'finer/packages/EditorFrame';
 import DOM from 'finer/packages/dom/DOM';
 import PluginLoader from 'finer/packages/loaders/PluginLoader';
 import { ENotificationStatus, INotificationManager, NotificationManager } from 'finer/packages/managers/NotificationManager';
@@ -17,11 +17,11 @@ class Editor {
 	public Notification: INotificationManager;
 	private mbDestroyed: boolean = false;
 
-	public constructor(config: IConfiguration, frame: IEditorFrame) {
+	public constructor(config: IConfiguration) {
 		this.Id = config.Id;
 		this.Config = config;
 
-		this.Frame = frame;
+		this.Frame = EditorFrame(config);
 		this.Notification = NotificationManager(this);
 
 		this.render()
