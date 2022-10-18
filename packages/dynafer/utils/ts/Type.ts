@@ -16,7 +16,7 @@ const getType = (value: unknown = undefined): string => {
 };
 
 const isType = <T>(type: string) => (value: unknown): value is T => getType(value) === type;
-const isInstance = <T>(type: IClassConstructor<T>) => (value: unknown): value is T => value instanceof type;
+const isInstance = <T>(instance: IClassConstructor<T>) => (value: unknown): value is T => value instanceof instance;
 
 export const IsString: (value: unknown) => value is string = isType('string');
 export const IsNumber: (value: unknown) => value is number = isType('number');
@@ -24,5 +24,7 @@ export const IsArray: (value: unknown) => value is Array<unknown> = isType('arra
 export const IsObject: (value: unknown) => value is object = isType('object');
 
 export const IsElement: (value: unknown) => value is Element = isInstance(Element);
+export const IsSameInstance = <T>(value: unknown, instance: IClassConstructor<T>): value is T =>
+	IsObject(value) && value instanceof instance;
 
 export const IsEmpty: (value: unknown) => boolean = (value) => IsString(value) && value.length === 0;

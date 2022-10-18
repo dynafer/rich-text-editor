@@ -7,7 +7,7 @@ type TPlugin = (editor: Editor) => void;
 
 export interface IPluginManager {
 	Add: (name: string, plugin: TPlugin) => void,
-	Attach: (editor: Editor, name: string) => Promise<void | string>,
+	Attach: (editor: Editor, name: string) => Promise<void>,
 }
 
 const PluginManager = (): IPluginManager => {
@@ -16,13 +16,13 @@ const PluginManager = (): IPluginManager => {
 		loaded[name] = plugin;
 	};
 
-	const Attach = (editor: Editor, name: string): Promise<void | string> => {
+	const Attach = (editor: Editor, name: string): Promise<void> => {
 		return new Promise((resolve) => {
 			try {
 				loaded[name](editor);
 				resolve();
 			} catch {
-				editor.Dispatch(ENotificationStatus.warning, `Plugin: ${name} runs inappropriately`);
+				editor.Notify(ENotificationStatus.warning, `Plugin: ${name} runs inappropriately`);
 				resolve();
 			}
 		});

@@ -7,7 +7,7 @@ export const UI = (editor: Editor) => {
 	if (!editor.Config.Toolbars.includes(PLUGIN_NAME)) return;
 
 	const button: HTMLButtonElement = DOM.Create('button', {
-		class: editor.CreateUEID('icon', false),
+		class: DOM.Utils.CreateUEID('icon', false),
 		html: Icons.Bold
 	});
 

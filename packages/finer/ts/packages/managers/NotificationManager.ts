@@ -20,16 +20,15 @@ const NotificationManager = (editor: Editor): INotificationManager => {
 	let status = ENotificationStatus.default;
 
 	const Show = () => {
-		if (notification.classList.contains('show')) return;
-		notification.classList.add('show');
+		DOM.Show(notification);
 	};
 
 	const Hide = () => {
-		if (!notification.classList.contains('show')) return;
-		notification.classList.remove('show');
+		DOM.Hide(notification);
 	};
 
 	const Dispatch = (type: ENotificationStatus, text: string) => {
+		if (editor.IsDestroyed()) return;
 		Show();
 
 		switch (type) {
@@ -38,7 +37,8 @@ const NotificationManager = (editor: Editor): INotificationManager => {
 				break;
 			case ENotificationStatus.error:
 				console.error(text);
-				break;
+				editor.Destroy();
+				return;
 			default:
 				break;
 		}
@@ -47,22 +47,22 @@ const NotificationManager = (editor: Editor): INotificationManager => {
 
 		const wrapper = DOM.Create('div', {
 			attrs: {
-				id: editor.CreateUEID('message')
+				id: DOM.Utils.CreateUEID('message')
 			},
 			class: [
-				editor.CreateUEID('notification-message', false),
-				editor.CreateUEID(`notification-message-${ENotificationStatus[type]}`, false)
+				DOM.Utils.CreateUEID('notification-message', false),
+				DOM.Utils.CreateUEID(`notification-message-${ENotificationStatus[type]}`, false)
 			],
 			children: [
 				DOM.Create('div', {
-					class: editor.CreateUEID('notification-message-text', false),
+					class: DOM.Utils.CreateUEID('notification-message-text', false),
 					html: text
 				})
 			]
 		});
 
 		const closeButton = DOM.Create('button', {
-			class: editor.CreateUEID('notification-message-icon', false),
+			class: DOM.Utils.CreateUEID('notification-message-icon', false),
 			html: Icons.Close
 		});
 

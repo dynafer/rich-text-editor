@@ -1,13 +1,11 @@
 import { Type } from 'dynafer/utils';
-
-export enum EModeEditor {
-	classic,
-	inline
-}
+import DOM from 'finer/packages/dom/DOM';
+import { EModeEditor } from '../Options';
 
 export type TConfiguration = HTMLElement | string[] | string;
 
 export interface IConfiguration {
+	Id: string,
 	Selector: HTMLElement,
 	Mode: EModeEditor,
 	Width: string,
@@ -21,10 +19,12 @@ const SetDefaultToConfig = (config: Record<string, TConfiguration>): IConfigurat
 		throw new Error('Configuration: selector of configuration must be provided');
 	}
 
+	const Id: string = DOM.Utils.CreateUEID();
+
 	const Selector: HTMLElement = config.selector as HTMLElement;
 
 	const mode: string = (config.mode as string ?? EModeEditor[EModeEditor.classic]).toLowerCase();
-	if (!EModeEditor[EModeEditor[mode]]) {
+	if (!Type.IsString(mode) || !EModeEditor[EModeEditor[mode]]) {
 		throw new Error(`Configuration: ${mode} mode doesn't exist`);
 	}
 
@@ -51,6 +51,7 @@ const SetDefaultToConfig = (config: Record<string, TConfiguration>): IConfigurat
 	}
 
 	const configuration: IConfiguration = {
+		Id,
 		Selector,
 		Mode,
 		Width,
