@@ -2,7 +2,9 @@
 @import '_mixin';
 
 .#{$projectName} {
-	* {
+	@include position(relative);
+
+	&, * {
 		box-sizing: border-box;
 	}
 
@@ -35,11 +37,6 @@
 		@include setClass(notification) {
 			@include position(absolute, 0, 50%);
 			transform: translateX(-50%);
-			display: none;
-
-			&.show {
-				display: block;
-			}
 
 			@include setClass(notification-message) {
 				@include flex(space-between);
@@ -55,6 +52,7 @@
 				@include setClass(notification-message-icon) {
 					@include flex($inline: true);
 					@include round(0.4rem);
+					@include padding($right: 0);
 					background: transparent;
 					cursor: pointer;
 					border: none;
@@ -70,5 +68,12 @@
 			@include width(100%);
 			border: 1px solid #ececec;;
 		}
+	}
+
+	@include setClass(loading) {
+		@include position(absolute, 0, 0);
+		@include square(100%);
+		@include flex(center, center);
+		background: rgba(255, 255, 255, 0.5);
 	}
 }

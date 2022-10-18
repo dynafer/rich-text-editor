@@ -1,3 +1,7 @@
+export enum EModeEditor {
+	classic,
+	inline
+}
 
 interface IOptions {
 	JoinUrl: (type: string, name: string) => string,
