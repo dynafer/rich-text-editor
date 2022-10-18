@@ -7,10 +7,10 @@ const Init = (config: Record<string, TConfiguration>): Promise<Editor> => {
 	return new Promise((resolve, reject) => {
 		const configuration: IConfiguration = SetDefaultToConfig(config);
 
-		const frame = EditorFrame(configuration);
-
 		PluginLoader.LoadParallel(configuration.Plugins)
 			.then(() => {
+				const frame = EditorFrame(configuration);
+		
 				const editor = new Editor(configuration, frame);
 				resolve(editor);
 			})
