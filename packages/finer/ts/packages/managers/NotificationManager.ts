@@ -67,12 +67,12 @@ const NotificationManager = (editor: Editor): INotificationManager => {
 		});
 
 		DOM.On(closeButton, 'click', () => {
-			DOM.Dispatch(wrapper, 'Close');
+			DOM.Dispatch(wrapper, 'Notification:Close');
 		});
 
 		DOM.Insert(wrapper, closeButton);
 
-		DOM.On(wrapper, 'Close', () => {
+		DOM.On(wrapper, 'Notification:Close', () => {
 			const index: number = stacks.indexOf(wrapper);
 			if (index !== -1) {
 				stacks.splice(index, 1);

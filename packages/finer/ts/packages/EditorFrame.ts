@@ -1,4 +1,3 @@
-import { Type } from 'dynafer/utils';
 import DOM from 'finer/packages/dom/DOM';
 import { IConfiguration } from 'finer/packages/Configuration';
 import * as Icons from 'finer/packages/icons/Icons';
@@ -77,10 +76,6 @@ const EditorFrame = (config: IConfiguration): IEditorFrame => {
 	DOM.Insert(Root, wrapper);
 	DOM.Insert(Root, Loading);
 	DOM.InsertAfter(config.Selector, Root);
-
-	if (Type.IsSameInstance(Container, HTMLIFrameElement)) {
-		DOM.SetAttr((Container.contentDocument as Document).body, 'contenteditable', 'true', true);
-	}
 
 	return {
 		Root,
