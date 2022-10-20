@@ -1,11 +1,12 @@
 import { Type } from 'dynafer/utils';
 import { IConfiguration } from 'finer/packages/Configuration';
 import EditorDestroy from 'finer/packages/EditorDestroy';
+import EditorSetup from 'finer/packages/EditorSetup';
 import EditorFrame, { IEditorFrame } from 'finer/packages/EditorFrame';
 import DOM, { IDom, TEventListener } from 'finer/packages/dom/DOM';
-import PluginLoader from 'finer/packages/loaders/PluginLoader';
-import { Caret } from 'finer/packages/caret/Caret';
+import { IEditorUtils } from 'finer/packages/editorUtils/EditorUtils';
 import { ENotificationStatus, INotificationManager, NotificationManager } from 'finer/packages/managers/NotificationManager';
+import { TEvent, TEventParameter } from 'finer/packages/editorUtils/EventUtils';
 
 enum ELoadingStatus {
 	show,
@@ -18,10 +19,10 @@ class Editor {
 	public Frame: IEditorFrame;
 	public Notification!: INotificationManager;
 	public DOM: IDom = DOM;
-	public Caret!: Caret;
+	public EditArea!: HTMLElement;
+	public Utils!: IEditorUtils;
 
 	private mbDestroyed: boolean = false;
-	private mbIframe: boolean = false;
 
 	public constructor(config: IConfiguration) {
 		this.Id = config.Id;
@@ -29,13 +30,9 @@ class Editor {
 		this.Frame = EditorFrame(config);
 		this.Notification = NotificationManager(this);
 
-		this.render()
-			.then(() => {
-				this.setLoading(ELoadingStatus.hide);
-			})
-			.catch(error => {
-				this.Notify(ENotificationStatus.error, error);
-			});
+		EditorSetup(this)
+			.then(() => this.setLoading(ELoadingStatus.hide))
+			.catch(error => this.Notify(ENotificationStatus.error, error));
 	}
 
 	public AddToolbar(toolbar: HTMLElement) {
@@ -47,14 +44,21 @@ class Editor {
 	}
 
 	public On<K extends keyof GlobalEventHandlersEventMap>(eventName: K, event: TEventListener<K>): void;
-	public On(eventName: string, event: EventListener) {
-		if (!DOM.Utils.NativeEvents.includes(eventName)) eventName = `Editor:${eventName}`;
-		this.DOM.On(this.GetBody(), eventName, event);
+	public On(eventName: string, event: EventListener | TEvent): void;
+	public On(eventName: string, event: EventListener | TEvent) {
+		if (!DOM.Utils.NativeEvents.includes(eventName)) {
+			this.Utils.Event.On(eventName, event as TEvent);
+		} else {
+			this.DOM.On(this.GetBody(), eventName, event);
+		}
 	}
 
-	public Dispatch(eventName: string) {
-		if (!DOM.Utils.NativeEvents.includes(eventName)) eventName = `Editor:${eventName}`;
-		this.DOM.Dispatch(this.GetBody(), eventName);
+	public Dispatch(eventName: string, ...params: TEventParameter[]) {
+		if (!DOM.Utils.NativeEvents.includes(eventName)) {
+			this.Utils.Event.Dispatch(eventName, ...params);
+		} else {
+			this.DOM.Dispatch(this.GetBody(), eventName);
+		}
 	}
 
 	public Destroy() {
@@ -66,8 +70,18 @@ class Editor {
 		return this.mbDestroyed;
 	}
 
+	public IsIFrame(): boolean {
+		return Type.IsInstance(this.Frame.Container, HTMLIFrameElement);
+	}
+
 	public GetBody(): HTMLElement {
-		return this.mbIframe ? this.DOM.Doc.body : this.Frame.Container;
+		return this.IsIFrame() ? this.DOM.Doc.body : this.Frame.Container;
+	}
+
+	public SetContent(html: string) {
+		if (Type.IsEmpty(html)) html = '<p><br></p>';
+		if (this.IsIFrame()) this.EditArea.innerHTML = html;
+		this.Dispatch('content:change');
 	}
 
 	private setLoading(status: ELoadingStatus) {
@@ -75,43 +89,6 @@ class Editor {
 			DOM.Hide(this.Frame.Loading);
 		else
 			DOM.Show(this.Frame.Loading);
-	}
-
-	private render(): Promise<void> {
-		return new Promise((resolve, reject) => {
-			if (Type.IsInstance(this.Frame.Container, HTMLIFrameElement)) {
-				this.mbIframe = true;
-				this.DOM = DOM.New(
-					this.Frame.Container.contentWindow as Window & typeof globalThis,
-					this.Frame.Container.contentDocument as Document
-				);
-
-				this.DOM.SetAttr(this.DOM.Doc.body, 'contenteditable', 'true');
-			}
-
-			this.Caret = new Caret(this);
-
-			const attachPlugins: Promise<void>[] = [];
-			for (const name of this.Config.Plugins) {
-				if (!PluginLoader.Has(name)) {
-					this.Notify(ENotificationStatus.warning, `Plugin '${name}' hasn't loaded.`);
-					continue;
-				}
-
-				attachPlugins.push(finer.Managers.Plugin.Attach(this, name));
-			}
-
-			DOM.Hide(this.Config.Selector);
-
-			Promise.all(attachPlugins)
-				.then(() => {
-					return resolve();
-				})
-				.catch(error => {
-					this.Notify(ENotificationStatus.error, error);
-					reject(error);
-				});
-		});
 	}
 }
 
