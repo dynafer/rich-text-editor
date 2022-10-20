@@ -11,5 +11,13 @@ export const UI = (editor: Editor) => {
 		html: Icons.Bold
 	});
 
+	DOM.On(button, 'click', () => {
+		if (DOM.HasClass(button, 'active')) {
+			DOM.RemoveClass(button, 'active');
+		} else {
+			DOM.AddClass(button, 'active');
+		}
+	});
+
 	editor.AddToolbar(button);
 };

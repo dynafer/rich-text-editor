@@ -1,4 +1,4 @@
-interface IClassConstructor<T> {
+export interface IClassConstructor<T> {
 	new (): T;
 	prototype: T;
 }

@@ -25,8 +25,12 @@
 				@include square(1rem);
 			}
 
+			&.active {
+				background-color: #c9c9c9;
+			}
+
 			&:hover {
-				background-color: rgba(255, 255, 255, 0.9);
+				background-color: #afafaf;
 			}
 		}
 	}
@@ -75,5 +79,16 @@
 		@include square(100%);
 		@include flex(center, center);
 		background: rgba(255, 255, 255, 0.5);
+	}
+}
+
+@include setClass(editor-body, true) {
+	overflow-wrap: break-word;
+	word-wrap: break-word;
+
+	* {
+		@include margin(rem, 1, $bottom: 1);
+		@include height($line: 1.4);
+		word-wrap: break-word;
 	}
 }

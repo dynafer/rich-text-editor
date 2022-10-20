@@ -47,6 +47,25 @@
 	padding: $size;
 }
 
+@mixin margin($type: px, $top: null, $right: null, $bottom: null, $left: null) {
+	@if $top != null {
+		margin-top: combineType($type, $top);
+	}
+	@if $right != null {
+		margin-right: combineType($type, $right);
+	}
+	@if $bottom != null {
+		margin-bottom: combineType($type, $bottom);
+	}
+	@if $left != null {
+		margin-left: combineType($type, $left);
+	}
+}
+
+@mixin marginAll($size) {
+	margin: $size;
+}
+
 @mixin square($size) {
 	@include width($size);
 	@include height($size);
@@ -90,8 +109,14 @@
 	}
 }
 
-@mixin setClass($name) {
-	.#{$projectName}-#{$name} {
-		@content;
+@mixin setClass($name, $isId: false) {
+	@if $isId == false {
+		.#{$projectName}-#{$name} {
+			@content;
+		}
+	} @else {
+		##{$projectName}-#{$name} {
+			@content;
+		}
 	}
 }

@@ -23,6 +23,9 @@ export interface IDom {
 	HasAttr: (selector: TElement, attr: string) => boolean,
 	RemoveAttr: (selector: TElement, attr: string) => void,
 	RemoveAttrs: (selector: TElement, attrs: string[]) => void,
+	AddClass: (selector: TElement, ...classes: string[]) => void,
+	HasClass: (selector: TElement, className: string) => boolean,
+	RemoveClass: (selector: TElement, ...classes: string[]) => void,
 	SetStyle: {
 		<K extends keyof CSSStyleDeclaration>(selector: HTMLElement | null, name: K, value: string): void;
 		(selector: HTMLElement | null, name: string, value: string): void;
@@ -99,6 +102,21 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 		}
 	};
 
+	const AddClass = (selector: TElement, ...classes: string[]) => {
+		if (!Type.IsInstance(selector, elementType)) return;
+		selector.classList.add(...classes);
+	};
+
+	const HasClass = (selector: TElement, className: string): boolean => {
+		if (!Type.IsInstance(selector, elementType)) return false;
+		return selector.classList.contains(className);
+	};
+
+	const RemoveClass = (selector:TElement, ...classes: string[]) => {
+		if (!Type.IsInstance(selector, elementType)) return;
+		selector.classList.remove(...classes);
+	};
+
 	const SetStyle = (selector: HTMLElement | null, name: string, value: string) => {
 		if (!Type.IsInstance(selector, elementType) || !Type.IsString(name) || !Type.IsString(value)) return;
 		selector.style[name] = value;
@@ -139,11 +157,14 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 		const parents: Node[] = [];
 		let currentParent: ParentNode | null = (selector as Node).parentNode;
 
+		if (HasAttr(currentParent, 'contenteditable')) return [];
+		parents.unshift(currentParent as Node);
+
 		while (Type.IsElement(currentParent)) {
 			if (!currentParent) break;
 			if (HasAttr(currentParent, 'contenteditable')) break;
 
-			parents.push(currentParent);
+			parents.unshift(currentParent);
 			currentParent = currentParent.parentNode;
 		}
 
@@ -180,7 +201,7 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 		if (option.styles && Type.IsObject(option.styles)) SetStyles(newElement, option.styles as Record<string, string>);
 
 		if (option.class && Type.IsString(option.class)) newElement.className = option.class as string;
-		else if (option.class && Type.IsArray(option.class)) newElement.classList.add(...option.class as string[]);
+		else if (option.class && Type.IsArray(option.class)) AddClass(newElement, ...option.class as string[]);
 
 		if (option.html && Type.IsString(option.html)) newElement.innerHTML = option.html;
 		if (option.children && Type.IsArray(option.children)) {
@@ -206,6 +227,9 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 		HasAttr,
 		RemoveAttr,
 		RemoveAttrs,
+		AddClass,
+		HasClass,
+		RemoveClass,
 		SetStyle,
 		SetStyles,
 		Insert,

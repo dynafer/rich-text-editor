@@ -15,7 +15,6 @@ export interface IDOMUtils {
 	NativeEvents: string[],
 	CreateUEID: (id?: string, addNumber?: boolean) => string,
 	GetModeTag: (mode: EModeEditor) => string,
-	GetLineNumber: (selector: Element) => number,
 }
 
 const DOMUtils = (): IDOMUtils => {
@@ -34,18 +33,10 @@ const DOMUtils = (): IDOMUtils => {
 		}
 	};
 
-	const GetLineNumber = (selector: Element): number => {
-		const parent: ParentNode | null = selector.parentNode;
-		if (!Type.IsElement(parent)) return 0;
-
-		return Array.from(parent.children).indexOf(parent);
-	};
-
 	return {
 		NativeEvents,
 		CreateUEID,
 		GetModeTag,
-		GetLineNumber,
 	};
 };
 

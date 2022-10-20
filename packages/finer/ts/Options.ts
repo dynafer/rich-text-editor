@@ -14,6 +14,7 @@ const Options = (): IOptions => {
 	const urlPrefix: string = '.';
 	const Urls: Record<string, string> = {
 		Prefix: urlPrefix,
+		Css: `${urlPrefix}`,
 		Plugin: `${urlPrefix}/plugins`
 	};
 
@@ -22,6 +23,9 @@ const Options = (): IOptions => {
 			case 'plugin':
 				if (!name.includes('.js')) name = `${name}/${name}.min.js`;
 				return `${Urls.Plugin}/${name}`;
+			case 'css':
+				if (!name.includes('.js')) name = `/${name}.min.css`;
+				return `${Urls.Css}/${name}`;
 			default:
 				return `${Urls.Prefix}/${name}`;
 		}
