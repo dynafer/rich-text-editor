@@ -2,15 +2,15 @@ const cache: Record<string, Record<string, number>> = {
 	UEID: {}
 };
 
-const CreateUEID = (id: string, addNumber: boolean = true): string => {
-	if (!addNumber) return id;
+const CreateUEID = (id: string, addNum: boolean = true): string => {
+	if (!addNum) return id;
 
-	const nextNumber = cache.UEID[id] ?? 0;
+	const nextNum = cache.UEID[id] ?? 0;
 
 	if (cache.UEID[id]) ++ cache.UEID[id];
 	else cache.UEID[id] = 1;
 
-	return `${id}-${nextNumber}`;
+	return `${id}-${nextNum}`;
 };
 
 export {

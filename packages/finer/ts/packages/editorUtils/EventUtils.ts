@@ -1,4 +1,4 @@
-export type TEventParameter = Event | string | number | KeyboardEvent;
+export type TEventParameter<T extends object = object> = Event | string | number | KeyboardEvent | T;
 export type TEvent = (...params: TEventParameter[]) => void;
 
 export interface IEventUtils {
@@ -13,7 +13,7 @@ const EventUtils = (): IEventUtils => {
 	const Has = (eventName: string): boolean => !!events[eventName];
 
 	const On = (eventName: string, event: TEvent) => {
-		if (!events[eventName]) events[eventName] = [];
+		if (!Has(eventName)) events[eventName] = [];
 
 		events[eventName].push(event);
 	};
@@ -33,4 +33,4 @@ const EventUtils = (): IEventUtils => {
 	};
 };
 
-export default EventUtils();
+export default EventUtils;
