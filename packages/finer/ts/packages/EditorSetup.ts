@@ -4,7 +4,7 @@ import DOM from 'finer/packages/dom/DOM';
 import PluginLoader from 'finer/packages/loaders/PluginLoader';
 import EditorUtils from 'finer/packages/editorUtils/EditorUtils';
 import { ENotificationStatus } from 'finer/packages/managers/NotificationManager';
-import Keyboard from 'finer/packages/keyboard/Keyboard';
+import EventSetup from 'finer/packages/events/EventSetup';
 import Options from '../Options';
 
 const EditorSetup = (editor: Editor): Promise<void> => {
@@ -34,7 +34,7 @@ const EditorSetup = (editor: Editor): Promise<void> => {
 		}
 
 		self.Utils = EditorUtils(self);
-		Keyboard(self);
+		EventSetup(self);
 
 		const attachPlugins: Promise<void>[] = [];
 		for (const name of self.Config.Plugins) {

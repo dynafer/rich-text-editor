@@ -1,5 +1,10 @@
 import Editor from 'finer/packages/Editor';
 
+interface ILineData {
+	Path: Node[],
+	Line: number
+}
+
 export interface ICaretData {
 	StartOffset: number,
 	EndOffset: number,
@@ -15,24 +20,18 @@ export interface ICaretData {
 	}
 }
 
-interface ILineData {
-	Path: Node[],
-	Line: number
+export interface ICaretUtils {
+	GetLine: (node: Node) => ILineData,
+	Get: () => ICaretData,
+	Set: (node: Node, offset?: number) => void,
 }
 
-class CaretUtils {
-	private selection: Selection;
-	private editor: Editor;
+const CaretUtils = (editor: Editor): ICaretUtils => {
+	let selection: Selection = editor.DOM.Win.getSelection() as Selection;
 
-	constructor(editor: Editor) {
-		this.editor = editor;
-
-		this.selection = this.editor.DOM.Win.getSelection() as Selection;
-	}
-
-	public GetLine(node: Node): ILineData {
-		const Path: Node[] = this.editor.DOM.GetParents(node);
-		const lines: Node[] = Array.from(this.editor.EditArea.childNodes);
+	const GetLine = (node: Node): ILineData => {
+		const Path: Node[] = editor.DOM.GetParents(node);
+		const lines: Node[] = Array.from(editor.EditArea.childNodes);
 
 		const Line: number = lines.indexOf(Path[0]);
 
@@ -40,15 +39,15 @@ class CaretUtils {
 			Path,
 			Line
 		};
-	}
+	};
 
-	public Get(): ICaretData {
-		this.selection = this.editor.DOM.Win.getSelection() as Selection;
+	const Get = (): ICaretData => {
+		selection = editor.DOM.Win.getSelection() as Selection;
 
-		const { anchorNode, anchorOffset, focusNode, focusOffset } = this.selection;
+		const { anchorNode, anchorOffset, focusNode, focusOffset } = selection;
 
-		const StartLineData = this.GetLine(anchorNode as Node);
-		const EndLineData = this.GetLine(focusNode as Node);
+		const StartLineData = GetLine(anchorNode as Node);
+		const EndLineData = GetLine(focusNode as Node);
 
 		return {
 			StartOffset: anchorOffset,
@@ -64,11 +63,17 @@ class CaretUtils {
 				Node: focusNode as Node
 			}
 		};
-	}
+	};
 
-	public Set(node: Node, offset?: number) {
-		this.editor.DOM.Win.getSelection()?.setPosition(node, offset);
-	}
-}
+	const Set = (node: Node, offset?: number) => {
+		editor.DOM.Win.getSelection()?.setPosition(node, offset);
+	};
+
+	return {
+		GetLine,
+		Get,
+		Set
+	};
+};
 
 export default CaretUtils;

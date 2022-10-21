@@ -26,6 +26,8 @@ export interface IDom {
 	AddClass: (selector: TElement, ...classes: string[]) => void,
 	HasClass: (selector: TElement, className: string) => boolean,
 	RemoveClass: (selector: TElement, ...classes: string[]) => void,
+	GetStyles: (selector: HTMLElement | null) => Record<string, string>,
+	GetStyle: (selector: HTMLElement | null, styleName: string) => string,
 	SetStyle: {
 		<K extends keyof CSSStyleDeclaration>(selector: HTMLElement | null, name: K, value: string): void;
 		(selector: HTMLElement | null, name: string, value: string): void;
@@ -62,6 +64,7 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 	const Win: Window & typeof globalThis = _win;
 	const Doc: Document = _doc;
 	const elementType = Win.Element;
+	const nodeType = Win.Node;
 
 	const New = (win: Window & typeof globalThis, doc: Document): IDom => {
 		return DOM(win, doc);
@@ -117,9 +120,33 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 		selector.classList.remove(...classes);
 	};
 
+	const GetStyles = (selector: HTMLElement | null): Record<string, string> => {
+		if (!Type.IsInstance(selector, elementType)) return {};
+
+		const styleList = selector.style.cssText.split(';');
+		const styleDict: Record<string, string> = {};
+		for (const style of styleList) {
+			const keyValue = style.split(':');
+			styleDict[Str.DashToCapital(keyValue[0])] = keyValue[1].trim();
+		}
+
+		return styleDict;
+	};
+
+	const GetStyle = (selector: HTMLElement | null, styleName: string): string => {
+		if (!Type.IsInstance(selector, elementType)) return '';
+
+		const styles = GetStyles(selector);
+
+		return styles[styleName] ?? '';
+	};
+
 	const SetStyle = (selector: HTMLElement | null, name: string, value: string) => {
 		if (!Type.IsInstance(selector, elementType) || !Type.IsString(name) || !Type.IsString(value)) return;
-		selector.style[name] = value;
+
+		const styleList = selector.style.cssText.split(';');
+		styleList.push(`${Str.CapitalToDash(name)}: ${value}`);
+		selector.style.cssText = styleList.join(';');
 	};
 
 	const SetStyles = (selector: HTMLElement | null, styles: Record<string, string>) => {
@@ -153,11 +180,13 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 	};
 
 	const GetParents = (selector: Node | null) => {
-		if (!Type.IsInstance(selector, elementType) || HasAttr(selector, 'contenteditable')) return [];
+		if (!Type.IsInstance(selector, nodeType) || HasAttr(selector, 'contenteditable')) return [];
 		const parents: Node[] = [];
 		let currentParent: ParentNode | null = (selector as Node).parentNode;
 
-		if (HasAttr(currentParent, 'contenteditable')) return [];
+		if (selector.nodeName !== '#text') parents.unshift(selector);
+
+		if (HasAttr(currentParent, 'contenteditable')) return parents;
 		parents.unshift(currentParent as Node);
 
 		while (Type.IsElement(currentParent)) {
@@ -230,6 +259,8 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 		AddClass,
 		HasClass,
 		RemoveClass,
+		GetStyles,
+		GetStyle,
 		SetStyle,
 		SetStyles,
 		Insert,
