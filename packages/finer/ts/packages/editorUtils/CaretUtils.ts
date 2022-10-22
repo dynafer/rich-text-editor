@@ -1,68 +1,74 @@
 import Editor from 'finer/packages/Editor';
 
 interface ILineData {
+	Node: Node,
+	Offset: number,
 	Path: Node[],
 	Line: number
 }
 
 export interface ICaretData {
-	StartOffset: number,
-	EndOffset: number,
-	Start: {
-		Path: Node[],
-		Line: number,
-		Node: Node
-	},
-	End: {
-		Path: Node[],
-		Line: number,
-		Node: Node
-	}
+	IsRange: boolean,
+	Start: ILineData,
+	End: ILineData,
+	IsSameLine: boolean,
+	SameRoot: Node,
 }
 
 export interface ICaretUtils {
-	GetLine: (node: Node) => ILineData,
-	Get: () => ICaretData,
+	Get: () => ICaretData[],
 	Set: (node: Node, offset?: number) => void,
 }
 
 const CaretUtils = (editor: Editor): ICaretUtils => {
+	let ranges: Range[] = [];
 	let selection: Selection = editor.DOM.Win.getSelection() as Selection;
 
-	const GetLine = (node: Node): ILineData => {
+	const setRanges = () => {
+		ranges = [];
+		for (let rangeIndex = 0; rangeIndex < selection.rangeCount; ++ rangeIndex) {
+			const range = selection.getRangeAt(rangeIndex);
+			if (range) ranges.push(range);
+		}
+	};
+
+	const getLine = (node: Node, offset: number): ILineData => {
 		const Path: Node[] = editor.DOM.GetParents(node);
-		const lines: Node[] = Array.from(editor.EditArea.childNodes);
+		const lines: Node[] = Array.from(editor.GetBody().childNodes);
 
 		const Line: number = lines.indexOf(Path[0]);
 
 		return {
+			Node: node,
+			Offset: offset,
 			Path,
-			Line
+			Line,
 		};
 	};
 
-	const Get = (): ICaretData => {
+	const Get = (): ICaretData[] => {
 		selection = editor.DOM.Win.getSelection() as Selection;
+		setRanges();
 
-		const { anchorNode, anchorOffset, focusNode, focusOffset } = selection;
+		const CaretData: ICaretData[] = [];
 
-		const StartLineData = GetLine(anchorNode as Node);
-		const EndLineData = GetLine(focusNode as Node);
+		for (const range of ranges) {
+			const IsRange = !range.collapsed;
+			const Start = getLine(range.startContainer, range.startOffset);
+			const End = getLine(range.endContainer, range.endOffset);
+			const IsSameLine = Start.Path[0] === End.Path[0];
+			const SameRoot = range.commonAncestorContainer;
 
-		return {
-			StartOffset: anchorOffset,
-			EndOffset: focusOffset,
-			Start: {
-				Path: StartLineData.Path,
-				Line: StartLineData.Line,
-				Node: anchorNode as Node
-			},
-			End: {
-				Path: EndLineData.Path,
-				Line: EndLineData.Line,
-				Node: focusNode as Node
-			}
-		};
+			CaretData.push({
+				IsRange,
+				Start,
+				End,
+				IsSameLine,
+				SameRoot,
+			});
+		}
+
+		return CaretData;
 	};
 
 	const Set = (node: Node, offset?: number) => {
@@ -70,7 +76,6 @@ const CaretUtils = (editor: Editor): ICaretUtils => {
 	};
 
 	return {
-		GetLine,
 		Get,
 		Set
 	};

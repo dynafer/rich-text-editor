@@ -2,30 +2,30 @@ import Editor from 'finer/packages/Editor';
 
 const ArrowUpEvent = (editor: Editor) => {
 	const self = editor;
-	const currentPosition = self.Utils.Caret.Get();
+	const carets = self.Utils.Caret.Get();
 
-	editor.Utils.Event.Dispatch('caret:change', 'key', currentPosition);
+	editor.Dispatch('caret:change', carets);
 };
 
 const ArrowDownEvent = (editor: Editor) => {
 	const self = editor;
-	const currentPosition = self.Utils.Caret.Get();
+	const carets = self.Utils.Caret.Get();
 
-	editor.Utils.Event.Dispatch('caret:change', 'key', currentPosition);
+	editor.Dispatch('caret:change', carets);
 };
 
 const ArrowLeftEvent = (editor: Editor) => {
 	const self = editor;
-	const currentPosition = self.Utils.Caret.Get();
+	const carets = self.Utils.Caret.Get();
 
-	editor.Utils.Event.Dispatch('caret:change', 'key', currentPosition);
+	editor.Dispatch('caret:change', carets);
 };
 
 const ArrowRightEvent = (editor: Editor) => {
 	const self = editor;
-	const currentPosition = self.Utils.Caret.Get();
+	const carets = self.Utils.Caret.Get();
 
-	editor.Utils.Event.Dispatch('caret:change', 'key', currentPosition);
+	editor.Dispatch('caret:change', carets);
 };
 
 export {

@@ -1,9 +1,10 @@
-import DOM from 'finer/packages/dom/DOM';
+import { Arr } from 'dynafer/utils';
 import Editor from 'finer/packages/Editor';
-import { PLUGIN_NAME } from 'finer/plugins/bold/Constants';
-import * as Icons from 'finer/packages/icons/Icons';
+import DOM from 'finer/packages/dom/DOM';
 import { ICaretData } from 'finer/packages/editorUtils/CaretUtils';
-import { TEvent } from 'finer/packages/editorUtils/EventUtils';
+import { IEvent } from 'finer/packages/editorUtils/EventUtils';
+import * as Icons from 'finer/packages/icons/Icons';
+import { ACTIVE, PLUGIN_NAME } from 'finer/plugins/bold/Constants';
 
 export const UI = (editor: Editor) => {
 	if (!editor.Config.Toolbars.includes(PLUGIN_NAME)) return;
@@ -13,39 +14,52 @@ export const UI = (editor: Editor) => {
 		html: Icons.Bold
 	});
 
-	const toggleTag = () => {
-		if (DOM.HasClass(button, 'active')) {
-			DOM.RemoveClass(button, 'active');
+	let bActive = false;
+
+	const setActive = () => {
+		bActive = true;
+		DOM.AddClass(button, ACTIVE);
+	};
+
+	const unsetActive = () => {
+		bActive = false;
+		DOM.RemoveClass(button, ACTIVE);
+	};
+
+	const applyPlugin = () => {
+		if (bActive) {
+			unsetActive();
 		} else {
-			DOM.AddClass(button, 'active');
+			setActive();
 		}
 
 		// fix me here...
 	};
 
 	DOM.On(button, 'click', () => {
-		toggleTag();
+		applyPlugin();
 	});
 
 	editor.AddToolbar(button);
 
-	const caretChangeEvent: TEvent = ((type: string, position: ICaretData) => {
-		if (!['key', 'mouse', 'touch'].includes(type)) return;
+	const caretChangeEvent = ((carets: ICaretData[]) => {
+		let mergedPath: Node[] = [];
 
-		for (const path of position.Start.Path) {
+		bActive = false;
+
+		for (const caret of carets) {
+			mergedPath = Arr.UniqueMerge(mergedPath, caret.Start.Path, caret.End.Path);
+		}
+
+		for (const path of mergedPath) {
 			if (editor.DOM.GetTagName(path) === 'strong') {
-				DOM.AddClass(button, 'active');
+				setActive();
 				break;
 			}
 		}
 
-		for (const path of position.End.Path) {
-			if (editor.DOM.GetTagName(path) === 'strong') {
-				DOM.AddClass(button, 'active');
-				break;
-			}
-		}
-	}) as TEvent;
+		if (!bActive) unsetActive();
+	}) as IEvent;
 
-	editor.Utils.Event.On('caret:change', caretChangeEvent);
+	editor.On('caret:change', caretChangeEvent);
 };

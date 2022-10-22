@@ -14,7 +14,7 @@ export interface IConfiguration {
 	Plugins: string[],
 }
 
-const SetDefaultToConfig = (config: Record<string, TConfiguration>): IConfiguration => {
+const Configure = (config: Record<string, TConfiguration>): IConfiguration => {
 	if (!config.selector || !Type.IsElement(config.selector)) {
 		throw new Error('Configuration: selector of configuration must be provided');
 	}
@@ -65,4 +65,4 @@ const SetDefaultToConfig = (config: Record<string, TConfiguration>): IConfigurat
 	return configuration;
 };
 
-export default SetDefaultToConfig;
+export default Configure;

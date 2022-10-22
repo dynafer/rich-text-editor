@@ -1,4 +1,4 @@
-import { Utils, Type } from 'dynafer/utils';
+import { Str, Utils } from 'dynafer/utils';
 import Options, { EModeEditor } from '../../Options';
 
 const NativeEvents: string[] = [
@@ -19,7 +19,7 @@ export interface IDOMUtils {
 
 const DOMUtils = (): IDOMUtils => {
 	const CreateUEID = (id: string = '', addNum: boolean = true): string => {
-		id = Type.IsEmpty(id) ? Options.ProjectName : `${Options.ProjectName}-${id}`;
+		id = Str.IsEmpty(id) ? Options.ProjectName : `${Options.ProjectName}-${id}`;
 		return Utils.CreateUEID(id, addNum);
 	};
 
