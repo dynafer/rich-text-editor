@@ -1,17 +1,15 @@
 import { Type } from 'dynafer/utils';
 import Editor from 'finer/packages/Editor';
 import DOM from 'finer/packages/dom/DOM';
-import PluginLoader from 'finer/packages/loaders/PluginLoader';
 import EditorUtils from 'finer/packages/editorUtils/EditorUtils';
-import { ENotificationStatus } from 'finer/packages/managers/NotificationManager';
 import EventSetup from 'finer/packages/events/EventSetup';
+import PluginLoader from 'finer/packages/loaders/PluginLoader';
+import { ENotificationStatus } from 'finer/packages/managers/NotificationManager';
 import Options from '../Options';
 
 const EditorSetup = (editor: Editor): Promise<void> => {
 	const self = editor;
 	return new Promise((resolve, reject) => {
-		self.EditArea = self.Frame.Container;
-
 		if (self.IsIFrame()) {
 			self.DOM = DOM.New(
 				(self.Frame.Container as HTMLIFrameElement).contentWindow as Window & typeof globalThis,
@@ -29,8 +27,6 @@ const EditorSetup = (editor: Editor): Promise<void> => {
 				id: DOM.Utils.CreateUEID('editor-body', false),
 				contenteditable: 'true'
 			});
-
-			self.EditArea = self.DOM.Doc.body;
 		}
 
 		self.Utils = EditorUtils(self);
@@ -59,6 +55,16 @@ const EditorSetup = (editor: Editor): Promise<void> => {
 				}
 
 				return resolve();
+			}).then(() => {
+				const events = editor.Utils.Event.Get();
+				for (const [key, eventList] of Object.entries(events)) {
+					if (!DOM.Utils.NativeEvents.includes(key)) continue;
+					editor.DOM.On(editor.GetBody(), key, (evt) => {
+						for (const event of eventList) {
+							event(evt);
+						}
+					});
+				}
 			})
 			.catch(error => {
 				self.Notify(ENotificationStatus.error, error);

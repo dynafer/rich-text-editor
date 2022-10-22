@@ -83,11 +83,12 @@
 }
 
 @include setClass(editor-body, true) {
+	@include marginAll(0.75rem);
 	overflow-wrap: break-word;
 	word-wrap: break-word;
 
 	* {
-		@include margin(rem, 1, $bottom: 1);
+		@include margin(rem, 0.75, $bottom: 0.75);
 		@include height($line: 1.4);
 		word-wrap: break-word;
 	}

@@ -1,5 +1,5 @@
+import { IConfiguration } from 'finer/packages/EditorConfigure';
 import DOM from 'finer/packages/dom/DOM';
-import { IConfiguration } from 'finer/packages/Configuration';
 import * as Icons from 'finer/packages/icons/Icons';
 import { EModeEditor } from '../Options';
 

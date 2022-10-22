@@ -1,6 +1,6 @@
 import '../../scss/Finer.scss';
 import PluginManager, { IPluginManager } from 'finer/packages/managers/PluginManager';
-import { TConfiguration } from 'finer/packages/Configuration';
+import { TConfiguration } from 'finer/packages/EditorConfigure';
 import Init from 'finer/packages/Init';
 import Editor from 'finer/packages/Editor';
 

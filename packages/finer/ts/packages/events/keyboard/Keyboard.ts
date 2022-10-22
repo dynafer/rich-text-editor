@@ -1,18 +1,20 @@
 import Editor from 'finer/packages/Editor';
-import EnterEvent from 'finer/packages/events/keyboard/Enter';
 import { ArrowUpEvent, ArrowDownEvent, ArrowLeftEvent, ArrowRightEvent } from 'finer/packages/events/keyboard/Arrows';
+import DefaultEvent from 'finer/packages/events/keyboard/Default';
+
+enum EKeyEventName {
+	keydown = 'keydown',
+	keyup = 'keyup',
+	keypress = 'keypress',
+}
 
 enum EKeyCode {
-	Enter = 'Enter',
 	ArrowUp = 'ArrowUp',
 	ArrowDown = 'ArrowDown',
 	ArrowLeft = 'ArrowLeft',
 	ArrowRight = 'ArrowRight',
-}
-
-enum EKeyEventName {
-	keydown = 'keydown',
-	keyup = 'keyup'
+	Backspace = 'Backspace',
+	Delete = 'Delete',
 }
 
 const Keyboard = (editor: Editor) => {
@@ -24,7 +26,10 @@ const Keyboard = (editor: Editor) => {
 		});
 	};
 
-	setup(EKeyEventName.keydown, EKeyCode.Enter, EnterEvent);
+	editor.On(EKeyEventName.keyup, (event: KeyboardEvent) => DefaultEvent(editor, event));
+	editor.On(EKeyEventName.keypress, (event: KeyboardEvent) => DefaultEvent(editor, event));
+	editor.On(EKeyEventName.keydown, (event: KeyboardEvent) => DefaultEvent(editor, event));
+
 	setup(EKeyEventName.keyup, EKeyCode.ArrowUp, ArrowUpEvent);
 	setup(EKeyEventName.keyup, EKeyCode.ArrowDown, ArrowDownEvent);
 	setup(EKeyEventName.keyup, EKeyCode.ArrowLeft, ArrowLeftEvent);

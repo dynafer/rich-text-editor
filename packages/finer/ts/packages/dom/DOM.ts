@@ -182,19 +182,14 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 	const GetParents = (selector: Node | null) => {
 		if (!Type.IsInstance(selector, nodeType) || HasAttr(selector, 'contenteditable')) return [];
 		const parents: Node[] = [];
-		let currentParent: ParentNode | null = (selector as Node).parentNode;
+		let parent: ParentNode | Node | null = selector;
 
 		if (selector.nodeName !== '#text') parents.unshift(selector);
 
-		if (HasAttr(currentParent, 'contenteditable')) return parents;
-		parents.unshift(currentParent as Node);
+		while (parent = parent.parentNode) {
+			if (!Type.IsInstance(selector, nodeType) || !parent || HasAttr(parent, 'contenteditable')) break;
 
-		while (Type.IsElement(currentParent)) {
-			if (!currentParent) break;
-			if (HasAttr(currentParent, 'contenteditable')) break;
-
-			parents.unshift(currentParent);
-			currentParent = currentParent.parentNode;
+			parents.unshift(parent);
 		}
 
 		return parents;
@@ -235,7 +230,7 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 		if (option.html && Type.IsString(option.html)) newElement.innerHTML = option.html;
 		if (option.children && Type.IsArray(option.children)) {
 			for (const child of option.children) {
-				if (!Type.IsElement(child)) continue;
+				if (!Type.IsInstance(child, elementType)) continue;
 				Insert(newElement, child);
 			}
 		}
