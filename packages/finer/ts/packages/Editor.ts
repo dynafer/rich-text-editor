@@ -56,11 +56,6 @@ class Editor {
 		}
 	}
 
-	public Destroy() {
-		this.mbDestroyed = true;
-		EditorDestroy.Destroy(this);
-	}
-
 	public IsDestroyed(): boolean {
 		return this.mbDestroyed;
 	}
@@ -73,8 +68,17 @@ class Editor {
 		return this.IsIFrame() ? this.DOM.Doc.body : this.Frame.Container;
 	}
 
+	public Focus() {
+		this.GetBody().focus();
+	}
+
 	public InitContent() {
 		this.GetBody().innerHTML = '<p><br></p>';
+	}
+
+	public Destroy() {
+		this.mbDestroyed = true;
+		EditorDestroy.Destroy(this);
 	}
 
 	public SetContent(html: string) {
