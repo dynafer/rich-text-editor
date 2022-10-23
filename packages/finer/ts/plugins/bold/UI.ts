@@ -1,7 +1,7 @@
-import Editor from 'finer/packages/Editor';
-import DOM from 'finer/packages/dom/DOM';
-import * as Icons from 'finer/packages/icons/Icons';
-import { PLUGIN_NAME } from 'finer/plugins/bold/Constants';
+import Editor from '../../packages/Editor';
+import DOM from '../../packages/dom/DOM';
+import * as Icons from '../../packages/icons/Icons';
+import { PLUGIN_NAME } from './Constants';
 
 export const UI = (editor: Editor): HTMLElement | undefined => {
 	if (!editor.Config.Toolbars.includes(PLUGIN_NAME)) return;

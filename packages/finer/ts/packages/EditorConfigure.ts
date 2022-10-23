@@ -1,5 +1,5 @@
-import { Type } from 'dynafer/utils';
-import DOM from 'finer/packages/dom/DOM';
+import { Type } from '@dynafer/utils';
+import DOM from './dom/DOM';
 import { EModeEditor } from '../Options';
 
 export type TConfiguration = HTMLElement | string[] | string;

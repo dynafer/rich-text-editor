@@ -14,22 +14,23 @@
 		"project": "**/tsconfig.json",
 		"sourceType": "module"
 	},
-	"ignorePatterns": ["*.js", "*.json"],
+	"ignorePatterns": ["*.js", "*.json", "packages/**/build/**/*.ts"],
 	"rules": {
 		"max-len": ["warn", { "code": 200, "tabWidth": 4 }],
+		"semi": [2, "always"],
 		"@typescript-eslint/indent": ["warn", "tab", {"SwitchCase": 1}],
 		"@typescript-eslint/no-namespace": "off",
 		"@typescript-eslint/no-inferrable-types": "off",
 		"@typescript-eslint/lines-between-class-members": "off",
-		"semi": [2, "always"],
 		"@typescript-eslint/no-implied-eval": "off",
 		"@typescript-eslint/comma-dangle": "off",
 		"@typescript-eslint/dot-notation": "off"
 	},
 	"plugins": ["import"],
 	"settings": {
+		"import/internal-regex": "@(dynafer)/.*",
 		"import/parsers": {
-		  "@typescript-eslint/parser": [".ts"]
+		  	"@typescript-eslint/parser": [".ts"]
 		},
 		"import/extensions": [".ts"],
 		"import/resolver": {

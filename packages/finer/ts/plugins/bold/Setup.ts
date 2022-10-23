@@ -1,21 +1,20 @@
-import { Arr } from 'dynafer/utils';
-import Editor from 'finer/packages/Editor';
-import DOM from 'finer/packages/dom/DOM';
-import { ICaretData } from 'finer/packages/editorUtils/CaretUtils';
-import { IEvent } from 'finer/packages/editorUtils/EventUtils';
-import { ACTIVE } from 'finer/plugins/bold/Constants';
+import { Arr } from '@dynafer/utils';
+import Editor from '../../packages/Editor';
+import { ICaretData } from '../../packages/editorUtils/CaretUtils';
+import { IEvent } from '../../packages/editorUtils/EventUtils';
+import { ACTIVE } from './Constants';
 
 const Setup = (editor: Editor, ui: HTMLElement) => {
 	let bActive = false;
 
 	const setActive = () => {
 		bActive = true;
-		DOM.AddClass(ui, ACTIVE);
+		editor.GetRootDOM().AddClass(ui, ACTIVE);
 	};
 
 	const unsetActive = () => {
 		bActive = false;
-		DOM.RemoveClass(ui, ACTIVE);
+		editor.GetRootDOM().RemoveClass(ui, ACTIVE);
 	};
 
 	const applyPlugin = () => {
@@ -28,7 +27,7 @@ const Setup = (editor: Editor, ui: HTMLElement) => {
 		// fix me here...
 	};
 
-	DOM.On(ui, 'click', () => {
+	editor.GetRootDOM().On(ui, 'click', () => {
 		applyPlugin();
 		editor.Focus();
 	});

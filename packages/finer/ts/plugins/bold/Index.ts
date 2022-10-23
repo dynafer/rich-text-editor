@@ -1,3 +1,3 @@
-import Plugin from 'finer/plugins/bold/Plugin';
+import Plugin from './Plugin';
 
 Plugin();

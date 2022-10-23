@@ -1,5 +1,5 @@
-import { Str } from 'dynafer/utils';
-import Editor from 'finer/packages/Editor';
+import { Str } from '@dynafer/utils';
+import Editor from '../../Editor';
 
 const DefaultEvent = (editor: Editor, event: KeyboardEvent) => {
 	const self = editor;

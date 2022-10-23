@@ -1,7 +1,7 @@
 node_modules
-.env
 .vscode
-package-lock.json
 *.map
 .rollup.cache
 build
+node-modules
+example

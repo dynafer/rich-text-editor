@@ -1,5 +1,5 @@
-import Editor from 'finer/packages/Editor';
-import MouseUpEvent from 'finer/packages/events/mouse/MouseUp';
+import Editor from '../../Editor';
+import MouseUpEvent from './MouseUp';
 
 enum EMouseEventName {
 	mouseup = 'mouseup'

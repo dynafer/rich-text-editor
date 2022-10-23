@@ -6,12 +6,15 @@
 			"finer/packages/*": ["packages/finer/ts/packages/*"],
 			"finer/plugins/*": ["packages/finer/ts/plugins/*"],
 
-			"dynafer/utils": ["packages/dynafer/utils/ts/Index"],
+			"dynafer/utils": ["packages/dynafer/utils/ts/Index"]
 		},
 	},
 	"include": [
-		"./packages/dynafer/**/*.ts",
-		"./packages/finer/**/*.ts",
-		"./packages/finer/packages/**/*.d.ts"
+		"packages/dynafer/**/*.ts",
+		"packages/finer/**/*.ts",
+		"packages/finer/**/*.d.ts"
+	],
+	"exclude": [
+		"packages/**/build/**/*.ts"
 	]
 }
