@@ -1,0 +1,23 @@
+{
+  "name": "@dynafer/utils",
+  "version": "0.0.1",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/finer-group/finer-editor.git",
+    "directory": "packages/dynafer/utils"
+  },
+  "author": "Dynafer",
+  "scripts": {
+    "prepublishOnly": "yarn run build",
+    "build": "tsc -b",
+    "lint": "eslint -c ../../../.eslintrc.json ts/*.ts"
+  },
+  "dependencies": {
+    "tslib": "^2.4.0"
+  },
+  "type": "module",
+  "main": "build/lib/Index.js",
+  "module": "build/lib/Index.js",
+  "types": "build/lib/Index.d.ts",
+  "license": "MIT"
+}
