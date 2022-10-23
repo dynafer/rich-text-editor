@@ -1,5 +1,5 @@
-import Editor from 'finer/packages/Editor';
-import { ENotificationStatus } from 'finer/packages/managers/NotificationManager';
+import Editor from '../Editor';
+import { ENotificationStatus } from './NotificationManager';
 
 const loaded: Record<string, TPlugin> = {};
 

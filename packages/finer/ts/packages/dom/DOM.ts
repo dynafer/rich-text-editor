@@ -1,5 +1,5 @@
-import { Str, Type } from 'dynafer/utils';
-import DOMUtils, { IDOMUtils } from 'finer/packages/dom/DOMUtils';
+import { Str, Type } from '@dynafer/utils';
+import DOMUtils, { IDOMUtils } from './DOMUtils';
 
 type TCreateOption = Record<string, string> | string[] | string | Element[];
 type TElement = Node | Element | null;

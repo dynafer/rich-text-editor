@@ -1,4 +1,4 @@
-import DOM from 'finer/packages/dom/DOM';
+import DOM from '../dom/DOM';
 import Options from '../../Options';
 
 const loaded: string[] = [];

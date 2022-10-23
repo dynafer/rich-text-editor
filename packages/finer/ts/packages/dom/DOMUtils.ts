@@ -1,4 +1,4 @@
-import { Str, Utils } from 'dynafer/utils';
+import { Str, Utils } from '@dynafer/utils';
 import Options, { EModeEditor } from '../../Options';
 
 const NativeEvents: string[] = [

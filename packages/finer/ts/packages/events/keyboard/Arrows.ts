@@ -1,4 +1,4 @@
-import Editor from 'finer/packages/Editor';
+import Editor from '../../Editor';
 
 const ArrowUpEvent = (editor: Editor) => {
 	const self = editor;

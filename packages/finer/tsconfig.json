@@ -4,15 +4,14 @@
 		{ "path": "../dynafer/utils" }
 	],
 	"compilerOptions": {
-		"strict": true,
-		"baseUrl": "../",
-		"outDir": "./build",
+		"baseUrl": ".",
+		"rootDir": "ts",
+		"outDir": "build/lib",
+		"tsBuildInfoFile": "build/tsconfig.tsbuildinfo",
 		"paths": {
 			"finer": ["finer/ts/Finer"],
-			"finer/packages/*": ["finer/ts/packages/*"],
-			"finer/plugins/*": ["finer/ts/plugins/*"],
-
-			"dynafer/utils": ["dynafer/utils/ts/Index"],
+			"finer/packages/*": ["ts/packages/*"],
+			"finer/plugins/*": ["ts/plugins/*"]
 		}
 	},
 	"include": [

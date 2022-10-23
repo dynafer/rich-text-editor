@@ -1,16 +1,20 @@
-import { Str, Type } from 'dynafer/utils';
-import { IConfiguration } from 'finer/packages/EditorConfigure';
-import EditorDestroy from 'finer/packages/EditorDestroy';
-import EditorFrame, { IEditorFrame } from 'finer/packages/EditorFrame';
-import EditorSetup from 'finer/packages/EditorSetup';
-import DOM, { IDom, TEventListener } from 'finer/packages/dom/DOM';
-import { IEditorUtils } from 'finer/packages/editorUtils/EditorUtils';
-import { IEvent } from 'finer/packages/editorUtils/EventUtils';
-import { ENotificationStatus, INotificationManager, NotificationManager } from 'finer/packages/managers/NotificationManager';
+import { Str, Type } from '@dynafer/utils';
+import Configure, { TConfiguration, IConfiguration } from './EditorConfigure';
+import EditorDestroy from './EditorDestroy';
+import EditorFrame, { IEditorFrame } from './EditorFrame';
+import EditorSetup from './EditorSetup';
+import DOM, { IDom, TEventListener } from './dom/DOM';
+import { IEditorUtils } from './editorUtils/EditorUtils';
+import { IEvent } from './editorUtils/EventUtils';
+import { ENotificationStatus, INotificationManager, NotificationManager } from './managers/NotificationManager';
 
 enum ELoadingStatus {
 	show,
 	hide
+}
+
+export interface IEditorConstructor {
+	new(config: Record<string, TConfiguration>): Editor;
 }
 
 class Editor {
@@ -23,10 +27,12 @@ class Editor {
 
 	private mbDestroyed: boolean = false;
 
-	public constructor(config: IConfiguration) {
-		this.Id = config.Id;
-		this.Config = config;
-		this.Frame = EditorFrame(config);
+	public constructor(config: Record<string, TConfiguration>) {
+		const configuration: IConfiguration = Configure(config);
+
+		this.Id = configuration.Id;
+		this.Config = configuration;
+		this.Frame = EditorFrame(configuration);
 		this.Notification = NotificationManager(this);
 
 		EditorSetup(this)
@@ -66,6 +72,10 @@ class Editor {
 
 	public GetBody(): HTMLElement {
 		return this.IsIFrame() ? this.DOM.Doc.body : this.Frame.Container;
+	}
+
+	public GetRootDOM(): IDom {
+		return DOM;
 	}
 
 	public Focus() {

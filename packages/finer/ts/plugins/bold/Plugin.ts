@@ -1,5 +1,5 @@
-import Editor from 'finer/packages/Editor';
-import { PLUGIN_NAME } from 'finer/plugins/bold/Constants';
+import Editor from '../../packages/Editor';
+import { PLUGIN_NAME } from './Constants';
 import Setup from './Setup';
 import { UI } from './UI';
 

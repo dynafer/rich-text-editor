@@ -1,6 +1,6 @@
-import Editor from 'finer/packages/Editor';
-import DOM from 'finer/packages/dom/DOM';
-import * as Icons from 'finer/packages/icons/Icons';
+import Editor from '../Editor';
+import DOM from '../dom/DOM';
+import * as Icons from '../icons/Icons';
 
 export enum ENotificationStatus {
 	default,

@@ -1,36 +1,41 @@
 {
-  "name": "finer_editor",
-  "version": "1.0.0",
+  "name": "root",
+  "version": "0.0.1",
+  "private": true,
+  "workspaces": [
+    "packages/**/*"
+  ],
   "devDependencies": {
-    "@rollup/plugin-typescript": "^8.5.0",
-    "@types/node": "^18.7.18",
-    "@typescript-eslint/eslint-plugin": "^5.38.0",
-    "@typescript-eslint/parser": "^5.38.0",
-    "dotenv": "^16.0.2",
+    "@rollup/plugin-node-resolve": "^15.0.1",
+    "@types/node": "^18.11.3",
+    "@typescript-eslint/eslint-plugin": "^5.40.1",
+    "@typescript-eslint/parser": "^5.40.1",
+    "eslint": "^8.26.0",
     "eslint-config-airbnb-typescript": "^17.0.0",
     "eslint-import-resolver-typescript": "^3.5.1",
     "eslint-plugin-import": "^2.26.0",
-    "node-sass": "^7.0.3",
+    "grunt": "^1.5.3",
+    "patch-package": "^6.4.7",
     "rollup": "^2.79.1",
     "rollup-plugin-inline-svg": "^3.0.3",
-    "rollup-plugin-scss": "^3.0.0",
     "rollup-plugin-terser": "^7.0.2",
+    "sass": "^1.55.0",
+    "tslib": "^2.4.0",
     "typescript": "^4.8.3"
   },
   "scripts": {
-    "pre-install": "sh ./scripts/pre-install.sh",
-    "build": "sh ./scripts/build.sh",
-    "watch": "sh ./scripts/check-pre-install.sh && rollup -c rollup.config.js -w --environment MODE:development",
-    "watch:plugin": "sh ./scripts/check-pre-install.sh && rollup -c rollup.plugin.config.js -w --environment MODE:development",
-    "update": "npx npm-check-updates && npm i",
+    "preinstall": "node -e \"if(!process.env.npm_execpath.includes('yarn')) throw new Error('You must use yarn')\"",
+    "postinstall": "patch-package",
+    "finer-rollup": "rollup -c rollup.config.js",
+    "build": "grunt --gruntfile Gruntfile.js",
     "lint": "eslint . --ext .ts"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/finer-group/finer-editor.git"
+    "url": "https://github.com/finer-group/finer-editor.git"
   },
   "keywords": [],
-  "author": "Haseong Kim",
+  "author": "Dynafer",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/finer-group/finer-editor/issues"

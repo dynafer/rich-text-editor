@@ -1,6 +1,6 @@
-import Editor from 'finer/packages/Editor';
-import CaretUtils, { ICaretUtils } from 'finer/packages/editorUtils/CaretUtils';
-import EventUtils, { IEventUtils } from 'finer/packages/editorUtils/EventUtils';
+import Editor from '../Editor';
+import CaretUtils, { ICaretUtils } from './CaretUtils';
+import EventUtils, { IEventUtils } from './EventUtils';
 
 export interface IEditorUtils {
 	Caret: ICaretUtils,

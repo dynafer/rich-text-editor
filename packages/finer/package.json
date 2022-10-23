@@ -1,0 +1,15 @@
+{
+  "name": "@finer/editor",
+  "version": "0.0.1",
+  "private": true,
+  "author": "Dynafer",
+  "scripts": {
+    "build": "tsc -b && node postbuild.js",
+    "lint": "eslint -c ../../.eslintrc.json ts/*.ts"
+  },
+  "dependencies": {
+    "@types/node": "^18.11.3",
+    "tslib": "^2.4.0"
+  },
+  "license": "MIT"
+}

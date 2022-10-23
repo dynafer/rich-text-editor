@@ -1,50 +1,66 @@
-import typescript from '@rollup/plugin-typescript';
+import { nodeResolve } from '@rollup/plugin-node-resolve';
 import { terser } from 'rollup-plugin-terser';
-import scss from 'rollup-plugin-scss';
 import InlineSvg from 'rollup-plugin-inline-svg';
 import path from 'path';
-import { run } from './rollup.hook';
-import { DeleteMapFiles, ESLINT_RUN_COMMAND, IS_DEVELOPMENT, INPUT_FILE_NAME, OUTPUT_FILE_NAME, OUTPUT_PATH, PACKAGE_PATH, USE_SCSS } from './rollup.shared';
-
-require('dotenv').config({ path: path.resolve(__dirname, './.env') });
+const { DeleteMapFiles, INPUT_NAME, IS_DEVELOPMENT, PROJECT_NAME, OUTPUT_PATH, PACKAGE_PATH, PLUGIN_NAMES } = require('./config.shared');
 
 if (!IS_DEVELOPMENT) DeleteMapFiles();
 
-if (IS_DEVELOPMENT) ROLLUP_PLUGINS.push(run(ESLINT_RUN_COMMAND));
-
-export default {
-	input: path.resolve(PACKAGE_PATH, `./finer/ts/${INPUT_FILE_NAME}.ts`),
-	output: [
-		{
-			file: path.resolve(OUTPUT_PATH, `./${OUTPUT_FILE_NAME}.js`),
-			format: 'iife',
-			name: 'finer',
-			sourcemap: IS_DEVELOPMENT
-		},
-		{
-			file: path.resolve(OUTPUT_PATH, `./${OUTPUT_FILE_NAME}.min.js`),
-			format: 'iife',
-			name: 'finer',
-			plugins: [terser()],
-			sourcemap: IS_DEVELOPMENT
-		},
-	],
-	plugins: [
-		InlineSvg(),
-		scss({
-			includePaths: [path.resolve(PACKAGE_PATH, './scss/')],
-			output: path.resolve(OUTPUT_PATH, `./${OUTPUT_FILE_NAME}.min.css`),
-			sourceMap: IS_DEVELOPMENT,
-			outputStyle: 'compressed',
-			failOnError: true,
-			watch: PACKAGE_PATH
-		}),
-		typescript({
-			tsconfig: path.resolve(__dirname, './tsconfig.json'),
-			outputToFilesystem: true,
-			compilerOptions: {
-				sourceMap: IS_DEVELOPMENT
-			}
-		})
-	]
+const outputOption = (filename, extension) => {
+	return {
+		file: path.resolve(OUTPUT_PATH, `./${filename}.${extension}`),
+		format: 'iife',
+		sourcemap: IS_DEVELOPMENT
+	}
 };
+
+const inputPath = path.resolve(PACKAGE_PATH, './finer/build/lib');
+
+const rollups = [
+	{
+		input: path.resolve(inputPath, `./${INPUT_NAME}.js`),
+		output: [
+			{
+				...outputOption(PROJECT_NAME, 'js'),
+				name: PROJECT_NAME
+			},
+			{
+				...outputOption(PROJECT_NAME, 'min.js'),
+				name: PROJECT_NAME,
+				plugins: [terser()]
+			},
+		],
+		plugins: [
+			nodeResolve(),
+			InlineSvg()
+		]
+	}
+];
+
+for (const name of PLUGIN_NAMES) {
+	if (name.includes('.d.ts')) continue;
+	rollups.push({
+		input: path.resolve(inputPath, `./plugins/${name}/Index.js`),
+		output: [
+			{
+				...outputOption(`plugins/${name}/${name}`, 'js'),
+				globals: {
+					finer: PROJECT_NAME
+				}
+			},
+			{
+				...outputOption(`plugins/${name}/${name}`, 'min.js'),
+				globals: {
+					finer: PROJECT_NAME
+				},
+				plugins: [terser()]
+			},
+		],
+		plugins: [
+			nodeResolve(),
+			InlineSvg()
+		]
+	});
+}
+
+export default rollups;

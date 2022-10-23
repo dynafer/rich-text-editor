@@ -1,6 +1,6 @@
-import Editor from 'finer/packages/Editor';
-import { ArrowUpEvent, ArrowDownEvent, ArrowLeftEvent, ArrowRightEvent } from 'finer/packages/events/keyboard/Arrows';
-import DefaultEvent from 'finer/packages/events/keyboard/Default';
+import Editor from '../../Editor';
+import { ArrowUpEvent, ArrowDownEvent, ArrowLeftEvent, ArrowRightEvent } from './Arrows';
+import DefaultEvent from './Default';
 
 enum EKeyEventName {
 	keydown = 'keydown',
