@@ -1,5 +1,5 @@
-import DOM from '../dom/DOM';
 import Options from '../../Options';
+import DOM from '../dom/DOM';
 
 const loaded: string[] = [];
 
@@ -38,7 +38,7 @@ const PluginLoader = (): IPluginLoader => {
 
 	const LoadParallel = (plugins: string[]): Promise<void> => {
 		return new Promise((resolve, reject) => {
-			const load: Promise<void | string>[] = [];
+			const load: Promise<void>[] = [];
 			for (const plugin of plugins) {
 				load.push(Load(plugin));
 			}

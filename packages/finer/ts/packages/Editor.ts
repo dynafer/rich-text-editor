@@ -1,5 +1,5 @@
-import { Str, Type } from '@dynafer/utils';
-import Configure, { TConfiguration, IConfiguration } from './EditorConfigure';
+import { Instance, Str } from '@dynafer/utils';
+import Configure, { IEditorOption, IConfiguration } from './EditorConfigure';
 import EditorDestroy from './EditorDestroy';
 import EditorFrame, { IEditorFrame } from './EditorFrame';
 import EditorSetup from './EditorSetup';
@@ -14,7 +14,7 @@ enum ELoadingStatus {
 }
 
 export interface IEditorConstructor {
-	new(config: Record<string, TConfiguration>): Editor;
+	new(config: IEditorOption): Editor;
 }
 
 class Editor {
@@ -27,7 +27,7 @@ class Editor {
 
 	private mbDestroyed: boolean = false;
 
-	public constructor(config: Record<string, TConfiguration>) {
+	public constructor(config: IEditorOption) {
 		const configuration: IConfiguration = Configure(config);
 
 		this.Id = configuration.Id;
@@ -37,7 +37,7 @@ class Editor {
 
 		EditorSetup(this)
 			.then(() => this.setLoading(ELoadingStatus.hide))
-			.catch(error => this.Notify(ENotificationStatus.error, error));
+			.catch(error => this.Notify(ENotificationStatus.error, error as string));
 	}
 
 	public AddToolbar(toolbar: HTMLElement) {
@@ -67,7 +67,7 @@ class Editor {
 	}
 
 	public IsIFrame(): boolean {
-		return Type.IsInstance(this.Frame.Container, HTMLIFrameElement);
+		return Instance.Is(this.Frame.Container, HTMLIFrameElement);
 	}
 
 	public GetBody(): HTMLElement {

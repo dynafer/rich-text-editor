@@ -24,7 +24,7 @@ const EventUtils = (): IEventUtils => {
 		if (!Has(eventName)) return;
 
 		for (const event of events[eventName]) {
-			(event as IEvent)(...params);
+			event(...params);
 		}
 	};
 

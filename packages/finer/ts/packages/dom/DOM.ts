@@ -1,4 +1,4 @@
-import { Str, Type } from '@dynafer/utils';
+import { Str, Type, Instance } from '@dynafer/utils';
 import DOMUtils, { IDOMUtils } from './DOMUtils';
 
 type TCreateOption = Record<string, string> | string[] | string | Element[];
@@ -71,57 +71,57 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 	};
 
 	const Select = (selector: string, parent?: TElement): HTMLElement | null =>
-		Type.IsInstance(parent, elementType) ? parent.querySelector(selector) : Doc.querySelector(selector);
+		Instance.Is(parent, elementType) ? parent.querySelector(selector) : Doc.querySelector(selector);
 
 	const SelectAll = (selector: string, parent?: TElement): HTMLElement[] =>
-		Array.from(Type.IsInstance(parent, elementType) ? parent.querySelectorAll(selector) : Doc.querySelectorAll(selector));
+		Array.from(Instance.Is(parent, elementType) ? parent.querySelectorAll(selector) : Doc.querySelectorAll(selector));
 
 	const SetAttr = (selector: TElement, attr: string, value: string) => {
-		if (!(Type.IsInstance(selector, elementType) && Type.IsString(attr) && Type.IsString(value))) return;
+		if (!Instance.Is(selector, elementType) || !Type.IsString(attr) || !Type.IsString(value)) return;
 		selector.setAttribute(Str.CapitalToDash(attr), value);
 	};
 
 	const SetAttrs = (selector: TElement, attrs: Record<string, string>) => {
-		if (!Type.IsInstance(selector, elementType)) return;
+		if (!Instance.Is(selector, elementType)) return;
 		for (const [attr, value] of Object.entries(attrs)) {
 			SetAttr(selector, attr, value);
 		}
 	};
 
 	const HasAttr = (selector: TElement, attr: string): boolean => {
-		if (!Type.IsInstance(selector, elementType)) return false;
+		if (!Instance.Is(selector, elementType)) return false;
 		return selector.hasAttribute(attr);
 	};
 
 	const RemoveAttr = (selector: TElement, attr: string) => {
-		if (!Type.IsInstance(selector, elementType) || !Type.IsString(attr)) return;
+		if (!Instance.Is(selector, elementType) || !Type.IsString(attr)) return;
 		selector.removeAttribute(Str.CapitalToDash(attr));
 	};
 
 	const RemoveAttrs = (selector: TElement, attrs: string[]) => {
-		if (!Type.IsInstance(selector, elementType)) return;
+		if (!Instance.Is(selector, elementType)) return;
 		for (const attr of attrs) {
 			RemoveAttr(selector, attr);
 		}
 	};
 
 	const AddClass = (selector: TElement, ...classes: string[]) => {
-		if (!Type.IsInstance(selector, elementType)) return;
+		if (!Instance.Is(selector, elementType)) return;
 		selector.classList.add(...classes);
 	};
 
 	const HasClass = (selector: TElement, className: string): boolean => {
-		if (!Type.IsInstance(selector, elementType)) return false;
+		if (!Instance.Is(selector, elementType)) return false;
 		return selector.classList.contains(className);
 	};
 
 	const RemoveClass = (selector:TElement, ...classes: string[]) => {
-		if (!Type.IsInstance(selector, elementType)) return;
+		if (!Instance.Is(selector, elementType)) return;
 		selector.classList.remove(...classes);
 	};
 
 	const GetStyles = (selector: HTMLElement | null): Record<string, string> => {
-		if (!Type.IsInstance(selector, elementType)) return {};
+		if (!Instance.Is(selector, elementType)) return {};
 
 		const styleList = selector.style.cssText.split(';');
 		const styleDict: Record<string, string> = {};
@@ -134,15 +134,15 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 	};
 
 	const GetStyle = (selector: HTMLElement | null, styleName: string): string => {
-		if (!Type.IsInstance(selector, elementType)) return '';
+		if (!Instance.Is(selector, elementType)) return '';
 
 		const styles = GetStyles(selector);
 
-		return styles[styleName] ?? '';
+		return styles[styleName];
 	};
 
 	const SetStyle = (selector: HTMLElement | null, name: string, value: string) => {
-		if (!Type.IsInstance(selector, elementType) || !Type.IsString(name) || !Type.IsString(value)) return;
+		if (!Instance.Is(selector, elementType) || !Type.IsString(name) || !Type.IsString(value)) return;
 
 		const styleList = selector.style.cssText.split(';');
 		styleList.push(`${Str.CapitalToDash(name)}: ${value}`);
@@ -150,14 +150,14 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 	};
 
 	const SetStyles = (selector: HTMLElement | null, styles: Record<string, string>) => {
-		if (!Type.IsInstance(selector, elementType)) return;
+		if (!Instance.Is(selector, elementType)) return;
 		for (const [name, value] of Object.entries(styles)) {
 			SetStyle(selector, name, value);
 		}
 	};
 
 	const Insert = (selector: TElement, insertion: TElement | string) => {
-		if (!Type.IsInstance(selector, elementType) || !(Type.IsElement(insertion) || Type.IsString(insertion))) return;
+		if (!Instance.Is(selector, elementType) || (!Instance.IsElement(insertion) && !Type.IsString(insertion))) return;
 
 		if (Type.IsString(insertion))
 			selector.insertAdjacentHTML('beforeend', insertion);
@@ -166,7 +166,7 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 	};
 
 	const InsertAfter = (selector: TElement, insertion: TElement | string) => {
-		if (!Type.IsInstance(selector, elementType) || !(Type.IsElement(insertion) || Type.IsString(insertion))) return;
+		if (!Instance.Is(selector, elementType) || (!Instance.IsElement(insertion) && !Type.IsString(insertion))) return;
 
 		if (Type.IsString(insertion))
 			selector.insertAdjacentHTML('afterend', insertion);
@@ -175,19 +175,19 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 	};
 
 	const GetTagName = (selector: TElement) => {
-		if (!Type.IsInstance(selector, elementType)) return '';
+		if (!Instance.Is(selector, elementType)) return '';
 		return selector.tagName.toLowerCase();
 	};
 
 	const GetParents = (selector: Node | null) => {
-		if (!Type.IsInstance(selector, nodeType) || HasAttr(selector, 'contenteditable')) return [];
+		if (!Instance.Is(selector, nodeType) || HasAttr(selector, 'contenteditable')) return [];
 		const parents: Node[] = [];
 		let parent: ParentNode | Node | null = selector;
 
 		if (selector.nodeName !== '#text') parents.unshift(selector);
 
 		while (parent = parent.parentNode) {
-			if (!Type.IsInstance(selector, nodeType) || !parent || HasAttr(parent, 'contenteditable')) break;
+			if (!Instance.Is(selector, nodeType) || !Instance.Is(parent, nodeType) || HasAttr(parent, 'contenteditable')) break;
 
 			parents.unshift(parent);
 		}
@@ -196,24 +196,24 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 	};
 
 	const On = (selector: TElement, eventName: string, event: EventListener) => {
-		if (!(Type.IsInstance(selector, elementType) && Type.IsString(eventName))) return;
+		if (!Instance.Is(selector, elementType) || !Type.IsString(eventName)) return;
 		selector.addEventListener(eventName, event);
 	};
 
 	const Dispatch = (selector: TElement, eventName: string) => {
-		if (!(Type.IsInstance(selector, elementType) && Type.IsString(eventName))) return;
+		if (!Instance.Is(selector, elementType) || !Type.IsString(eventName)) return;
 		const customEvent = new CustomEvent(eventName);
 
 		selector.dispatchEvent(customEvent);
 	};
 
 	const Show = (selector: HTMLElement, displayType: string = 'block') => {
-		if (!Type.IsInstance(selector, elementType) || !Type.IsString(displayType)) return;
+		if (!Instance.Is(selector, elementType) || !Type.IsString(displayType)) return;
 		SetStyle(selector, 'display', displayType);
 	};
 
 	const Hide = (selector: HTMLElement) => {
-		if (!Type.IsInstance(selector, elementType)) return;
+		if (!Instance.Is(selector, elementType)) return;
 		SetStyle(selector, 'display', 'none');
 	};
 
@@ -224,13 +224,13 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 		if (option.attrs && Type.IsObject(option.attrs)) SetAttrs(newElement, option.attrs as Record<string, string>);
 		if (option.styles && Type.IsObject(option.styles)) SetStyles(newElement, option.styles as Record<string, string>);
 
-		if (option.class && Type.IsString(option.class)) newElement.className = option.class as string;
+		if (option.class && Type.IsString(option.class)) newElement.className = option.class;
 		else if (option.class && Type.IsArray(option.class)) AddClass(newElement, ...option.class as string[]);
 
 		if (option.html && Type.IsString(option.html)) newElement.innerHTML = option.html;
 		if (option.children && Type.IsArray(option.children)) {
 			for (const child of option.children) {
-				if (!Type.IsInstance(child, elementType)) continue;
+				if (!Instance.Is(child, elementType)) continue;
 				Insert(newElement, child);
 			}
 		}

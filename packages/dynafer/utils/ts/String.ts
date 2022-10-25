@@ -13,5 +13,5 @@ export const CapitalToDash = (value: string): string => {
 export const DashToCapital = (value: string): string => {
 	if (!IsString(value) || IsEmpty(value) || !regCapital.test(value)) return value;
 
-	return value.trim().replace(regCapital, (str) => value.at(0) === str ? str.toLowerCase() : `-${str.toLowerCase()}`);
+	return value.trim().replace(regCapital, (str) => value.startsWith(str) ? str.toLowerCase() : `-${str.toLowerCase()}`);
 };

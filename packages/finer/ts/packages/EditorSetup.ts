@@ -1,11 +1,11 @@
-import { Type } from '@dynafer/utils';
+import { Instance } from '@dynafer/utils';
+import Options from '../Options';
 import Editor from './Editor';
 import DOM from './dom/DOM';
 import EditorUtils from './editorUtils/EditorUtils';
 import EventSetup from './events/EventSetup';
 import PluginLoader from './loaders/PluginLoader';
 import { ENotificationStatus } from './managers/NotificationManager';
-import Options from '../Options';
 
 const AttachPlugin = (editor: Editor): Promise<void> => {
 	const self = editor;
@@ -25,7 +25,7 @@ const AttachPlugin = (editor: Editor): Promise<void> => {
 	
 		Promise.all(attachPlugins)
 			.then(() => {
-				if (Type.IsInstance(self.Config.Selector, HTMLTextAreaElement)) {
+				if (Instance.Is(self.Config.Selector, HTMLTextAreaElement)) {
 					self.SetContent(self.Config.Selector.value);
 					self.Config.Selector.value = '';
 				} else {
@@ -46,7 +46,7 @@ const AttachPlugin = (editor: Editor): Promise<void> => {
 				}
 			})
 			.catch(error => {
-				self.Notify(ENotificationStatus.error, error);
+				self.Notify(ENotificationStatus.error, error as string);
 				reject(error);
 			});
 	});
@@ -58,7 +58,7 @@ const EditorSetup = (editor: Editor): Promise<void> => {
 		if (self.IsIFrame()) {
 			self.DOM = DOM.New(
 				(self.Frame.Container as HTMLIFrameElement).contentWindow as Window & typeof globalThis,
-				(self.Frame.Container as HTMLIFrameElement).contentDocument as Document
+				(self.Frame.Container as HTMLIFrameElement).contentDocument ?? document
 			);
 
 			self.DOM.Insert(self.DOM.Doc.head, DOM.Create('link', {

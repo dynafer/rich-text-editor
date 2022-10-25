@@ -1,22 +1,22 @@
 const fs = require('fs');
 const path = require('path');
 
-const OUTPUT_PATH = path.resolve(__dirname, './build');
+const OUTPUT_PATH = './build';
 const IS_DEVELOPMENT = process.env.MODE === 'development';
 const PROJECT_NAME = 'finer';
 
 const INPUT_NAME = PROJECT_NAME.split('').reduce((pre, cur, index) => `${index === 1 ? pre.toUpperCase() : pre}${cur}`);
 
-const PACKAGE_PATH = path.resolve(__dirname, './packages');
-const PLUGIN_NAMES = fs.readdirSync(path.resolve(PACKAGE_PATH, './finer/ts/plugins'));
+const PACKAGE_PATH = './packages';
+const PLUGIN_NAMES = fs.readdirSync(path.join(PACKAGE_PATH, './finer/ts/plugins'));
 
-const SCSS_PATH = path.resolve(PACKAGE_PATH, './scss');
+const SCSS_PATH = path.join(PACKAGE_PATH, './scss');
 
 const DeleteMapFile = (extenstion, name = '') => {
-	const dirPath = name !== '' ? path.resolve(OUTPUT_PATH, './plugins') : OUTPUT_PATH;
+	const dirPath = name !== '' ? path.join(OUTPUT_PATH, './plugins') : OUTPUT_PATH;
 	const fileName = name !== '' ? `${name}/${name}` : PROJECT_NAME;
 	const filePath = `./${fileName}.${extenstion}.map`;
-	const realPath = path.resolve(dirPath, filePath);
+	const realPath = path.join(dirPath, filePath);
 
 	if (fs.existsSync(realPath)) fs.unlinkSync(realPath);
 };

@@ -1,6 +1,6 @@
 {
   "name": "@dynafer/utils",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "repository": {
     "type": "git",
     "url": "https://github.com/finer-group/finer-editor.git",
@@ -19,5 +19,8 @@
   "main": "build/lib/Index.js",
   "module": "build/lib/Index.js",
   "types": "build/lib/Index.d.ts",
+  "publishConfig": {
+    "access": "public"
+  },
   "license": "MIT"
 }

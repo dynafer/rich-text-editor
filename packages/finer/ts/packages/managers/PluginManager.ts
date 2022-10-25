@@ -1,3 +1,4 @@
+import { Type } from '@dynafer/utils';
 import Editor from '../Editor';
 import { ENotificationStatus } from './NotificationManager';
 
@@ -12,7 +13,7 @@ export interface IPluginManager {
 
 const PluginManager = (): IPluginManager => {
 	const Add = (name: string, plugin: TPlugin) => {
-		if (loaded[name]) return;
+		if (Type.IsFunction(loaded[name])) return;
 		loaded[name] = plugin;
 	};
 
