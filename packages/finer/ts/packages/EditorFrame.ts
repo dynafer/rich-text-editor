@@ -1,7 +1,7 @@
+import { EModeEditor } from '../Options';
 import { IConfiguration } from './EditorConfigure';
 import DOM from './dom/DOM';
 import * as Icons from './icons/Icons';
-import { EModeEditor } from '../Options';
 
 export interface IEditorFrame {
 	Root: HTMLElement,

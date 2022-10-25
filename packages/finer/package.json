@@ -1,5 +1,5 @@
 {
-  "name": "@finer/editor",
+  "name": "@finer-group/editor",
   "version": "0.0.1",
   "private": true,
   "author": "Dynafer",
@@ -8,7 +8,7 @@
     "lint": "eslint -c ../../.eslintrc.json ts/*.ts"
   },
   "dependencies": {
-    "@types/node": "^18.11.3",
+    "@types/node": "^18.11.4",
     "tslib": "^2.4.0"
   },
   "license": "MIT"

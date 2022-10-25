@@ -22,13 +22,14 @@ export interface ICaretUtils {
 
 const CaretUtils = (editor: Editor): ICaretUtils => {
 	let ranges: Range[] = [];
-	let selection: Selection = editor.DOM.Win.getSelection() as Selection;
+	let selection: Selection | null = editor.DOM.Win.getSelection();
 
 	const setRanges = () => {
 		ranges = [];
+		if (!selection) return;
 		for (let rangeIndex = 0; rangeIndex < selection.rangeCount; ++ rangeIndex) {
 			const range = selection.getRangeAt(rangeIndex);
-			if (range) ranges.push(range);
+			ranges.push(range);
 		}
 	};
 
@@ -47,7 +48,7 @@ const CaretUtils = (editor: Editor): ICaretUtils => {
 	};
 
 	const Get = (): ICaretData[] => {
-		selection = editor.DOM.Win.getSelection() as Selection;
+		selection = editor.DOM.Win.getSelection();
 		setRanges();
 
 		const CaretData: ICaretData[] = [];

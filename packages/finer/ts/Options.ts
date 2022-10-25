@@ -11,8 +11,8 @@ for (const loadedScript of document.head.querySelectorAll('script')) {
 }
 
 export enum EModeEditor {
-	classic,
-	inline
+	classic = 'classic',
+	inline = 'inline',
 }
 
 interface IOptions {

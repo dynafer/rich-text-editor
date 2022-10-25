@@ -1,8 +1,15 @@
-import { Type } from '@dynafer/utils';
-import DOM from './dom/DOM';
+import { Instance, Type } from '@dynafer/utils';
 import { EModeEditor } from '../Options';
+import DOM from './dom/DOM';
 
-export type TConfiguration = HTMLElement | string[] | string;
+export interface IEditorOption {
+	selector?: HTMLElement,
+	mode?: string,
+	width?: string,
+	height?: string,
+	plugins?: string[],
+	toolbars?: string[]
+}
 
 export interface IConfiguration {
 	Id: string,
@@ -11,35 +18,35 @@ export interface IConfiguration {
 	Width: string,
 	Height: string,
 	Toolbars: string[],
-	Plugins: string[],
+	Plugins: string[]
 }
 
-const Configure = (config: Record<string, TConfiguration>): IConfiguration => {
-	if (!config.selector || !Type.IsElement(config.selector)) {
+const Configure = (config: IEditorOption): IConfiguration => {
+	if (!config.selector || !Instance.IsElement(config.selector)) {
 		throw new Error('Configuration: selector of configuration must be provided');
 	}
 
 	const Id: string = DOM.Utils.CreateUEID();
 
-	const Selector: HTMLElement = config.selector as HTMLElement;
+	const Selector: HTMLElement = config.selector;
 
-	const mode: string = (config.mode as string ?? EModeEditor[EModeEditor.classic]).toLowerCase();
-	if (!Type.IsString(mode) || !EModeEditor[EModeEditor[mode]]) {
+	const mode: string = (config.mode ?? EModeEditor.classic).toLowerCase();
+	if (!Type.IsString(mode) || !EModeEditor[mode]) {
 		throw new Error(`Configuration: ${mode} mode doesn't exist`);
 	}
 
-	const Mode = EModeEditor[mode];
+	const Mode: EModeEditor = EModeEditor[mode] as EModeEditor;
 
-	const Width: string = config.width as string ?? '100%';
+	const Width: string = config.width ?? '100%';
 	const defaultHeight: string = Mode === EModeEditor.classic ? '400px' : 'auto';
-	const Height: string = config.height as string ?? defaultHeight;
+	const Height: string = config.height ?? defaultHeight;
 
-	const Plugins: string[] = config.plugins as string[] ?? [];
+	const Plugins: string[] = config.plugins ?? [];
 	if (!Type.IsArray(Plugins)) {
 		throw new Error('Configuration: Plugins of configuration must be array');
 	}
 
-	const Toolbars: string[] = config.toolbars as string[] ?? [];
+	const Toolbars: string[] = config.toolbars ?? [];
 	if (!Type.IsArray(Toolbars)) {
 		throw new Error('Configuration: Toolbars of configuration must be array');
 	}
