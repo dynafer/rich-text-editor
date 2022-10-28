@@ -1,17 +1,16 @@
-const { Builder } = require('@dynafer/builder-tool');
 const { nodeResolve } = require('@rollup/plugin-node-resolve');
 const fs = require('fs');
 const path = require('path');
 const { terser } = require('rollup-plugin-terser');
 const InlineSvg = require('rollup-plugin-inline-svg');
-const { DeleteMapFiles, INPUT_NAME, IS_DEVELOPMENT, OUTPUT_PATH, PACKAGE_PATH, PLUGIN_NAMES, PROJECT_NAME, SCSS_PATH } = require('./config.shared');
+const { DeleteMapFiles, INPUT_NAME, OUTPUT_PATH, PACKAGE_PATH, PLUGIN_NAMES, PROJECT_NAME, SCSS_PATH } = require('./config.setting');
 
-async function run() {
-	const builder = Builder();
-	const Command = builder.Runner.Command;
-	const Rollup = builder.Runner.Rollup;
-	const Sass = builder.Runner.Sass;
-	const Task = builder.Runner.Task;
+module.exports = async function run(runner, config) {
+	const Command = runner.Command;
+	const Rollup = runner.Rollup;
+	const Sass = runner.Sass;
+	const Task = runner.Task;
+	const bIsDevelopment = config.Mode === 'development';
 
 	await Task.Run(async () => {
 		if (!fs.existsSync(OUTPUT_PATH)) fs.mkdirSync(OUTPUT_PATH);
@@ -77,13 +76,13 @@ async function run() {
 
 	await Sass.Run(sassList);
 
-	if (!IS_DEVELOPMENT) DeleteMapFiles();
+	if (!bIsDevelopment) DeleteMapFiles();
 
 	const outputOption = (filename, extension) => {
 		return {
 			file: path.resolve(OUTPUT_PATH, `./${filename}.${extension}`),
 			format: 'iife',
-			sourcemap: IS_DEVELOPMENT
+			sourcemap: bIsDevelopment
 		}
 	};
 
@@ -144,5 +143,3 @@ async function run() {
 
 	await Rollup.Run();
 }
-
-run();

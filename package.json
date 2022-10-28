@@ -6,13 +6,13 @@
     "packages/**/*"
   ],
   "devDependencies": {
-    "@dynafer/builder-tool": "^0.0.4",
-    "@finer-group/eslint-plugin": "^0.0.3",
+    "@dynafer/builder-tool": "^0.1.4",
+    "@finer-group/eslint-plugin": "^0.0.4",
     "@rollup/plugin-node-resolve": "^15.0.1",
     "@types/node": "^18.11.4",
     "eslint": "^8.26.0",
-    "eslint-import-resolver-typescript": "^3.5.1",
     "patch-package": "^6.4.7",
+    "rollup": "^3.2.3",
     "rollup-plugin-inline-svg": "^3.0.3",
     "rollup-plugin-terser": "^7.0.2",
     "tslib": "^2.4.0",
@@ -21,7 +21,8 @@
   "scripts": {
     "preinstall": "node -e \"if(!process.env.npm_execpath.includes('yarn')) throw new Error('You must use yarn')\"",
     "postinstall": "patch-package",
-    "build": "node builder.tool.js",
+    "build": "builder-tool",
+    "watch": "builder-tool -w ./packages",
     "lint": "eslint . --ext .ts"
   },
   "repository": {
