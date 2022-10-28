@@ -7,9 +7,6 @@
 		"project": "**/tsconfig.json",
 		"sourceType": "module"
 	},
-	"rules": {
-		"@typescript-eslint/no-unsafe-assignment": "off"
-	},
 	"settings": {
 		"import/parsers": {
 		  	"@typescript-eslint/parser": [".ts"]

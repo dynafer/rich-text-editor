@@ -2,7 +2,6 @@ const fs = require('fs');
 const path = require('path');
 
 const OUTPUT_PATH = './build';
-const IS_DEVELOPMENT = process.env.MODE === 'development';
 const PROJECT_NAME = 'finer';
 
 const INPUT_NAME = PROJECT_NAME.split('').reduce((pre, cur, index) => `${index === 1 ? pre.toUpperCase() : pre}${cur}`);
@@ -35,7 +34,6 @@ const DeleteMapFiles = () => {
 module.exports = {
 	DeleteMapFiles,
 	INPUT_NAME,
-	IS_DEVELOPMENT,
 	OUTPUT_PATH,
 	PACKAGE_PATH,
 	PLUGIN_NAMES,
