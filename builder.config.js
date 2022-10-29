@@ -1,11 +1,10 @@
 const { nodeResolve } = require('@rollup/plugin-node-resolve');
 const fs = require('fs');
 const path = require('path');
-const { terser } = require('rollup-plugin-terser');
 const InlineSvg = require('rollup-plugin-inline-svg');
 const { DeleteMapFiles, INPUT_NAME, OUTPUT_PATH, PACKAGE_PATH, PLUGIN_NAMES, PROJECT_NAME, SCSS_PATH } = require('./config.setting');
 
-module.exports = async function run(runner, config) {
+module.exports = async (runner, config) => {
 	const Command = runner.Command;
 	const Rollup = runner.Rollup;
 	const Sass = runner.Sass;
@@ -20,7 +19,7 @@ module.exports = async function run(runner, config) {
 	const commandSettings = [];
 	const commandRegister = (dirPath) => {
 		commandSettings.push({
-			workDir: dirPath,
+			cd: dirPath,
 			command: 'yarn run build'
 		});
 	};
@@ -45,7 +44,7 @@ module.exports = async function run(runner, config) {
 	await Command.Run(commandSettings);
 
 	await Command.Run({
-		workDir: path.join(PACKAGE_PATH, `./${PROJECT_NAME}`),
+		cd: path.join(PACKAGE_PATH, `./${PROJECT_NAME}`),
 		command: 'yarn run build'
 	});
 
@@ -78,10 +77,11 @@ module.exports = async function run(runner, config) {
 
 	if (!bIsDevelopment) DeleteMapFiles();
 
-	const outputOption = (filename, extension) => {
+	const outputOption = (filename) => {
 		return {
-			file: path.resolve(OUTPUT_PATH, `./${filename}.${extension}`),
+			file: path.resolve(OUTPUT_PATH, `./${filename}.js`),
 			format: 'iife',
+			createUglified: true,
 			sourcemap: bIsDevelopment
 		}
 	};
@@ -93,13 +93,8 @@ module.exports = async function run(runner, config) {
 			input: path.resolve(inputPath, `./${INPUT_NAME}.js`),
 			output: [
 				{
-					...outputOption(PROJECT_NAME, 'js'),
+					...outputOption(PROJECT_NAME),
 					name: PROJECT_NAME
-				},
-				{
-					...outputOption(PROJECT_NAME, 'min.js'),
-					name: PROJECT_NAME,
-					plugins: [terser()]
 				},
 			],
 			plugins: [
@@ -115,17 +110,10 @@ module.exports = async function run(runner, config) {
 			input: path.resolve(inputPath, `./plugins/${name}/Index.js`),
 			output: [
 				{
-					...outputOption(`plugins/${name}/${name}`, 'js'),
+					...outputOption(`plugins/${name}/${name}`),
 					globals: {
 						finer: PROJECT_NAME
 					}
-				},
-				{
-					...outputOption(`plugins/${name}/${name}`, 'min.js'),
-					globals: {
-						finer: PROJECT_NAME
-					},
-					plugins: [terser()]
 				},
 			],
 			plugins: [

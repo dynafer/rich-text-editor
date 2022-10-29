@@ -2,8 +2,8 @@ const cache: Record<string, Record<string, number>> = {
 	UEID: {}
 };
 
-const CreateUEID = (id: string, addNum: boolean = true): string => {
-	if (!addNum) return id;
+const CreateUEID = (id: string, bAddNum: boolean = true): string => {
+	if (!bAddNum) return id;
 
 	const nextNum = cache.UEID[id] ?? 0;
 

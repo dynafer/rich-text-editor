@@ -6,7 +6,7 @@
     "packages/**/*"
   ],
   "devDependencies": {
-    "@dynafer/builder-tool": "^0.1.4",
+    "@dynafer/builder-tool": "^0.1.5",
     "@finer-group/eslint-plugin": "^0.0.4",
     "@rollup/plugin-node-resolve": "^15.0.1",
     "@types/node": "^18.11.4",
@@ -14,7 +14,6 @@
     "patch-package": "^6.4.7",
     "rollup": "^3.2.3",
     "rollup-plugin-inline-svg": "^3.0.3",
-    "rollup-plugin-terser": "^7.0.2",
     "tslib": "^2.4.0",
     "typescript": "^4.8.3"
   },
