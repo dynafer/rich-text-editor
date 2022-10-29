@@ -13,14 +13,14 @@ const NativeEvents: string[] = [
 
 export interface IDOMUtils {
 	NativeEvents: string[],
-	CreateUEID: (id?: string, addNum?: boolean) => string,
+	CreateUEID: (id?: string, bAddNum?: boolean) => string,
 	GetModeTag: (mode: EModeEditor) => string,
 }
 
 const DOMUtils = (): IDOMUtils => {
-	const CreateUEID = (id: string = '', addNum: boolean = true): string => {
+	const CreateUEID = (id: string = '', bAddNum: boolean = true): string => {
 		id = Str.IsEmpty(id) ? Options.ProjectName : `${Options.ProjectName}-${id}`;
-		return Utils.CreateUEID(id, addNum);
+		return Utils.CreateUEID(id, bAddNum);
 	};
 
 	const GetModeTag = (mode: EModeEditor): string => {

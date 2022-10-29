@@ -8,10 +8,10 @@ interface ILineData {
 }
 
 export interface ICaretData {
-	IsRange: boolean,
+	IsRange: () => boolean,
 	Start: ILineData,
 	End: ILineData,
-	IsSameLine: boolean,
+	IsSameLine: () => boolean,
 	SameRoot: Node,
 }
 
@@ -54,10 +54,10 @@ const CaretUtils = (editor: Editor): ICaretUtils => {
 		const CaretData: ICaretData[] = [];
 
 		for (const range of ranges) {
-			const IsRange = !range.collapsed;
+			const IsRange = (): boolean => !range.collapsed;
 			const Start = getLine(range.startContainer, range.startOffset);
 			const End = getLine(range.endContainer, range.endOffset);
-			const IsSameLine = Start.Path[0] === End.Path[0];
+			const IsSameLine = (): boolean => Start.Path[0] === End.Path[0];
 			const SameRoot = range.commonAncestorContainer;
 
 			CaretData.push({
