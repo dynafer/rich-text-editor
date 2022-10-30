@@ -1,4 +1,4 @@
-import PluginManager, { IPluginManager } from './packages/managers/PluginManager';
+import PluginLoader, { IPluginLoader } from './packages/loaders/PluginLoader';
 import Editor, { IEditorConstructor } from './packages/Editor';
 
 declare global {
@@ -6,15 +6,15 @@ declare global {
 }
 
 interface IFiner {
-	Managers: {
-		Plugin: IPluginManager
+	Loaders: {
+		Plugin: IPluginLoader
 	},
 	Editor: IEditorConstructor
 }
 
 const finer: IFiner = {
-	Managers: {
-		Plugin: PluginManager
+	Loaders: {
+		Plugin: PluginLoader
 	},
 	Editor: Editor,
 };

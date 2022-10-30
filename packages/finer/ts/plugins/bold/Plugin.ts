@@ -4,7 +4,7 @@ import Setup from './Setup';
 import { UI } from './UI';
 
 export default (): void => {
-	finer.Managers.Plugin.Add(PLUGIN_NAME, (editor: Editor) => {
+	finer.Loaders.Plugin.Add(PLUGIN_NAME, (editor: Editor) => {
 		const ui = UI(editor);
 		if (!ui) return;
 
