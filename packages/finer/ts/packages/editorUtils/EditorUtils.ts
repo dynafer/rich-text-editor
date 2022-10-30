@@ -4,7 +4,7 @@ import EventUtils, { IEventUtils } from './EventUtils';
 
 export interface IEditorUtils {
 	Caret: ICaretUtils,
-	Event: IEventUtils
+	Event: IEventUtils,
 }
 
 const EditorUtils = (editor: Editor): IEditorUtils => {
@@ -13,7 +13,7 @@ const EditorUtils = (editor: Editor): IEditorUtils => {
 
 	return {
 		Caret,
-		Event
+		Event,
 	};
 };
 

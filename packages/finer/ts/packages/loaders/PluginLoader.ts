@@ -1,12 +1,20 @@
+import { Type } from '@dynafer/utils';
 import Options from '../../Options';
+import Editor from '../Editor';
 import DOM from '../dom/DOM';
+import { ENotificationStatus } from '../managers/NotificationManager';
 
 const loaded: string[] = [];
+const attached: Record<string, TPlugin> = {};
+
+type TPlugin = (editor: Editor) => void;
 
 export interface IPluginLoader {
-	Load: (name: string) => Promise<void>,
 	Has: (name: string) => boolean,
+	Load: (name: string) => Promise<void>,
 	LoadParallel: (plugins: string[]) => Promise<void>,
+	Add: (name: string, plugin: TPlugin) => void,
+	Attach: (editor: Editor, name: string) => Promise<void>,
 }
 
 const PluginLoader = (): IPluginLoader => {
@@ -49,10 +57,30 @@ const PluginLoader = (): IPluginLoader => {
 		});
 	};
 
+	const Add = (name: string, plugin: TPlugin) => {
+		if (Type.IsFunction(attached[name])) return;
+		attached[name] = plugin;
+	};
+
+	const Attach = (editor: Editor, name: string): Promise<void> => {
+		return new Promise((resolve) => {
+			try {
+				attached[name](editor);
+				resolve();
+			} catch (error) {
+				console.log(error);
+				editor.Notify(ENotificationStatus.warning, `Plugin: ${name} runs inappropriately`);
+				resolve();
+			}
+		});
+	};
+
 	return {
 		Has,
 		Load,
 		LoadParallel,
+		Add,
+		Attach,
 	};
 };
 

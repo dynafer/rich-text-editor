@@ -13,18 +13,19 @@ export interface ICaretData {
 	End: ILineData,
 	IsSameLine: () => boolean,
 	SameRoot: Node,
+	Range: Range,
 }
 
 export interface ICaretUtils {
 	Get: () => ICaretData[],
-	Set: (node: Node, offset?: number) => void,
+	UpdateRanges: (newRanges: Range[]) => void,
 }
 
 const CaretUtils = (editor: Editor): ICaretUtils => {
 	let ranges: Range[] = [];
 	let selection: Selection | null = editor.DOM.Win.getSelection();
 
-	const setRanges = () => {
+	const getRanges = () => {
 		ranges = [];
 		if (!selection) return;
 		for (let rangeIndex = 0; rangeIndex < selection.rangeCount; ++ rangeIndex) {
@@ -49,7 +50,7 @@ const CaretUtils = (editor: Editor): ICaretUtils => {
 
 	const Get = (): ICaretData[] => {
 		selection = editor.DOM.Win.getSelection();
-		setRanges();
+		getRanges();
 
 		const CaretData: ICaretData[] = [];
 
@@ -59,6 +60,7 @@ const CaretUtils = (editor: Editor): ICaretUtils => {
 			const End = getLine(range.endContainer, range.endOffset);
 			const IsSameLine = (): boolean => Start.Path[0] === End.Path[0];
 			const SameRoot = range.commonAncestorContainer;
+			const Range = range;
 
 			CaretData.push({
 				IsRange,
@@ -66,19 +68,24 @@ const CaretUtils = (editor: Editor): ICaretUtils => {
 				End,
 				IsSameLine,
 				SameRoot,
+				Range,
 			});
 		}
 
 		return CaretData;
 	};
 
-	const Set = (node: Node, offset?: number) => {
-		editor.DOM.Win.getSelection()?.setPosition(node, offset);
+	const UpdateRanges = (newRanges: Range[]) => {
+		selection?.removeAllRanges();
+
+		for (const range of newRanges) {
+			selection?.addRange(range);
+		}
 	};
 
 	return {
 		Get,
-		Set
+		UpdateRanges
 	};
 };
 

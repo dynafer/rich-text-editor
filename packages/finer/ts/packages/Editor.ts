@@ -7,6 +7,7 @@ import DOM, { IDom, TEventListener } from './dom/DOM';
 import { IEditorUtils } from './editorUtils/EditorUtils';
 import { IEvent } from './editorUtils/EventUtils';
 import { ENotificationStatus, INotificationManager, NotificationManager } from './managers/NotificationManager';
+import { IPluginManager } from './managers/PluginManager';
 
 enum ELoadingStatus {
 	show,
@@ -21,7 +22,8 @@ class Editor {
 	public Id: string;
 	public Config: IConfiguration;
 	public Frame: IEditorFrame;
-	public Notification!: INotificationManager;
+	public Notification: INotificationManager;
+	public Plugin!: IPluginManager;
 	public DOM: IDom = DOM;
 	public Utils!: IEditorUtils;
 

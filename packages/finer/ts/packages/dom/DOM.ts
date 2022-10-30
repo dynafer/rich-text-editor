@@ -1,6 +1,8 @@
 import { Str, Type, Instance } from '@dynafer/utils';
 import DOMUtils, { IDOMUtils } from './DOMUtils';
 
+const emptyRegex = /%EF%BB%BF/gi;
+
 type TCreateOption = Record<string, string> | string[] | string | Element[];
 type TElement = Node | Element | null;
 
@@ -36,6 +38,7 @@ export interface IDom {
 		<K extends keyof CSSStyleDeclaration>(selector: HTMLElement | null, styles: Record<K, string>): void;
 		(selector: HTMLElement | null, styles: Record<string, string>): void;
 	},
+	HasStyle: (selector: HTMLElement | null, styleName: string) => boolean,
 	Insert: (selector: TElement, insertion: TElement | string) => void,
 	InsertAfter: (selector: TElement, insertion: TElement | string) => void,
 	GetTagName: {
@@ -53,6 +56,7 @@ export interface IDom {
 	},
 	Show: (selector: HTMLElement, displayType?: string) => void,
 	Hide: (selector: HTMLElement) => void,
+	GetInnerText: (selector: HTMLElement) => string,
 	Create: {
 		<K extends keyof HTMLElementTagNameMap>(tagName: K, option?: Record<string, TCreateOption>): HTMLElementTagNameMap[K];
 		(tagName: string, option?: Record<string, TCreateOption>): HTMLElement;
@@ -156,6 +160,12 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 		}
 	};
 
+	const HasStyle = (selector: HTMLElement | null, styleName: string): boolean => {
+		if (!Instance.Is(selector, elementType) || !Type.IsString(styleName)) return false;
+
+		return selector.style.cssText.includes(Str.CapitalToDash(styleName));
+	};
+
 	const Insert = (selector: TElement, insertion: TElement | string) => {
 		if (!Instance.Is(selector, elementType) || (!Instance.IsElement(insertion) && !Type.IsString(insertion))) return;
 
@@ -217,6 +227,11 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 		SetStyle(selector, 'display', 'none');
 	};
 
+	const GetInnerText = (selector: HTMLElement): string => {
+		if (!Instance.Is(selector, elementType)) return '';
+		return encodeURI(selector.innerText).replace(emptyRegex, '');
+	};
+
 	const Create = (tagName: string, option?: Record<string, TCreateOption>) => {
 		const newElement = Doc.createElement(tagName);
 		if (!option) return newElement;
@@ -258,6 +273,7 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 		GetStyle,
 		SetStyle,
 		SetStyles,
+		HasStyle,
 		Insert,
 		InsertAfter,
 		GetTagName,
@@ -266,6 +282,7 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 		Dispatch,
 		Show,
 		Hide,
+		GetInnerText,
 		Create,
 		Utils,
 	};

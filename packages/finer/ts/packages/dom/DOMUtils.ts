@@ -11,10 +11,13 @@ const NativeEvents: string[] = [
 	'transitionend transitionrun transitionstart volumechange waiting webkitanimationend webkitanimationiteration webkitanimationstart webkittransitionend wheel'
 ].join(' ').split(' ');
 
+const emptyHexCode = '&#xfeff;';
+
 export interface IDOMUtils {
 	NativeEvents: string[],
 	CreateUEID: (id?: string, bAddNum?: boolean) => string,
 	GetModeTag: (mode: EModeEditor) => string,
+	CreateEmptyHTML: (tagName: string) => string,
 }
 
 const DOMUtils = (): IDOMUtils => {
@@ -33,10 +36,13 @@ const DOMUtils = (): IDOMUtils => {
 		}
 	};
 
+	const CreateEmptyHTML = (tagName: string): string => `<${tagName}>${emptyHexCode}</${tagName}>`;
+
 	return {
 		NativeEvents,
 		CreateUEID,
 		GetModeTag,
+		CreateEmptyHTML,
 	};
 };
 
