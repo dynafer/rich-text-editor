@@ -58,6 +58,9 @@ const EditorSetup = (editor: Editor): Promise<void> => {
 			self.Config.Selector.innerHTML = '';
 		}
 
+		const bodyId = DOM.Utils.CreateUEID('editor-body', false);
+		let body: HTMLElement;
+
 		if (self.IsIFrame()) {
 			self.DOM = DOM.New(
 				(frame.Container as HTMLIFrameElement).contentWindow as Window & typeof globalThis,
@@ -69,14 +72,28 @@ const EditorSetup = (editor: Editor): Promise<void> => {
 					<head>
 						<link rel="stylesheet" href="${Options.JoinUrl('css', 'skins/simple/skin')}">
 					</head>
-					<body id="${DOM.Utils.CreateUEID('editor-body', false)}" contenteditable="true">${initialContent}</body>
+					<body id="${bodyId}" contenteditable="true"></body>
 				</html>`;
 
 			(frame.Container as HTMLIFrameElement).contentDocument?.write(iframeHTML);
 			(frame.Container as HTMLIFrameElement).contentDocument?.close();
+
+			body = self.DOM.Doc.body;
 		} else {
-			self.SetContent(initialContent);
+			const containerBody = DOM.Create('div', {
+				attrs: {
+					id: bodyId,
+					contenteditable: 'true'
+				}
+			});
+
+			DOM.Insert(frame.Container, containerBody);
+
+			body = containerBody;
 		}
+
+		self.SetBody(body);
+		self.SetContent(initialContent);
 
 		self.Utils = EditorUtils(self);
 		self.Plugin = PluginManager(self);

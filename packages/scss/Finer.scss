@@ -4,7 +4,8 @@
 .#{$projectName} {
 	@include position(relative);
 
-	&, * {
+	&,
+	* {
 		box-sizing: border-box;
 	}
 
@@ -70,7 +71,26 @@
 
 		@include setClass(classic) {
 			@include width(100%);
-			border: 1px solid #ececec;;
+			border: 1px solid #ececec;
+		}
+
+		@include setClass(inline) {
+			border: 1px solid #ececec;
+
+			@include setClass(editor-body, true) {
+				@include marginAll(0.75rem);
+				overflow-wrap: break-word;
+				word-wrap: break-word;
+				outline: none;
+
+				@supports not(-moz-appearance: none) {
+					* {
+						@include margin(rem, 0.75, $bottom: 0.75);
+						@include height($line: 1.4);
+						word-wrap: break-word;
+					}
+				}
+			}
 		}
 	}
 

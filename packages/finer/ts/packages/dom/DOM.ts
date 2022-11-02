@@ -13,7 +13,7 @@ export interface IDom {
 	Doc: Document,
 	New: (win: Window & typeof globalThis, doc: Document) => IDom,
 	Select: {
-		<T extends Node>(selector: T, parent?: TElement): T;
+		<T extends Node>(selector: T | string, parent?: TElement): T;
 		(selector: string, parent?: TElement): HTMLElement | null;
 	},
 	SelectAll: {

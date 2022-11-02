@@ -26,6 +26,7 @@ class Editor {
 	public Plugin!: IPluginManager;
 	public DOM: IDom = DOM;
 	public Utils!: IEditorUtils;
+	private body!: HTMLElement;
 
 	private mbDestroyed: boolean = false;
 
@@ -53,7 +54,11 @@ class Editor {
 	public On<K extends keyof GlobalEventHandlersEventMap>(eventName: K, event: TEventListener<K>): void;
 	public On(eventName: string, event: IEvent): void;
 	public On(eventName: string, event: IEvent) {
-		this.Utils.Event.On(eventName, event);
+		if (this.DOM.Utils.NativeEvents.includes(eventName)) {
+			this.DOM.On(this.GetBody(), eventName, event);
+		} else {
+			this.Utils.Event.On(eventName, event);
+		}
 	}
 
 	public Dispatch(eventName: string, ...params: unknown[]) {
@@ -72,9 +77,9 @@ class Editor {
 		return Instance.Is(this.Frame.Container, HTMLIFrameElement);
 	}
 
-	public GetBody(): HTMLElement {
-		return this.IsIFrame() ? this.DOM.Doc.body : this.Frame.Container;
-	}
+	// body getter and setter
+	public SetBody(body: HTMLElement) { this.body = body; }
+	public GetBody(): HTMLElement { return this.body; }
 
 	public GetRootDOM(): IDom {
 		return DOM;
