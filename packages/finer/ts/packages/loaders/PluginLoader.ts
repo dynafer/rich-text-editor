@@ -52,8 +52,8 @@ const PluginLoader = (): IPluginLoader => {
 			}
 
 			Promise.all(load)
-				.then(() => resolve())
-				.catch(error => reject(error));
+				.catch(error => reject(error))
+				.finally(() => resolve());
 		});
 	};
 
@@ -63,13 +63,15 @@ const PluginLoader = (): IPluginLoader => {
 	};
 
 	const Attach = (editor: Editor, name: string): Promise<void> => {
+		const self = editor;
+
 		return new Promise((resolve) => {
 			try {
-				attached[name](editor);
+				attached[name](self);
 				resolve();
 			} catch (error) {
 				console.log(error);
-				editor.Notify(ENotificationStatus.warning, `Plugin: ${name} runs inappropriately`);
+				self.Notify(ENotificationStatus.warning, `Plugin: ${name} runs inappropriately`);
 				resolve();
 			}
 		});

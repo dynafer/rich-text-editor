@@ -15,7 +15,8 @@ interface INotificationManager {
 }
 
 const NotificationManager = (editor: Editor): INotificationManager => {
-	const notification = editor.Frame.Notification;
+	const self = editor;
+	const notification = self.Frame.Notification;
 	const stacks: Element[] = [];
 	let status = ENotificationStatus.default;
 
@@ -28,7 +29,7 @@ const NotificationManager = (editor: Editor): INotificationManager => {
 	};
 
 	const Dispatch = (type: ENotificationStatus, text: string) => {
-		if (editor.IsDestroyed()) return;
+		if (self.IsDestroyed()) return;
 		Show();
 
 		switch (type) {
@@ -37,7 +38,7 @@ const NotificationManager = (editor: Editor): INotificationManager => {
 				break;
 			case ENotificationStatus.error:
 				console.error(text);
-				editor.Destroy();
+				self.Destroy();
 				return;
 			default:
 				break;

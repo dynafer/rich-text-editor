@@ -1,10 +1,7 @@
 import Editor from '../../Editor';
 
-const MouseUpEvent = (editor: Editor) => {
-	const self = editor;
-	const carets = self.Utils.Caret.Get();
-
-	editor.Dispatch('caret:change', carets);
+const MouseUpEvent = (editor: Editor, event: MouseEvent) => {
+	editor.Dispatch('caret:change', event.composedPath());
 };
 
 export default MouseUpEvent;
