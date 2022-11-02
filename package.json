@@ -6,7 +6,7 @@
     "packages/**/*"
   ],
   "devDependencies": {
-    "@dynafer/builder-tool": "^0.1.5",
+    "@dynafer/build-toolkit": "^1.0.1",
     "@finer-group/eslint-plugin": "^0.0.4",
     "@rollup/plugin-node-resolve": "^15.0.1",
     "@types/node": "^18.11.4",
@@ -20,8 +20,8 @@
   "scripts": {
     "preinstall": "node -e \"if(!process.env.npm_execpath.includes('yarn')) throw new Error('You must use yarn')\"",
     "postinstall": "patch-package",
-    "build": "builder-tool",
-    "watch": "builder-tool -w ./packages",
+    "build": "build-toolkit",
+    "watch": "build-toolkit -w ./packages",
     "lint": "eslint . --ext .ts"
   },
   "repository": {

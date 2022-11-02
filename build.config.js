@@ -16,6 +16,11 @@ module.exports = async (runner, config) => {
 		if (!fs.existsSync(path.join(OUTPUT_PATH, './skins'))) fs.mkdirSync(path.join(OUTPUT_PATH, './skins'));
 	});
 
+	await Command.Run({
+		command: 'yarn run lint',
+		watch: false
+	});
+
 	const commandSettings = [];
 	const commandRegister = (dirPath) => {
 		commandSettings.push({
@@ -124,10 +129,6 @@ module.exports = async (runner, config) => {
 	}
 
 	Rollup.Register(rollups);
-
-	await Command.Run({
-		command: 'yarn run lint'
-	});
 
 	await Rollup.Run();
 }
