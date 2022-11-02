@@ -24,17 +24,11 @@ const AttachPlugin = (editor: Editor): Promise<void> => {
 		DOM.Hide(self.Config.Selector);
 
 		Promise.all(attachPlugins)
-			.then(() => {
-				if (Instance.Is(self.Config.Selector, HTMLTextAreaElement)) {
-					self.SetContent(self.Config.Selector.value);
-					self.Config.Selector.value = '';
-				} else {
-					self.SetContent(self.Config.Selector.innerHTML);
-					self.Config.Selector.innerHTML = '';
-				}
-
-				return resolve();
-			}).then(() => {
+			.catch(error => {
+				self.Notify(ENotificationStatus.error, error as string);
+				reject(error);
+			})
+			.finally(() => {
 				const events = self.Utils.Event.Get();
 				for (const [key, eventList] of Object.entries(events)) {
 					if (!DOM.Utils.NativeEvents.includes(key)) continue;
@@ -44,34 +38,44 @@ const AttachPlugin = (editor: Editor): Promise<void> => {
 						}
 					});
 				}
-			})
-			.catch(error => {
-				self.Notify(ENotificationStatus.error, error as string);
-				reject(error);
+
+				resolve();
 			});
 	});
 };
 
 const EditorSetup = (editor: Editor): Promise<void> => {
 	const self = editor;
+	const frame = self.Frame;
+
 	return new Promise((resolve, reject) => {
+		let initialContent: string;
+		if (Instance.Is(self.Config.Selector, HTMLTextAreaElement)) {
+			initialContent = self.Config.Selector.value;
+			self.Config.Selector.value = '';
+		} else {
+			initialContent = self.Config.Selector.innerHTML;
+			self.Config.Selector.innerHTML = '';
+		}
+
 		if (self.IsIFrame()) {
 			self.DOM = DOM.New(
-				(self.Frame.Container as HTMLIFrameElement).contentWindow as Window & typeof globalThis,
-				(self.Frame.Container as HTMLIFrameElement).contentDocument ?? document
+				(frame.Container as HTMLIFrameElement).contentWindow as Window & typeof globalThis,
+				(frame.Container as HTMLIFrameElement).contentDocument ?? document
 			);
 
-			self.DOM.Insert(self.DOM.Doc.head, DOM.Create('link', {
-				attrs: {
-					rel: 'stylesheet',
-					href: Options.JoinUrl('css', 'skins/simple/skin')
-				}
-			}));
+			const iframeHTML = `<!DOCTYPE html>
+				<html>
+					<head>
+						<link rel="stylesheet" href="${Options.JoinUrl('css', 'skins/simple/skin')}">
+					</head>
+					<body id="${DOM.Utils.CreateUEID('editor-body', false)}" contenteditable="true">${initialContent}</body>
+				</html>`;
 
-			self.DOM.SetAttrs(self.GetBody(), {
-				id: DOM.Utils.CreateUEID('editor-body', false),
-				contenteditable: 'true'
-			});
+			(frame.Container as HTMLIFrameElement).contentDocument?.write(iframeHTML);
+			(frame.Container as HTMLIFrameElement).contentDocument?.close();
+		} else {
+			self.SetContent(initialContent);
 		}
 
 		self.Utils = EditorUtils(self);

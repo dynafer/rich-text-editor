@@ -17,13 +17,16 @@ export interface ICaretData {
 }
 
 export interface ICaretUtils {
-	Get: () => ICaretData[],
-	UpdateRanges: (newRanges: Range[]) => void,
+	Get: (bNeedCheckUpdate?: boolean) => ICaretData[],
+	UpdateRanges: (newRanges: Range[]) => void
 }
 
 const CaretUtils = (editor: Editor): ICaretUtils => {
+	const self = editor;
+	const DOM = self.DOM;
+
+	let selection: Selection | null = null;
 	let ranges: Range[] = [];
-	let selection: Selection | null = editor.DOM.Win.getSelection();
 
 	const getRanges = () => {
 		ranges = [];
@@ -35,8 +38,8 @@ const CaretUtils = (editor: Editor): ICaretUtils => {
 	};
 
 	const getLine = (node: Node, offset: number): ILineData => {
-		const Path: Node[] = editor.DOM.GetParents(node);
-		const lines: Node[] = Array.from(editor.GetBody().childNodes);
+		const Path: Node[] = DOM.GetParents(node);
+		const lines: Node[] = Array.from(self.GetBody().childNodes);
 
 		const Line: number = lines.indexOf(Path[0]);
 
@@ -48,9 +51,13 @@ const CaretUtils = (editor: Editor): ICaretUtils => {
 		};
 	};
 
-	const Get = (): ICaretData[] => {
-		selection = editor.DOM.Win.getSelection();
-		getRanges();
+	const isUpdatable = (): boolean => ranges.length <= 1;
+
+	const Get = (bNeedCheckUpdate: boolean = false): ICaretData[] => {
+		if (!bNeedCheckUpdate || (bNeedCheckUpdate && isUpdatable())) {
+			selection = DOM.Win.getSelection();
+			getRanges();
+		}
 
 		const CaretData: ICaretData[] = [];
 
@@ -85,7 +92,7 @@ const CaretUtils = (editor: Editor): ICaretUtils => {
 
 	return {
 		Get,
-		UpdateRanges
+		UpdateRanges,
 	};
 };
 

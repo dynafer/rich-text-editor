@@ -23,9 +23,16 @@ const EventUtils = (): IEventUtils => {
 	const Dispatch = (eventName: string, ...params: unknown[]) => {
 		if (!Has(eventName)) return;
 
+		const eventList: Promise<void>[] = [];
 		for (const event of events[eventName]) {
-			event(...params);
+			eventList.push(new Promise((resolve) => {
+				event(...params);
+				resolve();
+			}));
 		}
+
+		Promise.all(eventList)
+			.catch(() => {});
 	};
 
 	const Get = (): Record<string, IEvent[]> => events;

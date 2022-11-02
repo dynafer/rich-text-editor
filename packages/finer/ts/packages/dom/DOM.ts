@@ -39,7 +39,7 @@ export interface IDom {
 		(selector: HTMLElement | null, styles: Record<string, string>): void;
 	},
 	HasStyle: (selector: HTMLElement | null, styleName: string) => boolean,
-	Insert: (selector: TElement, insertion: TElement | string) => void,
+	Insert: (selector: TElement, insertion: TElement | Node[] | string) => void,
 	InsertAfter: (selector: TElement, insertion: TElement | string) => void,
 	GetTagName: {
 		<K extends keyof HTMLElementTagNameMap>(selector: TElement): K;
@@ -166,17 +166,28 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 		return selector.style.cssText.includes(Str.CapitalToDash(styleName));
 	};
 
-	const Insert = (selector: TElement, insertion: TElement | string) => {
-		if (!Instance.Is(selector, elementType) || (!Instance.IsElement(insertion) && !Type.IsString(insertion))) return;
+	const Insert = (selector: TElement, insertion: TElement | Node[] | string) => {
+		if (!Instance.Is(selector, elementType)
+			|| (
+				!Instance.Is(insertion, elementType)
+				&& !Instance.Is(insertion, nodeType)
+				&& !Type.IsArray(insertion)
+				&& !Type.IsString(insertion)
+			)
+		) return;
 
-		if (Type.IsString(insertion))
-			selector.insertAdjacentHTML('beforeend', insertion);
-		else
+		if (Instance.Is(insertion, elementType))
 			selector.insertAdjacentElement('beforeend', insertion);
+		else if (Instance.Is(insertion, nodeType))
+			selector.appendChild(insertion);
+		else if (Type.IsArray(insertion))
+			selector.append(...insertion);
+		else
+			selector.insertAdjacentHTML('beforeend', insertion);
 	};
 
 	const InsertAfter = (selector: TElement, insertion: TElement | string) => {
-		if (!Instance.Is(selector, elementType) || (!Instance.IsElement(insertion) && !Type.IsString(insertion))) return;
+		if (!Instance.Is(selector, elementType) || (!Instance.Is(insertion, elementType) && !Type.IsString(insertion))) return;
 
 		if (Type.IsString(insertion))
 			selector.insertAdjacentHTML('afterend', insertion);
