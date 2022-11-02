@@ -6,9 +6,11 @@
 	overflow-wrap: break-word;
 	word-wrap: break-word;
 
-	* {
-		@include margin(rem, 0.75, $bottom: 0.75);
-		@include height($line: 1.4);
-		word-wrap: break-word;
+	@supports not(-moz-appearance: none) {
+		* {
+			@include margin(rem, 0.75, $bottom: 0.75);
+			@include height($line: 1.4);
+			word-wrap: break-word;
+		}
 	}
 }

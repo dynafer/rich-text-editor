@@ -39,9 +39,7 @@ const PluginManager = (editor: Editor): IPluginManager => {
 			const carets: ICaretData[] = CaretUtils.Get();
 
 			for (const caret of carets) {
-				if (!caret.IsSameLine()) {
-					paths = Arr.UniqueMerge(paths, caret.Start.Path, caret.End.Path);
-				}
+				paths = Arr.UniqueMerge(paths, caret.Start.Path, caret.End.Path);
 			}
 
 			for (const path of paths) {
