@@ -14,7 +14,7 @@ module.exports = async (runner, config) => {
 	await Task.Run(async () => {
 		if (!fs.existsSync(OUTPUT_PATH)) fs.mkdirSync(OUTPUT_PATH);
 		if (!fs.existsSync(path.join(OUTPUT_PATH, './skins'))) fs.mkdirSync(path.join(OUTPUT_PATH, './skins'));
-	});
+	}, false);
 
 	await Command.Run({
 		command: 'yarn run lint',
@@ -76,7 +76,7 @@ module.exports = async (runner, config) => {
 		input: path.join(SCSS_PATH, `./${INPUT_NAME}.scss`),
 		output: path.join(OUTPUT_PATH, `./${PROJECT_NAME}.min.css`),
 		compressed: true
-	})
+	});
 
 	await Sass.Run(sassList);
 
@@ -88,7 +88,7 @@ module.exports = async (runner, config) => {
 			format: 'iife',
 			createUglified: true,
 			sourcemap: bIsDevelopment
-		}
+		};
 	};
 
 	const inputPath = path.resolve(PACKAGE_PATH, './finer/build/lib');
@@ -131,4 +131,4 @@ module.exports = async (runner, config) => {
 	Rollup.Register(rollups);
 
 	await Rollup.Run();
-}
+};

@@ -1,12 +1,13 @@
 import { Arr, Str } from '@dynafer/utils';
 import Editor from '../Editor';
-import { ICaretData } from '../editorUtils/CaretUtils';
 import { IEvent } from '../editorUtils/EventUtils';
+import { ICaretData } from '../editorUtils/caret/CaretUtils';
 
 export interface IPluginManager {
 	DetectByTagName: (tagName: string, activate: (bActive: boolean) => void) => void,
 	DetectByStyle: (styleName: string, activate: (bActive: boolean) => void) => void,
 	ApplyByTagName: (tagName: string) => void,
+	ReleaseByTagName: (tagName: string) => void,
 }
 
 const PluginManager = (editor: Editor): IPluginManager => {
@@ -72,83 +73,49 @@ const PluginManager = (editor: Editor): IPluginManager => {
 		}) as IEvent);
 	};
 
-	const wrap = (tagName: string, children: Node[]): Node[] => {
-		const nodes = [ ...children ];
-		for (let index = 0; index < nodes.length; ++ index) {
-			const child = nodes[index];
-
-			if (DOM.Utils.IsText(child)) {
-				const newTag = DOM.Create(tagName);
-				DOM.Insert(newTag, child.cloneNode(true));
-
-				nodes[index] = newTag;
-
-				continue;
-			}
-
-			if (DOM.Utils.GetNodeName(child) !== tagName) {
-				(child as HTMLElement).replaceChildren(...wrap(tagName, Array.from(child.childNodes)));
-			}
-		}
-
-		return nodes;
-	};
-
-	const findAndWrap = (tagName: string, caret: ICaretData): Range => {
+	const toggle = (bWrap: boolean, tagName: string, caret: ICaretData): Range => {
 		const fragment = caret.Range.extractContents();
-		let startNode: Node;
-		let endNode: Node;
 
 		if (caret.IsSameLine()) {
-			const replacer = wrap(tagName, Array.from(fragment.childNodes));
+			const wrapOrUnwrap = bWrap ? CaretUtils.Magic.WrapOneLineRange : CaretUtils.Magic.UnwrapOneLineRange;
 
-			fragment.replaceChildren(...replacer);
-			const newNodes = Array.from(fragment.childNodes);
-
-			caret.Range.insertNode(fragment);
-
-			startNode = newNodes[0];
-			endNode = newNodes[newNodes.length - 1];
+			wrapOrUnwrap(tagName, fragment, (parent) => {
+				let children: Node[] = Array.from(parent.childNodes);
+				caret.Range.insertNode(parent);
+				if (!bWrap) children = CaretUtils.Magic.UnwrapParents(tagName, caret.SameRoot, children);
+				caret.Range.setStartBefore(children[0]);
+				caret.Range.setEndAfter(children[children.length - 1]);
+			});
 		} else {
-			const children: Node[] = Array.from(fragment.childNodes);
-			const lines = self.GetBody().children;
+			const wrapOrUnwrap = bWrap ? CaretUtils.Magic.WrapRange : CaretUtils.Magic.UnwrapRange;
 
-			const startChildren = wrap(tagName, Array.from(children[0].childNodes));
-			DOM.Insert(lines[caret.Start.Line], startChildren);
-			startNode = startChildren[0];
-
-			let nextLine: Node = lines[caret.Start.Line];
-			for (let index = 1, length = children.length - 1; index < length; ++ index) {
-				const child = children[index];
-				const replacer = wrap(tagName, Array.from(child.childNodes));
-				(child as Element).replaceChildren(...replacer);
-				DOM.InsertAfter(nextLine, child);
-				nextLine = child;
-			}
-
-			const endChildren = wrap(tagName, Array.from(children[children.length - 1].childNodes));
-			const replaceChildren: Node[] = Array.from(lines[caret.End.Line].childNodes);
-			replaceChildren.unshift(...endChildren);
-
-			lines[caret.End.Line].replaceChildren(...replaceChildren);
-			endNode = endChildren[endChildren.length - 1];
+			wrapOrUnwrap(tagName, fragment, (firstNodes, middleNodes, lastNodes) => {
+				const lines = self.GetBody().children;
+				let nextLine: Node = lines[caret.Start.Line];
+				DOM.Insert(lines[caret.Start.Line], firstNodes);
+				for (const node of middleNodes) {
+					DOM.InsertAfter(nextLine, node);
+					nextLine = node;
+				}
+				lines[caret.End.Line].replaceChildren(...lastNodes, ...Array.from(lines[caret.End.Line].childNodes));
+				caret.Range.setStart(firstNodes[0], 0);
+				caret.Range.setEndAfter(lastNodes[lastNodes.length - 1]);
+			});
 		}
-
-		caret.Range.setStart(startNode, 0);
-		caret.Range.setEndAfter(endNode);
 
 		return caret.Range.cloneRange();
 	};
 
-	const ApplyByTagName = (tagName: string) => {
+	const toggleByTagName = (bWrap: boolean, tagName: string) => {
 		const carets: ICaretData[] = CaretUtils.Get(true);
 		const newRanges: Range[] = [];
 		const caretId = DOM.Utils.CreateUEID('caret', false);
 
 		for (let index = 0, length = carets.length; index < length; ++ index) {
 			const caret = carets[index];
+
 			if (caret.IsRange() || carets.length > 1) {
-				newRanges.push(findAndWrap(tagName, caret));
+				newRanges.push(toggle(bWrap, tagName, caret));
 				continue;
 			}
 
@@ -156,9 +123,10 @@ const PluginManager = (editor: Editor): IPluginManager => {
 				attrs: {
 					id: caretId,
 					caret: index.toString()
-				},
-				html: DOM.Utils.CreateEmptyHTML(tagName)
+				}
 			});
+
+			DOM.Insert(caretPointer, DOM.Utils.CreateEmptyHTML(bWrap ? tagName : undefined));
 
 			caret.Range.insertNode(caretPointer);
 			caret.Range.setStartAfter(caretPointer);
@@ -169,10 +137,14 @@ const PluginManager = (editor: Editor): IPluginManager => {
 		CaretUtils.UpdateRanges(newRanges);
 	};
 
+	const ApplyByTagName = (tagName: string) => toggleByTagName(true, tagName);
+	const ReleaseByTagName = (tagName: string) => toggleByTagName(false, tagName);
+
 	return {
 		DetectByTagName,
 		DetectByStyle,
-		ApplyByTagName
+		ApplyByTagName,
+		ReleaseByTagName
 	};
 };
 

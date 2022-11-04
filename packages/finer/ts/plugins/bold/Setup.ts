@@ -15,10 +15,6 @@ const Setup = (editor: Editor, ui: HTMLElement) => {
 		}
 	};
 
-	const release = () => {
-		// fix me ...
-	};
-
 	DOM.On(ui, 'click', () => {
 		self.Focus();
 		if (!bActive) {
@@ -26,7 +22,7 @@ const Setup = (editor: Editor, ui: HTMLElement) => {
 			self.Plugin.ApplyByTagName(TAG_NAME);
 		} else {
 			activate(false);
-			release();
+			self.Plugin.ReleaseByTagName(TAG_NAME);
 		}
 	});
 

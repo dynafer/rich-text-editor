@@ -8,6 +8,12 @@ const DefaultEvent = (editor: Editor, event: KeyboardEvent) => {
 		event.preventDefault();
 		event.stopPropagation();
 		self.InitContent();
+
+		const newCaret = new Range();
+		const initialChild = self.GetBody().firstChild as Node;
+		newCaret.setStart(initialChild, 0);
+		newCaret.setEnd(initialChild, 0);
+		self.Utils.Caret.UpdateRanges([newCaret]);
 	}
 };
 

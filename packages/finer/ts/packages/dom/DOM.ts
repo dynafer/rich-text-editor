@@ -3,7 +3,7 @@ import DOMUtils, { IDOMUtils } from './DOMUtils';
 
 const emptyRegex = /%EF%BB%BF/gi;
 
-type TCreateOption = Record<string, string> | string[] | string | Element[];
+type TCreateOption = Record<string, string> | string[] | string | TElement[];
 type TElement = Node | Element | null;
 
 export type TEventListener<K extends keyof GlobalEventHandlersEventMap> = (event: GlobalEventHandlersEventMap[K]) => void;
@@ -40,7 +40,8 @@ export interface IDom {
 	},
 	HasStyle: (selector: HTMLElement | null, styleName: string) => boolean,
 	Insert: (selector: TElement, insertion: TElement | Node[] | string) => void,
-	InsertAfter: (selector: TElement, insertion: TElement | string) => void,
+	InsertAfter: (selector: TElement, insertion: TElement | Node[]  | string) => void,
+	Clone: (selector: TElement, deep?: boolean, insertion?: TElement | Node[]) => Node | null,
 	GetTagName: {
 		<K extends keyof HTMLElementTagNameMap>(selector: TElement): K;
 		(selector: TElement): string;
@@ -67,6 +68,8 @@ export interface IDom {
 const DOM = (_win: Window & typeof globalThis = window, _doc: Document = document): IDom => {
 	const Win: Window & typeof globalThis = _win;
 	const Doc: Document = _doc;
+	const Utils: IDOMUtils = DOMUtils;
+
 	const elementType = Win.Element;
 	const nodeType = Win.Node;
 
@@ -186,13 +189,41 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 			selector.insertAdjacentHTML('beforeend', insertion);
 	};
 
-	const InsertAfter = (selector: TElement, insertion: TElement | string) => {
-		if (!Instance.Is(selector, elementType) || (!Instance.Is(insertion, elementType) && !Type.IsString(insertion))) return;
+	const InsertAfter = (selector: TElement, insertion: TElement | Node[] | string) => {
+		if (!Instance.Is(selector, elementType)
+			|| (
+				!Instance.Is(insertion, elementType)
+				&& !Instance.Is(insertion, nodeType)
+				&& !Type.IsString(insertion)
+				&& !Type.IsArray(insertion)
+			)
+		) return;
 
-		if (Type.IsString(insertion))
-			selector.insertAdjacentHTML('afterend', insertion);
-		else
+		if (Instance.Is(insertion, elementType))
 			selector.insertAdjacentElement('afterend', insertion);
+		else if (Instance.Is(insertion, nodeType))
+			selector.after(insertion);
+		else if (Type.IsArray(insertion))
+			selector.after(...insertion);
+		else
+			selector.insertAdjacentHTML('afterend', insertion);
+	};
+
+	const Clone = (selector: TElement, deep?: boolean, insertion?: TElement | Node[]): Node | null => {
+		if (!Instance.Is(selector, elementType) && !Instance.Is(selector, nodeType)) return null;
+		if (deep && !Type.IsBoolean(deep)) return null;
+		if (insertion
+			&& (
+				!Instance.Is(insertion, elementType)
+				&& !Instance.Is(insertion, nodeType)
+				&& !Type.IsArray(insertion)
+			)
+		) return null;
+
+		const clonedSelector = selector.cloneNode(deep);
+		if (insertion) Insert(clonedSelector, insertion);
+
+		return clonedSelector;
 	};
 
 	const GetTagName = (selector: TElement) => {
@@ -256,15 +287,13 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 		if (option.html && Type.IsString(option.html)) newElement.innerHTML = option.html;
 		if (option.children && Type.IsArray(option.children)) {
 			for (const child of option.children) {
-				if (!Instance.Is(child, elementType)) continue;
+				if (!Instance.Is(child, elementType) && !Instance.Is(child, nodeType)) continue;
 				Insert(newElement, child);
 			}
 		}
 
 		return newElement;
 	};
-
-	const Utils: IDOMUtils = DOMUtils;
 
 	return {
 		Win,
@@ -287,6 +316,7 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 		HasStyle,
 		Insert,
 		InsertAfter,
+		Clone,
 		GetTagName,
 		GetParents,
 		On,
