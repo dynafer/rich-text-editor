@@ -32,7 +32,7 @@ const AttachPlugin = (editor: Editor): Promise<void> => {
 				const events = self.Utils.Event.Get();
 				for (const [key, eventList] of Object.entries(events)) {
 					if (!DOM.Utils.NativeEvents.includes(key)) continue;
-					self.DOM.On(self.GetBody(), key, (evt) => {
+					self.DOM.On(self.IsIFrame() ? self.DOM.Select('html') : self.GetBody(), key, (evt) => {
 						for (const event of eventList) {
 							event(evt);
 						}

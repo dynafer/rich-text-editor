@@ -54,11 +54,7 @@ class Editor {
 	public On<K extends keyof GlobalEventHandlersEventMap>(eventName: K, event: TEventListener<K>): void;
 	public On(eventName: string, event: IEvent): void;
 	public On(eventName: string, event: IEvent) {
-		if (this.DOM.Utils.NativeEvents.includes(eventName)) {
-			this.DOM.On(this.GetBody(), eventName, event);
-		} else {
-			this.Utils.Event.On(eventName, event);
-		}
+		this.Utils.Event.On(eventName, event);
 	}
 
 	public Dispatch(eventName: string, ...params: unknown[]) {
