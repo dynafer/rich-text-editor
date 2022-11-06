@@ -6,6 +6,7 @@ import EditorSetup from './EditorSetup';
 import DOM, { IDom, TEventListener } from './dom/DOM';
 import { IEditorUtils } from './editorUtils/EditorUtils';
 import { IEvent } from './editorUtils/EventUtils';
+import { IFormatter } from './format/Formatter';
 import { ENotificationStatus, INotificationManager, NotificationManager } from './managers/NotificationManager';
 import { IPluginManager } from './managers/PluginManager';
 
@@ -26,8 +27,9 @@ class Editor {
 	public Plugin!: IPluginManager;
 	public DOM: IDom = DOM;
 	public Utils!: IEditorUtils;
-	private body!: HTMLElement;
+	public Formatter!: IFormatter;
 
+	private body!: HTMLElement;
 	private mbDestroyed: boolean = false;
 
 	public constructor(config: IEditorOption) {
@@ -41,10 +43,6 @@ class Editor {
 		EditorSetup(this)
 			.then(() => this.setLoading(ELoadingStatus.hide))
 			.catch(error => this.Notify(ENotificationStatus.error, error as string));
-	}
-
-	public AddToolbar(toolbar: HTMLElement) {
-		DOM.Insert(this.Frame.Toolbar, toolbar);
 	}
 
 	public Notify(type: ENotificationStatus, text: string) {

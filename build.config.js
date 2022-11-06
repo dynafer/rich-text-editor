@@ -110,7 +110,7 @@ module.exports = async (runner, config) => {
 	];
 
 	for (const name of PLUGIN_NAMES) {
-		if (name.includes('.d.ts')) continue;
+		if (name.includes('template')) continue;
 		rollups.push({
 			input: path.resolve(inputPath, `./plugins/${name}/Index.js`),
 			output: [

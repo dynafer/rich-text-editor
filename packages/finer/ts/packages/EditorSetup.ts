@@ -4,45 +4,8 @@ import Editor from './Editor';
 import DOM from './dom/DOM';
 import EditorUtils from './editorUtils/EditorUtils';
 import EventSetup from './events/EventSetup';
-import { ENotificationStatus } from './managers/NotificationManager';
+import { Formatter } from './format/Formatter';
 import PluginManager from './managers/PluginManager';
-
-const AttachPlugin = (editor: Editor): Promise<void> => {
-	const self = editor;
-
-	return new Promise((resolve, reject) => {
-		const attachPlugins: Promise<void>[] = [];
-		for (const name of self.Config.Plugins) {
-			if (!finer.Loaders.Plugin.Has(name)) {
-				self.Notify(ENotificationStatus.warning, `Plugin '${name}' hasn't loaded.`);
-				continue;
-			}
-
-			attachPlugins.push(finer.Loaders.Plugin.Attach(self, name));
-		}
-
-		DOM.Hide(self.Config.Selector);
-
-		Promise.all(attachPlugins)
-			.catch(error => {
-				self.Notify(ENotificationStatus.error, error as string);
-				reject(error);
-			})
-			.finally(() => {
-				const events = self.Utils.Event.Get();
-				for (const [key, eventList] of Object.entries(events)) {
-					if (!DOM.Utils.NativeEvents.includes(key)) continue;
-					self.DOM.On(self.IsIFrame() ? self.DOM.Select('html') : self.GetBody(), key, (evt) => {
-						for (const event of eventList) {
-							event(evt);
-						}
-					});
-				}
-
-				resolve();
-			});
-	});
-};
 
 const EditorSetup = (editor: Editor): Promise<void> => {
 	const self = editor;
@@ -98,9 +61,14 @@ const EditorSetup = (editor: Editor): Promise<void> => {
 		self.Utils = EditorUtils(self);
 		self.Plugin = PluginManager(self);
 		EventSetup(self);
+		self.Formatter = Formatter(self);
+
+		for (const toolbar of self.Config.Toolbars) {
+			self.Formatter.Register(toolbar);
+		}
 
 		finer.Loaders.Plugin.LoadParallel(self.Config.Plugins)
-			.then(() => AttachPlugin(self))
+			.then(() => self.Plugin.AttachPlugin())
 			.then(() => resolve())
 			.catch(error => reject(error));
 	});

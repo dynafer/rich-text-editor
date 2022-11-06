@@ -1,11 +1,11 @@
-import { Str, Type, Instance } from '@dynafer/utils';
+import { Str, Type, Instance, Arr } from '@dynafer/utils';
 import DOMUtils, { IDOMUtils } from './DOMUtils';
 
 const emptyRegex = /%EF%BB%BF/gi;
 
-type TCreateOption = Record<string, string> | string[] | string | TElement[];
 type TElement = Node | Element | null;
 
+export type TCreateOption = Record<string, string> | string[] | string | TElement[];
 export type TEventListener<K extends keyof GlobalEventHandlersEventMap> = (event: GlobalEventHandlersEventMap[K]) => void;
 
 export interface IDom {
@@ -38,7 +38,7 @@ export interface IDom {
 		<K extends keyof CSSStyleDeclaration>(selector: HTMLElement | null, styles: Record<K, string>): void;
 		(selector: HTMLElement | null, styles: Record<string, string>): void;
 	},
-	HasStyle: (selector: HTMLElement | null, styleName: string) => boolean,
+	HasStyle: (selector: HTMLElement | null, styleName: string, compareValue?: string) => boolean,
 	Insert: (selector: TElement, insertion: TElement | Node[] | string) => void,
 	InsertAfter: (selector: TElement, insertion: TElement | Node[]  | string) => void,
 	Clone: (selector: TElement, deep?: boolean, insertion?: TElement | Node[]) => Node | null,
@@ -46,7 +46,7 @@ export interface IDom {
 		<K extends keyof HTMLElementTagNameMap>(selector: TElement): K;
 		(selector: TElement): string;
 	},
-	GetParents: (selector: Node | null) => Node[],
+	GetParents: (selector: Node | null, bReverse?: boolean) => Node[],
 	On: {
 		<K extends keyof GlobalEventHandlersEventMap>(selector: TElement, eventName: K, event: TEventListener<K>): void;
 		(selector: TElement, eventName: string, event: EventListener): void;
@@ -163,10 +163,15 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 		}
 	};
 
-	const HasStyle = (selector: HTMLElement | null, styleName: string): boolean => {
+	const HasStyle = (selector: HTMLElement | null, styleName: string, compareValue?: string): boolean => {
 		if (!Instance.Is(selector, elementType) || !Type.IsString(styleName)) return false;
 
-		return selector.style.cssText.includes(Str.CapitalToDash(styleName));
+		const cssText = selector.style.cssText.replace(/\s*:\s*/gi, ':');
+		if (compareValue) {
+			if (!Type.IsString(compareValue)) return false;
+			return cssText.includes(`${Str.CapitalToDash(styleName)}:${compareValue.trim()}`);
+		}
+		return cssText.includes(Str.CapitalToDash(styleName));
 	};
 
 	const Insert = (selector: TElement, insertion: TElement | Node[] | string) => {
@@ -231,17 +236,18 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 		return selector.tagName.toLowerCase();
 	};
 
-	const GetParents = (selector: Node | null) => {
+	const GetParents = (selector: Node | null, bReverse: boolean = false) => {
 		if (!Instance.Is(selector, nodeType) || HasAttr(selector, 'contenteditable')) return [];
 		const parents: Node[] = [];
+		const add = bReverse ? Arr.Push : Arr.Unshift;
 		let parent: ParentNode | Node | null = selector;
 
-		if (selector.nodeName !== '#text') parents.unshift(selector);
+		if (selector.nodeName !== '#text') add(parents, selector);
 
 		while (parent = parent.parentNode) {
 			if (!Instance.Is(selector, nodeType) || !Instance.Is(parent, nodeType) || HasAttr(parent, 'contenteditable')) break;
 
-			parents.unshift(parent);
+			add(parents, parent);
 		}
 
 		return parents;

@@ -27,6 +27,10 @@ export const Reverse = <T>(array: T[]) => {
 	return reversed;
 };
 
+export const Push = <T>(array: T[], ...items: T[]): number => array.push(...items);
+
+export const Unshift = <T>(array: T[], ...items: T[]): number => array.unshift(...items);
+
 export const CompareAndGetStartIndex = <T>(bigArray: T[], smallArray: T[]): number =>
 	IsArray(bigArray) && !IsEmpty(bigArray) && IsArray(smallArray) && !IsEmpty(smallArray)
 		? bigArray.indexOf(smallArray[0])

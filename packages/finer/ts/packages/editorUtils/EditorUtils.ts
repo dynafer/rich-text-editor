@@ -1,6 +1,6 @@
 import Editor from '../Editor';
+import CaretUtils, { ICaretUtils } from './CaretUtils';
 import EventUtils, { IEventUtils } from './EventUtils';
-import CaretUtils, { ICaretUtils } from './caret/CaretUtils';
 
 export interface IEditorUtils {
 	Caret: ICaretUtils,

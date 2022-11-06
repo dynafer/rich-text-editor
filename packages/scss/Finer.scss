@@ -12,12 +12,12 @@
 	@include setClass(toolbar) {
 		@include width(100%);
 		@include height(32px);
-		@include paddingAll(0.2rem);
 		background-color: #ececec;
 
 		@include setClass(icon) {
 			@include flex($inline: true);
 			@include paddingAll(0.3rem);
+			@include marginAll(0.2rem);
 			@include round(0.4rem);
 			cursor: pointer;
 			border: none;

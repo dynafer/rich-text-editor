@@ -17,7 +17,7 @@ export interface IDOMUtils {
 	NativeEvents: string[],
 	CreateUEID: (id?: string, bAddNum?: boolean) => string,
 	GetModeTag: (mode: EModeEditor) => string,
-	CreateEmptyHTML: (tagName?: string) => string,
+	GetEmptyString: () => string,
 	IsParagraph: (selector: Node | null) => boolean,
 	IsText: (selector: Node | null) => boolean,
 	GetNodeName: (selector: Node | null) => string,
@@ -39,7 +39,7 @@ const DOMUtils = (): IDOMUtils => {
 		}
 	};
 
-	const CreateEmptyHTML = (tagName?: string): string => tagName ? `<${tagName}>${emptyHexCode}</${tagName}>` : emptyHexCode;
+	const GetEmptyString = (): string => emptyHexCode;
 
 	const IsParagraph = (selector: Node | null): boolean => selector?.nodeName.toLowerCase() === 'p' ?? false;
 
@@ -51,7 +51,7 @@ const DOMUtils = (): IDOMUtils => {
 		NativeEvents,
 		CreateUEID,
 		GetModeTag,
-		CreateEmptyHTML,
+		GetEmptyString,
 		IsParagraph,
 		IsText,
 		GetNodeName,

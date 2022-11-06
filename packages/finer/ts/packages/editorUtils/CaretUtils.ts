@@ -1,5 +1,4 @@
-import Editor from '../../Editor';
-import CaretMagic, { ICaretMagic } from './CaretMagic';
+import Editor from '../Editor';
 
 interface ILineData {
 	Node: Node,
@@ -18,7 +17,6 @@ export interface ICaretData {
 }
 
 export interface ICaretUtils {
-	Magic: ICaretMagic,
 	Get: (bNeedCheckUpdate?: boolean) => ICaretData[],
 	UpdateRanges: (newRanges: Range[]) => void
 }
@@ -26,7 +24,6 @@ export interface ICaretUtils {
 const CaretUtils = (editor: Editor): ICaretUtils => {
 	const self = editor;
 	const DOM = self.DOM;
-	const Magic = CaretMagic(self);
 
 	let selection: Selection | null = null;
 	let ranges: Range[] = [];
@@ -94,7 +91,6 @@ const CaretUtils = (editor: Editor): ICaretUtils => {
 	};
 
 	return {
-		Magic,
 		Get,
 		UpdateRanges,
 	};
