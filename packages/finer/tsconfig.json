@@ -19,5 +19,8 @@
 	"include": [
 		"ts/**/*.ts",
 		"ts/packages/**/*.d.ts"
-	]
+	],
+	"exclude": [
+		"ts/packages/plugins/template"
+	],
 }

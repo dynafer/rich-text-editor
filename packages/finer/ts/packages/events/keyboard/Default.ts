@@ -3,6 +3,7 @@ import Editor from '../../Editor';
 
 const DefaultEvent = (editor: Editor, event: KeyboardEvent) => {
 	const self = editor;
+	editor.Dispatch('caret:change', event.composedPath());
 
 	if (Str.IsEmpty(self.GetBody().innerHTML.replace(/(\\n|\\t|\s|\<br\>)/gi, ''))) {
 		event.preventDefault();
