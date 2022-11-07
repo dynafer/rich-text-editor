@@ -2,6 +2,7 @@ import Editor from '../Editor';
 import { ICaretData } from '../editorUtils/CaretUtils';
 import FormatToggle from './FormatToggle';
 import { EFormatType, IFormatBase, IToggleSetting } from './FormatType';
+import { CheckFormat } from './FormatUtils';
 
 const FormatCaret = (editor: Editor) => {
 	const self = editor;
@@ -9,23 +10,11 @@ const FormatCaret = (editor: Editor) => {
 	const CaretUtils = self.Utils.Caret;
 	const toggler = FormatToggle(self);
 
-	const checkFormat = (format: IFormatBase) =>
-		(node: Node): boolean => {
-			switch (format.type) {
-				case EFormatType.tag:
-					return DOM.Utils.GetNodeName(node) === format.format;
-				case EFormatType.style:
-					return DOM.HasStyle(node as HTMLElement, format.format, format.formatValue);
-				default:
-					return false;
-			}
-		};
-
 	const getFormatToSetting = <T extends Node = ParentNode>(format: IFormatBase, parent: T): IToggleSetting<T> => {
 		return {
 			...format,
 			parent,
-			checker: checkFormat(format)
+			checker: CheckFormat(self, format)
 		};
 	};
 
@@ -63,10 +52,43 @@ const FormatCaret = (editor: Editor) => {
 		return caret.Range.cloneRange();
 	};
 
+	const toggleCaret = (bWrap: boolean, format: IFormatBase, caret: ICaretData): Range => {
+		const caretId = DOM.Utils.CreateUEID('caret', false);
+
+		const caretPointer = DOM.Create('span', {
+			attrs: {
+				id: caretId,
+				caret: 'true'
+			}
+		});
+
+		const wrappingOption = toggler.GetWrappingOption(format.type, format.format, format.formatValue);
+
+		const createWrapper = DOM.Create(wrappingOption.format, {
+			...wrappingOption.option,
+			html: DOM.Utils.GetEmptyString()
+		});
+
+		DOM.Insert(caretPointer, bWrap ? createWrapper : '&nbsp;');
+		caret.Range.insertNode(caretPointer);
+
+		if (bWrap) {
+			caret.Range.setStart(createWrapper, 1);
+			caret.Range.setEnd(createWrapper, 1);
+		} else {
+			caret.Range.selectNodeContents(caretPointer);
+			toggler.Unwrap.UnwrapParents(caret.SameRoot, [caretPointer], CheckFormat(self, format));
+			caretPointer.innerHTML = DOM.Utils.GetEmptyString();
+			caret.Range.setStart(caretPointer, 1);
+			caret.Range.setEnd(caretPointer, 1);
+		}
+
+		return caret.Range.cloneRange();
+	};
+
 	const toggle = (bWrap: boolean, format: IFormatBase) => {
 		const carets: ICaretData[] = CaretUtils.Get(true);
 		const newRanges: Range[] = [];
-		const caretId = DOM.Utils.CreateUEID('caret', false);
 
 		for (let index = 0, length = carets.length; index < length; ++ index) {
 			const caret = carets[index];
@@ -75,35 +97,8 @@ const FormatCaret = (editor: Editor) => {
 				const toggleLines = caret.IsSameLine() ? toggleSameLine : toggleRange;
 				newRanges.push(toggleLines(bWrap, format, caret));
 				continue;
-			}
-
-			const caretPointer = DOM.Create('span', {
-				attrs: {
-					id: caretId,
-					caret: index.toString()
-				}
-			});
-
-			const wrappingOption = toggler.GetWrappingOption(format.type, format.format, format.formatValue);
-
-			const createWrapper = DOM.Create(wrappingOption.format, {
-				...wrappingOption.option,
-				html: bWrap ? DOM.Utils.GetEmptyString() : '&nbsp;'
-			});
-
-			DOM.Insert(caretPointer, createWrapper);
-			caret.Range.insertNode(caretPointer);
-
-			if (bWrap) {
-				caret.Range.setStartAfter(caretPointer);
-				newRanges.push(caret.Range.cloneRange());
 			} else {
-				caret.Range.setStart(caretPointer, 0);
-				caret.Range.setEnd(caretPointer, 1);
-				toggler.Unwrap.UnwrapParents(caret.SameRoot, [caretPointer], checkFormat(format));
-				caretPointer.innerHTML = DOM.Utils.GetEmptyString();
-				caret.Range.setStartAfter(caretPointer);
-				newRanges.push(caret.Range);
+				newRanges.push(toggleCaret(bWrap, format, caret));
 			}
 		}
 
