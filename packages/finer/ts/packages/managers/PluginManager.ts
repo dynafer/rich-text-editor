@@ -23,18 +23,19 @@ const PluginManager = (editor: Editor): IPluginManager => {
 		for (const caretPointer of caretPointers) {
 			if (currentCarets.includes(caretPointer)) continue;
 
-			if (Str.IsEmpty(DOM.GetInnerText(caretPointer))) {
-				const parents = DOM.GetParents(caretPointer, true);
-				for (const parent of parents) {
-					if (Str.IsEmpty(DOM.GetInnerText(parent as HTMLElement))) {
-						(parent as HTMLElement).remove();
-						continue;
-					}
+			if (!Str.IsEmpty(DOM.GetInnerText(caretPointer))) {
+				caretPointer.replaceWith(caretPointer.childNodes[0]);
+				continue;
+			}
 
-					break;
+			const parents = DOM.GetParents(caretPointer, true);
+			for (const parent of parents) {
+				if (Str.IsEmpty(DOM.GetInnerText(parent as HTMLElement))) {
+					(parent as HTMLElement).remove();
+					continue;
 				}
-			} else {
-				caretPointer.replaceWith(caretPointer.children[0]);
+
+				break;
 			}
 		}
 	}) as IEvent);

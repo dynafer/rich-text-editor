@@ -41,11 +41,11 @@ const DOMUtils = (): IDOMUtils => {
 
 	const GetEmptyString = (): string => emptyHexCode;
 
-	const IsParagraph = (selector: Node | null): boolean => selector?.nodeName.toLowerCase() === 'p' ?? false;
+	const IsParagraph = (selector: Node | null): boolean => selector?.nodeName?.toLowerCase() === 'p' ?? false;
 
-	const IsText = (selector: Node | null): boolean => selector?.nodeName.toLowerCase() === '#text' ?? false;
+	const IsText = (selector: Node | null): boolean => selector?.nodeName?.toLowerCase() === '#text' ?? false;
 
-	const GetNodeName = (selector: Node | null): string => selector?.nodeName.toLowerCase() ?? '';
+	const GetNodeName = (selector: Node | null): string => selector?.nodeName?.toLowerCase() ?? '';
 
 	return {
 		NativeEvents,
