@@ -1,7 +1,6 @@
 import { Instance, Type } from '@dynafer/utils';
 import { EModeEditor } from '../Options';
 import DOM from './dom/DOM';
-import { Formats } from './format/Formatter';
 
 export interface IEditorOption {
 	selector?: HTMLElement,
@@ -9,7 +8,8 @@ export interface IEditorOption {
 	width?: string,
 	height?: string,
 	plugins?: string[],
-	toolbars?: string[]
+	toolbars?: string[],
+	[key: string]: string | string[] | Record<string, string> | HTMLElement | undefined,
 }
 
 export interface IConfiguration {
@@ -19,7 +19,8 @@ export interface IConfiguration {
 	Width: string,
 	Height: string,
 	Toolbars: string[],
-	Plugins: string[]
+	Plugins: string[],
+	[key: string]: string | string[] | Record<string, string> | HTMLElement,
 }
 
 const Configure = (config: IEditorOption): IConfiguration => {
@@ -43,16 +44,9 @@ const Configure = (config: IEditorOption): IConfiguration => {
 	const defaultHeight: string = Mode === EModeEditor.classic ? '400px' : 'auto';
 	const Height: string = config.height ?? defaultHeight;
 
-	const plugins: string[] = config.plugins ?? [];
-	if (!Type.IsArray(plugins)) {
+	const Plugins: string[] = config.plugins ?? [];
+	if (!Type.IsArray(Plugins)) {
 		throw new Error('Configuration: Plugins of configuration must be array');
-	}
-
-	const Plugins: string[] = [];
-
-	for (const plugin of plugins) {
-		if (Formats.includes(plugin)) continue;
-		Plugins.push(plugin);
 	}
 
 	const Toolbars: string[] = config.toolbars ?? [];
@@ -68,6 +62,7 @@ const Configure = (config: IEditorOption): IConfiguration => {
 		Height,
 		Plugins,
 		Toolbars,
+		...config
 	};
 
 	Object.freeze(configuration);

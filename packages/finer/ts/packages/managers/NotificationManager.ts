@@ -3,9 +3,9 @@ import DOM from '../dom/DOM';
 import * as Icons from '../icons/Icons';
 
 export enum ENotificationStatus {
-	default,
-	warning,
-	error
+	DEFAULT = 'DEFAULT',
+	WARNING = 'WARNING',
+	ERROR = 'ERROR'
 }
 
 interface INotificationManager {
@@ -18,7 +18,7 @@ const NotificationManager = (editor: Editor): INotificationManager => {
 	const self = editor;
 	const notification = self.Frame.Notification;
 	const stacks: Element[] = [];
-	let status = ENotificationStatus.default;
+	let status = ENotificationStatus.DEFAULT;
 
 	const Show = () => {
 		DOM.Show(notification);
@@ -33,10 +33,10 @@ const NotificationManager = (editor: Editor): INotificationManager => {
 		Show();
 
 		switch (type) {
-			case ENotificationStatus.warning:
+			case ENotificationStatus.WARNING:
 				console.warn(text);
 				break;
-			case ENotificationStatus.error:
+			case ENotificationStatus.ERROR:
 				console.error(text);
 				self.Destroy();
 				return;
@@ -81,7 +81,7 @@ const NotificationManager = (editor: Editor): INotificationManager => {
 
 			wrapper.remove();
 
-			if (status !== ENotificationStatus.error && stacks.length === 0) {
+			if (status !== ENotificationStatus.ERROR && stacks.length === 0) {
 				Hide();
 			}
 		});

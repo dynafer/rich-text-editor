@@ -6,13 +6,13 @@ import EditorSetup from './EditorSetup';
 import DOM, { IDom, TEventListener } from './dom/DOM';
 import { IEditorUtils } from './editorUtils/EditorUtils';
 import { IEvent } from './editorUtils/EventUtils';
-import { IFormatter } from './format/Formatter';
+import { IFormatter } from './formatter/Formatter';
 import { ENotificationStatus, INotificationManager, NotificationManager } from './managers/NotificationManager';
 import { IPluginManager } from './managers/PluginManager';
 
 enum ELoadingStatus {
-	show,
-	hide
+	SHOW = 'SHOW',
+	HIDE = 'HIDE'
 }
 
 export interface IEditorConstructor {
@@ -41,8 +41,8 @@ class Editor {
 		this.Notification = NotificationManager(this);
 
 		EditorSetup(this)
-			.then(() => this.setLoading(ELoadingStatus.hide))
-			.catch(error => this.Notify(ENotificationStatus.error, error as string));
+			.then(() => this.setLoading(ELoadingStatus.HIDE))
+			.catch(error => this.Notify(ENotificationStatus.ERROR, error as string));
 	}
 
 	public Notify(type: ENotificationStatus, text: string) {
@@ -83,8 +83,8 @@ class Editor {
 		this.GetBody().focus();
 	}
 
-	public InitContent() {
-		this.GetBody().innerHTML = '<p><br></p>';
+	public InitContent(html: string = '<p><br></p>') {
+		this.DOM.SetHTML(this.GetBody(), html);
 	}
 
 	public Destroy() {
@@ -94,11 +94,11 @@ class Editor {
 
 	public SetContent(html: string) {
 		if (Str.IsEmpty(html)) this.InitContent();
-		if (!Str.IsEmpty(html) && this.IsIFrame()) this.GetBody().innerHTML = html;
+		if (!Str.IsEmpty(html) && this.IsIFrame()) this.InitContent(html);
 	}
 
 	private setLoading(status: ELoadingStatus) {
-		if (status === ELoadingStatus.hide)
+		if (status === ELoadingStatus.HIDE)
 			DOM.Hide(this.Frame.Loading);
 		else
 			DOM.Show(this.Frame.Loading);

@@ -71,7 +71,7 @@ const PluginLoader = (): IPluginLoader => {
 				resolve();
 			} catch (error) {
 				console.error(error);
-				self.Notify(ENotificationStatus.warning, `Plugin: ${name} runs inappropriately`);
+				self.Notify(ENotificationStatus.WARNING, `Plugin: ${name} runs inappropriately`);
 				resolve();
 			}
 		});

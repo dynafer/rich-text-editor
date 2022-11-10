@@ -4,23 +4,15 @@ import Editor from './Editor';
 import DOM from './dom/DOM';
 import EditorUtils from './editorUtils/EditorUtils';
 import EventSetup from './events/EventSetup';
-import { Formatter } from './format/Formatter';
+import { Formatter } from './formatter/Formatter';
 import PluginManager from './managers/PluginManager';
 
 const EditorSetup = (editor: Editor): Promise<void> => {
 	const self = editor;
 	const frame = self.Frame;
+	const config = self.Config;
 
 	return new Promise((resolve, reject) => {
-		let initialContent: string;
-		if (Instance.Is(self.Config.Selector, HTMLTextAreaElement)) {
-			initialContent = self.Config.Selector.value;
-			self.Config.Selector.value = '';
-		} else {
-			initialContent = self.Config.Selector.innerHTML;
-			self.Config.Selector.innerHTML = '';
-		}
-
 		const bodyId = DOM.Utils.CreateUEID('editor-body', false);
 		let body: HTMLElement;
 
@@ -55,6 +47,15 @@ const EditorSetup = (editor: Editor): Promise<void> => {
 			body = containerBody;
 		}
 
+		let initialContent: string;
+		if (Instance.Is(config.Selector, HTMLTextAreaElement)) {
+			initialContent = config.Selector.value;
+			config.Selector.value = '';
+		} else {
+			initialContent = DOM.GetHTML(config.Selector);
+			DOM.SetHTML(config.Selector, '');
+		}
+
 		self.SetBody(body);
 		self.SetContent(initialContent);
 
@@ -62,12 +63,14 @@ const EditorSetup = (editor: Editor): Promise<void> => {
 		self.Plugin = PluginManager(self);
 		EventSetup(self);
 		self.Formatter = Formatter(self);
+		
+		const plugins = config.Plugins.filter((plugin) => !self.Formatter.Formats.IsAailable(plugin));
 
-		for (const toolbar of self.Config.Toolbars) {
+		for (const toolbar of config.Toolbars) {
 			self.Formatter.Register(toolbar);
 		}
 
-		finer.Loaders.Plugin.LoadParallel(self.Config.Plugins)
+		finer.Loaders.Plugin.LoadParallel(plugins)
 			.then(() => self.Plugin.AttachPlugin())
 			.then(() => resolve())
 			.catch(error => reject(error));

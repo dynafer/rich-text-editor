@@ -18,3 +18,4 @@ export const IsObject: (value: unknown) => value is object = isType('object');
 export const IsString: (value: unknown) => value is string = isType('string');
 export const IsBoolean: (value: unknown) => value is boolean = isType('boolean');
 export const IsFunction: (value: unknown) => value is () => void = isType('function');
+export const IsNull: (value: unknown) => value is null = isType('null');
