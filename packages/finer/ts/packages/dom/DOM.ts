@@ -39,6 +39,11 @@ export interface IDom {
 		(selector: HTMLElement | null, styles: Record<string, string>): void;
 	},
 	HasStyle: (selector: HTMLElement | null, styleName: string, compareValue?: string) => boolean,
+	GetText: (selector: HTMLElement) => string,
+	GetHTML: (selector: HTMLElement) => string,
+	SetText: (selector: HTMLElement, text: string) => void,
+	SetHTML: (selector: HTMLElement, html: string) => void,
+	SetOuterHTML: (selector: HTMLElement, html: string) => void,
 	Insert: (selector: TElement, insertion: TElement | Node[] | string) => void,
 	InsertAfter: (selector: TElement, insertion: TElement | Node[]  | string) => void,
 	Clone: (selector: TElement, deep?: boolean, insertion?: TElement | Node[]) => Node | null,
@@ -57,7 +62,7 @@ export interface IDom {
 	},
 	Show: (selector: HTMLElement, displayType?: string) => void,
 	Hide: (selector: HTMLElement) => void,
-	GetInnerText: (selector: HTMLElement) => string,
+	IsHidden: (selector: HTMLElement) => boolean,
 	Create: {
 		<K extends keyof HTMLElementTagNameMap>(tagName: K, option?: Record<string, TCreateOption>): HTMLElementTagNameMap[K];
 		(tagName: string, option?: Record<string, TCreateOption>): HTMLElement;
@@ -134,6 +139,7 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 		const styleDict: Record<string, string> = {};
 		for (const style of styleList) {
 			const keyValue = style.split(':');
+			if (keyValue.length !== 2) continue;
 			styleDict[Str.DashToCapital(keyValue[0])] = keyValue[1].trim();
 		}
 
@@ -144,8 +150,12 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 		if (!Instance.Is(selector, elementType)) return '';
 
 		const styles = GetStyles(selector);
+		if (Object.keys(styles).length === 0) {
+			const computedStyle = Win.getComputedStyle(selector);
+			return computedStyle[Str.CapitalToDash(styleName)];
+		}
 
-		return styles[styleName];
+		return styles[Str.CapitalToDash(styleName)];
 	};
 
 	const SetStyle = (selector: HTMLElement | null, name: string, value: string) => {
@@ -172,6 +182,31 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 			return cssText.includes(`${Str.CapitalToDash(styleName)}:${compareValue.trim()}`);
 		}
 		return cssText.includes(Str.CapitalToDash(styleName));
+	};
+
+	const GetText = (selector: HTMLElement): string => {
+		if (!Instance.Is(selector, elementType)) return '';
+		return encodeURI(selector.innerText).replace(emptyRegex, '');
+	};
+
+	const GetHTML = (selector: HTMLElement): string => {
+		if (!Instance.Is(selector, elementType)) return '';
+		return decodeURI(encodeURI(selector.innerHTML).replace(emptyRegex, ''));
+	};
+
+	const SetText = (selector: HTMLElement, text: string) => {
+		if (!Instance.Is(selector, elementType)) return;
+		selector.innerText = text;
+	};
+
+	const SetHTML = (selector: HTMLElement, html: string) => {
+		if (!Instance.Is(selector, elementType)) return;
+		selector.innerHTML = html;
+	};
+
+	const SetOuterHTML = (selector: HTMLElement, html: string) => {
+		if (!Instance.Is(selector, elementType)) return;
+		selector.outerHTML = html;
 	};
 
 	const Insert = (selector: TElement, insertion: TElement | Node[] | string) => {
@@ -275,9 +310,9 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 		SetStyle(selector, 'display', 'none');
 	};
 
-	const GetInnerText = (selector: HTMLElement): string => {
-		if (!Instance.Is(selector, elementType)) return '';
-		return encodeURI(selector.innerText).replace(emptyRegex, '');
+	const IsHidden = (selector: HTMLElement): boolean => {
+		if (!Instance.Is(selector, elementType)) return false;
+		return GetStyle(selector, 'display') === 'none';
 	};
 
 	const Create = (tagName: string, option?: Record<string, TCreateOption>) => {
@@ -290,7 +325,7 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 		if (option.class && Type.IsString(option.class)) newElement.className = option.class;
 		else if (option.class && Type.IsArray(option.class)) AddClass(newElement, ...option.class as string[]);
 
-		if (option.html && Type.IsString(option.html)) newElement.innerHTML = option.html;
+		if (option.html && Type.IsString(option.html)) SetHTML(newElement, option.html);
 		if (option.children && Type.IsArray(option.children)) {
 			for (const child of option.children) {
 				if (!Instance.Is(child, elementType) && !Instance.Is(child, nodeType)) continue;
@@ -320,6 +355,11 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 		SetStyle,
 		SetStyles,
 		HasStyle,
+		GetText,
+		GetHTML,
+		SetText,
+		SetHTML,
+		SetOuterHTML,
 		Insert,
 		InsertAfter,
 		Clone,
@@ -329,7 +369,7 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 		Dispatch,
 		Show,
 		Hide,
-		GetInnerText,
+		IsHidden,
 		Create,
 		Utils,
 	};

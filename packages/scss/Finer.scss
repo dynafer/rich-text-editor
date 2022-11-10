@@ -12,6 +12,7 @@
 	@include setClass(toolbar) {
 		@include width(100%);
 		@include height(32px);
+		@include flex();
 		background-color: #ececec;
 
 		@include setClass(icon) {
@@ -32,6 +33,66 @@
 
 			&:hover {
 				background-color: #afafaf;
+			}
+		}
+
+		@include setClass(select) {
+			@include position(relative);
+			@include marginAll(0.2rem);
+			@include width(120px);
+			cursor: pointer;
+			user-select: none;
+
+			&.active {
+				@include setClass(label) { background-color: #c9c9c9; }
+			}
+
+			@include setClass(label) {
+				@include paddingAll(0.2rem);
+				@include round(7px);
+				@include width(100%);
+				@include truncation;
+				background-color: #f2f2f2;
+				border: 1px solid #afafaf;
+
+				&:hover {
+					background-color: #afafaf;
+				}
+			}
+
+			@include setClass(options) {
+				@include position(absolute);
+				@include width(fit-content, 120px);
+				@include margin($top: -1);
+				@include round(7px);
+				display: none;
+				background-color: #ececec;
+				border: 1px solid #afafaf;
+				z-index: 9999;
+
+				@include setClass(li) {
+					@include flex($align: center);
+					@include paddingAll(0.4rem);
+					@include height(36px);
+					list-style: none;
+					white-space: nowrap;
+
+					svg {
+						@include square(16px);
+						@include margin(rem, $right: 0.4);
+					}
+
+					&.active svg { display: block; }
+					&:not(.active) {
+						$emptyPadding: calc(0.8rem + 16px);
+						@include padding(null, $right: $emptyPadding, $left: $emptyPadding);
+						svg { display: none; }
+					}
+		
+					&:hover {
+						background-color: #afafaf;
+					}
+				}
 			}
 		}
 	}

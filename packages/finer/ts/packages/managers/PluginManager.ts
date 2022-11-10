@@ -11,26 +11,26 @@ const PluginManager = (editor: Editor): IPluginManager => {
 	const self = editor;
 	const DOM = self.DOM;
 
-	self.On('caret:change', ((paths: EventTarget[]) => {
+	self.On('caret:change', ((paths: Node[]) => {
 		const caretPointers = DOM.SelectAll('[caret]');
 		if (Arr.IsEmpty(caretPointers)) return;
 
 		const currentCarets: Node[] = [];
 		for (const path of paths) {
-			if (DOM.HasAttr(path as Node, 'caret')) currentCarets.push(path as Node);
+			if (DOM.HasAttr(path, 'caret')) currentCarets.push(path);
 		}
 
 		for (const caretPointer of caretPointers) {
 			if (currentCarets.includes(caretPointer)) continue;
 
-			if (!Str.IsEmpty(DOM.GetInnerText(caretPointer))) {
-				caretPointer.replaceWith(caretPointer.childNodes[0]);
+			if (!Str.IsEmpty(DOM.GetText(caretPointer))) {
+				DOM.SetOuterHTML(caretPointer, DOM.GetHTML(caretPointer));
 				continue;
 			}
 
 			const parents = DOM.GetParents(caretPointer, true);
 			for (const parent of parents) {
-				if (Str.IsEmpty(DOM.GetInnerText(parent as HTMLElement))) {
+				if (Str.IsEmpty(DOM.GetText(parent as HTMLElement))) {
 					(parent as HTMLElement).remove();
 					continue;
 				}
@@ -45,7 +45,7 @@ const PluginManager = (editor: Editor): IPluginManager => {
 			const attachPlugins: Promise<void>[] = [];
 			for (const name of self.Config.Plugins) {
 				if (!finer.Loaders.Plugin.Has(name)) {
-					self.Notify(ENotificationStatus.warning, `Plugin '${name}' hasn't loaded.`);
+					self.Notify(ENotificationStatus.WARNING, `Plugin '${name}' hasn't loaded.`);
 					continue;
 				}
 
@@ -54,7 +54,7 @@ const PluginManager = (editor: Editor): IPluginManager => {
 
 			Promise.all(attachPlugins)
 				.catch(error => {
-					self.Notify(ENotificationStatus.error, error as string);
+					self.Notify(ENotificationStatus.ERROR, error as string);
 					reject(error);
 				})
 				.finally(() => {

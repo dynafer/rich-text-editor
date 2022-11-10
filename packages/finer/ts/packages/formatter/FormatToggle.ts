@@ -36,11 +36,11 @@ const FormatToggle = (editor: Editor): IFormatToggle => {
 
 	const GetWrappingOption = (type: EFormatType, format: string, formatValue: string | undefined): IFormattingOption => {
 		const formattingOption: IFormattingOption = {
-			format: type === EFormatType.style ? 'span' : format,
+			format: type === EFormatType.STYLE ? 'span' : format,
 			option: {}
 		};
 
-		if (type === EFormatType.style && formatValue) {
+		if (type === EFormatType.STYLE && formatValue) {
 			formattingOption.option.styles = {};
 			formattingOption.option.styles[format] = formatValue;
 		}
