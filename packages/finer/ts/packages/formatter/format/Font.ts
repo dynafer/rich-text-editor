@@ -2,58 +2,61 @@ import { Arr, Str, Type } from '@dynafer/utils';
 import Editor from '../../Editor';
 import DOM from '../../dom/DOM';
 import * as Icons from '../../icons/Icons';
-import FormatCaret from '../FormatCaret';
 import FormatDetector from '../FormatDetector';
-import { EFormatType, EFormatUI, IFormatOptionBase, IFormatOption, IFormatDetectorActivator, ACTIVE_CLASS, STANDARD_POINTS_FROM_PIXEL, STANDARD_PIXEL_FROM_POINTS } from '../FormatType';
+import {
+	EFormatType, EFormatUI, IFormatOptionBase, IFormatOption, IFormatDetectorActivator, STANDARD_POINTS_FROM_PIXEL, STANDARD_PIXEL_FROM_POINTS, IFormatRegistryJoiner, EFormatUIType
+} from '../FormatType';
 import FormatUI from '../FormatUI';
 
-const Formats: Record<string, IFormatSelector> = {
-	fontsize: {
-		type: EFormatType.STYLE,
-		format: 'font-size',
-		options: [],
-		defaultOptions: ['9pt', '12pt', '18pt', '24pt', '48pt'],
-	},
-	fontfamily: {
-		type: EFormatType.STYLE,
-		format: 'font-family',
-		options: [],
-		defaultOptions: {
-			Arial: 'arial, sans-serif',
-			'Arial Black': 'arial black, sans-serif',
-			'Courier New': 'courier new, monospace',
-			Georgia: 'georgia, serif',
-			Helvetica: 'helvetica, sans-serif',
-			'Lucida Console': 'lucida console',
-			Monaco: 'monaco',
-			'Noto Sans': 'noto sans, sans-serif',
-			'Times New Soman': 'times new roman, serif',
-			Verdana: 'verdana, sans-serif'
-		},
-	}
-};
-
 interface IFormatSelector extends Pick<IFormatOptionBase, 'type' | 'format'> {
-	options: IFormatOption[],
+	formatOptions: IFormatOption[],
 	defaultOptions: string[] | Record<string, string>,
+}
+
+interface IFormatGetValue {
+	(detectedValue: string): string;
 }
 
 interface IDetectableOption {
 	name: string,
-	label: HTMLElement,
-	optionWrapper: HTMLElement,
+	selection: HTMLElement,
 	detectableStyleMap: Record<string, string>,
 	systemStyle: string,
 	setLabel: (text: string) => void,
-	activator: IFormatDetectorActivator,
+	getValue: IFormatGetValue,
 }
 
-const Font = (editor: Editor) => {
+const Font = (editor: Editor): IFormatRegistryJoiner => {
 	const self = editor;
-	const caretToggler = FormatCaret(self);
 	const detector = FormatDetector(self);
 	const UI = FormatUI(self);
 
+	const Formats: Record<string, IFormatSelector> = {
+		fontsize: {
+			type: EFormatType.STYLE,
+			format: 'font-size',
+			formatOptions: [],
+			defaultOptions: ['9pt', '12pt', '18pt', '24pt', '48pt'],
+		},
+		fontfamily: {
+			type: EFormatType.STYLE,
+			format: 'font-family',
+			formatOptions: [],
+			defaultOptions: {
+				Arial: 'arial, sans-serif',
+				'Arial Black': 'arial black, sans-serif',
+				'Courier New': 'courier new, monospace',
+				Georgia: 'georgia, serif',
+				Helvetica: 'helvetica, sans-serif',
+				'Lucida Console': 'lucida console',
+				Monaco: 'monaco',
+				'Noto Sans': 'noto sans, sans-serif',
+				'Times New Soman': 'times new roman, serif',
+				Verdana: 'verdana, sans-serif'
+			},
+		}
+	};
+	
 	const escapeUnnecessaryChars = (value: string) => value.replace(/["`';]/g, '');
 	const convertToDetecterValue = (value: string) => escapeUnnecessaryChars(value).toLowerCase();
 	const getSystemStyle = (style: string) => self.DOM.GetStyle(self.GetBody(), style);
@@ -61,12 +64,6 @@ const Font = (editor: Editor) => {
 		const bPixel = size.toLowerCase().includes('px');
 		const replaced = parseFloat(size.toLowerCase().replace(bPixel ? 'px' : 'pt', '')) ?? 0;
 		return `${replaced * (bPixel ? STANDARD_POINTS_FROM_PIXEL : STANDARD_PIXEL_FROM_POINTS)}${bPixel ? 'pt' : 'px'}`;
-	};
-
-	const processBeforeActive = (optionWrapper: HTMLElement) => {
-		for (const activated of DOM.SelectAll(`.${ACTIVE_CLASS}`, optionWrapper)) {
-			DOM.RemoveClass(activated, ACTIVE_CLASS);
-		}
 	};
 
 	const getPrimaryValue = (value: string) => value.split(',')[0].trim();
@@ -79,52 +76,23 @@ const Font = (editor: Editor) => {
 		return newOptions;
 	};
 
-	const setLabelText = (label: HTMLElement) => (text: string) => DOM.SetText(label, text);
+	const setLabelText = (label: HTMLElement) => (text: string) => {
+		DOM.SetAttr(label, 'data-value', text);
+		DOM.SetText(label, text);
+	};
+	const getLabelText = (bActive: boolean, detected: string, detectable: IDetectableOption) => {
+		const { systemStyle, detectableStyleMap, getValue } = detectable;
 
-	const activate = (detectable: IDetectableOption): IFormatDetectorActivator => {
-		const { optionWrapper, systemStyle, detectableStyleMap, setLabel, activator } = detectable;
+		const detectedValue = !bActive || Str.IsEmpty(detected) ? systemStyle : detected;
+		const convertedValue = getPrimaryValue(convertToDetecterValue(detectedValue));
 
-		return (bActive: boolean, detected: string) => {
-			processBeforeActive(optionWrapper);
+		const optionLabel = detectableStyleMap[convertedValue];
 
-			const detectedValue = !bActive || Str.IsEmpty(detected) ? systemStyle : detected;
-			const convertedValue = getPrimaryValue(convertToDetecterValue(detectedValue));
-
-			const optionLabel = detectableStyleMap[convertedValue];
-			if (bActive && optionLabel) {
-				const optionElement = DOM.Select(`[data-value="${optionLabel}"]`);
-				DOM.AddClass(optionElement, ACTIVE_CLASS);
-				setLabel(optionLabel);
-				return;
-			}
-
-			activator(bActive, detected);
-		};
+		return bActive && optionLabel ? optionLabel : getValue(detectedValue);
 	};
 
-	const createOptionElements = (name: string, label: HTMLElement, wrapper: HTMLElement, options: IFormatOption[]): HTMLElement[] => {
-		const optionElements: HTMLElement[] = [];
-		for (const option of options) {
-			const { type, format, formatValue } = option;
-			const optionElement = UI.Create(option, false, wrapper);
-			DOM.SetHTML(optionElement, `${Icons.Check}${DOM.GetHTML(optionElement)}`);
-			DOM.SetAttr(optionElement, 'data-value', option.html);
-			if (name === 'fontfamily') DOM.SetStyle(optionElement, format, formatValue ?? '');
-
-			DOM.On(optionElement, 'click', () => {
-				setLabelText(label)(option.html);
-				processBeforeActive(wrapper);
-				DOM.AddClass(optionElement, ACTIVE_CLASS);
-				self.Focus();
-				caretToggler.Toggle(false, { type, format, formatValue });
-				caretToggler.Toggle(true, { type, format, formatValue });
-			});
-
-			optionElements.push(optionElement);
-		}
-
-		return optionElements;
-	};
+	const activate = (detectable: IDetectableOption): IFormatDetectorActivator =>
+		(bActive: boolean, detected: string) => detectable.setLabel(getLabelText(bActive, detected, detectable));
 
 	const convertProperOptions = (options: string[] | Record<string, string>): Record<string, string> => {
 		const newOptions: Record<string, string> = {};
@@ -141,48 +109,59 @@ const Font = (editor: Editor) => {
 		return newOptions;
 	};
 
-	const setOptions = (config: string[] | Record<string, string>, defaultOptions: string[] | Record<string, string>): Record<string, string> => 
+	const setOptions = (config: string[] | Record<string, string>, defaultOptions: string[] | Record<string, string>): Record<string, string> =>
 		convertProperOptions(
 			!config || (!Type.IsArray(config) && !Type.IsObject(config)) || !(Type.IsArray(config) && !Arr.IsEmpty(config))
 				? defaultOptions
 				: config
 		);
 
-	const activatorForFontSize = (systemStyle: string, detectableStyleMap: Record<string, string>, setLabel: (text: string) => void): IFormatDetectorActivator =>
-		(bActive: boolean, detected: string) => {
-			const detectedValue = !bActive || Str.IsEmpty(detected) ? systemStyle : detected;
+	const getFontSize = (detectableStyleMap: Record<string, string>): IFormatGetValue =>
+		(detectedValue: string) => {
 			const convertedValue = getPrimaryValue(convertToDetecterValue(detectedValue));
 
 			const convertedSize = convertFontSize(convertedValue);
 			const convertedOpotionLabel = detectableStyleMap[convertedSize];
-			if (!convertedOpotionLabel) {
-				setLabel(escapeUnnecessaryChars(detectedValue));
-				return;
-			}
 
-			setLabel(convertedOpotionLabel);
+			return convertedOpotionLabel ? convertedOpotionLabel : escapeUnnecessaryChars(detectedValue);
 		};
 
-	const activatorForFontFamily = (systemStyle: string, setLabel: (text: string) => void): IFormatDetectorActivator =>
-		(bActive: boolean, detected: string) => {
-			const detectedValue = !bActive || Str.IsEmpty(detected) ? systemStyle : detected;
+	const getFontFamily = (systemStyle: string): IFormatGetValue =>
+		(detectedValue: string) => detectedValue === systemStyle ? 'System Font' : escapeUnnecessaryChars(detectedValue);
 
-			setLabel(detectedValue === systemStyle ? 'System Font' : escapeUnnecessaryChars(detectedValue));
-		};
-
-	const createActivator = (
+	const createGetValue = (
 		name: string,
 		systemStyle: string,
-		detectableStyleMap: Record<string, string>,
-		setLabel: (text: string) => void
-	): IFormatDetectorActivator => {
+		detectableStyleMap: Record<string, string>
+	): IFormatGetValue => {
 		switch (name) {
 			case 'fontsize':
-				return activatorForFontSize(systemStyle, detectableStyleMap, setLabel);
+				return getFontSize(detectableStyleMap);
 			case 'fontfamily':
 			default:
-				return activatorForFontFamily(systemStyle, setLabel);
+				return getFontFamily(systemStyle);
 		}
+	};
+
+	const createOptionsWrapper = (detectedValue: string, formatOptions: IFormatOption[], detectable: IDetectableOption) => {
+		const { name, selection, setLabel } = detectable;
+
+		const optionElements: Node[] = [];
+		for (const option of formatOptions) {
+			const { formatValue, html } = option;
+			const optionElement = UI.CreateOption(option, detectedValue === html, setLabel);
+			if (name === 'fontfamily') DOM.SetStyle(optionElement, option.format, formatValue ?? '');
+			optionElements.push(optionElement);
+		}
+
+		const optionWrapper = UI.CreateOptionWrapper(name, optionElements);
+		DOM.Insert(optionWrapper, optionElements);
+		DOM.SetStyles(optionWrapper, {
+			left: `${selection.offsetLeft}px`,
+			top: `${selection.offsetHeight + selection.offsetTop}px`
+		});
+
+		DOM.Insert(self.Frame.Root, optionWrapper);
 	};
 
 	const Register = (name: string) => {
@@ -195,54 +174,53 @@ const Font = (editor: Editor) => {
 		const systemStyle = getSystemStyle(formatOption.format);
 
 		for (const [label, option] of Object.entries(options)) {
-			formatOption.options.push({
+			formatOption.formatOptions.push({
 				type: EFormatType.STYLE,
 				format: formatOption.format,
 				formatValue: option,
 				ui: EFormatUI.LI,
-				uiType: EFormatUI.LI,
+				uiType: EFormatUIType.ITEM,
 				uiEvent: 'click',
 				html: label
 			});
 		}
 
-		const label = UI.CreateLabel();
-		const optionWrapper = UI.CreateOptionWrapper();
-		const optionElements = createOptionElements(name, label, optionWrapper, formatOption.options);
-		DOM.Insert(optionWrapper, optionElements);
-		const selection = UI.CreateSelection([label, optionWrapper]);
-		DOM.On(selection, 'click', () => {
-			const toggle = DOM.IsHidden(optionWrapper) ? DOM.Show : DOM.Hide;
-			toggle(optionWrapper);
-		});
-
-		DOM.On(DOM.Doc.body, 'click', (event) => {
-			if (DOM.IsHidden(optionWrapper)) return;
-			const path = event.composedPath();
-			if (path[0] === selection || path[0] === label) return;
-			DOM.Hide(optionWrapper);
-		});
+		const labelWrapper = UI.CreateLabel();
+		const selection = UI.CreateSelection([labelWrapper, Icons.AngleDown]);
 
 		DOM.Insert(self.Frame.Toolbar, selection);
-		editor.On('click', () => {
-			if (DOM.IsHidden(optionWrapper)) return;
-			DOM.Hide(optionWrapper);
-		});
 
-		const setLabel = setLabelText(label);
-		const activator = createActivator(name, systemStyle, detectableStyleMap, setLabel);
-
-		activator(false, systemStyle);
+		const setLabel = setLabelText(labelWrapper);
+		const getValue = createGetValue(name, systemStyle, detectableStyleMap);
 
 		const detectable: IDetectableOption = {
 			name,
-			label,
-			optionWrapper,
+			selection,
 			detectableStyleMap,
 			systemStyle,
 			setLabel,
-			activator
+			getValue
 		};
+
+		const destroyOptionWrapper = () => {
+			DOM.Off(DOM.Doc.body, 'click', destroyOptionWrapper);
+			self.DOM.Off(self.GetBody(), 'click', destroyOptionWrapper);
+			UI.DestroyOptionWrapper();
+		};
+
+		DOM.On(selection, 'click', (event: MouseEvent) => {
+			if (UI.ExistsOptionWrapper() && UI.HasTypeAttribute(name)) return destroyOptionWrapper();
+			event.stopImmediatePropagation();
+			event.stopPropagation();
+			event.preventDefault();
+
+			destroyOptionWrapper();
+			createOptionsWrapper(DOM.GetAttr(labelWrapper, 'data-value') ?? '', formatOption.formatOptions, detectable);
+			DOM.On(DOM.Doc.body, 'click', destroyOptionWrapper);
+			self.DOM.On(self.GetBody(), 'click', destroyOptionWrapper);
+		});
+
+		setLabel(getValue(systemStyle));
 
 		const activation = activate(detectable);
 

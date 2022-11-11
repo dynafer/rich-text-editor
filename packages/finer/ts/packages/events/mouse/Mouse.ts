@@ -1,9 +1,6 @@
 import Editor from '../../Editor';
 import MouseUpEvent from './MouseUp';
-
-enum EMouseEventName {
-	mouseup = 'mouseup'
-}
+import { EMouseEventName } from './MouseUtils';
 
 const Mouse = (editor: Editor) => {
 	const setup = (eventName: EMouseEventName, event: (editor: Editor, event: MouseEvent) => void) => {

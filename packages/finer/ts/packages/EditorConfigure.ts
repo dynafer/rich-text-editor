@@ -1,6 +1,7 @@
 import { Instance, Type } from '@dynafer/utils';
 import { EModeEditor } from '../Options';
 import DOM from './dom/DOM';
+import { IFormatConfiguration } from './formatter/FormatType';
 
 export interface IEditorOption {
 	selector?: HTMLElement,
@@ -12,7 +13,7 @@ export interface IEditorOption {
 	[key: string]: string | string[] | Record<string, string> | HTMLElement | undefined,
 }
 
-export interface IConfiguration {
+export interface IConfiguration extends IFormatConfiguration {
 	Id: string,
 	Selector: HTMLElement,
 	Mode: EModeEditor,
@@ -20,10 +21,12 @@ export interface IConfiguration {
 	Height: string,
 	Toolbars: string[],
 	Plugins: string[],
-	[key: string]: string | string[] | Record<string, string> | HTMLElement,
+	[key: string]: string | string[] | Record<string, string> | HTMLElement | undefined,
 }
 
 const Configure = (config: IEditorOption): IConfiguration => {
+	const defaultConfigs: string[] = ['selector', 'mode', 'width', 'height', 'plugins', 'toolbars'];
+
 	if (!config.selector || !Instance.IsElement(config.selector)) {
 		throw new Error('Configuration: selector of configuration must be provided');
 	}
@@ -54,6 +57,12 @@ const Configure = (config: IEditorOption): IConfiguration => {
 		throw new Error('Configuration: Toolbars of configuration must be array');
 	}
 
+	const excludedDefaultOption = {};
+	for (const [key, value] of Object.entries(config)) {
+		if (defaultConfigs.includes(key)) continue;
+		excludedDefaultOption[key] = value;
+	}
+
 	const configuration: IConfiguration = {
 		Id,
 		Selector,
@@ -62,7 +71,7 @@ const Configure = (config: IEditorOption): IConfiguration => {
 		Height,
 		Plugins,
 		Toolbars,
-		...config
+		...excludedDefaultOption
 	};
 
 	Object.freeze(configuration);

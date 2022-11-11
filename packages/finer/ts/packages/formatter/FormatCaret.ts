@@ -1,7 +1,7 @@
 import Editor from '../Editor';
-import { ICaretData } from '../editorUtils/CaretUtils';
+import { ICaretData } from '../editorUtils/caret/CaretUtils';
 import FormatToggle from './FormatToggle';
-import { EFormatType, IFormatOptionBase, IToggleSetting } from './FormatType';
+import { IFormatOptionBase, IToggleSetting } from './FormatType';
 import { CheckFormat } from './FormatUtils';
 
 const FormatCaret = (editor: Editor) => {
@@ -10,31 +10,29 @@ const FormatCaret = (editor: Editor) => {
 	const CaretUtils = self.Utils.Caret;
 	const toggler = FormatToggle(self);
 
-	const getFormatToSetting = <T extends Node = ParentNode>(option: IFormatOptionBase, parent: T): IToggleSetting<T> => {
-		return {
-			...option,
-			parent,
-			checker: CheckFormat(self, option)
-		};
-	};
+	const getFormatToSetting = <T extends Node = ParentNode>(option: IFormatOptionBase, parent: T): IToggleSetting<T> => ({
+		...option,
+		parent,
+		checker: CheckFormat(self, option)
+	});
 
 	const toggleSameLine = (bWrap: boolean, option: IFormatOptionBase, caret: ICaretData): Range => {
-		const fragment = caret.Range.extractContents();
+		const fragment = caret.Range.Extract();
 		const setting = getFormatToSetting(option, fragment);
 
 		toggler.ToggleOneLineRange(bWrap, setting, (parent) => {
 			let children: Node[] = Array.from(parent.childNodes);
-			caret.Range.insertNode(parent);
+			caret.Range.Insert(parent);
 			if (!bWrap) children = toggler.Unwrap.UnwrapParents(caret.SameRoot, children, setting.checker);
-			caret.Range.setStartBefore(children[0]);
-			caret.Range.setEndAfter(children[children.length - 1]);
+			caret.Range.SetStartBefore(children[0]);
+			caret.Range.SetEndAfter(children[children.length - 1]);
 		});
 
-		return caret.Range.cloneRange();
+		return caret.Range.Clone();
 	};
 
 	const toggleRange = (bWrap: boolean, option: IFormatOptionBase, caret: ICaretData): Range => {
-		const fragment = caret.Range.extractContents();
+		const fragment = caret.Range.Extract();
 
 		toggler.ToggleRange(bWrap, getFormatToSetting(option, fragment), (firstNodes, middleNodes, lastNodes) => {
 			const lines = self.GetBody().children;
@@ -45,11 +43,11 @@ const FormatCaret = (editor: Editor) => {
 				nextLine = node;
 			}
 			lines[caret.End.Line].replaceChildren(...lastNodes, ...Array.from(lines[caret.End.Line].childNodes));
-			caret.Range.setStart(firstNodes[0], 0);
-			caret.Range.setEndAfter(lastNodes[lastNodes.length - 1]);
+			caret.Range.SetStart(firstNodes[0], 0);
+			caret.Range.SetEndAfter(lastNodes[lastNodes.length - 1]);
 		});
 
-		return caret.Range.cloneRange();
+		return caret.Range.Clone();
 	};
 
 	const toggleCaret = (bWrap: boolean, option: IFormatOptionBase, caret: ICaretData): Range => {
@@ -70,23 +68,21 @@ const FormatCaret = (editor: Editor) => {
 		});
 
 		DOM.Insert(caretPointer, bWrap ? createWrapper : '&nbsp;');
-		caret.Range.insertNode(caretPointer);
+		caret.Range.Insert(caretPointer);
 
 		if (bWrap) {
-			caret.Range.setStart(createWrapper, 1);
-			caret.Range.setEnd(createWrapper, 1);
+			caret.Range.SetStartToEnd(createWrapper, 1, 1);
 		} else {
-			caret.Range.selectNodeContents(caretPointer);
+			caret.Range.SelectContents(caretPointer);
 			toggler.Unwrap.UnwrapParents(caret.SameRoot, [caretPointer], CheckFormat(self, option));
 			DOM.SetHTML(caretPointer, DOM.Utils.GetEmptyString());
-			caret.Range.setStart(caretPointer, 1);
-			caret.Range.setEnd(caretPointer, 1);
+			caret.Range.SetStartToEnd(caretPointer, 1, 1);
 		}
 
-		return caret.Range.cloneRange();
+		return caret.Range.Clone();
 	};
 
-	const toggle = (bWrap: boolean, option: IFormatOptionBase) => {
+	const Toggle = (bWrap: boolean, option: IFormatOptionBase) => {
 		const carets: ICaretData[] = CaretUtils.Get(true);
 		const newRanges: Range[] = [];
 
@@ -103,19 +99,6 @@ const FormatCaret = (editor: Editor) => {
 		}
 
 		CaretUtils.UpdateRanges(newRanges);
-	};
-
-	const Toggle = (bWrap: boolean, option: IFormatOptionBase) => {
-		switch (option.type) {
-			case EFormatType.TAG:
-				toggle(bWrap, option);
-				break;
-			case EFormatType.STYLE:
-				toggle(bWrap, option);
-				break;
-			default:
-				break;
-		}
 	};
 
 	return {

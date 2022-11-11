@@ -5,6 +5,7 @@ export interface IEvent {
 export interface IEventUtils {
 	Has: (eventName: string) => boolean,
 	On: (eventName: string, event: IEvent) => void,
+	Off: (eventName: string, event: IEvent) => void,
 	Dispatch: (eventName: string, ...params: unknown[]) => void,
 	Get: () => Record<string, IEvent[]>,
 }
@@ -18,6 +19,18 @@ const EventUtils = (): IEventUtils => {
 		if (!Has(eventName)) events[eventName] = [];
 
 		events[eventName].push(event);
+	};
+
+	const Off = (eventName: string, event: IEvent) => {
+		if (!Has(eventName)) return;
+
+		let deletedCount = 0;
+		for (let index = 0, length = events[eventName].length; index < length; ++ index) {
+			if (events[eventName][index - deletedCount] === event) {
+				events[eventName].splice(index - deletedCount, 1);
+				++ deletedCount;
+			}
+		}
 	};
 
 	const Dispatch = (eventName: string, ...params: unknown[]) => {
@@ -40,6 +53,7 @@ const EventUtils = (): IEventUtils => {
 	return {
 		Has,
 		On,
+		Off,
 		Dispatch,
 		Get,
 	};

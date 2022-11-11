@@ -54,6 +54,7 @@ const FormatUnwrap = (editor: Editor) => {
 				break;
 			}
 		}
+
 		return topWrappedNode;
 	};
 
@@ -90,6 +91,7 @@ const FormatUnwrap = (editor: Editor) => {
 			const clonedSibling = DOM.Clone(sibling, true);
 			const clonedWrapper = DOM.Clone(wrapper, false, clonedSibling);
 			if (!clonedSibling || !clonedWrapper) continue;
+			if (Str.IsEmpty(DOM.GetText(clonedWrapper as HTMLElement))) continue;
 			if (!bNext) previousNodes.push(clonedWrapper);
 			else nextNodes.push(clonedWrapper);
 		}

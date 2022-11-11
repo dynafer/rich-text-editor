@@ -9,6 +9,7 @@ interface IDetection {
 }
 
 export interface IFormatDetector {
+	CreateDetection: (paths: Node[], option: IFormatOptionBase, activate: IFormatDetectorActivator) => void,
 	Register: (option: IFormatOptionBase, activate: IFormatDetectorActivator) => void,
 }
 
@@ -22,7 +23,7 @@ const FormatDetector = (editor: Editor): IFormatDetector => {
 		const carets = CaretUtils.Get();
 
 		for (const caret of carets) {
-			paths = Arr.UniqueMerge(paths, caret.Start.Path, caret.End.Path);
+			paths = Arr.MergeUnique(paths, caret.Start.Path, caret.End.Path);
 		}
 
 		for (const detection of detections) {
@@ -40,23 +41,25 @@ const FormatDetector = (editor: Editor): IFormatDetector => {
 		}
 	};
 
-	const Register = (option: IFormatOptionBase, activate: IFormatDetectorActivator) => {
+	const CreateDetection = (paths: Node[], option: IFormatOptionBase, activate: IFormatDetectorActivator) => {
 		const checker = CheckFormat(self, option);
 
-		const newDetection: IDetection = (paths: Node[]) => new Promise((resolve) => {
-			for (const path of paths) {
-				if (checker(path)) {
-					return resolve(activate(true, getFormatValue(option, path)));
-				}
-			}
+		for (const path of paths) {
+			if (checker(path)) return activate(true, getFormatValue(option, path));
+		}
 
-			return resolve(activate(false, getFormatValue(option, paths[paths.length - 1])));
-		});
+		return activate(false, getFormatValue(option, paths[paths.length - 1]));
+	};
 
-		detections.push(newDetection);
+	const Register = (option: IFormatOptionBase, activate: IFormatDetectorActivator) => {
+		const asyncDetection: IDetection = (paths: Node[]) =>
+			new Promise((resolve) => resolve(CreateDetection(paths, option, activate)));
+
+		detections.push(asyncDetection);
 	};
 
 	return {
+		CreateDetection,
 		Register
 	};
 };

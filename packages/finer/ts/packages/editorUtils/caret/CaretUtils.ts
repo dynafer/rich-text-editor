@@ -1,4 +1,5 @@
-import Editor from '../Editor';
+import Editor from '../../Editor';
+import RangeUtils, { IRangeUtils } from './RangeUtils';
 
 interface ILineData {
 	Node: Node,
@@ -13,7 +14,7 @@ export interface ICaretData {
 	End: ILineData,
 	IsSameLine: () => boolean,
 	SameRoot: Node,
-	Range: Range,
+	Range: IRangeUtils,
 }
 
 export interface ICaretUtils {
@@ -67,7 +68,7 @@ const CaretUtils = (editor: Editor): ICaretUtils => {
 			const End = getLine(range.endContainer, range.endOffset);
 			const IsSameLine = (): boolean => Start.Path[0] === End.Path[0];
 			const SameRoot = range.commonAncestorContainer;
-			const Range = range;
+			const Range = RangeUtils(range);
 
 			CaretData.push({
 				IsRange,

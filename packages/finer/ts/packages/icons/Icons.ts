@@ -1,3 +1,4 @@
+import AngleDown from './svg/AngleDown.svg';
 import Bold from './svg/Bold.svg';
 import Check from './svg/Check.svg';
 import Close from './svg/Close.svg';
@@ -9,6 +10,7 @@ import Superscript from './svg/Superscript.svg';
 import Underline from './svg/Underline.svg';
 
 export {
+	AngleDown,
 	Bold,
 	Close,
 	Check,

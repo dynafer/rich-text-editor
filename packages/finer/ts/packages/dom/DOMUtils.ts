@@ -24,10 +24,8 @@ export interface IDOMUtils {
 }
 
 const DOMUtils = (): IDOMUtils => {
-	const CreateUEID = (id: string = '', bAddNum: boolean = true): string => {
-		id = Str.IsEmpty(id) ? Options.ProjectName : `${Options.ProjectName}-${id}`;
-		return Utils.CreateUEID(id, bAddNum);
-	};
+	const CreateUEID = (id: string = '', bAddNum: boolean = true): string =>
+		Utils.CreateUEID(Str.IsEmpty(id) ? Options.ProjectName : `${Options.ProjectName}-${id}`, bAddNum);
 
 	const GetModeTag = (mode: EModeEditor): string => {
 		switch (mode) {
