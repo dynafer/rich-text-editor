@@ -20,8 +20,8 @@ export interface IPluginLoader {
 const PluginLoader = (): IPluginLoader => {
 	const Has = (name: string) => loaded.includes(name);
 
-	const Load = (name: string): Promise<void> => {
-		return new Promise((resolve, reject) => {
+	const Load = (name: string): Promise<void> =>
+		new Promise((resolve, reject) => {
 			if (Has(name)) return resolve();
 
 			const script = DOM.Create('script', {
@@ -32,7 +32,7 @@ const PluginLoader = (): IPluginLoader => {
 
 			script.onload = () => {
 				if (!loaded.includes(name)) loaded.push(name);
-				script.remove();
+				DOM.Remove(script);
 				resolve();
 			};
 
@@ -42,10 +42,9 @@ const PluginLoader = (): IPluginLoader => {
 
 			DOM.Insert(DOM.Doc.head, script);
 		});
-	};
 
-	const LoadParallel = (plugins: string[]): Promise<void> => {
-		return new Promise((resolve, reject) => {
+	const LoadParallel = (plugins: string[]): Promise<void> =>
+		new Promise((resolve, reject) => {
 			const load: Promise<void>[] = [];
 			for (const plugin of plugins) {
 				load.push(Load(plugin));
@@ -55,27 +54,23 @@ const PluginLoader = (): IPluginLoader => {
 				.catch(error => reject(error))
 				.finally(() => resolve());
 		});
-	};
 
 	const Add = (name: string, plugin: TPlugin) => {
 		if (Type.IsFunction(attached[name])) return;
 		attached[name] = plugin;
 	};
 
-	const Attach = (editor: Editor, name: string): Promise<void> => {
-		const self = editor;
-
-		return new Promise((resolve) => {
+	const Attach = (editor: Editor, name: string): Promise<void> =>
+		new Promise((resolve) => {
 			try {
-				attached[name](self);
+				attached[name](editor);
 				resolve();
 			} catch (error) {
 				console.error(error);
-				self.Notify(ENotificationStatus.WARNING, `Plugin: ${name} runs inappropriately`);
+				editor.Notify(ENotificationStatus.WARNING, `Plugin: ${name} runs inappropriately`);
 				resolve();
 			}
 		});
-	};
 
 	return {
 		Has,

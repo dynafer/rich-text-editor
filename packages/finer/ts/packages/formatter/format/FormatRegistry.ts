@@ -1,7 +1,7 @@
 import { Arr } from '@dynafer/utils';
 import Editor from '../../Editor';
 import Font from './Font';
-import Tag from './Tag';
+import Buttons from './Buttons';
 
 export interface IFormatRegistry {
 	IsAailable: (name: string) => boolean,
@@ -11,9 +11,9 @@ export interface IFormatRegistry {
 const FormatRegistry = (editor: Editor): IFormatRegistry => {
 	const self = editor;
 	const font = Font(self);
-	const tag = Tag(self);
+	const tag = Buttons(self);
 
-	const Available = Arr.UniqueMerge(font.Formats, tag.Formats);
+	const Available = Arr.MergeUnique(font.Formats, tag.Formats);
 
 	const IsAailable = (name: string): boolean => Available.includes(name);
 

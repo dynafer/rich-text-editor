@@ -14,6 +14,11 @@ export enum EFormatUI {
 	LI = 'LI',
 }
 
+export enum EFormatUIType {
+	ICON = 'ICON',
+	ITEM = 'ITEM',
+}
+
 export interface IFormatOptionBase {
 	type: EFormatType,
 	format: string,
@@ -41,6 +46,16 @@ export interface IFormattingOption {
 	option: Record<string, TCreateOption>,
 }
 
+export interface IFormatRegistryJoiner {
+	Formats: string[],
+	Register: (name: string) => void,
+}
+
 export interface IFormatDetectorActivator {
 	(bActive: boolean, detected: string): void;
+}
+
+export interface IFormatConfiguration {
+	fontsize?: string[] | Record<string, string>,
+	fontfamily?: string[] | Record<string, string>,
 }

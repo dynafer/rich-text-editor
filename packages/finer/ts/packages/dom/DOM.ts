@@ -5,7 +5,7 @@ const emptyRegex = /%EF%BB%BF/gi;
 
 type TElement = Node | Element | null;
 
-export type TCreateOption = Record<string, string> | string[] | string | TElement[];
+export type TCreateOption = Record<string, string> | string[] | string | TElement[] | (string | TElement)[];
 export type TEventListener<K extends keyof GlobalEventHandlersEventMap> = (event: GlobalEventHandlersEventMap[K]) => void;
 
 export interface IDom {
@@ -13,13 +13,14 @@ export interface IDom {
 	Doc: Document,
 	New: (win: Window & typeof globalThis, doc: Document) => IDom,
 	Select: {
-		<T extends Node>(selector: T | string, parent?: TElement): T;
+		<T extends Element>(selector: T | string, parent?: TElement): T;
 		(selector: string, parent?: TElement): HTMLElement | null;
 	},
 	SelectAll: {
-		<T extends Node>(selector: T, parent?: TElement): T[];
+		<T extends Element>(selector: T, parent?: TElement): T[];
 		(selector: string, parent?: TElement): HTMLElement[];
 	},
+	GetAttr: (selector: TElement, attr: string) => string | null,
 	SetAttr: (selector: TElement, attr: string, value: string) => void,
 	SetAttrs: (selector: TElement, attrs: Record<string, string>) => void,
 	HasAttr: (selector: TElement, attr: string) => boolean,
@@ -56,6 +57,10 @@ export interface IDom {
 		<K extends keyof GlobalEventHandlersEventMap>(selector: TElement, eventName: K, event: TEventListener<K>): void;
 		(selector: TElement, eventName: string, event: EventListener): void;
 	},
+	Off: {
+		<K extends keyof GlobalEventHandlersEventMap>(selector: TElement, eventName: K, event?: TEventListener<K>): void;
+		(selector: TElement, eventName: string, event?: EventListener): void;
+	},
 	Dispatch: {
 		<K extends keyof GlobalEventHandlersEventMap>(selector: TElement, eventName: K): void;
 		(selector: TElement, eventName: string): void;
@@ -67,6 +72,8 @@ export interface IDom {
 		<K extends keyof HTMLElementTagNameMap>(tagName: K, option?: Record<string, TCreateOption>): HTMLElementTagNameMap[K];
 		(tagName: string, option?: Record<string, TCreateOption>): HTMLElement;
 	},
+	RemoveChildren: (selector: Element | null, bBubble?: boolean) => void,
+	Remove: (selector: Element | null, bBubble?: boolean) => void,
 	Utils: IDOMUtils,
 }
 
@@ -78,15 +85,18 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 	const elementType = Win.Element;
 	const nodeType = Win.Node;
 
-	const New = (win: Window & typeof globalThis, doc: Document): IDom => {
-		return DOM(win, doc);
-	};
+	const bindedEvents: [Element, string, EventListener][] = [];
+
+	const New = (win: Window & typeof globalThis, doc: Document): IDom => DOM(win, doc);
 
 	const Select = (selector: string, parent?: TElement): HTMLElement | null =>
 		Instance.Is(parent, elementType) ? parent.querySelector(selector) : Doc.querySelector(selector);
 
 	const SelectAll = (selector: string, parent?: TElement): HTMLElement[] =>
 		Array.from(Instance.Is(parent, elementType) ? parent.querySelectorAll(selector) : Doc.querySelectorAll(selector));
+
+	const GetAttr = (selector: TElement, attr: string): string | null =>
+		!Instance.Is(selector, elementType) || !Type.IsString(attr) ? null : selector.getAttribute(attr);
 
 	const SetAttr = (selector: TElement, attr: string, value: string) => {
 		if (!Instance.Is(selector, elementType) || !Type.IsString(attr) || !Type.IsString(value)) return;
@@ -100,10 +110,8 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 		}
 	};
 
-	const HasAttr = (selector: TElement, attr: string): boolean => {
-		if (!Instance.Is(selector, elementType)) return false;
-		return selector.hasAttribute(attr);
-	};
+	const HasAttr = (selector: TElement, attr: string): boolean =>
+		!Instance.Is(selector, elementType) ? false : selector.hasAttribute(attr);
 
 	const RemoveAttr = (selector: TElement, attr: string) => {
 		if (!Instance.Is(selector, elementType) || !Type.IsString(attr)) return;
@@ -122,10 +130,8 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 		selector.classList.add(...classes);
 	};
 
-	const HasClass = (selector: TElement, className: string): boolean => {
-		if (!Instance.Is(selector, elementType)) return false;
-		return selector.classList.contains(className);
-	};
+	const HasClass = (selector: TElement, className: string): boolean =>
+		!Instance.Is(selector, elementType) ? false : selector.classList.contains(className);
 
 	const RemoveClass = (selector:TElement, ...classes: string[]) => {
 		if (!Instance.Is(selector, elementType)) return;
@@ -184,15 +190,11 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 		return cssText.includes(Str.CapitalToDash(styleName));
 	};
 
-	const GetText = (selector: HTMLElement): string => {
-		if (!Instance.Is(selector, elementType)) return '';
-		return encodeURI(selector.innerText).replace(emptyRegex, '');
-	};
+	const GetText = (selector: HTMLElement): string =>
+		!Instance.Is(selector, elementType) ? '' : encodeURI(selector.innerText).replace(emptyRegex, '');
 
-	const GetHTML = (selector: HTMLElement): string => {
-		if (!Instance.Is(selector, elementType)) return '';
-		return decodeURI(encodeURI(selector.innerHTML).replace(emptyRegex, ''));
-	};
+	const GetHTML = (selector: HTMLElement): string =>
+		!Instance.Is(selector, elementType) ? '' : decodeURI(encodeURI(selector.innerHTML).replace(emptyRegex, ''));
 
 	const SetText = (selector: HTMLElement, text: string) => {
 		if (!Instance.Is(selector, elementType)) return;
@@ -266,10 +268,8 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 		return clonedSelector;
 	};
 
-	const GetTagName = (selector: TElement) => {
-		if (!Instance.Is(selector, elementType)) return '';
-		return selector.tagName.toLowerCase();
-	};
+	const GetTagName = (selector: TElement) =>
+		!Instance.Is(selector, elementType) ? '' : selector.tagName.toLowerCase();
 
 	const GetParents = (selector: Node | null, bReverse: boolean = false) => {
 		if (!Instance.Is(selector, nodeType) || HasAttr(selector, 'contenteditable')) return [];
@@ -291,6 +291,20 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 	const On = (selector: TElement, eventName: string, event: EventListener) => {
 		if (!Instance.Is(selector, elementType) || !Type.IsString(eventName)) return;
 		selector.addEventListener(eventName, event);
+		bindedEvents.push([ selector, eventName, event ]);
+	};
+
+	const Off = (selector: TElement, eventName: string, event?: EventListener) => {
+		if (!Instance.Is(selector, elementType) || !Type.IsString(eventName)) return;
+		let deletedCount = 0;
+		for (let index = 0, length = bindedEvents.length; index < length; ++ index) {
+			const [ target, name, bindedEvent ] = bindedEvents[index - deletedCount];
+			if (target === selector && eventName === name && (!event || (event && event === bindedEvent))) {
+				target.removeEventListener(name, bindedEvent);
+				bindedEvents.splice(index - deletedCount, 1);
+				++ deletedCount;
+			}
+		}
 	};
 
 	const Dispatch = (selector: TElement, eventName: string) => {
@@ -310,10 +324,8 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 		SetStyle(selector, 'display', 'none');
 	};
 
-	const IsHidden = (selector: HTMLElement): boolean => {
-		if (!Instance.Is(selector, elementType)) return false;
-		return GetStyle(selector, 'display') === 'none';
-	};
+	const IsHidden = (selector: HTMLElement): boolean =>
+		!Instance.Is(selector, elementType) ? false : GetStyle(selector, 'display') === 'none';
 
 	const Create = (tagName: string, option?: Record<string, TCreateOption>) => {
 		const newElement = Doc.createElement(tagName);
@@ -328,12 +340,40 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 		if (option.html && Type.IsString(option.html)) SetHTML(newElement, option.html);
 		if (option.children && Type.IsArray(option.children)) {
 			for (const child of option.children) {
-				if (!Instance.Is(child, elementType) && !Instance.Is(child, nodeType)) continue;
+				if (!Instance.Is(child, elementType) && !Instance.Is(child, nodeType) && !Type.IsString(child)) continue;
 				Insert(newElement, child);
 			}
 		}
 
 		return newElement;
+	};
+
+	const RemoveChildren = (selector: Element | null, bBubble: boolean = false) => {
+		if (!Instance.Is(selector, elementType)) return;
+		if (Arr.IsEmpty(Array.from(selector.children))) return;
+		for (const child of selector.children) {
+			for (const [ target, eventName, event ] of bindedEvents) {
+				if (target === child) Off(target, eventName, event);
+			}
+		}
+
+		if (bBubble) {
+			for (const child of selector.children) {
+				RemoveChildren(child, bBubble);
+				child.remove();
+			}
+		}
+	};
+
+	const Remove = (selector: Element | null, bBubble: boolean = false) => {
+		if (!Instance.Is(selector, elementType)) return;
+		for (const [ target, eventName, event ] of bindedEvents) {
+			if (target === selector) Off(target, eventName, event);
+		}
+
+		if (bBubble) RemoveChildren(selector, bBubble);
+
+		selector.remove();
 	};
 
 	return {
@@ -342,6 +382,7 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 		New,
 		Select,
 		SelectAll,
+		GetAttr,
 		SetAttr,
 		SetAttrs,
 		HasAttr,
@@ -366,11 +407,14 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 		GetTagName,
 		GetParents,
 		On,
+		Off,
 		Dispatch,
 		Show,
 		Hide,
 		IsHidden,
 		Create,
+		RemoveChildren,
+		Remove,
 		Utils,
 	};
 };

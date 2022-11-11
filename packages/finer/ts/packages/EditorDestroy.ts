@@ -1,4 +1,5 @@
 import Editor from './Editor';
+import DOM from './dom/DOM';
 
 export interface IEditorDestroy {
 	Destroy: (editor: Editor) => void,
@@ -6,7 +7,7 @@ export interface IEditorDestroy {
 
 const EditorDestroy = (): IEditorDestroy => {
 	const Destroy = (editor: Editor) => {
-		editor.Frame.Root.remove();
+		DOM.Remove(editor.Frame.Root, true);
 	};
 
 	return {

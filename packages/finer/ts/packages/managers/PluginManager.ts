@@ -31,7 +31,7 @@ const PluginManager = (editor: Editor): IPluginManager => {
 			const parents = DOM.GetParents(caretPointer, true);
 			for (const parent of parents) {
 				if (Str.IsEmpty(DOM.GetText(parent as HTMLElement))) {
-					(parent as HTMLElement).remove();
+					DOM.Remove(parent as Element, true);
 					continue;
 				}
 
@@ -40,8 +40,8 @@ const PluginManager = (editor: Editor): IPluginManager => {
 		}
 	}) as IEvent);
 
-	const AttachPlugin = (): Promise<void> => {
-		return new Promise((resolve, reject) => {
+	const AttachPlugin = (): Promise<void> =>
+		new Promise((resolve, reject) => {
 			const attachPlugins: Promise<void>[] = [];
 			for (const name of self.Config.Plugins) {
 				if (!finer.Loaders.Plugin.Has(name)) {
@@ -71,7 +71,6 @@ const PluginManager = (editor: Editor): IPluginManager => {
 					resolve();
 				});
 		});
-	};
 
 	return {
 		AttachPlugin

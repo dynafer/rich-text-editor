@@ -79,7 +79,7 @@ const NotificationManager = (editor: Editor): INotificationManager => {
 				stacks.splice(index, 1);
 			}
 
-			wrapper.remove();
+			DOM.Remove(wrapper, true);
 
 			if (status !== ENotificationStatus.ERROR && stacks.length === 0) {
 				Hide();
