@@ -6,6 +6,7 @@ import EditorSetup from './EditorSetup';
 import DOM, { IDom, TEventListener } from './dom/DOM';
 import { IEditorUtils } from './editorUtils/EditorUtils';
 import { IEvent } from './editorUtils/EventUtils';
+import { ENativeEvents } from './events/EventSetupUtils';
 import { IFormatter } from './formatter/Formatter';
 import { ENotificationStatus, INotificationManager, NotificationManager } from './managers/NotificationManager';
 import { IPluginManager } from './managers/PluginManager';
@@ -62,7 +63,7 @@ class Editor {
 	}
 
 	public Dispatch(eventName: string, ...params: unknown[]) {
-		if (!DOM.Utils.NativeEvents.includes(eventName)) {
+		if (!ENativeEvents[eventName]) {
 			this.Utils.Event.Dispatch(eventName, ...params);
 		} else {
 			this.DOM.Dispatch(this.GetBody(), eventName);

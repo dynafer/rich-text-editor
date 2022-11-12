@@ -1,8 +1,8 @@
 import Editor from '../../Editor';
-import { CaretChangeEvent, EEventNames, Setup } from '../EventSetupUtils';
+import { CaretChangeEvent, ENativeEvents, Setup } from '../EventSetupUtils';
 
 const Mouse = (editor: Editor) => {
-	Setup(editor, EEventNames.mouseup, CaretChangeEvent);
+	Setup(editor, ENativeEvents.mouseup, CaretChangeEvent);
 };
 
 export default Mouse;
