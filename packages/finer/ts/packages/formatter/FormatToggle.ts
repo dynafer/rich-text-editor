@@ -49,13 +49,8 @@ const FormatToggle = (editor: Editor): IFormatToggle => {
 	};
 
 	const ToggleOneLineRange = (bWrap: boolean, setting: IToggleSetting, callback: IToggleOneLineCallback): ParentNode => {
-		const type = setting.type;
-		const format = setting.format;
-		const formatValue = setting.formatValue;
-		const parent = setting.parent;
-		const checker = setting.checker;
+		const { type, format, formatValue, parent, checker } = setting;
 		const wrapOrUnwrap = bWrap ? Wrap.WrapRecursive : Unwrap.UnwrapRecursive;
-
 		const children: Node[] = Array.from(parent.childNodes);
 		const replacer = wrapOrUnwrap(GetWrappingOption(type, format, formatValue), children, checker);
 
@@ -67,11 +62,7 @@ const FormatToggle = (editor: Editor): IFormatToggle => {
 	};
 
 	const ToggleRange = (bWrap: boolean, setting: IToggleSetting, callback: IToggleRangeCallback): ParentNode => {
-		const type = setting.type;
-		const format = setting.format;
-		const formatValue = setting.formatValue;
-		const parent = setting.parent;
-		const checker = setting.checker;
+		const { type, format, formatValue, parent, checker } = setting;
 		const wrapOrUnwrap = bWrap ? Wrap.WrapRecursive : Unwrap.UnwrapRecursive;
 		const formattingOption = GetWrappingOption(type, format, formatValue);
 

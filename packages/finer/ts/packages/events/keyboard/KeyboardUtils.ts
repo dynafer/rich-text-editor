@@ -1,9 +1,3 @@
-export enum EKeyEventName {
-	keydown = 'keydown',
-	keyup = 'keyup',
-	keypress = 'keypress',
-}
-
 export enum EKeyCode {
 	ArrowUp = 'ArrowUp',
 	ArrowDown = 'ArrowDown',
@@ -15,4 +9,6 @@ export enum EKeyCode {
 	End = 'End',
 	PageUp = 'PageUp',
 	PageDown = 'PageDown',
+
+	KeyA = 'KeyA',
 }

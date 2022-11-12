@@ -29,7 +29,7 @@ const CaretUtils = (editor: Editor): ICaretUtils => {
 	let selection: Selection | null = null;
 	let ranges: Range[] = [];
 
-	const getRanges = () => {
+	const refreshRanges = () => {
 		ranges = [];
 		if (!selection) return;
 		for (let rangeIndex = 0; rangeIndex < selection.rangeCount; ++ rangeIndex) {
@@ -57,7 +57,7 @@ const CaretUtils = (editor: Editor): ICaretUtils => {
 	const Get = (bNeedCheckUpdate: boolean = false): ICaretData[] => {
 		if (!bNeedCheckUpdate || (bNeedCheckUpdate && isUpdatable())) {
 			selection = DOM.Win.getSelection();
-			getRanges();
+			refreshRanges();
 		}
 
 		const CaretData: ICaretData[] = [];

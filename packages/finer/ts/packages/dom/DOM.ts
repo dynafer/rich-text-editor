@@ -1,7 +1,7 @@
 import { Str, Type, Instance, Arr } from '@dynafer/utils';
 import DOMUtils, { IDOMUtils } from './DOMUtils';
 
-const emptyRegex = /%EF%BB%BF/gi;
+const ESCAPE_EMPTY_TEXT_REGEX = /(%EF%BB%BF|%0A)/gi;
 
 type TElement = Node | Element | null;
 
@@ -12,6 +12,7 @@ export interface IDom {
 	Win: Window & typeof globalThis,
 	Doc: Document,
 	New: (win: Window & typeof globalThis, doc: Document) => IDom,
+	GetRoot: () => HTMLElement,
 	Select: {
 		<T extends Element>(selector: T | string, parent?: TElement): T;
 		(selector: string, parent?: TElement): HTMLElement | null;
@@ -52,6 +53,7 @@ export interface IDom {
 		<K extends keyof HTMLElementTagNameMap>(selector: TElement): K;
 		(selector: TElement): string;
 	},
+	IsEditable: (selector: Node) => boolean,
 	GetParents: (selector: Node | null, bReverse?: boolean) => Node[],
 	On: {
 		<K extends keyof GlobalEventHandlersEventMap>(selector: TElement, eventName: K, event: TEventListener<K>): void;
@@ -88,6 +90,8 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 	const bindedEvents: [Element, string, EventListener][] = [];
 
 	const New = (win: Window & typeof globalThis, doc: Document): IDom => DOM(win, doc);
+
+	const GetRoot = (): HTMLElement => Doc.documentElement;
 
 	const Select = (selector: string, parent?: TElement): HTMLElement | null =>
 		Instance.Is(parent, elementType) ? parent.querySelector(selector) : Doc.querySelector(selector);
@@ -191,10 +195,10 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 	};
 
 	const GetText = (selector: HTMLElement): string =>
-		!Instance.Is(selector, elementType) ? '' : encodeURI(selector.innerText).replace(emptyRegex, '');
+		!Instance.Is(selector, elementType) ? '' : encodeURI(selector.innerText).replace(ESCAPE_EMPTY_TEXT_REGEX, '');
 
 	const GetHTML = (selector: HTMLElement): string =>
-		!Instance.Is(selector, elementType) ? '' : decodeURI(encodeURI(selector.innerHTML).replace(emptyRegex, ''));
+		!Instance.Is(selector, elementType) ? '' : decodeURI(encodeURI(selector.innerHTML).replace(ESCAPE_EMPTY_TEXT_REGEX, ''));
 
 	const SetText = (selector: HTMLElement, text: string) => {
 		if (!Instance.Is(selector, elementType)) return;
@@ -268,11 +272,14 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 		return clonedSelector;
 	};
 
-	const GetTagName = (selector: TElement) =>
+	const GetTagName = (selector: TElement): string =>
 		!Instance.Is(selector, elementType) ? '' : selector.tagName.toLowerCase();
 
-	const GetParents = (selector: Node | null, bReverse: boolean = false) => {
-		if (!Instance.Is(selector, nodeType) || HasAttr(selector, 'contenteditable')) return [];
+	const IsEditable = (selector: Node): boolean =>
+		HasAttr(selector, 'contenteditable');
+
+	const GetParents = (selector: Node | null, bReverse: boolean = false): Node[] => {
+		if (!Instance.Is(selector, nodeType) || IsEditable(selector)) return [];
 		const parents: Node[] = [];
 		const add = bReverse ? Arr.Push : Arr.Unshift;
 		let parent: ParentNode | Node | null = selector;
@@ -280,7 +287,7 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 		if (selector.nodeName !== '#text') add(parents, selector);
 
 		while (parent = parent.parentNode) {
-			if (!Instance.Is(selector, nodeType) || !Instance.Is(parent, nodeType) || HasAttr(parent, 'contenteditable')) break;
+			if (!Instance.Is(selector, nodeType) || !Instance.Is(parent, nodeType) || IsEditable(parent)) break;
 
 			add(parents, parent);
 		}
@@ -327,7 +334,7 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 	const IsHidden = (selector: HTMLElement): boolean =>
 		!Instance.Is(selector, elementType) ? false : GetStyle(selector, 'display') === 'none';
 
-	const Create = (tagName: string, option?: Record<string, TCreateOption>) => {
+	const Create = (tagName: string, option?: Record<string, TCreateOption>): HTMLElement => {
 		const newElement = Doc.createElement(tagName);
 		if (!option) return newElement;
 
@@ -380,6 +387,7 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 		Win,
 		Doc,
 		New,
+		GetRoot,
 		Select,
 		SelectAll,
 		GetAttr,
@@ -405,6 +413,7 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 		InsertAfter,
 		Clone,
 		GetTagName,
+		IsEditable,
 		GetParents,
 		On,
 		Off,

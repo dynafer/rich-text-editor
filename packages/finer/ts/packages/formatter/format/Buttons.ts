@@ -1,5 +1,5 @@
 import Editor from '../../Editor';
-import { EMouseEventName } from '../../events/mouse/MouseUtils';
+import { EEventNames } from '../../events/EventSetupUtils';
 import * as Icons from '../../icons/Icons';
 import FormatDetector from '../FormatDetector';
 import { EFormatType, EFormatUI, EFormatUIType, IFormatOption, IFormatRegistryJoiner } from '../FormatType';
@@ -11,13 +11,13 @@ const Buttons = (editor: Editor): IFormatRegistryJoiner => {
 	const UI = FormatUI(self);
 
 	const Formats: Record<string, IFormatOption> = {
-		bold: { type: EFormatType.TAG, format: 'strong', ui: EFormatUI.BUTTON, uiType: EFormatUIType.ICON, uiEvent: EMouseEventName.click, html: Icons.Bold },
-		italic: { type: EFormatType.TAG, format: 'em', ui: EFormatUI.BUTTON, uiType: EFormatUIType.ICON, uiEvent: EMouseEventName.click, html: Icons.Italic },
-		strikethrough: { type: EFormatType.TAG, format: 's', ui: EFormatUI.BUTTON, uiType: EFormatUIType.ICON, uiEvent: EMouseEventName.click, html: Icons.Strikethrough },
-		subscript: { type: EFormatType.TAG, format: 'sub', ui: EFormatUI.BUTTON, uiType: EFormatUIType.ICON, uiEvent: EMouseEventName.click, html: Icons.Subscript },
-		superscript: { type: EFormatType.TAG, format: 'sup', ui: EFormatUI.BUTTON, uiType: EFormatUIType.ICON, uiEvent: EMouseEventName.click, html: Icons.Superscript },
+		bold: { type: EFormatType.TAG, format: 'strong', ui: EFormatUI.BUTTON, uiType: EFormatUIType.ICON, uiEvent: EEventNames.click, html: Icons.Bold },
+		italic: { type: EFormatType.TAG, format: 'em', ui: EFormatUI.BUTTON, uiType: EFormatUIType.ICON, uiEvent: EEventNames.click, html: Icons.Italic },
+		strikethrough: { type: EFormatType.TAG, format: 's', ui: EFormatUI.BUTTON, uiType: EFormatUIType.ICON, uiEvent: EEventNames.click, html: Icons.Strikethrough },
+		subscript: { type: EFormatType.TAG, format: 'sub', ui: EFormatUI.BUTTON, uiType: EFormatUIType.ICON, uiEvent: EEventNames.click, html: Icons.Subscript },
+		superscript: { type: EFormatType.TAG, format: 'sup', ui: EFormatUI.BUTTON, uiType: EFormatUIType.ICON, uiEvent: EEventNames.click, html: Icons.Superscript },
 		underline: {
-			type: EFormatType.STYLE, format: 'text-decoration', formatValue: 'underline', ui: EFormatUI.BUTTON, uiType: EFormatUIType.ICON, uiEvent: EMouseEventName.click, html: Icons.Underline
+			type: EFormatType.STYLE, format: 'text-decoration', formatValue: 'underline', ui: EFormatUI.BUTTON, uiType: EFormatUIType.ICON, uiEvent: EEventNames.click, html: Icons.Underline
 		}
 	};
 

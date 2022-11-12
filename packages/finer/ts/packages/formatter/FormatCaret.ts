@@ -1,3 +1,4 @@
+import { Str } from '@dynafer/utils';
 import Editor from '../Editor';
 import { ICaretData } from '../editorUtils/caret/CaretUtils';
 import FormatToggle from './FormatToggle';
@@ -16,6 +17,17 @@ const FormatCaret = (editor: Editor) => {
 		checker: CheckFormat(self, option)
 	});
 
+	const isNodeEmpty = (node: Node) =>
+		(DOM.Utils.IsText(node) && Str.IsEmpty(node.textContent)) || (!DOM.Utils.IsText(node) && Str.IsEmpty(DOM.GetText(node as HTMLElement)));
+
+	const cleanDirty = (root: Node) => {
+		const firstChild = root.firstChild;
+		const lastChild = root.lastChild;
+
+		if (firstChild && isNodeEmpty(firstChild)) firstChild.remove();
+		if (lastChild && isNodeEmpty(lastChild)) lastChild.remove();
+	};
+
 	const toggleSameLine = (bWrap: boolean, option: IFormatOptionBase, caret: ICaretData): Range => {
 		const fragment = caret.Range.Extract();
 		const setting = getFormatToSetting(option, fragment);
@@ -24,6 +36,7 @@ const FormatCaret = (editor: Editor) => {
 			let children: Node[] = Array.from(parent.childNodes);
 			caret.Range.Insert(parent);
 			if (!bWrap) children = toggler.Unwrap.UnwrapParents(caret.SameRoot, children, setting.checker);
+			cleanDirty(caret.SameRoot);
 			caret.Range.SetStartBefore(children[0]);
 			caret.Range.SetEndAfter(children[children.length - 1]);
 		});
@@ -43,6 +56,9 @@ const FormatCaret = (editor: Editor) => {
 				nextLine = node;
 			}
 			lines[caret.End.Line].replaceChildren(...lastNodes, ...Array.from(lines[caret.End.Line].childNodes));
+			for (let lineNum = caret.Start.Line, endLine = caret.End.Line; lineNum <= endLine; ++ lineNum) {
+				cleanDirty(lines[lineNum]);
+			}
 			caret.Range.SetStart(firstNodes[0], 0);
 			caret.Range.SetEndAfter(lastNodes[lastNodes.length - 1]);
 		});

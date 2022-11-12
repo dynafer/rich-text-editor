@@ -1,6 +1,7 @@
 import { TCreateOption } from '../dom/DOM';
 
 export const ACTIVE_CLASS = 'active';
+export const ATTRIBUTE_DATA_VALUE = 'data-value';
 export const STANDARD_POINTS_FROM_PIXEL = 0.75;
 export const STANDARD_PIXEL_FROM_POINTS = 1 / STANDARD_POINTS_FROM_PIXEL;
 

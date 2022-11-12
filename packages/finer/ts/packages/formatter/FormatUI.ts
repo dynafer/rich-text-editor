@@ -1,8 +1,9 @@
 import Editor from '../Editor';
 import DOM from '../dom/DOM';
+import { EEventNames } from '../events/EventSetupUtils';
 import * as Icons from '../icons/Icons';
 import FormatCaret from './FormatCaret';
-import { ACTIVE_CLASS, IFormatOption } from './FormatType';
+import { ACTIVE_CLASS, ATTRIBUTE_DATA_VALUE, IFormatOption } from './FormatType';
 
 export interface IFormatUI {
 	Activate: (togglerUI: HTMLElement, bActive: boolean) => void,
@@ -73,10 +74,10 @@ const FormatUI = (editor: Editor): IFormatUI => {
 		const { type, format, formatValue } = option;
 		const optionElement = Create(option, false, false);
 		DOM.SetHTML(optionElement, `${Icons.Check}${DOM.GetHTML(optionElement)}`);
-		DOM.SetAttr(optionElement, 'data-value', option.html);
+		DOM.SetAttr(optionElement, ATTRIBUTE_DATA_VALUE, option.html);
 		if (active) DOM.AddClass(optionElement, ACTIVE_CLASS);
 
-		DOM.On(optionElement, 'click', () => {
+		DOM.On(optionElement, EEventNames.click, () => {
 			setLabel(option.html);
 			self.Focus();
 			caretToggler.Toggle(false, { type, format });
