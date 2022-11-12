@@ -1,6 +1,7 @@
 import { Arr, Str } from '@dynafer/utils';
 import Editor from '../Editor';
 import { IEvent } from '../editorUtils/EventUtils';
+import { ENativeEvents } from '../events/EventSetupUtils';
 import { ENotificationStatus } from './NotificationManager';
 
 export interface IPluginManager {
@@ -60,7 +61,7 @@ const PluginManager = (editor: Editor): IPluginManager => {
 				.finally(() => {
 					const events = self.Utils.Event.Get();
 					for (const [key, eventList] of Object.entries(events)) {
-						if (!DOM.Utils.NativeEvents.includes(key)) continue;
+						if (!ENativeEvents[key]) continue;
 						DOM.On(self.IsIFrame() ? DOM.GetRoot() : self.GetBody(), key, (evt) => {
 							for (const event of eventList) {
 								event(evt);

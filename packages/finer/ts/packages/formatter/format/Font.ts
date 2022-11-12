@@ -1,7 +1,7 @@
 import { Arr, Str, Type } from '@dynafer/utils';
 import Editor from '../../Editor';
 import DOM from '../../dom/DOM';
-import { EEventNames } from '../../events/EventSetupUtils';
+import { ENativeEvents } from '../../events/EventSetupUtils';
 import * as Icons from '../../icons/Icons';
 import FormatDetector from '../FormatDetector';
 import {
@@ -182,7 +182,7 @@ const Font = (editor: Editor): IFormatRegistryJoiner => {
 				formatValue: option,
 				ui: EFormatUI.LI,
 				uiType: EFormatUIType.ITEM,
-				uiEvent: EEventNames.click,
+				uiEvent: ENativeEvents.click,
 				html: label
 			});
 		}
@@ -205,12 +205,12 @@ const Font = (editor: Editor): IFormatRegistryJoiner => {
 		};
 
 		const destroyOptionWrapper = () => {
-			DOM.Off(DOM.Doc.body, EEventNames.click, destroyOptionWrapper);
-			self.DOM.Off(self.DOM.GetRoot(), EEventNames.click, destroyOptionWrapper);
+			DOM.Off(DOM.Doc.body, ENativeEvents.click, destroyOptionWrapper);
+			self.DOM.Off(self.DOM.GetRoot(), ENativeEvents.click, destroyOptionWrapper);
 			UI.DestroyOptionWrapper();
 		};
 
-		DOM.On(selection, EEventNames.click, (event: MouseEvent) => {
+		DOM.On(selection, ENativeEvents.click, (event: MouseEvent) => {
 			if (UI.ExistsOptionWrapper() && UI.HasTypeAttribute(name)) return destroyOptionWrapper();
 			event.stopImmediatePropagation();
 			event.stopPropagation();
@@ -218,8 +218,8 @@ const Font = (editor: Editor): IFormatRegistryJoiner => {
 
 			destroyOptionWrapper();
 			createOptionsWrapper(DOM.GetAttr(labelWrapper, ATTRIBUTE_DATA_VALUE) ?? '', formatOption.formatOptions, detectable);
-			DOM.On(DOM.Doc.body, EEventNames.click, destroyOptionWrapper);
-			self.DOM.On(self.DOM.GetRoot(), EEventNames.click, destroyOptionWrapper);
+			DOM.On(DOM.Doc.body, ENativeEvents.click, destroyOptionWrapper);
+			self.DOM.On(self.DOM.GetRoot(), ENativeEvents.click, destroyOptionWrapper);
 		});
 
 		setLabel(getValue(systemStyle));

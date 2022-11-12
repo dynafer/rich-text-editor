@@ -1,5 +1,5 @@
 import Editor from '../../Editor';
-import { CaretChangeEvent, EEventNames, IEventSetupCallback, Setup } from '../EventSetupUtils';
+import { CaretChangeEvent, ENativeEvents, IEventSetupCallback, Setup } from '../EventSetupUtils';
 import DefaultEvent from './Default';
 import { EKeyCode } from './KeyboardUtils';
 
@@ -22,20 +22,20 @@ const Keyboard = (editor: Editor) => {
 		Setup(editor, eventName, newEvent);
 	};
 
-	Setup(editor, EEventNames.keyup, DefaultEvent);
-	Setup(editor, EEventNames.keypress, DefaultEvent);
-	Setup(editor, EEventNames.keydown, DefaultEvent);
+	Setup(editor, ENativeEvents.keyup, DefaultEvent);
+	Setup(editor, ENativeEvents.keypress, DefaultEvent);
+	Setup(editor, ENativeEvents.keydown, DefaultEvent);
 
-	setup(EEventNames.keyup, EKeyCode.ArrowUp, CaretChangeEvent);
-	setup(EEventNames.keyup, EKeyCode.ArrowDown, CaretChangeEvent);
-	setup(EEventNames.keyup, EKeyCode.ArrowLeft, CaretChangeEvent);
-	setup(EEventNames.keyup, EKeyCode.ArrowRight, CaretChangeEvent);
-	setup(EEventNames.keyup, EKeyCode.Home, CaretChangeEvent);
-	setup(EEventNames.keyup, EKeyCode.End, CaretChangeEvent);
-	setup(EEventNames.keyup, EKeyCode.PageDown, CaretChangeEvent);
-	setup(EEventNames.keyup, EKeyCode.PageUp, CaretChangeEvent);
+	setup(ENativeEvents.keyup, EKeyCode.ArrowUp, CaretChangeEvent);
+	setup(ENativeEvents.keyup, EKeyCode.ArrowDown, CaretChangeEvent);
+	setup(ENativeEvents.keyup, EKeyCode.ArrowLeft, CaretChangeEvent);
+	setup(ENativeEvents.keyup, EKeyCode.ArrowRight, CaretChangeEvent);
+	setup(ENativeEvents.keyup, EKeyCode.Home, CaretChangeEvent);
+	setup(ENativeEvents.keyup, EKeyCode.End, CaretChangeEvent);
+	setup(ENativeEvents.keyup, EKeyCode.PageDown, CaretChangeEvent);
+	setup(ENativeEvents.keyup, EKeyCode.PageUp, CaretChangeEvent);
 
-	setupWithCtrl(EEventNames.keyup, EKeyCode.KeyA, CaretChangeEvent);
+	setupWithCtrl(ENativeEvents.keyup, EKeyCode.KeyA, CaretChangeEvent);
 };
 
 export default Keyboard;
