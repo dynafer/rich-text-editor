@@ -1,5 +1,6 @@
 import Editor from '../Editor';
 import DOM from '../dom/DOM';
+import { EEventNames } from '../events/EventSetupUtils';
 import * as Icons from '../icons/Icons';
 
 export enum ENotificationStatus {
@@ -67,7 +68,7 @@ const NotificationManager = (editor: Editor): INotificationManager => {
 			html: Icons.Close
 		});
 
-		DOM.On(closeButton, 'click', () => {
+		DOM.On(closeButton, EEventNames.click, () => {
 			DOM.Dispatch(wrapper, 'Notification:Close');
 		});
 

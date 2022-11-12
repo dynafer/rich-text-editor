@@ -14,7 +14,7 @@ module.exports = async (runner, config) => {
 	await Task.Run(async () => {
 		if (!fs.existsSync(OUTPUT_PATH)) fs.mkdirSync(OUTPUT_PATH);
 		if (!fs.existsSync(path.join(OUTPUT_PATH, './skins'))) fs.mkdirSync(path.join(OUTPUT_PATH, './skins'));
-	}, false);
+	});
 
 	await Command.Run({
 		command: 'yarn run lint',

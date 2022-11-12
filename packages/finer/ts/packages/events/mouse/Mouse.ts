@@ -1,15 +1,8 @@
 import Editor from '../../Editor';
-import MouseUpEvent from './MouseUp';
-import { EMouseEventName } from './MouseUtils';
+import { CaretChangeEvent, EEventNames, Setup } from '../EventSetupUtils';
 
 const Mouse = (editor: Editor) => {
-	const setup = (eventName: EMouseEventName, event: (editor: Editor, event: MouseEvent) => void) => {
-		editor.On(eventName, (mouseEvent: MouseEvent) => {
-			event(editor, mouseEvent);
-		});
-	};
-
-	setup(EMouseEventName.mouseup, MouseUpEvent);
+	Setup(editor, EEventNames.mouseup, CaretChangeEvent);
 };
 
 export default Mouse;

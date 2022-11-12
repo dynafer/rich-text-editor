@@ -61,7 +61,7 @@ const PluginManager = (editor: Editor): IPluginManager => {
 					const events = self.Utils.Event.Get();
 					for (const [key, eventList] of Object.entries(events)) {
 						if (!DOM.Utils.NativeEvents.includes(key)) continue;
-						DOM.On(self.IsIFrame() ? DOM.Select('html') : self.GetBody(), key, (evt) => {
+						DOM.On(self.IsIFrame() ? DOM.GetRoot() : self.GetBody(), key, (evt) => {
 							for (const event of eventList) {
 								event(evt);
 							}

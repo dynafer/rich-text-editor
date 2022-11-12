@@ -1,10 +1,12 @@
 import { Arr, Str, Type } from '@dynafer/utils';
 import Editor from '../../Editor';
 import DOM from '../../dom/DOM';
+import { EEventNames } from '../../events/EventSetupUtils';
 import * as Icons from '../../icons/Icons';
 import FormatDetector from '../FormatDetector';
 import {
-	EFormatType, EFormatUI, IFormatOptionBase, IFormatOption, IFormatDetectorActivator, STANDARD_POINTS_FROM_PIXEL, STANDARD_PIXEL_FROM_POINTS, IFormatRegistryJoiner, EFormatUIType
+	ATTRIBUTE_DATA_VALUE, EFormatType, EFormatUI, IFormatOptionBase, IFormatOption, IFormatDetectorActivator,
+	STANDARD_POINTS_FROM_PIXEL, STANDARD_PIXEL_FROM_POINTS, IFormatRegistryJoiner, EFormatUIType
 } from '../FormatType';
 import FormatUI from '../FormatUI';
 
@@ -77,7 +79,7 @@ const Font = (editor: Editor): IFormatRegistryJoiner => {
 	};
 
 	const setLabelText = (label: HTMLElement) => (text: string) => {
-		DOM.SetAttr(label, 'data-value', text);
+		DOM.SetAttr(label, ATTRIBUTE_DATA_VALUE, text);
 		DOM.SetText(label, text);
 	};
 	const getLabelText = (bActive: boolean, detected: string, detectable: IDetectableOption) => {
@@ -180,7 +182,7 @@ const Font = (editor: Editor): IFormatRegistryJoiner => {
 				formatValue: option,
 				ui: EFormatUI.LI,
 				uiType: EFormatUIType.ITEM,
-				uiEvent: 'click',
+				uiEvent: EEventNames.click,
 				html: label
 			});
 		}
@@ -203,21 +205,21 @@ const Font = (editor: Editor): IFormatRegistryJoiner => {
 		};
 
 		const destroyOptionWrapper = () => {
-			DOM.Off(DOM.Doc.body, 'click', destroyOptionWrapper);
-			self.DOM.Off(self.GetBody(), 'click', destroyOptionWrapper);
+			DOM.Off(DOM.Doc.body, EEventNames.click, destroyOptionWrapper);
+			self.DOM.Off(self.DOM.GetRoot(), EEventNames.click, destroyOptionWrapper);
 			UI.DestroyOptionWrapper();
 		};
 
-		DOM.On(selection, 'click', (event: MouseEvent) => {
+		DOM.On(selection, EEventNames.click, (event: MouseEvent) => {
 			if (UI.ExistsOptionWrapper() && UI.HasTypeAttribute(name)) return destroyOptionWrapper();
 			event.stopImmediatePropagation();
 			event.stopPropagation();
 			event.preventDefault();
 
 			destroyOptionWrapper();
-			createOptionsWrapper(DOM.GetAttr(labelWrapper, 'data-value') ?? '', formatOption.formatOptions, detectable);
-			DOM.On(DOM.Doc.body, 'click', destroyOptionWrapper);
-			self.DOM.On(self.GetBody(), 'click', destroyOptionWrapper);
+			createOptionsWrapper(DOM.GetAttr(labelWrapper, ATTRIBUTE_DATA_VALUE) ?? '', formatOption.formatOptions, detectable);
+			DOM.On(DOM.Doc.body, EEventNames.click, destroyOptionWrapper);
+			self.DOM.On(self.DOM.GetRoot(), EEventNames.click, destroyOptionWrapper);
 		});
 
 		setLabel(getValue(systemStyle));

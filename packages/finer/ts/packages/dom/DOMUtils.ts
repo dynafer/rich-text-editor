@@ -11,7 +11,7 @@ const NativeEvents: string[] = [
 	'transitionend transitionrun transitionstart volumechange waiting webkitanimationend webkitanimationiteration webkitanimationstart webkittransitionend wheel'
 ].join(' ').split(' ');
 
-const emptyHexCode = '&#xfeff;';
+const EMPTY_HEX_CODE = '&#xfeff;';
 
 export interface IDOMUtils {
 	NativeEvents: string[],
@@ -37,7 +37,7 @@ const DOMUtils = (): IDOMUtils => {
 		}
 	};
 
-	const GetEmptyString = (): string => emptyHexCode;
+	const GetEmptyString = (): string => EMPTY_HEX_CODE;
 
 	const IsParagraph = (selector: Node | null): boolean => selector?.nodeName?.toLowerCase() === 'p' ?? false;
 

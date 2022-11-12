@@ -1,29 +1,41 @@
 import Editor from '../../Editor';
+import { CaretChangeEvent, EEventNames, IEventSetupCallback, Setup } from '../EventSetupUtils';
 import DefaultEvent from './Default';
-import PointerEvent from './Pointer';
-import { EKeyCode, EKeyEventName } from './KeyboardUtils';
+import { EKeyCode } from './KeyboardUtils';
 
 const Keyboard = (editor: Editor) => {
-	const setup = (eventName: EKeyEventName, keyCode: EKeyCode, event: (editor: Editor, event: KeyboardEvent) => void) => {
-		editor.On(eventName, (keyEvent: KeyboardEvent) => {
-			if (keyEvent.key === keyCode) {
-				event(editor, keyEvent);
-			}
-		});
+	const setup = <K extends keyof GlobalEventHandlersEventMap>(eventName: K, keyCode: EKeyCode, event: IEventSetupCallback<K>) => {
+		const newEvent = (self: Editor, keyEvent: GlobalEventHandlersEventMap[K]) => {
+			if ((keyEvent as KeyboardEvent).key !== keyCode) return;
+			event(self, keyEvent);
+		};
+
+		Setup(editor, eventName, newEvent);
 	};
 
-	editor.On(EKeyEventName.keyup, (event: KeyboardEvent) => DefaultEvent(editor, event));
-	editor.On(EKeyEventName.keypress, (event: KeyboardEvent) => DefaultEvent(editor, event));
-	editor.On(EKeyEventName.keydown, (event: KeyboardEvent) => DefaultEvent(editor, event));
+	const setupWithCtrl = <K extends keyof GlobalEventHandlersEventMap>(eventName: K, keyCode: EKeyCode, event: IEventSetupCallback<K>) => {
+		const newEvent = (self: Editor, keyEvent: GlobalEventHandlersEventMap[K]) => {
+			if ((keyEvent as KeyboardEvent).code !== keyCode || !(keyEvent as KeyboardEvent).ctrlKey) return;
+			event(self, keyEvent);
+		};
 
-	setup(EKeyEventName.keyup, EKeyCode.ArrowUp, PointerEvent);
-	setup(EKeyEventName.keyup, EKeyCode.ArrowDown, PointerEvent);
-	setup(EKeyEventName.keyup, EKeyCode.ArrowLeft, PointerEvent);
-	setup(EKeyEventName.keyup, EKeyCode.ArrowRight, PointerEvent);
-	setup(EKeyEventName.keyup, EKeyCode.Home, PointerEvent);
-	setup(EKeyEventName.keyup, EKeyCode.End, PointerEvent);
-	setup(EKeyEventName.keyup, EKeyCode.PageDown, PointerEvent);
-	setup(EKeyEventName.keyup, EKeyCode.PageUp, PointerEvent);
+		Setup(editor, eventName, newEvent);
+	};
+
+	Setup(editor, EEventNames.keyup, DefaultEvent);
+	Setup(editor, EEventNames.keypress, DefaultEvent);
+	Setup(editor, EEventNames.keydown, DefaultEvent);
+
+	setup(EEventNames.keyup, EKeyCode.ArrowUp, CaretChangeEvent);
+	setup(EEventNames.keyup, EKeyCode.ArrowDown, CaretChangeEvent);
+	setup(EEventNames.keyup, EKeyCode.ArrowLeft, CaretChangeEvent);
+	setup(EEventNames.keyup, EKeyCode.ArrowRight, CaretChangeEvent);
+	setup(EEventNames.keyup, EKeyCode.Home, CaretChangeEvent);
+	setup(EEventNames.keyup, EKeyCode.End, CaretChangeEvent);
+	setup(EEventNames.keyup, EKeyCode.PageDown, CaretChangeEvent);
+	setup(EEventNames.keyup, EKeyCode.PageUp, CaretChangeEvent);
+
+	setupWithCtrl(EEventNames.keyup, EKeyCode.KeyA, CaretChangeEvent);
 };
 
 export default Keyboard;
