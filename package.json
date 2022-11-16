@@ -22,7 +22,7 @@
     "postinstall": "patch-package",
     "build": "build-toolkit",
     "watch": "build-toolkit -w ./packages",
-    "lint": "eslint . --ext .ts"
+    "lint": "eslint packages --ext .ts"
   },
   "repository": {
     "type": "git",

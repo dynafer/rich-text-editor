@@ -3,7 +3,7 @@ import Editor from '../Editor';
 import { ICaretData } from '../editorUtils/caret/CaretUtils';
 import FormatToggle from './FormatToggle';
 import { IFormatOptionBase, IToggleSetting } from './FormatType';
-import { CheckFormat } from './FormatUtils';
+import { CheckFormat, FindClosest } from './FormatUtils';
 
 const FormatCaret = (editor: Editor) => {
 	const self = editor;
@@ -21,11 +21,12 @@ const FormatCaret = (editor: Editor) => {
 		(DOM.Utils.IsText(node) && Str.IsEmpty(node.textContent)) || (!DOM.Utils.IsText(node) && Str.IsEmpty(DOM.GetText(node as HTMLElement)));
 
 	const cleanDirty = (root: Node) => {
-		const firstChild = root.firstChild;
-		const lastChild = root.lastChild;
-
-		if (firstChild && isNodeEmpty(firstChild)) firstChild.remove();
-		if (lastChild && isNodeEmpty(lastChild)) lastChild.remove();
+		const children = root.childNodes;
+		for (const child of children) {
+			if (child && isNodeEmpty(child))
+				if (DOM.Utils.IsText(child)) child.remove();
+				else DOM.Remove(child as Element, false);
+		}
 	};
 
 	const toggleSameLine = (bWrap: boolean, option: IFormatOptionBase, caret: ICaretData): Range => {
@@ -35,7 +36,7 @@ const FormatCaret = (editor: Editor) => {
 		toggler.ToggleOneLineRange(bWrap, setting, (parent) => {
 			let children: Node[] = Array.from(parent.childNodes);
 			caret.Range.Insert(parent);
-			if (!bWrap) children = toggler.Unwrap.UnwrapParents(caret.SameRoot, children, setting.checker);
+			if (!bWrap && !!FindClosest(self, option, caret.SameRoot)) children = toggler.Unwrap.UnwrapParents(caret.SameRoot, children, setting.checker);
 			cleanDirty(caret.SameRoot);
 			caret.Range.SetStartBefore(children[0]);
 			caret.Range.SetEndAfter(children[children.length - 1]);
@@ -76,7 +77,7 @@ const FormatCaret = (editor: Editor) => {
 			}
 		});
 
-		const wrappingOption = toggler.GetWrappingOption(option.type, option.format, option.formatValue);
+		const wrappingOption = toggler.GetFormattingOption(option.type, option.format, option.formatValue);
 
 		const createWrapper = DOM.Create(wrappingOption.format, {
 			...wrappingOption.option,

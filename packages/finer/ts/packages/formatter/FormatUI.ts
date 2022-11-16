@@ -1,15 +1,15 @@
 import Editor from '../Editor';
 import DOM from '../dom/DOM';
 import { ENativeEvents } from '../events/EventSetupUtils';
-import * as Icons from '../icons/Icons';
+import { ACTIVE_CLASS, IFormatOption } from './FormatType';
 import FormatCaret from './FormatCaret';
-import { ACTIVE_CLASS, ATTRIBUTE_DATA_VALUE, IFormatOption } from './FormatType';
+import { FORMAT_BASES } from './FormatUtils';
 
 export interface IFormatUI {
-	Activate: (togglerUI: HTMLElement, bActive: boolean) => void,
-	Create: (option: IFormatOption, bAddEvent?: boolean, bInsert?: boolean) => HTMLElement,
+	GetSystemStyle: (style: string) => string,
+	Create: (option: IFormatOption, bInsert: boolean, event: () => void) => HTMLElement,
 	CreateLabel: () => HTMLElement,
-	CreateSelection: (children?: (string | Node)[]) => HTMLElement,
+	CreateSelection: (label: string, children?: (string | Node)[]) => HTMLElement,
 	CreateOptionWrapper: (type: string, children: Node[]) => HTMLElement,
 	CreateOption: (option: IFormatOption, active: boolean, setLabel: (text: string) => void)=> HTMLElement,
 	SelectOptionWrapper: () => Node | null,
@@ -22,30 +22,21 @@ const FormatUI = (editor: Editor): IFormatUI => {
 	const self = editor;
 	const caretToggler = FormatCaret(self);
 
-	const Activate = (togglerUI: HTMLElement, bActive: boolean) => {
-		const toggle = bActive ? DOM.AddClass : DOM.RemoveClass;
-		toggle(togglerUI, ACTIVE_CLASS);
-	};
+	const GetSystemStyle = (style: string): string => self.DOM.GetStyle(self.GetBody(), style);
 
-	const addUIEvent = (togglerUI: HTMLElement, option: IFormatOption) => {
-		const { type, format, formatValue, uiEvent } = option;
-		DOM.On(togglerUI, uiEvent, () => {
-			const bActivated = !DOM.HasClass(togglerUI, ACTIVE_CLASS);
-			self.Focus();
-			Activate(togglerUI, bActivated);
-			caretToggler.Toggle(bActivated, { type, format, formatValue });
-		});
-	};
-
-	const Create = (option: IFormatOption, bAddEvent: boolean = true, bInsert: boolean = true): HTMLElement => {
-		const { ui, uiType, html } = option;
+	const Create = (option: IFormatOption, bInsert: boolean, event: () => void): HTMLElement => {
+		const { label, ui, uiType, html } = option;
 		const togglerUI = DOM.Create(ui.toLowerCase(), {
-			class: DOM.Utils.CreateUEID(uiType.toLowerCase(), false),
+			attrs: {
+				title: label
+			},
+			class: DOM.Utils.CreateUEID(uiType.replace(/_/gi, '-').toLowerCase(), false),
 			html: html
 		});
 
+		DOM.On(togglerUI, ENativeEvents.click, event);
+
 		if (bInsert) DOM.Insert(self.Frame.Toolbar, togglerUI);
-		if (bAddEvent) addUIEvent(togglerUI, option);
 
 		return togglerUI;
 	};
@@ -55,8 +46,11 @@ const FormatUI = (editor: Editor): IFormatUI => {
 			class: DOM.Utils.CreateUEID('label', false)
 		});
 
-	const CreateSelection = (children: (string | Node)[] = []): HTMLElement =>
+	const CreateSelection = (label: string, children: (string | Node)[] = []): HTMLElement =>
 		DOM.Create('div', {
+			attrs: {
+				title: label
+			},
 			class: DOM.Utils.CreateUEID('select', false),
 			children: children
 		});
@@ -71,18 +65,20 @@ const FormatUI = (editor: Editor): IFormatUI => {
 		});
 
 	const CreateOption = (option: IFormatOption, active: boolean, setLabel: (text: string) => void): HTMLElement => {
-		const { type, format, formatValue } = option;
-		const optionElement = Create(option, false, false);
-		DOM.SetHTML(optionElement, `${Icons.Check}${DOM.GetHTML(optionElement)}`);
-		DOM.SetAttr(optionElement, ATTRIBUTE_DATA_VALUE, option.html);
-		if (active) DOM.AddClass(optionElement, ACTIVE_CLASS);
-
-		DOM.On(optionElement, ENativeEvents.click, () => {
-			setLabel(option.html);
+		const { type, format, formatValue, sameOption } = option;
+		const optionElement = Create(option, false, () => {
+			setLabel(option.label);
 			self.Focus();
 			caretToggler.Toggle(false, { type, format });
+			if (sameOption) {
+				for (const same of sameOption) {
+					caretToggler.Toggle(false, FORMAT_BASES[same]);
+				}
+			}
 			caretToggler.Toggle(true, { type, format, formatValue });
 		});
+
+		if (active) DOM.AddClass(optionElement, ACTIVE_CLASS);
 
 		return optionElement;
 	};
@@ -93,7 +89,7 @@ const FormatUI = (editor: Editor): IFormatUI => {
 	const DestroyOptionWrapper = () => DOM.Remove(SelectOptionWrapper(), true);
 
 	return {
-		Activate,
+		GetSystemStyle,
 		Create,
 		CreateLabel,
 		CreateOptionWrapper,

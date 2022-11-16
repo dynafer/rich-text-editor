@@ -1,6 +1,6 @@
 import { Arr, Str } from '@dynafer/utils';
 import Editor from '../Editor';
-import { IFormatChecker } from './FormatType';
+import { EFormatType, IFormatChecker, IFormattingOption } from './FormatType';
 
 interface IUnwrapSiblingNodes {
 	previousNodes: Node[],
@@ -9,7 +9,7 @@ interface IUnwrapSiblingNodes {
 }
 
 export interface IFormatUnwrap {
-	UnwrapRecursive: (formatting: object, children: Node[], checker: IFormatChecker) => Node[],
+	UnwrapRecursive: (formatting: IFormattingOption, children: Node[], checker: IFormatChecker) => Node[],
 	UnwrapSiblings: (wrapper: Node, alreadyAppendedNodes: Node[], old: IUnwrapSiblingNodes, checker: IFormatChecker) => IUnwrapSiblingNodes,
 	UnwrapParents: (sameRoot: Node, unwrappedChildren: Node[], checker: IFormatChecker) => Node[],
 }
@@ -58,12 +58,17 @@ const FormatUnwrap = (editor: Editor) => {
 		return topWrappedNode;
 	};
 
-	const UnwrapRecursive = (formatting: object, children: Node[], checker: IFormatChecker): Node[] => {
+	const UnwrapRecursive = (formatting: IFormattingOption, children: Node[], checker: IFormatChecker): Node[] => {
 		let nodes = [ ...children ];
 		for (let index = 0; index < nodes.length; ++ index) {
 			const child = nodes[index];
 
 			if (checker(child)) {
+				if (formatting.type === EFormatType.STYLE && DOM.Utils.GetNodeName(child) === formatting.format) {
+					DOM.RemoveStyle(child as HTMLElement, formatting.styleFormat);
+					nodes = Arr.Merge(nodes.slice(0, index), (Str.IsEmpty(DOM.GetAttr(child, 'style')) ? Array.from(child.childNodes) : [child]), nodes.slice(index + 1, nodes.length));
+					continue;
+				}
 				nodes = Arr.Merge(nodes.slice(0, index), Array.from(child.childNodes), nodes.slice(index + 1, nodes.length));
 				continue;
 			}

@@ -31,7 +31,7 @@ export interface IDom {
 	HasClass: (selector: TElement, className: string) => boolean,
 	RemoveClass: (selector: TElement, ...classes: string[]) => void,
 	GetStyles: (selector: HTMLElement | null) => Record<string, string>,
-	GetStyle: (selector: HTMLElement | null, styleName: string) => string,
+	GetStyle: (selector: HTMLElement | null, name: string) => string,
 	SetStyle: {
 		<K extends keyof CSSStyleDeclaration>(selector: HTMLElement | null, name: K, value: string): void;
 		(selector: HTMLElement | null, name: string, value: string): void;
@@ -40,7 +40,8 @@ export interface IDom {
 		<K extends keyof CSSStyleDeclaration>(selector: HTMLElement | null, styles: Record<K, string>): void;
 		(selector: HTMLElement | null, styles: Record<string, string>): void;
 	},
-	HasStyle: (selector: HTMLElement | null, styleName: string, compareValue?: string) => boolean,
+	RemoveStyle: (selector: HTMLElement | null, name: string) => void,
+	HasStyle: (selector: HTMLElement | null, name: string, compareValue?: string) => boolean,
 	GetText: (selector: HTMLElement) => string,
 	GetHTML: (selector: HTMLElement) => string,
 	SetText: (selector: HTMLElement, text: string) => void,
@@ -49,6 +50,8 @@ export interface IDom {
 	Insert: (selector: TElement, insertion: TElement | Node[] | string) => void,
 	InsertAfter: (selector: TElement, insertion: TElement | Node[]  | string) => void,
 	Clone: (selector: TElement, deep?: boolean, insertion?: TElement | Node[]) => Node | null,
+	Closest: (selector: Element | null, find: string) => Element | null,
+	ClosestByStyle: (selector: Element | null, styles: string | string[] | Record<string, string>) => Element | null,
 	GetTagName: {
 		<K extends keyof HTMLElementTagNameMap>(selector: TElement): K;
 		(selector: TElement): string;
@@ -156,20 +159,26 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 		return styleDict;
 	};
 
-	const GetStyle = (selector: HTMLElement | null, styleName: string): string => {
+	const GetStyle = (selector: HTMLElement | null, name: string): string => {
 		if (!Instance.Is(selector, elementType)) return '';
 
 		const styles = GetStyles(selector);
-		if (Object.keys(styles).length === 0) {
+		const capitalisedStyle = Str.DashToCapital(name);
+		if (!styles[capitalisedStyle]) {
 			const computedStyle = Win.getComputedStyle(selector);
-			return computedStyle[Str.CapitalToDash(styleName)];
+			return computedStyle[name];
 		}
 
-		return styles[Str.CapitalToDash(styleName)];
+		return styles[capitalisedStyle] ?? '';
 	};
 
 	const SetStyle = (selector: HTMLElement | null, name: string, value: string) => {
 		if (!Instance.Is(selector, elementType) || !Type.IsString(name) || !Type.IsString(value)) return;
+
+		if (selector.style[name]) {
+			selector.style[name] = value;
+			return;
+		}
 
 		const styleList = selector.style.cssText.split(';');
 		styleList.push(`${Str.CapitalToDash(name)}: ${value}`);
@@ -183,15 +192,34 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 		}
 	};
 
-	const HasStyle = (selector: HTMLElement | null, styleName: string, compareValue?: string): boolean => {
-		if (!Instance.Is(selector, elementType) || !Type.IsString(styleName)) return false;
+	const RemoveStyle = (selector: HTMLElement | null, name: string) => {
+		if (!Instance.Is(selector, elementType) || !Type.IsString(name)) return;
+
+		if (selector.style[name]) {
+			selector.style[name] = '';
+			return;
+		}
+
+		const styles = GetStyles(selector);
+		const dashedName = Str.CapitalToDash(name);
+		if (!styles[dashedName]) return;
+
+		selector.style.cssText = '';
+		for (const [styleName, styleValue] of Object.entries(styles)) {
+			if (styleName === dashedName) continue;
+			selector.style.cssText += `${styleName}: ${styleValue};`;
+		}
+	};
+
+	const HasStyle = (selector: HTMLElement | null, name: string, compareValue?: string): boolean => {
+		if (!Instance.Is(selector, elementType) || !Type.IsString(name)) return false;
 
 		const cssText = selector.style.cssText.replace(/\s*:\s*/gi, ':');
 		if (compareValue) {
 			if (!Type.IsString(compareValue)) return false;
-			return cssText.includes(`${Str.CapitalToDash(styleName)}:${compareValue.trim()}`);
+			return cssText.includes(`${Str.CapitalToDash(name)}:${compareValue.trim()}`);
 		}
-		return cssText.includes(Str.CapitalToDash(styleName));
+		return cssText.includes(Str.CapitalToDash(name));
 	};
 
 	const GetText = (selector: HTMLElement): string =>
@@ -270,6 +298,34 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 		if (insertion) Insert(clonedSelector, insertion);
 
 		return clonedSelector;
+	};
+
+	const Closest = (selector: Element | null, find: string): Element | null => {
+		if (!Instance.Is(selector, elementType) || !Type.IsString(find) || Str.IsEmpty(find)) return null;
+		return selector.closest(find);
+	};
+
+	const ClosestByStyle = (selector: Element | null, styles: string | string[] | Record<string, string>): Element | null => {
+		if (!Instance.Is(selector, elementType)) return null;
+
+		const createClosestStyleFormat = (style: string) => `[style*="${style}"]`;
+		let find: string = '';
+
+		if (Type.IsString(styles)) {
+			find = createClosestStyleFormat(styles);
+		} else if (Type.IsArray(styles)) {
+			for (const style of styles) {
+				find += createClosestStyleFormat(style);
+			}
+		} else if (Type.IsObject(styles)) {
+			for (const [key, value] of Object.entries(styles)) {
+				find += createClosestStyleFormat(`${key}${Str.IsEmpty(value) ? '' : `: ${value}`}`);
+			}
+		} else {
+			return null;
+		}
+
+		return Closest(selector, find);
 	};
 
 	const GetTagName = (selector: TElement): string =>
@@ -403,6 +459,7 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 		GetStyle,
 		SetStyle,
 		SetStyles,
+		RemoveStyle,
 		HasStyle,
 		GetText,
 		GetHTML,
@@ -412,6 +469,8 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 		Insert,
 		InsertAfter,
 		Clone,
+		Closest,
+		ClosestByStyle,
 		GetTagName,
 		IsEditable,
 		GetParents,
