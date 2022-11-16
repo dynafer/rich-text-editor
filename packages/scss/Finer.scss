@@ -58,6 +58,32 @@
 
 			svg { @include square(1rem); }
 		}
+
+		@include setClass(color-icon) {
+			@include padding(rem, $top: 0.1, $right: 0.3, $bottom: 0.1, $left: 0.3);
+			@include marginAll(0.2rem);
+			@include round(0.4rem);
+			display: inline-block;
+			cursor: pointer;
+			border: none;
+
+			svg {
+				@include square(1rem);
+			}
+
+			div {
+				@include width(1rem);
+				@include height(0.2rem);
+			}
+
+			&.active {
+				background-color: #c9c9c9;
+			}
+
+			&:hover {
+				background-color: #afafaf;
+			}
+		}
 	}
 
 	@include setClass(wrapper) {

@@ -24,7 +24,7 @@ interface IToggleRange {
 export interface IFormatToggle {
 	Wrap: IFormatWrap,
 	Unwrap: IFormatUnwrap,
-	GetWrappingOption: (type: EFormatType, format: string, formatValue: string | undefined) => IFormattingOption,
+	GetFormattingOption: (type: EFormatType, format: string, formatValue?: string) => IFormattingOption,
 	ToggleOneLineRange: IToggleOneLine,
 	ToggleRange: IToggleRange,
 }
@@ -34,9 +34,11 @@ const FormatToggle = (editor: Editor): IFormatToggle => {
 	const Wrap = FormatWrap(self);
 	const Unwrap = FormatUnwrap(self);
 
-	const GetWrappingOption = (type: EFormatType, format: string, formatValue: string | undefined): IFormattingOption => {
+	const GetFormattingOption = (type: EFormatType, format: string, formatValue?: string): IFormattingOption => {
 		const formattingOption: IFormattingOption = {
+			type,
 			format: type === EFormatType.STYLE ? 'span' : format,
+			styleFormat: format,
 			option: {}
 		};
 
@@ -52,7 +54,7 @@ const FormatToggle = (editor: Editor): IFormatToggle => {
 		const { type, format, formatValue, parent, checker } = setting;
 		const wrapOrUnwrap = bWrap ? Wrap.WrapRecursive : Unwrap.UnwrapRecursive;
 		const children: Node[] = Array.from(parent.childNodes);
-		const replacer = wrapOrUnwrap(GetWrappingOption(type, format, formatValue), children, checker);
+		const replacer = wrapOrUnwrap(GetFormattingOption(type, format, formatValue), children, checker);
 
 		parent.replaceChildren(...replacer);
 
@@ -64,7 +66,7 @@ const FormatToggle = (editor: Editor): IFormatToggle => {
 	const ToggleRange = (bWrap: boolean, setting: IToggleSetting, callback: IToggleRangeCallback): ParentNode => {
 		const { type, format, formatValue, parent, checker } = setting;
 		const wrapOrUnwrap = bWrap ? Wrap.WrapRecursive : Unwrap.UnwrapRecursive;
-		const formattingOption = GetWrappingOption(type, format, formatValue);
+		const formattingOption = GetFormattingOption(type, format, formatValue);
 
 		const children: Node[] = Array.from(parent.childNodes);
 
@@ -89,7 +91,7 @@ const FormatToggle = (editor: Editor): IFormatToggle => {
 	return {
 		Wrap,
 		Unwrap,
-		GetWrappingOption,
+		GetFormattingOption,
 		ToggleOneLineRange,
 		ToggleRange,
 	};
