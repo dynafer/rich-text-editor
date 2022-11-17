@@ -11,7 +11,7 @@ export interface IFormatUI {
 	CreateLabel: () => HTMLElement,
 	CreateSelection: (label: string, children?: (string | Node)[]) => HTMLElement,
 	CreateOptionWrapper: (type: string, children: Node[]) => HTMLElement,
-	CreateOption: (option: IFormatOption, active: boolean, setLabel: (text: string) => void)=> HTMLElement,
+	CreateOption: (option: IFormatOption, active: boolean, setLabel: (text: string) => void) => HTMLElement,
 	SelectOptionWrapper: () => Node | null,
 	ExistsOptionWrapper: () => boolean,
 	HasTypeAttribute: (type: string) => boolean,

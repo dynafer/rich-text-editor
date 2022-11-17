@@ -4,7 +4,7 @@ import FormatRegistry, { IFormatRegistry } from './format/FormatRegistry';
 
 export interface IFormatter {
 	Formats: IFormatRegistry,
-	Register: (name: string) => void
+	Register: (name: string) => void,
 }
 
 const Formatter = (editor: Editor): IFormatter => {

@@ -104,7 +104,7 @@ export enum ENativeEvents {
 }
 
 export interface IEventSetupCallback<K extends keyof GlobalEventHandlersEventMap> {
-	(editor: Editor, event: GlobalEventHandlersEventMap[K]): void
+	(editor: Editor, event: GlobalEventHandlersEventMap[K]): void;
 }
 
 export const Setup = <K extends keyof GlobalEventHandlersEventMap>(editor: Editor, eventName: K, event: IEventSetupCallback<K>) => {

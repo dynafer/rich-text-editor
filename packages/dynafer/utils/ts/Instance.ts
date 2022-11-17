@@ -1,6 +1,6 @@
-import { IsObject  } from './Type';
+import { IsObject } from './Type';
 export interface IClassConstructor<T> {
-	new (...params: ConstructorParameters<T extends abstract new (...args: IArguments[]) => T ? never : never>): T;
+	new(...params: ConstructorParameters<T extends abstract new (...args: IArguments[]) => T ? never : never>): T;
 	prototype: T;
 }
 

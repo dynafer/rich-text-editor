@@ -5,7 +5,7 @@ interface ILineData {
 	Node: Node,
 	Offset: number,
 	Path: Node[],
-	Line: number
+	Line: number;
 }
 
 export interface ICaretData {
@@ -19,7 +19,7 @@ export interface ICaretData {
 
 export interface ICaretUtils {
 	Get: (bNeedCheckUpdate?: boolean) => ICaretData[],
-	UpdateRanges: (newRanges: Range[]) => void
+	UpdateRanges: (newRanges: Range[]) => void;
 }
 
 const CaretUtils = (editor: Editor): ICaretUtils => {
@@ -32,7 +32,7 @@ const CaretUtils = (editor: Editor): ICaretUtils => {
 	const refreshRanges = () => {
 		ranges = [];
 		if (!selection) return;
-		for (let rangeIndex = 0; rangeIndex < selection.rangeCount; ++ rangeIndex) {
+		for (let rangeIndex = 0; rangeIndex < selection.rangeCount; ++rangeIndex) {
 			const range = selection.getRangeAt(rangeIndex);
 			ranges.push(range);
 		}

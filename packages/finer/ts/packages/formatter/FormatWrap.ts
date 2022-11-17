@@ -10,8 +10,8 @@ const FormatWrap = (editor: Editor): IFormatWrap => {
 	const DOM = self.DOM;
 
 	const WrapRecursive = (formatting: IFormattingOption, children: Node[], checker: (node: Node) => boolean): Node[] => {
-		const nodes = [ ...children ];
-		for (let index = 0; index < nodes.length; ++ index) {
+		const nodes = [...children];
+		for (let index = 0; index < nodes.length; ++index) {
 			const child = nodes[index];
 
 			if (DOM.Utils.IsText(child)) {
@@ -27,7 +27,7 @@ const FormatWrap = (editor: Editor): IFormatWrap => {
 
 				const newTag = DOM.Create(formatting.format, {
 					...formatting.option,
-					children: [ DOM.Clone(child, true) ]
+					children: [DOM.Clone(child, true)]
 				});
 
 				nodes[index] = newTag;

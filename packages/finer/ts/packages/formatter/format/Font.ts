@@ -55,7 +55,7 @@ const Font = (editor: Editor): IFormatRegistryJoiner => {
 		}
 	};
 
-	const createGetStyleValue = (name: string, systemStyle: string, detectableStyleMap: Record<string, string>): IFormatGetValue => 
+	const createGetStyleValue = (name: string, systemStyle: string, detectableStyleMap: Record<string, string>): IFormatGetValue =>
 		(detectedValue: string) => {
 			switch (name) {
 				case 'fontfamily':

@@ -5,7 +5,7 @@ import { EFormatType, IFormatChecker, IFormattingOption } from './FormatType';
 interface IUnwrapSiblingNodes {
 	previousNodes: Node[],
 	middleNodes: Node[],
-	nextNodes: Node[]
+	nextNodes: Node[],
 }
 
 export interface IFormatUnwrap {
@@ -59,8 +59,8 @@ const FormatUnwrap = (editor: Editor) => {
 	};
 
 	const UnwrapRecursive = (formatting: IFormattingOption, children: Node[], checker: IFormatChecker): Node[] => {
-		let nodes = [ ...children ];
-		for (let index = 0; index < nodes.length; ++ index) {
+		let nodes = [...children];
+		for (let index = 0; index < nodes.length; ++index) {
 			const child = nodes[index];
 
 			if (checker(child)) {

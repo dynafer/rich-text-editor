@@ -6,7 +6,7 @@ import Font from './Font';
 
 export interface IFormatRegistry {
 	IsAailable: (name: string) => boolean,
-	GetRegistry: (name: string) => ((name: string) => void) | null
+	GetRegistry: (name: string) => ((name: string) => void) | null,
 }
 
 const FormatRegistry = (editor: Editor): IFormatRegistry => {
