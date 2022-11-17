@@ -74,7 +74,7 @@ const FormatToggle = (editor: Editor): IFormatToggle => {
 		const middleNodes: Node[] = [];
 		const lastNodes = wrapOrUnwrap(formattingOption, Array.from(children[children.length - 1].childNodes), checker);
 
-		for (let index = 1, length = children.length - 1; index < length; ++ index) {
+		for (let index = 1, length = children.length - 1; index < length; ++index) {
 			ToggleOneLineRange(bWrap,
 				{ type, format, formatValue, parent: children[index] as ParentNode, checker },
 				(wrapped) => {

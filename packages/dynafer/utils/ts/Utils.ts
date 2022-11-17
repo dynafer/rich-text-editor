@@ -7,7 +7,7 @@ const CreateUEID = (id: string, bAddNum: boolean = true): string => {
 
 	const nextNum = cache.UEID[id] ?? 0;
 
-	if (cache.UEID[id]) ++ cache.UEID[id];
+	if (cache.UEID[id]) ++cache.UEID[id];
 	else cache.UEID[id] = 1;
 
 	return `${id}-${nextNum}`;

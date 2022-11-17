@@ -7,9 +7,9 @@ declare global {
 
 interface IFiner {
 	Loaders: {
-		Plugin: IPluginLoader
+		Plugin: IPluginLoader,
 	},
-	Editor: IEditorConstructor
+	Editor: IEditorConstructor,
 }
 
 const finer: IFiner = {

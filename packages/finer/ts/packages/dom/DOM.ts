@@ -48,7 +48,7 @@ export interface IDom {
 	SetHTML: (selector: HTMLElement, html: string) => void,
 	SetOuterHTML: (selector: HTMLElement, html: string) => void,
 	Insert: (selector: TElement, insertion: TElement | Node[] | string) => void,
-	InsertAfter: (selector: TElement, insertion: TElement | Node[]  | string) => void,
+	InsertAfter: (selector: TElement, insertion: TElement | Node[] | string) => void,
 	Clone: (selector: TElement, deep?: boolean, insertion?: TElement | Node[]) => Node | null,
 	Closest: (selector: Element | null, find: string) => Element | null,
 	ClosestByStyle: (selector: Element | null, styles: string | string[] | Record<string, string>) => Element | null,
@@ -140,7 +140,7 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 	const HasClass = (selector: TElement, className: string): boolean =>
 		!Instance.Is(selector, elementType) ? false : selector.classList.contains(className);
 
-	const RemoveClass = (selector:TElement, ...classes: string[]) => {
+	const RemoveClass = (selector: TElement, ...classes: string[]) => {
 		if (!Instance.Is(selector, elementType)) return;
 		selector.classList.remove(...classes);
 	};
@@ -197,6 +197,7 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 
 		if (selector.style[name]) {
 			selector.style[name] = '';
+			if (Str.IsEmpty(selector.style.cssText)) RemoveAttr(selector, 'style');
 			return;
 		}
 
@@ -209,6 +210,8 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 			if (styleName === dashedName) continue;
 			selector.style.cssText += `${styleName}: ${styleValue};`;
 		}
+
+		if (Str.IsEmpty(selector.style.cssText)) RemoveAttr(selector, 'style');
 	};
 
 	const HasStyle = (selector: HTMLElement | null, name: string, compareValue?: string): boolean => {
@@ -354,18 +357,18 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 	const On = (selector: TElement, eventName: string, event: EventListener) => {
 		if (!Instance.Is(selector, elementType) || !Type.IsString(eventName)) return;
 		selector.addEventListener(eventName, event);
-		bindedEvents.push([ selector, eventName, event ]);
+		bindedEvents.push([selector, eventName, event]);
 	};
 
 	const Off = (selector: TElement, eventName: string, event?: EventListener) => {
 		if (!Instance.Is(selector, elementType) || !Type.IsString(eventName)) return;
 		let deletedCount = 0;
-		for (let index = 0, length = bindedEvents.length; index < length; ++ index) {
-			const [ target, name, bindedEvent ] = bindedEvents[index - deletedCount];
+		for (let index = 0, length = bindedEvents.length; index < length; ++index) {
+			const [target, name, bindedEvent] = bindedEvents[index - deletedCount];
 			if (target === selector && eventName === name && (!event || (event && event === bindedEvent))) {
 				target.removeEventListener(name, bindedEvent);
 				bindedEvents.splice(index - deletedCount, 1);
-				++ deletedCount;
+				++deletedCount;
 			}
 		}
 	};
@@ -415,7 +418,7 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 		if (!Instance.Is(selector, elementType)) return;
 		if (Arr.IsEmpty(Array.from(selector.children))) return;
 		for (const child of selector.children) {
-			for (const [ target, eventName, event ] of bindedEvents) {
+			for (const [target, eventName, event] of bindedEvents) {
 				if (target === child) Off(target, eventName, event);
 			}
 		}
@@ -430,7 +433,7 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 
 	const Remove = (selector: Element | null, bBubble: boolean = false) => {
 		if (!Instance.Is(selector, elementType)) return;
-		for (const [ target, eventName, event ] of bindedEvents) {
+		for (const [target, eventName, event] of bindedEvents) {
 			if (target === selector) Off(target, eventName, event);
 		}
 

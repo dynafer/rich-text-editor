@@ -18,7 +18,7 @@ export enum EModeEditor {
 interface IOptions {
 	JoinUrl: (type: string, name: string) => string,
 	ProjectName: string,
-	Urls: Record<string, string>
+	Urls: Record<string, string>,
 }
 
 const Options = (): IOptions => {

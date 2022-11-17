@@ -5,7 +5,7 @@ import { ENativeEvents } from '../events/EventSetupUtils';
 import { ENotificationStatus } from './NotificationManager';
 
 export interface IPluginManager {
-	AttachPlugin: () => Promise<void>
+	AttachPlugin: () => Promise<void>,
 }
 
 const PluginManager = (editor: Editor): IPluginManager => {

@@ -39,7 +39,7 @@ export interface IFormatOption extends IFormatUIOptionBase {
 }
 
 export interface IFormatChecker {
-	(node: Node): boolean
+	(node: Node): boolean;
 }
 
 export interface IToggleSetting<T extends Node = ParentNode> extends Pick<IFormatOptionBase, 'type' | 'format' | 'formatValue'> {

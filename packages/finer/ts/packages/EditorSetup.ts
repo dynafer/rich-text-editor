@@ -63,7 +63,7 @@ const EditorSetup = (editor: Editor): Promise<void> => {
 		self.Plugin = PluginManager(self);
 		EventSetup(self);
 		self.Formatter = Formatter(self);
-		
+
 		const plugins = config.Plugins.filter((plugin) => !self.Formatter.Formats.IsAailable(plugin));
 
 		for (const toolbar of config.Toolbars) {

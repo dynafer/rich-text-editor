@@ -4,7 +4,7 @@ import { IFormatDetectorActivator, IFormatOptionBase } from './FormatType';
 import { FindClosest } from './FormatUtils';
 
 interface IDetection {
-	(node: Node | null): Promise<void>
+	(node: Node | null): Promise<void>;
 }
 
 export interface IFormatDetector {

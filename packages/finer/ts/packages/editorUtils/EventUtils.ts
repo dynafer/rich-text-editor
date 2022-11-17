@@ -1,5 +1,5 @@
 export interface IEvent {
-	(...params: unknown[]): void
+	(...params: unknown[]): void;
 }
 
 export interface IEventUtils {
@@ -25,10 +25,10 @@ const EventUtils = (): IEventUtils => {
 		if (!Has(eventName)) return;
 
 		let deletedCount = 0;
-		for (let index = 0, length = events[eventName].length; index < length; ++ index) {
+		for (let index = 0, length = events[eventName].length; index < length; ++index) {
 			if (events[eventName][index - deletedCount] === event) {
 				events[eventName].splice(index - deletedCount, 1);
-				++ deletedCount;
+				++deletedCount;
 			}
 		}
 	};
@@ -45,7 +45,7 @@ const EventUtils = (): IEventUtils => {
 		}
 
 		Promise.all(eventList)
-			.catch(() => {});
+			.catch(() => { });
 	};
 
 	const Get = (): Record<string, IEvent[]> => events;

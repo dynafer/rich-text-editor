@@ -57,7 +57,7 @@ const FormatCaret = (editor: Editor) => {
 				nextLine = node;
 			}
 			lines[caret.End.Line].replaceChildren(...lastNodes, ...Array.from(lines[caret.End.Line].childNodes));
-			for (let lineNum = caret.Start.Line, endLine = caret.End.Line; lineNum <= endLine; ++ lineNum) {
+			for (let lineNum = caret.Start.Line, endLine = caret.End.Line; lineNum <= endLine; ++lineNum) {
 				cleanDirty(lines[lineNum]);
 			}
 			caret.Range.SetStart(firstNodes[0], 0);
@@ -103,7 +103,7 @@ const FormatCaret = (editor: Editor) => {
 		const carets: ICaretData[] = CaretUtils.Get(true);
 		const newRanges: Range[] = [];
 
-		for (let index = 0, length = carets.length; index < length; ++ index) {
+		for (let index = 0, length = carets.length; index < length; ++index) {
 			const caret = carets[index];
 
 			if (caret.IsRange() || carets.length > 1) {

@@ -48,15 +48,21 @@
 			background-color: #f2f2f2;
 			border: 1px solid #afafaf;
 
-			&.active { background-color: #c9c9c9; }
-			&:hover { background-color: #afafaf; }
+			&.active {
+				background-color: #c9c9c9;
+			}
+			&:hover {
+				background-color: #afafaf;
+			}
 
 			@include setClass(label) {
 				@include width(100%);
 				@include truncation;
 			}
 
-			svg { @include square(1rem); }
+			svg {
+				@include square(1rem);
+			}
 		}
 
 		@include setClass(color-icon) {
@@ -133,7 +139,7 @@
 				word-wrap: break-word;
 				outline: none;
 
-				@supports not(-moz-appearance: none) {
+				@supports not (-moz-appearance: none) {
 					* {
 						@include margin(rem, 0.75, $bottom: 0.75);
 						@include height($line: 1.4);
@@ -174,11 +180,15 @@
 				@include margin(rem, $right: 0.4);
 			}
 
-			&.active svg { display: block; }
+			&.active svg {
+				display: block;
+			}
 			&:not(.active) {
 				$emptyPadding: calc(0.8rem + 16px);
 				@include padding(null, $right: $emptyPadding, $left: $emptyPadding);
-				svg { display: none; }
+				svg {
+					display: none;
+				}
 			}
 
 			&:hover {
