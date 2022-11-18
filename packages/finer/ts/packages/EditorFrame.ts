@@ -1,7 +1,6 @@
 import { EModeEditor } from '../Options';
 import { IConfiguration } from './EditorConfigure';
 import DOM from './dom/DOM';
-import * as Icons from './icons/Icons';
 
 export interface IEditorFrame {
 	Root: HTMLElement,
@@ -64,7 +63,7 @@ const EditorFrame = (config: IConfiguration): IEditorFrame => {
 			id: loadingId
 		},
 		class: loadingId,
-		html: Icons.Loading
+		html: Finer.Icons.Get('Loading')
 	});
 
 	DOM.Hide(Notification);

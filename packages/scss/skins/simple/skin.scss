@@ -1,8 +1,27 @@
-@import '../../_variable';
 @import '../../_mixin';
 
-@include setClass(editor-body, true) {
-	@include marginAll(1rem);
+* {
+	#{getVarName(toolbar-bg)}: #ececec;
+	#{getVarName(toolbar-item-bg)}: transparent;
+	#{getVarName(toolbar-item-hover-bg)}: #afafaf;
+	#{getVarName(toolbar-item-active-bg)}: #c9c9c9;
+	#{getVarName(toolbar-item-icon-fill)}: #000;
+	#{getVarName(toolbar-item-option-bg)}: #ececec;
+	#{getVarName(toolbar-item-select-border)}: #afafaf;
+	#{getVarName(toolbar-item-radius)}: 0.4rem;
+
+	#{getVarName(editor-bg)}: transparent;
+	#{getVarName(editor-border)}: #ececec;
+}
+
+.#{getClassName(classic)} {
+	@include width(100%);
+	@include all-border(getVar(editor-border));
+	background-color: getVar(editor-bg);
+}
+
+##{getClassName(editor-body)} {
+	@include all-margin(1rem);
 	overflow-wrap: break-word;
 	word-wrap: break-word;
 
@@ -11,6 +30,26 @@
 			@include margin(rem, 0.75, $bottom: 0.75);
 			@include height($line: 1.4);
 			word-wrap: break-word;
+		}
+	}
+}
+
+.#{getClassName(inline)} {
+	@include all-border(getVar(editor-border));
+	background-color: getVar(editor-bg);
+
+	##{getClassName(editor-body)} {
+		@include all-margin(0.75rem);
+		overflow-wrap: break-word;
+		word-wrap: break-word;
+		outline: none;
+
+		@supports not (-moz-appearance: none) {
+			* {
+				@include margin(rem, 0.75, $bottom: 0.75);
+				@include height($line: 1.4);
+				word-wrap: break-word;
+			}
 		}
 	}
 }

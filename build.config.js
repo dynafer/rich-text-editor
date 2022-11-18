@@ -1,8 +1,7 @@
 const { nodeResolve } = require('@rollup/plugin-node-resolve');
 const fs = require('fs');
 const path = require('path');
-const InlineSvg = require('rollup-plugin-inline-svg');
-const { DeleteMapFiles, INPUT_NAME, OUTPUT_PATH, PACKAGE_PATH, PLUGIN_NAMES, PROJECT_NAME, SCSS_PATH } = require('./config.setting');
+const { DeleteMapFiles, GLOBAL_NAME, INPUT_NAME, OUTPUT_PATH, PACKAGE_PATH, PLUGIN_NAMES, PROJECT_NAME, SCSS_PATH } = require('./config.setting');
 
 module.exports = async (runner, config) => {
 	const Command = runner.Command;
@@ -82,14 +81,12 @@ module.exports = async (runner, config) => {
 
 	if (!bIsDevelopment) DeleteMapFiles();
 
-	const outputOption = (filename) => {
-		return {
-			file: path.resolve(OUTPUT_PATH, `./${filename}.js`),
-			format: 'iife',
-			createUglified: true,
-			sourcemap: bIsDevelopment
-		};
-	};
+	const outputOption = (filename) => ({
+		file: path.resolve(OUTPUT_PATH, `./${filename}.js`),
+		format: 'iife',
+		createUglified: true,
+		sourcemap: bIsDevelopment
+	});
 
 	const inputPath = path.resolve(PACKAGE_PATH, './finer/build/lib');
 
@@ -99,13 +96,23 @@ module.exports = async (runner, config) => {
 			output: [
 				{
 					...outputOption(PROJECT_NAME),
-					name: PROJECT_NAME
+					name: GLOBAL_NAME
 				},
 			],
 			plugins: [
-				nodeResolve(),
-				InlineSvg()
+				nodeResolve()
 			]
+		},
+		{
+			input: path.resolve(PACKAGE_PATH, './dynafer/icon-pack/build/lib/IconPack.js'),
+			output: [
+				{
+					...outputOption(`icons/default/icons`),
+					globals: {
+						Finer: GLOBAL_NAME
+					}
+				},
+			],
 		}
 	];
 
@@ -117,13 +124,12 @@ module.exports = async (runner, config) => {
 				{
 					...outputOption(`plugins/${name}/${name}`),
 					globals: {
-						finer: PROJECT_NAME
+						Finer: GLOBAL_NAME
 					}
 				},
 			],
 			plugins: [
-				nodeResolve(),
-				InlineSvg()
+				nodeResolve()
 			]
 		});
 	}

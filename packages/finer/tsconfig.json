@@ -1,6 +1,7 @@
 {
 	"extends": "../../tsconfig.shared.json",
 	"references": [
+		{ "path": "../dynafer/colorpicker" },
 		{ "path": "../dynafer/utils" }
 	],
 	"compilerOptions": {
@@ -11,8 +12,8 @@
 		"paths": {
 			"finer": ["finer/ts/Finer"],
 			"finer/packages/*": ["ts/packages/*"],
-			"finer/plugins/*": ["ts/plugins/*"],
 
+			"@dynafer/colorpicker": ["../dynafer/colorpicker/ts/ColorPicker"],
 			"@dynafer/utils": ["../dynafer/utils/ts/Index"]
 		}
 	},

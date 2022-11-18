@@ -2,7 +2,6 @@ import { Arr, Type } from '@dynafer/utils';
 import Editor from '../../Editor';
 import DOM from '../../dom/DOM';
 import { ENativeEvents } from '../../events/EventSetupUtils';
-import * as Icons from '../../icons/Icons';
 import FormatDetector from '../FormatDetector';
 import {
 	ATTRIBUTE_TITLE, EFormatType, EFormatUI, IFormatUIOptionBase, IFormatOption,
@@ -97,7 +96,7 @@ const Font = (editor: Editor): IFormatRegistryJoiner => {
 
 	const createUI = (name: string, formatOption: IFormatSelector, labelWrapper: HTMLElement, setLabel: (text: string) => void) => {
 		const { label, formatOptions } = formatOption;
-		const selection = UI.CreateSelection(label, [labelWrapper, Icons.AngleDown]);
+		const selection = UI.CreateSelection(label, [labelWrapper, Finer.Icons.Get('AngleDown')]);
 
 		DOM.Insert(self.Frame.Toolbar, selection);
 
@@ -134,7 +133,7 @@ const Font = (editor: Editor): IFormatRegistryJoiner => {
 				sameOption: sameOption,
 				ui: EFormatUI.LI,
 				uiType: EFormatUIType.ITEM,
-				html: `${Icons.Check}${label}`
+				html: `${Finer.Icons.Get('Check')}${label}`
 			});
 		}
 

@@ -1,7 +1,21 @@
+@import '_variable';
+
 @function combineType($type, $size) {
 	@if $type == null {
 		@return $size;
 	} @else {
 		@return #{$size}#{$type};
 	}
+}
+
+@function getVar($name) {
+	@return var(--finer-#{$name});
+}
+
+@function getVarName($name) {
+	@return --finer-#{$name};
+}
+
+@function getClassName($name) {
+	@return #{$projectName}-#{$name};
 }

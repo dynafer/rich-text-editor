@@ -15,3 +15,6 @@ export const DashToCapital = (value: string): string => {
 
 	return value.trim().replace(regCapital, (str) => value.startsWith(str) ? str.toLowerCase() : `-${str.toLowerCase()}`);
 };
+
+export const Padding = (value: number | string, length: number = 2, pad: number | string = '0') =>
+	value.toString().padStart(length, pad.toString());

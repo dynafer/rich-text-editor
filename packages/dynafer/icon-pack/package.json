@@ -1,0 +1,19 @@
+{
+  "name": "@dynafer/icon-pack",
+  "version": "0.0.1",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/finer-group/finer-editor.git",
+    "directory": "packages/dynafer/icon-pack"
+  },
+  "author": "Dynafer",
+  "scripts": {
+    "prepublishOnly": "yarn run build",
+    "build": "build-toolkit",
+    "lint": "eslint -c ../../../.eslintrc.json ts/*.ts"
+  },
+  "peerDependencies": {
+    "@dynafer/build-toolkit": ">=1.0.1"
+  },
+  "license": "MIT"
+}

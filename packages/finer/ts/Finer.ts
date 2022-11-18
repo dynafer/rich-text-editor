@@ -1,22 +1,28 @@
+import EditorInit, { IEditorInit } from './packages/EditorInit';
 import PluginLoader, { IPluginLoader } from './packages/loaders/PluginLoader';
-import Editor, { IEditorConstructor } from './packages/Editor';
+import ScriptLoader, { IScriptLoader } from './packages/loaders/ScriptLoader';
+import IconManager, { IIconManager } from './packages/managers/IconManager';
 
 declare global {
-	const finer: IFiner;
+	const Finer: IFiner;
 }
 
 interface IFiner {
 	Loaders: {
+		Icon: IScriptLoader,
 		Plugin: IPluginLoader,
 	},
-	Editor: IEditorConstructor,
+	Init: IEditorInit,
+	Icons: IIconManager,
 }
 
-const finer: IFiner = {
+const Finer: IFiner = {
 	Loaders: {
-		Plugin: PluginLoader
+		Icon: ScriptLoader('Icon'),
+		Plugin: PluginLoader,
 	},
-	Editor: Editor,
+	Icons: IconManager,
+	Init: EditorInit,
 };
 
-export default finer;
+export default Finer;

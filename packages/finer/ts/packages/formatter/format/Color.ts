@@ -1,6 +1,5 @@
 import Editor from '../../Editor';
 import DOM from '../../dom/DOM';
-import * as Icons from '../../icons/Icons';
 import { EFormatUI, EFormatUIType, IFormatOption, IFormatRegistryJoiner } from '../FormatType';
 import FormatUI from '../FormatUI';
 import { FORMAT_BASES } from '../FormatUtils';
@@ -19,14 +18,14 @@ const Color = (editor: Editor): IFormatRegistryJoiner => {
 			defaultColor: 'rgb(255, 0, 0)',
 			ui: EFormatUI.BUTTON,
 			uiType: EFormatUIType.COLOR_ICON,
-			html: Icons.ColorA
+			html: Finer.Icons.Get('ColorA')
 		},
 		backcolor: {
 			...FORMAT_BASES.backcolor,
 			defaultColor: 'rgb(255, 0, 0)',
 			ui: EFormatUI.BUTTON,
 			uiType: EFormatUIType.COLOR_ICON,
-			html: Icons.Fill
+			html: Finer.Icons.Get('Fill')
 		}
 	};
 
