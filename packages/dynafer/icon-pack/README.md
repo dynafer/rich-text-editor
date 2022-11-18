@@ -1,1 +1,1 @@
-# @dynafer/utils
+# @dynafer/icon-pack
