@@ -14,7 +14,11 @@ const EditorSetup = (editor: Editor): Promise<void> => {
 
 	return new Promise((resolve, reject) => {
 		const bodyId = DOM.Utils.CreateUEID('editor-body', false);
+		const skinId = DOM.Utils.CreateUEID('skin', false);
+		const skinLink = `<link id="${skinId}" rel="stylesheet" href="${Options.JoinUrl('css', 'skins/simple/skin')}">`;
 		let body: HTMLElement;
+
+		if (!DOM.Select(`#${skinId}`, DOM.Doc.head)) DOM.Insert(DOM.Doc.head, skinLink);
 
 		if (self.IsIFrame()) {
 			self.DOM = DOM.New(
@@ -24,9 +28,7 @@ const EditorSetup = (editor: Editor): Promise<void> => {
 
 			const iframeHTML = `<!DOCTYPE html>
 				<html>
-					<head>
-						<link rel="stylesheet" href="${Options.JoinUrl('css', 'skins/simple/skin')}">
-					</head>
+					<head>${skinLink}</head>
 					<body id="${bodyId}" contenteditable="true"></body>
 				</html>`;
 
@@ -70,7 +72,7 @@ const EditorSetup = (editor: Editor): Promise<void> => {
 			self.Formatter.Register(toolbar);
 		}
 
-		finer.Loaders.Plugin.LoadParallel(plugins)
+		Finer.Loaders.Plugin.LoadParallel(plugins)
 			.then(() => self.Plugin.AttachPlugin())
 			.then(() => resolve())
 			.catch(error => reject(error));

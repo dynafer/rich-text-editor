@@ -3,6 +3,7 @@ const path = require('path');
 
 const OUTPUT_PATH = './build';
 const PROJECT_NAME = 'finer';
+const GLOBAL_NAME = 'Finer';
 
 const INPUT_NAME = PROJECT_NAME.split('').reduce((pre, cur, index) => `${index === 1 ? pre.toUpperCase() : pre}${cur}`);
 
@@ -33,6 +34,7 @@ const DeleteMapFiles = () => {
 
 module.exports = {
 	DeleteMapFiles,
+	GLOBAL_NAME,
 	INPUT_NAME,
 	OUTPUT_PATH,
 	PACKAGE_PATH,

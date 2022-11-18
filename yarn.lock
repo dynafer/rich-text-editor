@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@dynafer/build-toolkit@^1.0.1":
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/@dynafer/build-toolkit/-/build-toolkit-1.0.1.tgz#1ebf7b6d2a9165a0aad85e188cda91f121473343"
-  integrity sha512-wQHm8zrJRpNabsys0dAlHDEMlJeG8yd1fqyYOud+skjSpn8iFamzmn05iQyHe0PEruVpRVE3rjVEEHBAMtwxDg==
+"@dynafer/build-toolkit@^1.0.2":
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/@dynafer/build-toolkit/-/build-toolkit-1.0.2.tgz#10016476c913953152777c8691a1b0d6aa9781d4"
+  integrity sha512-M29Yc9MBPFMBKnNFEf2Qr9ySbZfv4MlWy5qzort64DyNr23q42XeUc1uWRKxeyL6vhlvSRKZyZJcAuRVq42c7w==
   dependencies:
     chokidar "^3.5.3"
     rollup "^3.2.3"
@@ -27,10 +27,10 @@
     minimatch "^3.1.2"
     strip-json-comments "^3.1.1"
 
-"@finer-group/eslint-plugin@^0.0.4":
-  version "0.0.4"
-  resolved "https://registry.yarnpkg.com/@finer-group/eslint-plugin/-/eslint-plugin-0.0.4.tgz#dc015f6effdb99882ac454108c04398c17466adf"
-  integrity sha512-VbCjWMhgL3kCh/sXAoht5EMVGyjOGyRj5Lsnh7tduB/77YEU75nnxAR00Y7Bq/3AntPqMR8TTax9bYovEjIebQ==
+"@finer-group/eslint-plugin@^0.0.5":
+  version "0.0.5"
+  resolved "https://registry.yarnpkg.com/@finer-group/eslint-plugin/-/eslint-plugin-0.0.5.tgz#43277dd32ae2b5c12ae0cd959086abdd322b1ae9"
+  integrity sha512-l/3iZAvMnt1ROWKevjHGeIhpDj7IMq8f1mZyIDvaauzJVnzIyLLTPK4vkozM02qTPAgmIOXLs8tntofhQxGShw==
   dependencies:
     "@typescript-eslint/eslint-plugin" "^5.40.1"
     "@typescript-eslint/parser" "^5.40.1"
@@ -103,14 +103,6 @@
     is-builtin-module "^3.2.0"
     is-module "^1.0.0"
     resolve "^1.22.1"
-
-"@rollup/pluginutils@^4.2.1":
-  version "4.2.1"
-  resolved "https://registry.yarnpkg.com/@rollup/pluginutils/-/pluginutils-4.2.1.tgz#e6c6c3aba0744edce3fb2074922d3776c0af2a6d"
-  integrity sha512-iKnFXr7NkdZAIHiIWE+BX5ULi/ucVFYWD6TbAV+rZctiRTY2PL6tsIKhoIOaoskiWAkgu+VsbXgUVDNLHf+InQ==
-  dependencies:
-    estree-walker "^2.0.1"
-    picomatch "^2.2.2"
 
 "@rollup/pluginutils@^5.0.1":
   version "5.0.2"
@@ -722,7 +714,7 @@ estraverse@^5.1.0, estraverse@^5.2.0:
   resolved "https://registry.yarnpkg.com/estraverse/-/estraverse-5.3.0.tgz#2eea5290702f26ab8fe5370370ff86c965d21123"
   integrity sha512-MMdARuVEQziNTeJD8DgMqmhwR11BRQ/cBP+pLtYdSTnf3MIO8fFeiINEbX36ZdNlfU/7A9f3gUw49B3oQsvwBA==
 
-estree-walker@^2.0.1, estree-walker@^2.0.2:
+estree-walker@^2.0.2:
   version "2.0.2"
   resolved "https://registry.yarnpkg.com/estree-walker/-/estree-walker-2.0.2.tgz#52f010178c2a4c117a7757cfe942adb7d2da4cac"
   integrity sha512-Rfkk/Mp/DL7JVje3u18FxFujQlTNR2q6QfMSMB7AvCBx91NGj/ba3kCfza0f6dVDbw7YlRf/nDrn7pQrCCyQ/w==
@@ -979,11 +971,6 @@ has@^1.0.3:
   integrity sha512-f2dvO0VU6Oej7RkWJGrehjbzMAjFp5/VKPp5tTpWIV4JHHZK1/BxbFRtf/siA2SWTe09caDmVtYYzWEIbBS4zw==
   dependencies:
     function-bind "^1.1.1"
-
-html-to-ast@^0.0.6:
-  version "0.0.6"
-  resolved "https://registry.yarnpkg.com/html-to-ast/-/html-to-ast-0.0.6.tgz#d3c2b84d7e1dd38b3a1295e2ea5c0600964c64c6"
-  integrity sha512-gAq/8l6laJ8cTufIhh9lMvonShc8xBzAth+t7yK6oDla8rMVGKyYqToa7HgZyPKyi1KTX+HBTvQg2uQ3wc7Q9w==
 
 ignore@^5.2.0:
   version "5.2.0"
@@ -1462,7 +1449,7 @@ picocolors@^1.0.0:
   resolved "https://registry.yarnpkg.com/picocolors/-/picocolors-1.0.0.tgz#cb5bdc74ff3f51892236eaf79d68bc44564ab81c"
   integrity sha512-1fygroTLlHu66zi26VoTDv8yRgm0Fccecssto+MhsZ0D/DGW2sm8E8AjW7NU5VVTRt5GxbeZ5qBuJr+HyLYkjQ==
 
-picomatch@^2.0.4, picomatch@^2.2.1, picomatch@^2.2.2, picomatch@^2.3.1:
+picomatch@^2.0.4, picomatch@^2.2.1, picomatch@^2.3.1:
   version "2.3.1"
   resolved "https://registry.yarnpkg.com/picomatch/-/picomatch-2.3.1.tgz#3ba3833733646d9d3e4995946c1365a67fb07a42"
   integrity sha512-JU3teHTNjmE2VCGFzuY8EXzCDVwEqB2a8fsIvwaStHhAWJEeVd1o1QD80CU6+ZdEXXSLbSsuLwJjkCBWqRQUVA==
@@ -1535,14 +1522,6 @@ rimraf@^3.0.2:
   integrity sha512-JZkJMZkAGFFPP2YqXZXPbMlMBgsxzE8ILs4lMIX/2o0L9UBw9O/Y3o6wFw/i9YLapcUJWwqbi3kdxIPdC62TIA==
   dependencies:
     glob "^7.1.3"
-
-rollup-plugin-inline-svg@^3.0.3:
-  version "3.0.3"
-  resolved "https://registry.yarnpkg.com/rollup-plugin-inline-svg/-/rollup-plugin-inline-svg-3.0.3.tgz#86b84434f0f10c7d5a5fd5f22af641d0e2983a63"
-  integrity sha512-f4JVH8jPnd32QREFvXqizH8m6/zCXtJXNRHQ7mQdCZv8bj9QZSXPSfF5ZmLgh8LGA/qK9dKmT5rAPyO1jDysyw==
-  dependencies:
-    "@rollup/pluginutils" "^4.2.1"
-    html-to-ast "^0.0.6"
 
 rollup@^3.2.3:
   version "3.2.5"

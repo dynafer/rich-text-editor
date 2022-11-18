@@ -1,11 +1,7 @@
 import { Type } from '@dynafer/utils';
-import Options from '../../Options';
 import Editor from '../Editor';
-import DOM from '../dom/DOM';
 import { ENotificationStatus } from '../managers/NotificationManager';
-
-const loaded: string[] = [];
-const attached: Record<string, TPlugin> = {};
+import ScriptLoader from './ScriptLoader';
 
 type TPlugin = (editor: Editor) => void;
 
@@ -18,42 +14,7 @@ export interface IPluginLoader {
 }
 
 const PluginLoader = (): IPluginLoader => {
-	const Has = (name: string) => loaded.includes(name);
-
-	const Load = (name: string): Promise<void> =>
-		new Promise((resolve, reject) => {
-			if (Has(name)) return resolve();
-
-			const script = DOM.Create('script', {
-				attrs: {
-					src: Options.JoinUrl('plugin', name)
-				}
-			});
-
-			script.onload = () => {
-				if (!loaded.includes(name)) loaded.push(name);
-				DOM.Remove(script);
-				resolve();
-			};
-
-			script.onerror = () => {
-				reject(`Plugin: ${name} is failed to load scripts`);
-			};
-
-			DOM.Insert(DOM.Doc.head, script);
-		});
-
-	const LoadParallel = (plugins: string[]): Promise<void> =>
-		new Promise((resolve, reject) => {
-			const load: Promise<void>[] = [];
-			for (const plugin of plugins) {
-				load.push(Load(plugin));
-			}
-
-			Promise.all(load)
-				.catch(error => reject(error))
-				.finally(() => resolve());
-		});
+	const attached: Record<string, TPlugin> = {};
 
 	const Add = (name: string, plugin: TPlugin) => {
 		if (Type.IsFunction(attached[name])) return;
@@ -73,9 +34,7 @@ const PluginLoader = (): IPluginLoader => {
 		});
 
 	return {
-		Has,
-		Load,
-		LoadParallel,
+		...ScriptLoader('Plugin'),
 		Add,
 		Attach,
 	};

@@ -45,12 +45,12 @@ const PluginManager = (editor: Editor): IPluginManager => {
 		new Promise((resolve, reject) => {
 			const attachPlugins: Promise<void>[] = [];
 			for (const name of self.Config.Plugins) {
-				if (!finer.Loaders.Plugin.Has(name)) {
+				if (!Finer.Loaders.Plugin.Has(name)) {
 					self.Notify(ENotificationStatus.WARNING, `Plugin '${name}' hasn't loaded.`);
 					continue;
 				}
 
-				attachPlugins.push(finer.Loaders.Plugin.Attach(self, name));
+				attachPlugins.push(Finer.Loaders.Plugin.Attach(self, name));
 			}
 
 			Promise.all(attachPlugins)

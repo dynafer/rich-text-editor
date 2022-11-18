@@ -4,7 +4,7 @@
   "private": true,
   "author": "Dynafer",
   "scripts": {
-    "build": "tsc -b && node postbuild.js",
+    "build": "tsc -b",
     "lint": "eslint -c ../../.eslintrc.json ts/*.ts"
   },
   "dependencies": {

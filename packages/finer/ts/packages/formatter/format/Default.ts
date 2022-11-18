@@ -1,6 +1,5 @@
 import Editor from '../../Editor';
 import DOM from '../../dom/DOM';
-import * as Icons from '../../icons/Icons';
 import FormatDetector from '../FormatDetector';
 import { ACTIVE_CLASS, EFormatUI, EFormatUIType, IFormatOption, IFormatRegistryJoiner } from '../FormatType';
 import FormatUI from '../FormatUI';
@@ -14,12 +13,12 @@ const Default = (editor: Editor): IFormatRegistryJoiner => {
 	const caretToggler = FormatCaret(self);
 
 	const Formats: Record<string, IFormatOption> = {
-		bold: { ...FORMAT_BASES.bold, ui: EFormatUI.BUTTON, uiType: EFormatUIType.ICON, html: Icons.Bold },
-		italic: { ...FORMAT_BASES.italic, ui: EFormatUI.BUTTON, uiType: EFormatUIType.ICON, html: Icons.Italic },
-		strikethrough: { ...FORMAT_BASES.strikethrough, ui: EFormatUI.BUTTON, uiType: EFormatUIType.ICON, html: Icons.Strikethrough },
-		subscript: { ...FORMAT_BASES.subscript, ui: EFormatUI.BUTTON, uiType: EFormatUIType.ICON, html: Icons.Subscript },
-		superscript: { ...FORMAT_BASES.superscript, ui: EFormatUI.BUTTON, uiType: EFormatUIType.ICON, html: Icons.Superscript },
-		underline: { ...FORMAT_BASES.underline, ui: EFormatUI.BUTTON, uiType: EFormatUIType.ICON, html: Icons.Underline }
+		bold: { ...FORMAT_BASES.bold, ui: EFormatUI.BUTTON, uiType: EFormatUIType.ICON, html: Finer.Icons.Get('Bold') },
+		italic: { ...FORMAT_BASES.italic, ui: EFormatUI.BUTTON, uiType: EFormatUIType.ICON, html: Finer.Icons.Get('Italic') },
+		strikethrough: { ...FORMAT_BASES.strikethrough, ui: EFormatUI.BUTTON, uiType: EFormatUIType.ICON, html: Finer.Icons.Get('Strikethrough') },
+		subscript: { ...FORMAT_BASES.subscript, ui: EFormatUI.BUTTON, uiType: EFormatUIType.ICON, html: Finer.Icons.Get('Subscript') },
+		superscript: { ...FORMAT_BASES.superscript, ui: EFormatUI.BUTTON, uiType: EFormatUIType.ICON, html: Finer.Icons.Get('Superscript') },
+		underline: { ...FORMAT_BASES.underline, ui: EFormatUI.BUTTON, uiType: EFormatUIType.ICON, html: Finer.Icons.Get('Underline') },
 	};
 
 	const toggleButton = (togglerUI: HTMLElement, bActive: boolean) => {

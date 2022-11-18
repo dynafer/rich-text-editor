@@ -4,10 +4,10 @@
 		"paths": {
 			"finer": ["packages/finer/ts/Finer"],
 			"finer/packages/*": ["packages/finer/ts/packages/*"],
-			"finer/plugins/*": ["packages/finer/ts/plugins/*"],
 
-			"dynafer/utils": ["packages/dynafer/utils/ts/Index"]
-		},
+			"@dynafer/colorpicker": ["packages/dynafer/colorpicker/ts/ColorPicker"],
+			"@dynafer/utils": ["packages/dynafer/utils/ts/Index"]
+		}
 	},
 	"include": [
 		"packages/dynafer/**/*.ts",

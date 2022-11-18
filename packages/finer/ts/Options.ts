@@ -27,17 +27,21 @@ const Options = (): IOptions => {
 	const Urls: Record<string, string> = {
 		Prefix: urlPrefix,
 		Css: `${urlPrefix}`,
-		Plugin: `${urlPrefix}/plugins`
+		Plugin: `${urlPrefix}/plugins`,
+		Icon: `${urlPrefix}/icons`
 	};
 
 	const JoinUrl = (type: string, name: string): string => {
 		switch (type) {
-			case 'plugin':
-				if (!name.includes('.js')) name = `${name}/${name}.min.js`;
-				return `${Urls.Plugin}/${name}`;
 			case 'css':
 				if (!name.includes('.css')) name = `${name}.min.css`;
 				return `${Urls.Css}/${name}`;
+			case 'plugin':
+				if (!name.includes('.js')) name = `${name}/${name}.min.js`;
+				return `${Urls.Plugin}/${name}`;
+			case 'icon':
+				if (!name.includes('.js')) name = `${name}/icons.min.js`;
+				return `${Urls.Icon}/${name}`;
 			default:
 				return `${Urls.Prefix}/${name}`;
 		}
