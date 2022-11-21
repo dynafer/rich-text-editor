@@ -83,7 +83,7 @@ const DOMFactory: IDOMFactoryConstructor = (creation: string): IDOMFactory => {
 
 		children.splice(0, children.length);
 
-		Dispatch('destroy');
+		Dispatch('destroyed');
 
 		for (const [eventName, events] of Object.entries(bindedEvents)) {
 			for (const event of events) {

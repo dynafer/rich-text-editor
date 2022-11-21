@@ -1,0 +1,26 @@
+{
+  "name": "@dynafer/colorpicker",
+  "version": "0.0.1",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/finer-group/finer-editor.git",
+    "directory": "packages/dynafer/colorpicker"
+  },
+  "author": "Dynafer",
+  "scripts": {
+    "prepublishOnly": "yarn run build",
+    "build": "tsc -b",
+    "lint": "eslint -c ../../../.eslintrc.json ts/*.ts"
+  },
+  "dependencies": {
+    "tslib": "^2.4.0"
+  },
+  "type": "module",
+  "main": "build/lib/ColorPicker.js",
+  "module": "build/lib/ColorPicker.js",
+  "types": "build/lib/ColorPicker.d.ts",
+  "publishConfig": {
+    "access": "public"
+  },
+  "license": "MIT"
+}
