@@ -1,0 +1,18 @@
+{
+	"extends": "../../../tsconfig.shared.json",
+	"references": [
+		{ "path": "../dom-control" },
+		{ "path": "../utils" }
+	],
+	"compilerOptions": {
+		"baseUrl": ".",
+		"rootDir": "ts",
+		"outDir": "build/lib",
+		"tsBuildInfoFile": "build/tsconfig.tsbuildinfo",
+		"paths": {
+			"@dynafer/dom-control": ["../dom-control/ts/DOMControl"],
+			"@dynafer/utils": ["../utils/ts/Index"]
+		}
+	},
+	"include": ["ts/**/*.ts"]
+}

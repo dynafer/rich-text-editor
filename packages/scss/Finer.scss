@@ -9,8 +9,8 @@
 	}
 
 	.#{getClassName(toolbar)} {
-		@include width(100%);
 		@include flex();
+		@include width(100%);
 		background-color: getVar(toolbar-bg);
 		overflow: auto hidden;
 

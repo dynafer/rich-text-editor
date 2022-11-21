@@ -1,0 +1,26 @@
+{
+  "name": "@dynafer/sketcher",
+  "version": "0.0.1",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/finer-group/finer-editor.git",
+    "directory": "packages/dynafer/sketcher"
+  },
+  "author": "Dynafer",
+  "scripts": {
+    "prepublishOnly": "yarn run build",
+    "build": "tsc -b",
+    "lint": "eslint -c ../../../.eslintrc.json ts/*.ts"
+  },
+  "dependencies": {
+    "tslib": "^2.4.0"
+  },
+  "type": "module",
+  "main": "build/lib/Sketcher.js",
+  "module": "build/lib/Sketcher.js",
+  "types": "build/lib/Sketcher.d.ts",
+  "publishConfig": {
+    "access": "public"
+  },
+  "license": "MIT"
+}
