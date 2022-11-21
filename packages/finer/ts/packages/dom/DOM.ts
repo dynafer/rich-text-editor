@@ -1,3 +1,4 @@
+import { Attribute, Style } from '@dynafer/dom-control';
 import { Str, Type, Instance, Arr } from '@dynafer/utils';
 import DOMUtils, { IDOMUtils } from './DOMUtils';
 
@@ -103,11 +104,11 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 		Array.from(Instance.Is(parent, elementType) ? parent.querySelectorAll(selector) : Doc.querySelectorAll(selector));
 
 	const GetAttr = (selector: TElement, attr: string): string | null =>
-		!Instance.Is(selector, elementType) || !Type.IsString(attr) ? null : selector.getAttribute(attr);
+		!Instance.Is(selector, elementType) || !Type.IsString(attr) ? null : Attribute.Get(selector, attr);
 
 	const SetAttr = (selector: TElement, attr: string, value: string) => {
 		if (!Instance.Is(selector, elementType) || !Type.IsString(attr) || !Type.IsString(value)) return;
-		selector.setAttribute(Str.CapitalToDash(attr), value);
+		Attribute.Set(selector, attr, value);
 	};
 
 	const SetAttrs = (selector: TElement, attrs: Record<string, string>) => {
@@ -118,11 +119,11 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 	};
 
 	const HasAttr = (selector: TElement, attr: string): boolean =>
-		!Instance.Is(selector, elementType) ? false : selector.hasAttribute(attr);
+		!Instance.Is(selector, elementType) ? false : Attribute.Has(selector, attr);
 
 	const RemoveAttr = (selector: TElement, attr: string) => {
 		if (!Instance.Is(selector, elementType) || !Type.IsString(attr)) return;
-		selector.removeAttribute(Str.CapitalToDash(attr));
+		Attribute.Remove(selector, attr);
 	};
 
 	const RemoveAttrs = (selector: TElement, attrs: string[]) => {
@@ -145,44 +146,15 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 		selector.classList.remove(...classes);
 	};
 
-	const GetStyles = (selector: HTMLElement | null): Record<string, string> => {
-		if (!Instance.Is(selector, elementType)) return {};
+	const GetStyles = (selector: HTMLElement | null): Record<string, string> =>
+		!Instance.Is(selector, elementType) ? {} : Style.GetAsMap(selector);
 
-		const styleList = selector.style.cssText.split(';');
-		const styleDict: Record<string, string> = {};
-		for (const style of styleList) {
-			const keyValue = style.split(':');
-			if (keyValue.length !== 2) continue;
-			styleDict[Str.DashToCapital(keyValue[0])] = keyValue[1].trim();
-		}
-
-		return styleDict;
-	};
-
-	const GetStyle = (selector: HTMLElement | null, name: string): string => {
-		if (!Instance.Is(selector, elementType)) return '';
-
-		const styles = GetStyles(selector);
-		const capitalisedStyle = Str.DashToCapital(name);
-		if (!styles[capitalisedStyle]) {
-			const computedStyle = Win.getComputedStyle(selector);
-			return computedStyle[name];
-		}
-
-		return styles[capitalisedStyle] ?? '';
-	};
+	const GetStyle = (selector: HTMLElement | null, name: string): string =>
+		!Instance.Is(selector, elementType) ? '' : Style.Get(selector, name);
 
 	const SetStyle = (selector: HTMLElement | null, name: string, value: string) => {
 		if (!Instance.Is(selector, elementType) || !Type.IsString(name) || !Type.IsString(value)) return;
-
-		if (selector.style[name]) {
-			selector.style[name] = value;
-			return;
-		}
-
-		const styleList = selector.style.cssText.split(';');
-		styleList.push(`${Str.CapitalToDash(name)}: ${value}`);
-		selector.style.cssText = styleList.join(';');
+		Style.Set(selector, name, value);
 	};
 
 	const SetStyles = (selector: HTMLElement | null, styles: Record<string, string>) => {
@@ -194,36 +166,11 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 
 	const RemoveStyle = (selector: HTMLElement | null, name: string) => {
 		if (!Instance.Is(selector, elementType) || !Type.IsString(name)) return;
-
-		if (selector.style[name]) {
-			selector.style[name] = '';
-			if (Str.IsEmpty(selector.style.cssText)) RemoveAttr(selector, 'style');
-			return;
-		}
-
-		const styles = GetStyles(selector);
-		const dashedName = Str.CapitalToDash(name);
-		if (!styles[dashedName]) return;
-
-		selector.style.cssText = '';
-		for (const [styleName, styleValue] of Object.entries(styles)) {
-			if (styleName === dashedName) continue;
-			selector.style.cssText += `${styleName}: ${styleValue};`;
-		}
-
-		if (Str.IsEmpty(selector.style.cssText)) RemoveAttr(selector, 'style');
+		Style.Remove(selector, name);
 	};
 
-	const HasStyle = (selector: HTMLElement | null, name: string, compareValue?: string): boolean => {
-		if (!Instance.Is(selector, elementType) || !Type.IsString(name)) return false;
-
-		const cssText = selector.style.cssText.replace(/\s*:\s*/gi, ':');
-		if (compareValue) {
-			if (!Type.IsString(compareValue)) return false;
-			return cssText.includes(`${Str.CapitalToDash(name)}:${compareValue.trim()}`);
-		}
-		return cssText.includes(Str.CapitalToDash(name));
-	};
+	const HasStyle = (selector: HTMLElement | null, name: string, compareValue?: string): boolean =>
+		!Instance.Is(selector, elementType) || !Type.IsString(name) ? false : Style.Has(selector, name, compareValue);
 
 	const GetText = (selector: HTMLElement): string =>
 		!Instance.Is(selector, elementType) ? '' : encodeURI(selector.innerText).replace(ESCAPE_EMPTY_TEXT_REGEX, '');

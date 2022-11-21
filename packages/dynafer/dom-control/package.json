@@ -1,0 +1,26 @@
+{
+  "name": "@dynafer/dom-control",
+  "version": "0.0.1",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/finer-group/finer-editor.git",
+    "directory": "packages/dynafer/dom-control"
+  },
+  "author": "Dynafer",
+  "scripts": {
+    "prepublishOnly": "yarn run build",
+    "build": "tsc -b",
+    "lint": "eslint -c ../../../.eslintrc.json ts/*.ts"
+  },
+  "dependencies": {
+    "tslib": "^2.4.0"
+  },
+  "type": "module",
+  "main": "build/lib/DOMControl.js",
+  "module": "build/lib/DOMControl.js",
+  "types": "build/lib/DOMControl.d.ts",
+  "publishConfig": {
+    "access": "public"
+  },
+  "license": "MIT"
+}

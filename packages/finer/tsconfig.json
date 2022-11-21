@@ -2,6 +2,8 @@
 	"extends": "../../tsconfig.shared.json",
 	"references": [
 		{ "path": "../dynafer/colorpicker" },
+		{ "path": "../dynafer/dom-control" },
+		{ "path": "../dynafer/sketcher" },
 		{ "path": "../dynafer/utils" }
 	],
 	"compilerOptions": {
@@ -10,16 +12,18 @@
 		"outDir": "build/lib",
 		"tsBuildInfoFile": "build/tsconfig.tsbuildinfo",
 		"paths": {
-			"finer": ["finer/ts/Finer"],
+			"finer": ["ts/Finer"],
 			"finer/packages/*": ["ts/packages/*"],
 
 			"@dynafer/colorpicker": ["../dynafer/colorpicker/ts/ColorPicker"],
+			"@dynafer/dom-control": ["../dynafer/dom-control/ts/DOMControl"],
+			"@dynafer/sketcher": ["../dynafer/sketcher/ts/Sketcher"],
 			"@dynafer/utils": ["../dynafer/utils/ts/Index"]
 		}
 	},
 	"include": [
 		"ts/**/*.ts",
-		"ts/packages/**/*.d.ts"
+		"ts/**/*.d.ts"
 	],
 	"exclude": [
 		"ts/packages/plugins/template"

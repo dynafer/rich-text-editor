@@ -13,7 +13,7 @@ module.exports = async (runner) => {
 		if (!fs.existsSync(buildLibPath)) fs.mkdirSync(buildLibPath);
 	});
 
-	Icons.Build({
+	await Icons.Build({
 		dir: './svg',
 		output: path.resolve(buildLibPath, './IconPack.js'),
 		type: 'argument',

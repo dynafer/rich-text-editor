@@ -1,17 +1,38 @@
 @import '../../_mixin';
 
 * {
-	#{getVarName(toolbar-bg)}: #ececec;
+	#{getVarName(toolbar-bg)}: transparent;
+	#{getVarName(toolbar-border)}: #ececec;
 	#{getVarName(toolbar-item-bg)}: transparent;
-	#{getVarName(toolbar-item-hover-bg)}: #afafaf;
-	#{getVarName(toolbar-item-active-bg)}: #c9c9c9;
+	#{getVarName(toolbar-item-hover-bg)}: rgba(116, 195, 255, 0.7);
+	#{getVarName(toolbar-item-active-bg)}: rgba(88, 183, 255, 0.7);
 	#{getVarName(toolbar-item-icon-fill)}: #000;
-	#{getVarName(toolbar-item-option-bg)}: #ececec;
+	#{getVarName(toolbar-item-option-bg)}: #fff;
 	#{getVarName(toolbar-item-select-border)}: #afafaf;
 	#{getVarName(toolbar-item-radius)}: 0.4rem;
 
 	#{getVarName(editor-bg)}: transparent;
 	#{getVarName(editor-border)}: #ececec;
+
+	#{getVarName(modal-bg)}: #fff;
+	#{getVarName(modal-border)}: #c9c9c9;
+
+	#{getVarName(button-radius)}: 0.3rem;
+	#{getVarName(button-bg)}: #2c8ed8;
+	#{getVarName(button-border)}: #2c8ed8;
+	#{getVarName(button-font)}: #fff;
+	#{getVarName(button-hover-bg)}: #3486c5;
+	#{getVarName(button-hover-border)}: #3486c5;
+	#{getVarName(button-hover-font)}: #fff;
+	#{getVarName(button-cancel-bg)}: #7e7e7e;
+	#{getVarName(button-cancel-border)}: #7e7e7e;
+	#{getVarName(button-cancel-font)}: #fff;
+	#{getVarName(button-cancel-hover-bg)}: #6b6b6b;
+	#{getVarName(button-cancel-hover-border)}: #6b6b6b;
+	#{getVarName(button-cancel-hover-font)}: #fff;
+	#{getVarName(button-disabled-bg)}: #737b81;
+	#{getVarName(button-disabled-border)}: #737b81;
+	#{getVarName(button-disabled-font)}: #fff;
 }
 
 .#{getClassName(classic)} {

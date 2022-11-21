@@ -6,11 +6,14 @@
 			"finer/packages/*": ["packages/finer/ts/packages/*"],
 
 			"@dynafer/colorpicker": ["packages/dynafer/colorpicker/ts/ColorPicker"],
+			"@dynafer/dom-control": ["packages/dynafer/dom-control/ts/DOMControl"],
+			"@dynafer/sketcher": ["packages/dynafer/sketcher/ts/Sketcher"],
 			"@dynafer/utils": ["packages/dynafer/utils/ts/Index"]
 		}
 	},
 	"include": [
 		"packages/dynafer/**/*.ts",
+		"packages/dynafer/**/*.d.ts",
 		"packages/finer/**/*.ts",
 		"packages/finer/**/*.d.ts"
 	],

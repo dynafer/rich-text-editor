@@ -18,3 +18,5 @@ export const DashToCapital = (value: string): string => {
 
 export const Padding = (value: number | string, length: number = 2, pad: number | string = '0') =>
 	value.toString().padStart(length, pad.toString());
+
+export const Join = (attacher: string, ...args: string[]) => args.join(attacher);
