@@ -1,0 +1,179 @@
+colorpicker-modal {
+	@include flex(center, center);
+	@include position(fixed, 0, 0);
+	@include square(100%);
+	background-color: rgba(255, 255, 255, 0.6);
+	z-index: 9999999;
+	box-sizing: border-box;
+	user-select: none;
+
+	* {
+		display: block;
+		box-sizing: inherit;
+	}
+
+	colorpicker-dialog {
+		@include round(15px);
+		@include all-border(getVar(modal-border));
+
+		colorpicker-header {
+			@include all-padding(0.5rem);
+			@include font(14pt);
+			@include round(15px 15px 0 0);
+			@include border($bottom: getVar(modal-border));
+			@include flex(space-between, center);
+			background-color: getVar(modal-bg);
+
+			div svg {
+				@include square(1.5rem);
+				cursor: pointer;
+			}
+		}
+
+		colorpicker-body {
+			@include all-padding(1rem);
+			background-color: getVar(modal-bg);
+
+			colorpicker-form {
+				@include flex();
+				white-space: nowrap;
+
+				& > * {
+					@include height(230px);
+				}
+
+				colorpicker-palette {
+					@include position(relative);
+					@include width(230px);
+					@include margin(rem, $right: 1.5);
+
+					div {
+						@include position(absolute, calc(100% - 0.4rem), calc(0px - (0.8rem + 2px) / 2));
+						@include square(0.8rem);
+						@include round(50%);
+						@include all-border(#000);
+
+						&::before {
+							@include square(calc(0.7rem - 2.5px));
+							@include round(50%);
+							@include all-border(getVar(modal-border));
+							content: '\00a0';
+							display: block;
+						}
+					}
+				}
+
+				colorpicker-hue {
+					@include position(relative);
+					@include width(20px);
+					@include margin(rem, $right: 1.5);
+
+					div {
+						@include position(absolute, -2px, -2px);
+						@include rectangle(calc(100% + 4px), 4px);
+						@include all-border(#000);
+						background-color: #fff;
+					}
+				}
+
+				colorpicker-navigation {
+					@include width(110px);
+					text-align: center;
+
+					label {
+						@include flex($align: center);
+
+						* {
+							@include all-margin(0.3rem);
+						}
+
+						div {
+							@include width(2rem);
+							@include font(14pt, bold);
+						}
+
+						input {
+							@include width(calc(100% - 2rem));
+							@include all-padding(0.4rem);
+							@include round(0.4rem);
+							@include all-border(getVar(modal-border));
+							outline: none;
+
+							&.error {
+								@include all-border(rgb(243, 10, 10));
+								animation: shake-horizontal 0.15s;
+							}
+						}
+					}
+
+					& > div {
+						@include rectangle(80%, 40px);
+						@include margin(rem, 1.5);
+						@include all-border(#000);
+						display: inline-block;
+					}
+				}
+			}
+		}
+
+		colorpicker-footer {
+			@include all-padding(0.5rem);
+			@include border(getVar(modal-border));
+			@include round(0 0 15px 15px);
+			background-color: getVar(modal-bg);
+			text-align: right;
+
+			button {
+				@include round(getVar(button-radius));
+				@include all-margin(0.25rem);
+				@include padding(rem, 0.25, 0.4, 0.25, 0.4);
+				@include font(1rem);
+				display: inline-block;
+				cursor: pointer;
+
+				&:first-child {
+					@include all-border(getVar(button-cancel-border));
+					@include font($color: getVar(button-cancel-font));
+					background-color: getVar(button-cancel-bg);
+
+					&:hover {
+						@include all-border(getVar(button-cancel-hover-border));
+						@include font($color: getVar(button-cancel-hover-font));
+						background-color: getVar(button-cancel-hover-bg);
+					}
+				}
+
+				&:last-child {
+					@include all-border(getVar(button-border));
+					@include font($color: getVar(button-font));
+					background-color: getVar(button-bg);
+
+					&:hover {
+						@include all-border(getVar(button-hover-border));
+						@include font($color: getVar(button-hover-font));
+						background-color: getVar(button-hover-bg);
+					}
+				}
+			}
+		}
+	}
+}
+
+@include mobile {
+	colorpicker-modal {
+		display: block;
+
+		colorpicker-dialog {
+			@include width($max: 96vw);
+			@include all-margin(2vw);
+
+			colorpicker-body {
+				overflow-x: auto;
+
+				colorpicker-form {
+					@include width(408px);
+				}
+			}
+		}
+	}
+}

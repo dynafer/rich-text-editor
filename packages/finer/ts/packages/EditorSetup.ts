@@ -14,10 +14,13 @@ const EditorSetup = (editor: Editor): Promise<void> => {
 
 	return new Promise((resolve, reject) => {
 		const bodyId = DOM.Utils.CreateUEID('editor-body', false);
+		const editorDefaultId = DOM.Utils.CreateUEID('editor-default', false);
 		const skinId = DOM.Utils.CreateUEID('skin', false);
-		const skinLink = `<link id="${skinId}" rel="stylesheet" href="${Options.JoinUrl('css', 'skins/simple/skin')}">`;
+		const editorDefaultCss = `<link id="${editorDefaultId}" rel="stylesheet" href="${Options.JoinUrl('css', 'skins/Editor')}">`;
+		const skinLink = `<link id="${skinId}" rel="stylesheet" href="${Options.JoinUrl('css', `skins/${config.Skin}/skin`)}">`;
 		let body: HTMLElement;
 
+		if (!DOM.Select(`#${editorDefaultId}`, DOM.Doc.head)) DOM.Insert(DOM.Doc.head, editorDefaultCss);
 		if (!DOM.Select(`#${skinId}`, DOM.Doc.head)) DOM.Insert(DOM.Doc.head, skinLink);
 
 		if (self.IsIFrame()) {
@@ -28,7 +31,7 @@ const EditorSetup = (editor: Editor): Promise<void> => {
 
 			const iframeHTML = `<!DOCTYPE html>
 				<html>
-					<head>${skinLink}</head>
+					<head>${editorDefaultCss}</head>
 					<body id="${bodyId}" contenteditable="true"></body>
 				</html>`;
 

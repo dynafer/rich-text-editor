@@ -54,7 +54,7 @@ module.exports = async (runner, config) => {
 
 	const sassList = [];
 	for (const dir of fs.readdirSync(SCSS_PATH)) {
-		if (dir.includes('.scss')) continue;
+		if (dir.includes('.scss') || dir.includes('ui')) continue;
 
 		const dirPath = path.join(SCSS_PATH, `./${dir}`);
 		for (const subDir of fs.readdirSync(dirPath)) {
@@ -74,6 +74,10 @@ module.exports = async (runner, config) => {
 	sassList.push({
 		input: path.join(SCSS_PATH, `./${INPUT_NAME}.scss`),
 		output: path.join(OUTPUT_PATH, `./${PROJECT_NAME}.min.css`),
+		compressed: true
+	}, {
+		input: path.join(SCSS_PATH, `./Editor.scss`),
+		output: path.join(OUTPUT_PATH, `./skins/Editor.min.css`),
 		compressed: true
 	});
 

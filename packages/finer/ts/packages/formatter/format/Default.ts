@@ -1,10 +1,10 @@
 import Editor from '../../Editor';
 import DOM from '../../dom/DOM';
+import FormatCaret from '../FormatCaret';
 import FormatDetector from '../FormatDetector';
 import { ACTIVE_CLASS, EFormatUI, EFormatUIType, IFormatOption, IFormatRegistryJoiner } from '../FormatType';
 import FormatUI from '../FormatUI';
 import { FORMAT_BASES } from '../FormatUtils';
-import FormatCaret from '../FormatCaret';
 
 const Default = (editor: Editor): IFormatRegistryJoiner => {
 	const self = editor;

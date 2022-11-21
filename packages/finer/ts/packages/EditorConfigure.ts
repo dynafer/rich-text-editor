@@ -1,4 +1,4 @@
-import { Instance, Type } from '@dynafer/utils';
+import { Instance, Str, Type } from '@dynafer/utils';
 import { EModeEditor } from '../Options';
 import DOM from './dom/DOM';
 import { IFormatConfiguration } from './formatter/FormatType';
@@ -10,6 +10,7 @@ export interface IEditorOption {
 	height?: string,
 	plugins?: string[],
 	toolbars?: string[],
+	skin?: string,
 	[key: string]: string | string[] | Record<string, string> | HTMLElement | undefined,
 }
 
@@ -21,11 +22,12 @@ export interface IConfiguration extends IFormatConfiguration {
 	Height: string,
 	Toolbars: string[],
 	Plugins: string[],
+	Skin: string,
 	[key: string]: string | string[] | Record<string, string> | HTMLElement | undefined,
 }
 
 const Configure = (config: IEditorOption): IConfiguration => {
-	const defaultConfigs: string[] = ['selector', 'mode', 'width', 'height', 'plugins', 'toolbars'];
+	const defaultConfigs: string[] = ['selector', 'mode', 'width', 'height', 'plugins', 'toolbars', 'skin'];
 
 	if (!config.selector || !Instance.IsElement(config.selector)) {
 		throw new Error('Configuration: selector of configuration must be provided');
@@ -63,6 +65,9 @@ const Configure = (config: IEditorOption): IConfiguration => {
 		excludedDefaultOption[key] = value;
 	}
 
+	const skin = config.skin;
+	const Skin = skin && Type.IsString(skin) && !Str.IsEmpty(skin) ? skin : 'simple';
+
 	const configuration: IConfiguration = {
 		Id,
 		Selector,
@@ -71,6 +76,7 @@ const Configure = (config: IEditorOption): IConfiguration => {
 		Height,
 		Plugins,
 		Toolbars,
+		Skin,
 		...excludedDefaultOption
 	};
 
