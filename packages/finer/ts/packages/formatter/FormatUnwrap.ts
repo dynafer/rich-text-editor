@@ -88,7 +88,7 @@ const FormatUnwrap = (editor: Editor) => {
 		let bNext = false;
 
 		for (const sibling of siblings) {
-			if (alreadyAppendedNodes.includes(sibling)) {
+			if (Arr.Contains(alreadyAppendedNodes, sibling)) {
 				bNext = true;
 				continue;
 			}

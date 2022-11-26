@@ -1,4 +1,5 @@
 import { Insert } from '@dynafer/dom-control';
+import { Arr } from '@dynafer/utils';
 
 export type TEventListener<K extends keyof GlobalEventHandlersEventMap> = (event: GlobalEventHandlersEventMap[K]) => void;
 
@@ -30,7 +31,7 @@ export interface IDOMFactoryConstructor {
 
 const DOMFactory: IDOMFactoryConstructor = (creation: string): IDOMFactory => {
 	const Doc = document;
-	const bindedEvents: Record<string, EventListener[]> = {};
+	const boundEvents: Record<string, EventListener[]> = {};
 	const children: IDOMFactory[] = [];
 
 	const Self: HTMLElement = Doc.createElement(creation);
@@ -57,15 +58,15 @@ const DOMFactory: IDOMFactoryConstructor = (creation: string): IDOMFactory => {
 	const RemoveClass = (...classes: string[]) => Self.classList.remove(...classes);
 
 	const Bind = (eventName: string, event: EventListener, bCapture: boolean = false) => {
-		if (!bindedEvents[eventName]) bindedEvents[eventName] = [];
-		if (bindedEvents[eventName].includes(event)) return;
+		if (!boundEvents[eventName]) boundEvents[eventName] = [];
+		if (Arr.Contains(boundEvents[eventName], event)) return;
 		Self.addEventListener(eventName, event, bCapture);
-		bindedEvents[eventName].push(event);
+		boundEvents[eventName].push(event);
 	};
 
 	const Unbind = (eventName: string, event: EventListener, bCapture: boolean = false) => {
-		if (bindedEvents[eventName]) {
-			bindedEvents[eventName] = bindedEvents[eventName].filter(binded => binded[0] !== event);
+		if (boundEvents[eventName]) {
+			boundEvents[eventName] = boundEvents[eventName].filter(bound => bound[0] !== event);
 		}
 		Self.removeEventListener(eventName, event, bCapture);
 	};
@@ -85,7 +86,7 @@ const DOMFactory: IDOMFactoryConstructor = (creation: string): IDOMFactory => {
 
 		Dispatch('destroyed');
 
-		for (const [eventName, events] of Object.entries(bindedEvents)) {
+		for (const [eventName, events] of Object.entries(boundEvents)) {
 			for (const event of events) {
 				Unbind(eventName, event);
 			}

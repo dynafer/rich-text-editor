@@ -26,6 +26,8 @@ export const Get = (selector: HTMLElement, name: string): string => {
 	return styles[capitalisedStyle] ?? '';
 };
 
+export const GetText = (selector: HTMLElement): string => selector.style.cssText;
+
 export const Set = (selector: HTMLElement, name: string, value: string) => {
 	if (selector.style[name]) {
 		selector.style[name] = value;
@@ -41,6 +43,15 @@ export const SetAsMap = (selector: HTMLElement, styles: Record<string, string>) 
 	for (const [name, value] of Object.entries(styles)) {
 		Set(selector, name, value);
 	}
+};
+
+export const SetText = (selector: HTMLElement, styleText: string) => {
+	if (Str.IsEmpty(styleText)) {
+		Attribute.Remove(selector, 'style');
+		return;
+	}
+
+	selector.style.cssText = styleText;
 };
 
 export const Remove = (selector: HTMLElement, name: string) => {
@@ -67,7 +78,7 @@ export const Has = (selector: HTMLElement, name: string, compareValue?: string):
 	const cssText = selector.style.cssText.replace(/\s*:\s*/gi, ':');
 	if (compareValue) {
 		if (!Type.IsString(compareValue)) return false;
-		return cssText.includes(`${Str.CapitalToDash(name)}:${compareValue.trim()}`);
+		return Str.Contains(cssText, `${Str.CapitalToDash(name)}:${compareValue.trim()}`);
 	}
-	return cssText.includes(Str.CapitalToDash(name));
+	return Str.Contains(cssText, Str.CapitalToDash(name));
 };

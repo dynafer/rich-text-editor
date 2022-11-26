@@ -1,4 +1,4 @@
-import { Arr, Type } from '@dynafer/utils';
+import { Arr, Str, Type } from '@dynafer/utils';
 import Editor from '../../Editor';
 import DOM from '../../dom/DOM';
 import { ENativeEvents } from '../../events/EventSetupUtils';
@@ -63,8 +63,8 @@ const Font = (editor: Editor): IFormatRegistryJoiner => {
 				default:
 					const convertedValue = ConvertToDetectorValue(detectedValue).trim();
 
-					const bPixel = convertedValue.toLowerCase().includes('px');
-					const replaced = parseFloat(convertedValue.toLowerCase().replace(bPixel ? 'px' : 'pt', '')) ?? 0;
+					const bPixel = Str.Contains(Str.LowerCase(convertedValue), 'px');
+					const replaced = parseFloat(Str.LowerCase(convertedValue).replace(bPixel ? 'px' : 'pt', '')) ?? 0;
 					const convertedSize = `${replaced * (bPixel ? STANDARD_POINTS_FROM_PIXEL : STANDARD_PIXEL_FROM_POINTS)}${bPixel ? 'pt' : 'px'}`;
 
 					const convertedOpotionLabel = detectableStyleMap[convertedSize];
@@ -141,7 +141,7 @@ const Font = (editor: Editor): IFormatRegistryJoiner => {
 	};
 
 	const Register = (name: string) => {
-		if (!Object.keys(Formats).includes(name)) return;
+		if (!Arr.Contains(Object.keys(Formats), name)) return;
 
 		const formatOption = Formats[name];
 		const config = self.Config[name] as string[] | Record<string, string>;

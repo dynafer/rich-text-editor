@@ -21,11 +21,12 @@ const FormatCaret = (editor: Editor) => {
 		(DOM.Utils.IsText(node) && Str.IsEmpty(node.textContent)) || (!DOM.Utils.IsText(node) && Str.IsEmpty(DOM.GetText(node as HTMLElement)));
 
 	const cleanDirty = (root: Node) => {
-		const children = root.childNodes;
+		const children = Array.from(root.childNodes);
 		for (const child of children) {
-			if (child && isNodeEmpty(child))
-				if (DOM.Utils.IsText(child)) child.remove();
-				else DOM.Remove(child as Element, false);
+			if (!child || !isNodeEmpty(child)) continue;
+
+			if (DOM.Utils.IsText(child)) child.remove();
+			else DOM.Remove(child as Element, false);
 		}
 	};
 
@@ -116,6 +117,7 @@ const FormatCaret = (editor: Editor) => {
 		}
 
 		CaretUtils.UpdateRanges(newRanges);
+		CaretUtils.Clean();
 	};
 
 	return {

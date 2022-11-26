@@ -1,3 +1,4 @@
+import { Arr } from '@dynafer/utils';
 import Editor from '../../Editor';
 import DOM from '../../dom/DOM';
 import FormatCaret from '../FormatCaret';
@@ -27,7 +28,7 @@ const Default = (editor: Editor): IFormatRegistryJoiner => {
 	};
 
 	const Register = (name: string) => {
-		if (!Object.keys(Formats).includes(name)) return;
+		if (!Arr.Contains(Object.keys(Formats), name)) return;
 		const formatOption = Formats[name];
 		const togglerUI = UI.Create(formatOption, true, () => {
 			const bActivated = !DOM.HasClass(togglerUI, ACTIVE_CLASS);

@@ -26,7 +26,7 @@ class Editor {
 	public Frame: IEditorFrame;
 	public Notification: INotificationManager;
 	public Plugin!: IPluginManager;
-	public DOM: IDom = DOM;
+	public DOM: IDom = DOM.New(window, document, true);
 	public Utils!: IEditorUtils;
 	public Formatter!: IFormatter;
 
