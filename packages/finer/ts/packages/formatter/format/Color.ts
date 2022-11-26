@@ -1,5 +1,5 @@
 import ColorPicker from '@dynafer/colorpicker';
-import { Str } from '@dynafer/utils';
+import { Arr, Str } from '@dynafer/utils';
 import Editor from '../../Editor';
 import DOM from '../../dom/DOM';
 import FormatCaret from '../FormatCaret';
@@ -36,7 +36,7 @@ const Color = (editor: Editor): IFormatRegistryJoiner => {
 	};
 
 	const Register = (name: string) => {
-		if (!Object.keys(Formats).includes(name)) return;
+		if (!Arr.Contains(Object.keys(Formats), name)) return;
 		const formatOption = Formats[name];
 
 		const colorNavigation = DOM.Create('div', {

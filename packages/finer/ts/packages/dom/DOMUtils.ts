@@ -14,7 +14,7 @@ export interface IDOMUtils {
 
 const DOMUtils = (): IDOMUtils => {
 	const CreateUEID = (id: string = '', bAddNum: boolean = true): string =>
-		Utils.CreateUEID(Str.IsEmpty(id) ? Options.ProjectName : `${Options.ProjectName}-${id}`, bAddNum);
+		Utils.CreateUEID(Str.IsEmpty(id) ? Options.PROJECT_NAME : `${Options.PROJECT_NAME}-${id}`, bAddNum);
 
 	const GetModeTag = (mode: EModeEditor): string => {
 		switch (mode) {
@@ -28,11 +28,11 @@ const DOMUtils = (): IDOMUtils => {
 
 	const GetEmptyString = (): string => EMPTY_HEX_CODE;
 
-	const IsParagraph = (selector: Node | null): boolean => selector?.nodeName?.toLowerCase() === 'p' ?? false;
+	const IsParagraph = (selector: Node | null): boolean => Str.LowerCase(selector?.nodeName ?? '') === 'p' ?? false;
 
-	const IsText = (selector: Node | null): boolean => selector?.nodeName?.toLowerCase() === '#text' ?? false;
+	const IsText = (selector: Node | null): boolean => Str.LowerCase(selector?.nodeName ?? '') === '#text' ?? false;
 
-	const GetNodeName = (selector: Node | null): string => selector?.nodeName?.toLowerCase() ?? '';
+	const GetNodeName = (selector: Node | null): string => Str.LowerCase(selector?.nodeName ?? '') ?? '';
 
 	return {
 		CreateUEID,

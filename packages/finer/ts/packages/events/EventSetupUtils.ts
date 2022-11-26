@@ -103,6 +103,57 @@ export enum ENativeEvents {
 	blur = 'blur',
 }
 
+export enum EInputEventType {
+	insertText = 'insertText',
+	insertReplacementText = 'insertReplacementText',
+	insertLineBreak = 'insertLineBreak',
+	insertParagraph = 'insertParagraph',
+	insertOrderedList = 'insertOrderedList',
+	insertUnorderedList = 'insertUnorderedList',
+	insertHorizontalRule = 'insertHorizontalRule',
+	insertFromYank = 'insertFromYank',
+	insertFromDrop = 'insertFromDrop',
+	insertFromPaste = 'insertFromPaste',
+	insertTranspose = 'insertTranspose',
+	insertCompositionText = 'insertCompositionText',
+	insertFromComposition = 'insertFromComposition',
+	insertLink = 'insertLink',
+	deleteByComposition = 'deleteByComposition',
+	deleteCompositionText = 'deleteCompositionText',
+	deleteWordBackward = 'deleteWordBackward',
+	deleteWordForward = 'deleteWordForward',
+	deleteSoftLineBackward = 'deleteSoftLineBackward',
+	deleteSoftLineForward = 'deleteSoftLineForward',
+	deleteEntireSoftLine = 'deleteEntireSoftLine',
+	deleteHardLineBackward = 'deleteHardLineBackward',
+	deleteHardLineForward = 'deleteHardLineForward',
+	deleteByDrag = 'deleteByDrag',
+	deleteByCut = 'deleteByCut',
+	deleteByContent = 'deleteByContent',
+	deleteContentBackward = 'deleteContentBackward',
+	deleteContentForward = 'deleteContentForward',
+	historyUndo = 'historyUndo',
+	historyRedo = 'historyRedo',
+	formatBold = 'formatBold',
+	formatItalic = 'formatItalic',
+	formatUnderline = 'formatUnderline',
+	formatStrikethrough = 'formatStrikethrough',
+	formatSuperscript = 'formatSuperscript',
+	formatSubscript = 'formatSubscript',
+	formatJustifyFull = 'formatJustifyFull',
+	formatJustifyCenter = 'formatJustifyCenter',
+	formatJustifyRight = 'formatJustifyRight',
+	formatJustifyLeft = 'formatJustifyLeft',
+	formatIndent = 'formatIndent',
+	formatOutdent = 'formatOutdent',
+	formatRemove = 'formatRemove',
+	formatSetBlockTextDirection = 'formatSetBlockTextDirection',
+	formatSetInlineTextDirection = 'formatSetInlineTextDirection',
+	formatBackColor = 'formatBackColor',
+	formatFontColor = 'formatFontColor',
+	formatFontName = 'formatFontName',
+}
+
 export interface IEventSetupCallback<K extends keyof GlobalEventHandlersEventMap> {
 	(editor: Editor, event: GlobalEventHandlersEventMap[K]): void;
 }
@@ -118,7 +169,15 @@ export const CaretChangeEvent = <K extends keyof GlobalEventHandlersEventMap>(ed
 	const paths: Node[] = [];
 	for (const path of event.composedPath()) {
 		if (self.DOM.Utils.IsParagraph(path as Node) || self.GetBody() === path || self.DOM.GetRoot() === path) break;
-		paths.push(path as Node);
+		const cloned = self.DOM.Clone(path as Node);
+		if (!cloned) continue;
+		paths.push(cloned);
 	}
 	editor.Dispatch('caret:change', paths);
+};
+
+export const PreventEvent = (event: Event) => {
+	event.preventDefault();
+	event.stopImmediatePropagation();
+	event.stopPropagation();
 };

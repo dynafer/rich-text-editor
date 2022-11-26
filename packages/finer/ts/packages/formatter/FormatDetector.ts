@@ -23,13 +23,19 @@ const FormatDetector = (editor: Editor): IFormatDetector => {
 		const closestNode = paths[0] ?? (DOM.Utils.IsText(carets[0].SameRoot) ? carets[0].SameRoot.parentNode : carets[0].SameRoot);
 
 		for (const detection of detections) {
-			void detection(closestNode);
+			void detection(closestNode.cloneNode());
 		}
+
+		CaretUtils.Clean();
 	}) as IEvent);
 
 	const Register = (option: Omit<IFormatOptionBase, 'label'>, activate: IFormatDetectorActivator) => {
 		const asyncDetection: IDetection = (node: Node | null) =>
-			new Promise((resolve) => resolve(activate(FindClosest(self, option, node))));
+			new Promise((resolve) => {
+				activate(FindClosest(self, option, node));
+				DOM.Remove(node as Element);
+				resolve();
+			});
 
 		detections.push(asyncDetection);
 	};

@@ -2,7 +2,7 @@ import { Str } from '@dynafer/utils';
 
 let projectUrl: string;
 for (const loadedScript of document.head.querySelectorAll('script')) {
-	if (loadedScript.src.includes('finer.')) {
+	if (Str.Contains(loadedScript.src, 'finer.')) {
 		const tempSrc: string[] = loadedScript.src.split('/');
 		projectUrl = tempSrc.slice(0, tempSrc.length - 1).join('/');
 		if (Str.IsEmpty(projectUrl)) projectUrl = '.';
@@ -16,41 +16,44 @@ export enum EModeEditor {
 }
 
 interface IOptions {
+	readonly PROJECT_NAME: string,
+	readonly EDITOR_STYLE_ATTRIBUTE: string,
+	readonly URLS: Record<string, string>,
 	JoinUrl: (type: string, name: string) => string,
-	ProjectName: string,
-	Urls: Record<string, string>,
 }
 
 const Options = (): IOptions => {
-	const ProjectName: string = 'finer-editor';
-	const urlPrefix: string = new URL(projectUrl).pathname;
-	const Urls: Record<string, string> = {
-		Prefix: urlPrefix,
-		Css: `${urlPrefix}`,
-		Plugin: `${urlPrefix}/plugins`,
-		Icon: `${urlPrefix}/icons`
+	const PROJECT_NAME: string = 'finer-editor';
+	const EDITOR_STYLE_ATTRIBUTE: string = 'finer-style';
+	const URL_PREFIX: string = new URL(projectUrl).pathname;
+	const URLS: Record<string, string> = {
+		PREFIX: URL_PREFIX,
+		CSS: `${URL_PREFIX}`,
+		PLUGIN: `${URL_PREFIX}/plugins`,
+		ICON: `${URL_PREFIX}/icons`
 	};
 
 	const JoinUrl = (type: string, name: string): string => {
 		switch (type) {
 			case 'css':
-				if (!name.includes('.css')) name = `${name}.min.css`;
-				return `${Urls.Css}/${name}`;
+				if (!Str.Contains(name, '.css')) name = `${name}.min.css`;
+				return `${URLS.CSS}/${name}`;
 			case 'plugin':
-				if (!name.includes('.js')) name = `${name}/${name}.min.js`;
-				return `${Urls.Plugin}/${name}`;
+				if (!Str.Contains(name, '.js')) name = `${name}/${name}.min.js`;
+				return `${URLS.PLUGIN}/${name}`;
 			case 'icon':
-				if (!name.includes('.js')) name = `${name}/icons.min.js`;
-				return `${Urls.Icon}/${name}`;
+				if (!Str.Contains(name, '.js')) name = `${name}/icons.min.js`;
+				return `${URLS.ICON}/${name}`;
 			default:
-				return `${Urls.Prefix}/${name}`;
+				return `${URLS.PREFIX}/${name}`;
 		}
 	};
 
 	return {
+		PROJECT_NAME,
+		EDITOR_STYLE_ATTRIBUTE,
+		URLS,
 		JoinUrl,
-		ProjectName,
-		Urls
 	};
 };
 

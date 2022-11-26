@@ -1,4 +1,4 @@
-import { Instance, Str, Type } from '@dynafer/utils';
+import { Arr, Instance, Str, Type } from '@dynafer/utils';
 import { EModeEditor } from '../Options';
 import DOM from './dom/DOM';
 import { IFormatConfiguration } from './formatter/FormatType';
@@ -38,7 +38,7 @@ const Configure = (config: IEditorOption): IConfiguration => {
 	const Selector: HTMLElement = config.selector;
 	DOM.Hide(Selector);
 
-	const mode: string = (config.mode ?? EModeEditor.classic).toLowerCase();
+	const mode: string = Str.LowerCase(config.mode ?? EModeEditor.classic);
 	if (!Type.IsString(mode) || !EModeEditor[mode]) {
 		throw new Error(`Configuration: ${mode} mode doesn't exist`);
 	}
@@ -61,7 +61,7 @@ const Configure = (config: IEditorOption): IConfiguration => {
 
 	const excludedDefaultOption = {};
 	for (const [key, value] of Object.entries(config)) {
-		if (defaultConfigs.includes(key)) continue;
+		if (Arr.Contains(defaultConfigs, key)) continue;
 		excludedDefaultOption[key] = value;
 	}
 

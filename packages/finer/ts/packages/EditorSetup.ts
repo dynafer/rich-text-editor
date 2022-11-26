@@ -26,7 +26,8 @@ const EditorSetup = (editor: Editor): Promise<void> => {
 		if (self.IsIFrame()) {
 			self.DOM = DOM.New(
 				(frame.Container as HTMLIFrameElement).contentWindow as Window & typeof globalThis,
-				(frame.Container as HTMLIFrameElement).contentDocument ?? document
+				(frame.Container as HTMLIFrameElement).contentDocument ?? document,
+				true
 			);
 
 			const iframeHTML = `<!DOCTYPE html>

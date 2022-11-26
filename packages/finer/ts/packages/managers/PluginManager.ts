@@ -22,7 +22,7 @@ const PluginManager = (editor: Editor): IPluginManager => {
 		}
 
 		for (const caretPointer of caretPointers) {
-			if (currentCarets.includes(caretPointer)) continue;
+			if (Arr.Contains(currentCarets, caretPointer)) continue;
 
 			if (!Str.IsEmpty(DOM.GetText(caretPointer))) {
 				DOM.SetOuterHTML(caretPointer, DOM.GetHTML(caretPointer));

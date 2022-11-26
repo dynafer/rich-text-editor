@@ -12,6 +12,7 @@ const DefaultEvent = (editor: Editor, event: KeyboardEvent) => {
 		const newCaret = self.Utils.Range();
 		newCaret.SetStartToEnd(self.GetBody().firstChild as Node, 0, 0);
 		self.Utils.Caret.UpdateRanges([newCaret.Get()]);
+		self.Utils.Caret.Clean();
 	}
 };
 

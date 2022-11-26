@@ -21,15 +21,15 @@ const FormatRegistry = (editor: Editor): IFormatRegistry => {
 		font.Formats,
 	);
 
-	const IsAailable = (name: string): boolean => Available.includes(name);
+	const IsAailable = (name: string): boolean => Arr.Contains(Available, name);
 
 	const GetRegistry = (name: string): ((name: string) => void) | null => {
 		switch (true) {
-			case color.Formats.includes(name):
+			case Arr.Contains(color.Formats, name):
 				return color.Register;
-			case defaultFormats.Formats.includes(name):
+			case Arr.Contains(defaultFormats.Formats, name):
 				return defaultFormats.Register;
-			case font.Formats.includes(name):
+			case Arr.Contains(font.Formats, name):
 				return font.Register;
 			default:
 				return null;

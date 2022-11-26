@@ -1,3 +1,4 @@
+import { Str } from '@dynafer/utils';
 import Editor from '../Editor';
 import DOM from '../dom/DOM';
 import { ENativeEvents } from '../events/EventSetupUtils';
@@ -26,11 +27,11 @@ const FormatUI = (editor: Editor): IFormatUI => {
 
 	const Create = (option: IFormatOption, bInsert: boolean, event: () => void): HTMLElement => {
 		const { label, ui, uiType, html } = option;
-		const togglerUI = DOM.Create(ui.toLowerCase(), {
+		const togglerUI = DOM.Create(Str.LowerCase(ui), {
 			attrs: {
 				title: label
 			},
-			class: DOM.Utils.CreateUEID(uiType.replace(/_/gi, '-').toLowerCase(), false),
+			class: DOM.Utils.CreateUEID(Str.LowerCase(uiType.replace(/_/gi, '-')), false),
 			html: html
 		});
 

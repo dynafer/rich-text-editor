@@ -2,7 +2,7 @@ import { IsArray } from './Type';
 
 export const IsEmpty: (value: unknown) => boolean = (value) => IsArray(value) && value.length === 0;
 
-export const MergeUnique = <T = object>(...arrays: T[][]): T[] => {
+export const MergeUnique = <T>(...arrays: T[][]): T[] => {
 	let newSet: T[] = [];
 	for (const array of arrays) {
 		if (!IsArray(array) || IsEmpty(array)) continue;
@@ -11,7 +11,7 @@ export const MergeUnique = <T = object>(...arrays: T[][]): T[] => {
 	return newSet;
 };
 
-export const Merge = <T = object>(...arrays: T[][]): T[] => {
+export const Merge = <T>(...arrays: T[][]): T[] => {
 	let newArray: T[] = [];
 	for (const array of arrays) {
 		newArray = [...newArray, ...array];
@@ -27,6 +27,8 @@ export const Reverse = <T>(array: T[]) => {
 	return reversed;
 };
 
+export const Contains = <T>(array: T[], compare: T): boolean => IsArray(array) && array.includes(compare);
+
 export const Push = <T>(array: T[], ...items: T[]): number => array.push(...items);
 
 export const Unshift = <T>(array: T[], ...items: T[]): number => array.unshift(...items);
@@ -40,3 +42,5 @@ export const CompareAndGetEndIndex = <T>(bigArray: T[], smallArray: T[]): number
 	IsArray(bigArray) && !IsEmpty(bigArray) && IsArray(smallArray) && !IsEmpty(smallArray)
 		? bigArray.indexOf(smallArray[smallArray.length - 1])
 		: -1;
+
+export const Clean = <T>(array: T[]) => array.splice(0, array.length);

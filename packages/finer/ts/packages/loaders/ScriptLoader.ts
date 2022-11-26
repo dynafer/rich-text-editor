@@ -1,3 +1,4 @@
+import { Arr, Str } from '@dynafer/utils';
 import Options from '../../Options';
 import DOM from '../dom/DOM';
 
@@ -10,7 +11,7 @@ export interface IScriptLoader {
 const ScriptLoader = (loaderName: string): IScriptLoader => {
 	const loaded: string[] = [];
 
-	const Has = (name: string) => loaded.includes(name);
+	const Has = (name: string) => Arr.Contains(loaded, name);
 
 	const Load = (name: string): Promise<void> =>
 		new Promise((resolve, reject) => {
@@ -18,12 +19,12 @@ const ScriptLoader = (loaderName: string): IScriptLoader => {
 
 			const script = DOM.Create('script', {
 				attrs: {
-					src: Options.JoinUrl(loaderName.toLowerCase(), name)
+					src: Options.JoinUrl(Str.LowerCase(loaderName), name)
 				}
 			});
 
 			script.onload = () => {
-				if (!loaded.includes(name)) loaded.push(name);
+				if (!Has(name)) loaded.push(name);
 				DOM.Remove(script);
 				resolve();
 			};

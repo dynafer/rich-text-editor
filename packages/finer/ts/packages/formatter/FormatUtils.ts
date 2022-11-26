@@ -1,4 +1,4 @@
-import { Type } from '@dynafer/utils';
+import { Str, Type } from '@dynafer/utils';
 import Editor from '../Editor';
 import { EFormatType, IFormatOptionBase, IFormatUIOptionBase } from './FormatType';
 
@@ -30,7 +30,7 @@ export const FindClosest = (editor: Editor, option: IFormatOptionBase, node: Nod
 };
 
 export const EscapeUselessStyleChars = (value: string): string => value.replace(/["`';]/g, '');
-export const ConvertToDetectorValue = (value: string): string => EscapeUselessStyleChars(value).toLowerCase();
+export const ConvertToDetectorValue = (value: string): string => Str.LowerCase(EscapeUselessStyleChars(value));
 
 export const GetPrimaryValue = (value: string): string => value.split(',')[0].trim();
 
@@ -46,11 +46,11 @@ export const LabelConfiguration = (options: string[] | Record<string, string>): 
 	const newOptions: Record<string, string> = {};
 	if (Type.IsArray(options)) {
 		for (const option of options) {
-			newOptions[EscapeUselessStyleChars(option)] = ConvertToDetectorValue(option).toLowerCase();
+			newOptions[EscapeUselessStyleChars(option)] = Str.LowerCase(ConvertToDetectorValue(option));
 		}
 	} else {
 		for (const [label, option] of Object.entries(options)) {
-			newOptions[EscapeUselessStyleChars(label)] = ConvertToDetectorValue(option).toLowerCase();
+			newOptions[EscapeUselessStyleChars(label)] = Str.LowerCase(ConvertToDetectorValue(option));
 		}
 	}
 
