@@ -3,9 +3,9 @@ import Editor from '../Editor';
 import { EFormatType, IFormatChecker, IFormattingOption } from './FormatType';
 
 interface IUnwrapSiblingNodes {
-	previousNodes: Node[],
-	middleNodes: Node[],
-	nextNodes: Node[],
+	PreviousNodes: Node[],
+	MiddleNodes: Node[],
+	NextNodes: Node[],
 }
 
 export interface IFormatUnwrap {
@@ -59,13 +59,14 @@ const FormatUnwrap = (editor: Editor) => {
 	};
 
 	const UnwrapRecursive = (formatting: IFormattingOption, children: Node[], checker: IFormatChecker): Node[] => {
+		const { Type, Format, StyleFormat } = formatting;
 		let nodes = [...children];
 		for (let index = 0; index < nodes.length; ++index) {
 			const child = nodes[index];
 
 			if (checker(child)) {
-				if (formatting.type === EFormatType.STYLE && DOM.Utils.GetNodeName(child) === formatting.format) {
-					DOM.RemoveStyle(child as HTMLElement, formatting.styleFormat);
+				if (Type === EFormatType.STYLE && DOM.Utils.GetNodeName(child) === Format) {
+					DOM.RemoveStyle(child as HTMLElement, StyleFormat);
 					nodes = Arr.Merge(nodes.slice(0, index), (Str.IsEmpty(DOM.GetAttr(child, 'style')) ? Array.from(child.childNodes) : [child]), nodes.slice(index + 1, nodes.length));
 					continue;
 				}
@@ -82,9 +83,9 @@ const FormatUnwrap = (editor: Editor) => {
 
 	const UnwrapSiblings = (wrapper: Node, alreadyAppendedNodes: Node[], old: IUnwrapSiblingNodes, checker: IFormatChecker): IUnwrapSiblingNodes => {
 		const siblings: Node[] = Array.from(wrapper.childNodes);
-		const previousNodes: Node[] = cloneNodes(wrapper, old.previousNodes);
-		const middleNodes: Node[] = cloneNodesWithoutTagName(wrapper, old.middleNodes, checker);
-		const nextNodes: Node[] = cloneNodes(wrapper, old.nextNodes);
+		const PreviousNodes: Node[] = cloneNodes(wrapper, old.PreviousNodes);
+		const MiddleNodes: Node[] = cloneNodesWithoutTagName(wrapper, old.MiddleNodes, checker);
+		const NextNodes: Node[] = cloneNodes(wrapper, old.NextNodes);
 		let bNext = false;
 
 		for (const sibling of siblings) {
@@ -97,14 +98,14 @@ const FormatUnwrap = (editor: Editor) => {
 			const clonedWrapper = DOM.Clone(wrapper, false, clonedSibling);
 			if (!clonedSibling || !clonedWrapper) continue;
 			if (Str.IsEmpty(DOM.GetText(clonedWrapper as HTMLElement))) continue;
-			if (!bNext) previousNodes.push(clonedWrapper);
-			else nextNodes.push(clonedWrapper);
+			if (!bNext) PreviousNodes.push(clonedWrapper);
+			else NextNodes.push(clonedWrapper);
 		}
 
 		return {
-			previousNodes,
-			middleNodes,
-			nextNodes
+			PreviousNodes,
+			MiddleNodes,
+			NextNodes
 		};
 	};
 
@@ -122,10 +123,10 @@ const FormatUnwrap = (editor: Editor) => {
 		const topUnwrappable: Node | null = findTopWrappedNode(parentPath, checker);
 		if (!topUnwrappable) return unwrappedChildren;
 
-		let previousNodes: Node[] = Arr.Reverse([...siblings.slice(0, unwrapStartIndex)]);
-		if (unwrapStartIndex === 0) previousNodes = [];
-		let middleNodes: Node[] = [...siblings.slice(unwrapStartIndex, unwrapEndIndex + 1)];
-		let nextNodes: Node[] = [...siblings.slice(unwrapEndIndex + 1, siblings.length)];
+		let PreviousNodes: Node[] = Arr.Reverse([...siblings.slice(0, unwrapStartIndex)]);
+		if (unwrapStartIndex === 0) PreviousNodes = [];
+		let MiddleNodes: Node[] = [...siblings.slice(unwrapStartIndex, unwrapEndIndex + 1)];
+		let NextNodes: Node[] = [...siblings.slice(unwrapEndIndex + 1, siblings.length)];
 		let alreadyAppendedNodes: Node[] = [...siblings];
 		let bSkip: boolean = false;
 
@@ -136,27 +137,27 @@ const FormatUnwrap = (editor: Editor) => {
 				path,
 				alreadyAppendedNodes,
 				{
-					previousNodes,
-					middleNodes,
-					nextNodes
+					PreviousNodes,
+					MiddleNodes,
+					NextNodes
 				},
 				checker
 			);
 
-			previousNodes = unwrapped.previousNodes;
-			middleNodes = unwrapped.middleNodes;
-			nextNodes = unwrapped.nextNodes;
+			PreviousNodes = unwrapped.PreviousNodes;
+			MiddleNodes = unwrapped.MiddleNodes;
+			NextNodes = unwrapped.NextNodes;
 			alreadyAppendedNodes = [path];
 		}
 
-		previousNodes = Arr.Reverse(previousNodes);
+		PreviousNodes = Arr.Reverse(PreviousNodes);
 
-		const mergedNewNodes = Arr.Merge(previousNodes, middleNodes, nextNodes);
+		const mergedNewNodes = Arr.Merge(PreviousNodes, MiddleNodes, NextNodes);
 
 		topUnwrappable.parentNode?.replaceChild(mergedNewNodes[0], topUnwrappable);
 		DOM.InsertAfter(mergedNewNodes[0], mergedNewNodes.slice(1, mergedNewNodes.length));
 
-		return [middleNodes[0], middleNodes[middleNodes.length - 1]];
+		return [MiddleNodes[0], MiddleNodes[MiddleNodes.length - 1]];
 	};
 
 	return {

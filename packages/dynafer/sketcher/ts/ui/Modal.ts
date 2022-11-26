@@ -5,37 +5,37 @@ import { CreateTagName } from '../utils/UIUtils';
 import Sketcher from './Sketcher';
 
 const Modal = (name: string, setting: IUISettingMap['Modal']): IUISchemaMap['Modal'] => {
-	const { title, icons, body, footer, events } = setting;
+	const { Title, Icons, Body, Footer, Events } = setting;
 	const CreateName = (tagName: string) => CreateTagName(name, tagName);
 
 	const rootSchema = Sketcher.SketchOne({
-		tagName: CreateName('modal'),
-		events
+		TagName: CreateName('modal'),
+		Events
 	});
 
 	const schema = Sketcher.SketchOne({
-		tagName: CreateName('dialog'),
-		elements: [
+		TagName: CreateName('dialog'),
+		Elements: [
 			{
-				tagName: CreateName('header'),
-				elements: [
-					title,
+				TagName: CreateName('header'),
+				Elements: [
+					Title,
 					{
-						tagName: 'div',
-						elements: [icons.close],
-						events: [
+						TagName: 'div',
+						Elements: [Icons.Close],
+						Events: [
 							['click', () => rootSchema.Destroy()]
 						]
 					}
 				]
 			},
 			{
-				tagName: CreateName('body'),
-				elements: body ? Type.IsArray(body) ? body : [body] : undefined,
+				TagName: CreateName('body'),
+				Elements: Body ? Type.IsArray(Body) ? Body : [Body] : undefined,
 			},
 			{
-				tagName: CreateName('footer'),
-				elements: footer ? Type.IsArray(footer) ? footer : [footer] : undefined,
+				TagName: CreateName('footer'),
+				Elements: Footer ? Type.IsArray(Footer) ? Footer : [Footer] : undefined,
 			},
 		]
 	});
@@ -44,16 +44,12 @@ const Modal = (name: string, setting: IUISettingMap['Modal']): IUISchemaMap['Mod
 
 	const children = schema.GetChildren();
 
-	const Header = children[0];
-	const Body = children[1];
-	const Footer = children[2];
-
 	return {
 		Schema: rootSchema,
 		Self: schema,
-		Header,
-		Body,
-		Footer,
+		Header: children[0],
+		Body: children[1],
+		Footer: children[2],
 	};
 };
 

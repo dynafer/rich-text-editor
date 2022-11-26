@@ -5,8 +5,8 @@ import Form from './ui/Form';
 import { NAME } from './utils/Utils';
 
 export interface IColorPickerSetting {
-	icons: Record<string, string>,
-	pick: (rgb: string) => void,
+	Icons: Record<string, string>,
+	Pick: (rgb: string) => void,
 }
 
 export interface IColorPicker {
@@ -19,10 +19,10 @@ const ColorPicker = (): IColorPicker => {
 		if (!form) return;
 
 		const schema = Sketcher.Modal(NAME, {
-			title: 'Color Picker',
-			icons: setting.icons,
-			body: form.Form,
-			footer: Footer(
+			Title: 'Color Picker',
+			Icons: setting.Icons,
+			Body: form.Form,
+			Footer: Footer(
 				() => {
 					schema.Schema.Destroy();
 				},
@@ -30,7 +30,7 @@ const ColorPicker = (): IColorPicker => {
 					const rgbString = form.Navigation.GetRGB(false) as string | null;
 					if (!rgbString) return;
 
-					setting.pick(rgbString);
+					setting.Pick(rgbString);
 					schema.Schema.Destroy();
 				}
 			),

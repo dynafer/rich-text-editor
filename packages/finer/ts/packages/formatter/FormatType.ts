@@ -13,43 +13,46 @@ export enum EFormatType {
 export enum EFormatUI {
 	BUTTON = 'BUTTON',
 	LI = 'LI',
+	DIV = 'DIV',
 }
 
 export enum EFormatUIType {
 	ICON = 'ICON',
+	ICON_WRAP = 'ICON_WRAP',
 	ITEM = 'ITEM',
 	COLOR_ICON = 'COLOR_ICON',
+	HELPER = 'HELPER',
 }
 
 export interface IFormatOptionBase {
-	type: EFormatType,
-	format: string,
-	formatValue?: string,
-	sameOption?: string[],
+	Type: EFormatType,
+	Format: string,
+	FormatValue?: string,
+	SameOption?: string[],
 }
 
 export interface IFormatUIOptionBase extends IFormatOptionBase {
-	label: string,
+	Title: string,
 }
 
 export interface IFormatOption extends IFormatUIOptionBase {
-	ui: EFormatUI,
-	uiType: string,
-	html: string,
+	UIName: EFormatUI,
+	UIType: string,
+	Html: string,
 }
 
 export interface IFormatChecker {
 	(node: Node): boolean;
 }
 
-export interface IToggleSetting<T extends Node = ParentNode> extends Pick<IFormatOptionBase, 'type' | 'format' | 'formatValue'> {
-	parent: T,
-	checker: IFormatChecker,
+export interface IToggleSetting<T extends Node = ParentNode> extends Pick<IFormatOptionBase, 'Type' | 'Format' | 'FormatValue'> {
+	Parent: T,
+	Checker: IFormatChecker,
 }
 
-export interface IFormattingOption extends Pick<IFormatOptionBase, 'type' | 'format'> {
-	styleFormat: string,
-	option: Record<string, TCreateOption>,
+export interface IFormattingOption extends Pick<IFormatOptionBase, 'Type' | 'Format'> {
+	StyleFormat: string,
+	Option: Record<string, TCreateOption>,
 }
 
 export interface IFormatRegistryJoiner {

@@ -2,9 +2,9 @@ import { IHSV } from './Type';
 
 const HSV = () => {
 	const ToMap = (...hsv: number[]): IHSV => ({
-		hue: hsv[0],
-		saturation: hsv[1],
-		value: hsv[2],
+		Hue: hsv[0],
+		Saturation: hsv[1],
+		Value: hsv[2],
 	});
 
 	return {

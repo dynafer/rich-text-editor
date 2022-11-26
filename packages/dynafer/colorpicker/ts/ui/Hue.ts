@@ -7,20 +7,20 @@ export interface IHue extends IDOMFactory {
 
 const Hue = (width: number, height: number, afterSelected: (bChangeBright: boolean, rgb: [number, number, number]) => void): IHue | undefined => {
 	const palette = Sketcher.Palette({
-		width,
-		height
+		Width: width,
+		Height: height,
 	});
 	if (!palette) return;
 
 	const guidance = Sketcher.PaletteGuide({
-		palette: palette.Self,
+		Palette: palette.Self,
 		bOnlyVertical: true,
-		guiding: () => afterSelected(true, palette.GetRGB(guidance.GetX(), guidance.GetY() - 1))
+		Guiding: () => afterSelected(true, palette.GetRGB(guidance.GetX(), guidance.GetY() - 1))
 	});
 
 	const schema = Sketcher.SketchOne({
-		tagName: CreateName('hue'),
-		elements: [palette.Self, guidance.Self]
+		TagName: CreateName('hue'),
+		Elements: [palette.Self, guidance.Self]
 	});
 
 	const gradient = palette.CreateGradient(0, 0, 0, height);
@@ -35,7 +35,7 @@ const Hue = (width: number, height: number, afterSelected: (bChangeBright: boole
 	]);
 	palette.FillRect(gradient);
 
-	const UpdateGuide = (rgb: IRGBA) => guidance.SetGuidance(0, Math.round(height / 360 * RGBA.ToHSV(rgb).hue));
+	const UpdateGuide = (rgb: IRGBA) => guidance.SetGuidance(0, Math.round(height / 360 * RGBA.ToHSV(rgb).Hue));
 
 	return {
 		...schema,

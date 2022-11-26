@@ -29,10 +29,17 @@
 }
 
 @mixin padding($type: px, $top: null, $right: null, $bottom: null, $left: null) {
-	@include check-null(padding-top, $top, combineType($type, $top));
-	@include check-null(padding-right, $right, combineType($type, $right));
-	@include check-null(padding-bottom, $bottom, combineType($type, $bottom));
-	@include check-null(padding-left, $left, combineType($type, $left));
+	@if $type == null {
+		@include check-null(padding-top, $top);
+		@include check-null(padding-right, $right);
+		@include check-null(padding-bottom, $bottom);
+		@include check-null(padding-left, $left);
+	} @else {
+		@include check-null(padding-top, $top, combineType($type, $top));
+		@include check-null(padding-right, $right, combineType($type, $right));
+		@include check-null(padding-bottom, $bottom, combineType($type, $bottom));
+		@include check-null(padding-left, $left, combineType($type, $left));
+	}
 }
 
 @mixin all-padding($size) {
@@ -40,10 +47,17 @@
 }
 
 @mixin margin($type: px, $top: null, $right: null, $bottom: null, $left: null) {
-	@include check-null(margin-top, $top, combineType($type, $top));
-	@include check-null(margin-right, $right, combineType($type, $right));
-	@include check-null(margin-bottom, $bottom, combineType($type, $bottom));
-	@include check-null(margin-left, $left, combineType($type, $left));
+	@if $type == null {
+		@include check-null(margin-top, $top);
+		@include check-null(margin-right, $right);
+		@include check-null(margin-bottom, $bottom);
+		@include check-null(margin-left, $left);
+	} @else {
+		@include check-null(margin-top, $top, combineType($type, $top));
+		@include check-null(margin-right, $right, combineType($type, $right));
+		@include check-null(margin-bottom, $bottom, combineType($type, $bottom));
+		@include check-null(margin-left, $left, combineType($type, $left));
+	}
 }
 
 @mixin all-margin($size) {
@@ -72,7 +86,7 @@
 	@include check-null(right, $right);
 }
 
-@mixin flex($justify: null, $align: null, $direction: null, $inline: false) {
+@mixin flex($justify: null, $align: null, $direction: null, $wrap: null, $inline: false) {
 	@if $inline != false {
 		display: inline-flex;
 	} @else {
@@ -82,6 +96,7 @@
 	@include check-null(justify-content, $justify);
 	@include check-null(align-items, $align);
 	@include check-null(flex-direction, $direction);
+	@include check-null(flex-wrap, $wrap);
 }
 
 @mixin truncation {

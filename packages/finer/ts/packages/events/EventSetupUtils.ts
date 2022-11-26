@@ -169,9 +169,7 @@ export const CaretChangeEvent = <K extends keyof GlobalEventHandlersEventMap>(ed
 	const paths: Node[] = [];
 	for (const path of event.composedPath()) {
 		if (self.DOM.Utils.IsParagraph(path as Node) || self.GetBody() === path || self.DOM.GetRoot() === path) break;
-		const cloned = self.DOM.Clone(path as Node);
-		if (!cloned) continue;
-		paths.push(cloned);
+		paths.push(path as Node);
 	}
 	editor.Dispatch('caret:change', paths);
 };

@@ -9,20 +9,20 @@ export interface IPalette extends IDOMFactory {
 
 const Palette = (width: number, height: number, afterSelected: (bChangeBright: boolean, rgb: [number, number, number]) => void): IPalette | undefined => {
 	const palette = Sketcher.Palette({
-		width,
-		height
+		Width: width,
+		Height: height
 	});
 	if (!palette) return;
 
 	const guidance = Sketcher.PaletteGuide({
-		palette: palette.Self,
+		Palette: palette.Self,
 		bOnlyVertical: false,
-		guiding: () => afterSelected(false, palette.GetRGB(guidance.GetX(), guidance.GetY()))
+		Guiding: () => afterSelected(false, palette.GetRGB(guidance.GetX(), guidance.GetY()))
 	});
 
 	const schema = Sketcher.SketchOne({
-		tagName: CreateName('palette'),
-		elements: [palette.Self, guidance.Self]
+		TagName: CreateName('palette'),
+		Elements: [palette.Self, guidance.Self]
 	});
 
 	const GetColor = (): IRGBA => RGBA.ToMap(...palette.GetRGB(guidance.GetX(), guidance.GetY()));
@@ -47,7 +47,7 @@ const Palette = (width: number, height: number, afterSelected: (bChangeBright: b
 
 	const UpdateGuide = (rgb: IRGBA) => {
 		const hsv = RGBA.ToHSV(rgb);
-		guidance.SetGuidance(Math.round(width / 100 * hsv.saturation), Math.round(height / 100 * (100 - hsv.value)));
+		guidance.SetGuidance(Math.round(width / 100 * hsv.Saturation), Math.round(height / 100 * (100 - hsv.Value)));
 	};
 
 	return {

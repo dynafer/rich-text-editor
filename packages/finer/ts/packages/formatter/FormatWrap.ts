@@ -10,23 +10,24 @@ const FormatWrap = (editor: Editor): IFormatWrap => {
 	const DOM = self.DOM;
 
 	const WrapRecursive = (formatting: IFormattingOption, children: Node[], checker: (node: Node) => boolean): Node[] => {
+		const { Type, Format, Option } = formatting;
 		const nodes = [...children];
 		for (let index = 0; index < nodes.length; ++index) {
 			const child = nodes[index];
 
 			if (DOM.Utils.IsText(child)) {
 				if (
-					formatting.type === EFormatType.STYLE
+					Type === EFormatType.STYLE
 					&& child.parentNode
 					&& child.parentNode.childNodes.length === 1
-					&& DOM.Utils.GetNodeName(child.parentNode) === formatting.format
+					&& DOM.Utils.GetNodeName(child.parentNode) === Format
 				) {
-					DOM.SetStyles(child.parentNode as HTMLElement, formatting.option.styles as Record<string, string>);
+					DOM.SetStyles(child.parentNode as HTMLElement, Option.styles as Record<string, string>);
 					continue;
 				}
 
-				const newTag = DOM.Create(formatting.format, {
-					...formatting.option,
+				const newTag = DOM.Create(Format, {
+					...Option,
 					children: [DOM.Clone(child, true)]
 				});
 

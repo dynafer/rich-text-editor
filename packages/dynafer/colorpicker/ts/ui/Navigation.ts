@@ -13,26 +13,26 @@ export interface INavigation extends IDOMFactory {
 const Navigation = (palette: IPalette, hue: IHue): INavigation => {
 	const inputs = [];
 	const elements = [];
-	for (const label of ['R', 'G', 'B', '#']) {
-		const input = Sketcher.Input({ label });
+	for (const Label of ['R', 'G', 'B', '#']) {
+		const input = Sketcher.Input({ Label });
 		inputs.push(input);
 		elements.push(input.Schema);
 	}
 
 	const schema = Sketcher.SketchOne({
-		tagName: CreateName('navigation'),
-		elements: [
+		TagName: CreateName('navigation'),
+		Elements: [
 			...elements,
 			{
-				tagName: 'div'
+				TagName: 'div'
 			}
 		]
 	});
 
 	const rgbElements = {
-		red: inputs[0],
-		green: inputs[1],
-		blue: inputs[2]
+		Red: inputs[0],
+		Green: inputs[1],
+		Blue: inputs[2]
 	};
 
 	const hex = inputs[3];

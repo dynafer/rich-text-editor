@@ -3,22 +3,22 @@ import { IDOMFactory, Sketcher } from '@dynafer/sketcher';
 const Footer = (cancel: () => void, pick: () => void): IDOMFactory[] => {
 	const footer = Sketcher.Sketch([
 		{
-			tagName: 'button',
-			attributes: {
+			TagName: 'button',
+			Attributes: {
 				type: 'button'
 			},
-			elements: ['Cancel'],
-			events: [
+			Elements: ['Cancel'],
+			Events: [
 				['click', cancel]
 			]
 		},
 		{
-			tagName: 'button',
-			attributes: {
+			TagName: 'button',
+			Attributes: {
 				type: 'button'
 			},
-			elements: ['Confirm'],
-			events: [
+			Elements: ['Confirm'],
+			Events: [
 				['click', pick]
 			]
 		}

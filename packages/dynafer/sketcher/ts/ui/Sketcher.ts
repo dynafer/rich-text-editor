@@ -10,10 +10,11 @@ export interface ISketcher {
 
 const Sketcher = (): ISketcher => {
 	const SketchOne = (setting: ISketcherSetting): IDOMFactory => {
-		const sketch = DOMFactory(setting.tagName);
+		const { TagName, Elements, Events, Attributes } = setting;
+		const sketch = DOMFactory(TagName);
 
-		if (Type.IsArray(setting.elements)) {
-			for (const element of setting.elements) {
+		if (Type.IsArray(Elements)) {
+			for (const element of Elements) {
 				if (Type.IsString(element)) {
 					sketch.InsertHtml(element);
 					continue;
@@ -23,13 +24,13 @@ const Sketcher = (): ISketcher => {
 			}
 		}
 
-		if (Type.IsArray(setting.events)) {
-			for (const event of setting.events) {
+		if (Type.IsArray(Events)) {
+			for (const event of Events) {
 				sketch.Bind(event[0], event[1]);
 			}
 		}
 
-		if (Type.IsObject(setting.attributes)) Attribute.SetMultiple(sketch.Self, setting.attributes);
+		if (Type.IsObject(Attributes)) Attribute.SetMultiple(sketch.Self, Attributes);
 
 		return sketch;
 	};

@@ -5,30 +5,30 @@ import { IHSV, IRGBA } from './Type';
 
 const RGBA = () => {
 	const ToMap = (...rgba: number[]): IRGBA => ({
-		red: rgba[0],
-		green: rgba[1],
-		blue: rgba[2],
-		alpha: rgba[3] ?? 1,
+		Red: rgba[0],
+		Green: rgba[1],
+		Blue: rgba[2],
+		Alpha: rgba[3] ?? 1,
 	});
 
 	const ToRGB = (...rgba: number[]) => `rgb(${rgba[0]}, ${rgba[1]}, ${rgba[2]})`;
 
-	const ToString = (rgba: IRGBA): string => `rgba(${rgba.red}, ${rgba.green}, ${rgba.blue}, ${rgba.alpha})`;
+	const ToString = (rgba: IRGBA): string => `rgba(${rgba.Red}, ${rgba.Green}, ${rgba.Blue}, ${rgba.Alpha})`;
 
 	const ArrayToString = (...rgba: number[]): string => `rgba(${rgba[0]}, ${rgba[1]}, ${rgba[2]}, ${rgba[3] ?? 1})`;
 
 	const ToHex = (rgb: IRGBA, bWithSharp: boolean = true): string =>
 		Str.Join('',
 			bWithSharp ? '#' : '',
-			Str.Padding(rgb.red.toString(16)),
-			Str.Padding(rgb.green.toString(16)),
-			Str.Padding(rgb.blue.toString(16))
+			Str.Padding(rgb.Red.toString(16)),
+			Str.Padding(rgb.Green.toString(16)),
+			Str.Padding(rgb.Blue.toString(16))
 		);
 
 	const ToHSV = (rgb: IRGBA): IHSV => {
-		const r = rgb.red / 255;
-		const g = rgb.green / 255;
-		const b = rgb.blue / 255;
+		const r = rgb.Red / 255;
+		const g = rgb.Green / 255;
+		const b = rgb.Blue / 255;
 		const min = Math.min(r, g, b);
 		const max = Math.max(r, g, b);
 
@@ -52,10 +52,10 @@ const RGBA = () => {
 		Str.IsEmpty(hex) || !Hex.IsValid(hex)
 			? null
 			: {
-				red: parseInt(hex.slice(0, 2), 16),
-				green: parseInt(hex.slice(2, 4), 16),
-				blue: parseInt(hex.slice(4, 6), 16),
-				alpha: 1
+				Red: parseInt(hex.slice(0, 2), 16),
+				Green: parseInt(hex.slice(2, 4), 16),
+				Blue: parseInt(hex.slice(4, 6), 16),
+				Alpha: 1
 			};
 
 	return {

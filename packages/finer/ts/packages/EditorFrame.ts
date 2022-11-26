@@ -1,3 +1,4 @@
+import { Str } from '@dynafer/utils';
 import { EModeEditor } from '../Options';
 import { IConfiguration } from './EditorConfigure';
 import DOM from './dom/DOM';
@@ -11,12 +12,6 @@ export interface IEditorFrame {
 }
 
 const EditorFrame = (config: IConfiguration): IEditorFrame => {
-	const toolbarId: string = DOM.Utils.CreateUEID('toolbar', false);
-	const wrapperId: string = DOM.Utils.CreateUEID('wrapper', false);
-	const notificationId: string = DOM.Utils.CreateUEID('notification', false);
-	const containerId: string = DOM.Utils.CreateUEID('container', false);
-	const loadingId: string = DOM.Utils.CreateUEID('loading', false);
-
 	const Root = DOM.Create('div', {
 		attrs: {
 			id: config.Id
@@ -27,13 +22,16 @@ const EditorFrame = (config: IConfiguration): IEditorFrame => {
 		class: DOM.Utils.CreateUEID(undefined, false)
 	});
 
+	const toolbarId: string = DOM.Utils.CreateUEID('toolbar', false);
 	const Toolbar = DOM.Create('div', {
 		attrs: {
 			id: toolbarId,
+			toolbarStyle: Str.LowerCase(config.ToolbarStyle),
 		},
 		class: toolbarId
 	});
 
+	const wrapperId: string = DOM.Utils.CreateUEID('wrapper', false);
 	const wrapper = DOM.Create('div', {
 		attrs: {
 			id: wrapperId
@@ -41,6 +39,7 @@ const EditorFrame = (config: IConfiguration): IEditorFrame => {
 		class: wrapperId
 	});
 
+	const notificationId: string = DOM.Utils.CreateUEID('notification', false);
 	const Notification = DOM.Create('div', {
 		attrs: {
 			id: notificationId
@@ -48,6 +47,7 @@ const EditorFrame = (config: IConfiguration): IEditorFrame => {
 		class: notificationId
 	});
 
+	const containerId: string = DOM.Utils.CreateUEID('container', false);
 	const Container = DOM.Create(DOM.Utils.GetModeTag(config.Mode), {
 		attrs: {
 			id: containerId,
@@ -58,6 +58,7 @@ const EditorFrame = (config: IConfiguration): IEditorFrame => {
 		class: DOM.Utils.CreateUEID(EModeEditor[config.Mode], false),
 	});
 
+	const loadingId: string = DOM.Utils.CreateUEID('loading', false);
 	const Loading = DOM.Create('div', {
 		attrs: {
 			id: loadingId

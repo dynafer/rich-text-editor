@@ -11,7 +11,7 @@ export interface IColorPickerForm {
 
 const Form = (): IColorPickerForm | undefined => {
 	const form = Sketcher.SketchOne({
-		tagName: CreateName('form')
+		TagName: CreateName('form')
 	});
 
 	const afterSelected = (bChangeBright: boolean, rgb: [number, number, number]) => {
