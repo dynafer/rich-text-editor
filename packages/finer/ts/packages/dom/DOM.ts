@@ -64,11 +64,11 @@ export interface IDom {
 	GetParents: (selector: Node | null, bReverse?: boolean) => Node[],
 	On: {
 		<K extends keyof GlobalEventHandlersEventMap>(selector: TElement, eventName: K, event: TEventListener<K>): void;
-		(selector: TElement, eventName: string, event: EventListener): void;
+		(selector: (Window & typeof globalThis) | TElement, eventName: string, event: EventListener): void;
 	},
 	Off: {
 		<K extends keyof GlobalEventHandlersEventMap>(selector: TElement, eventName: K, event?: TEventListener<K>): void;
-		(selector: TElement, eventName: string, event?: EventListener): void;
+		(selector: (Window & typeof globalThis) | TElement, eventName: string, event?: EventListener): void;
 	},
 	Dispatch: {
 		<K extends keyof GlobalEventHandlersEventMap>(selector: TElement, eventName: K): void;
@@ -328,14 +328,19 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 		return parents;
 	};
 
-	const On = (selector: TElement, eventName: string, event: EventListener) => {
-		if (!Instance.Is(selector, elementType) || !Type.IsString(eventName)) return;
+	const On = (selector: (Window & typeof globalThis) | TElement, eventName: string, event: EventListener) => {
+		if ((selector !== Win && !Instance.Is(selector, elementType)) || !Type.IsString(eventName)) return;
 		selector.addEventListener(eventName, event);
-		boundEvents.push([selector, eventName, event]);
+		if (Instance.Is(selector, elementType)) boundEvents.push([selector, eventName, event]);
 	};
 
-	const Off = (selector: TElement, eventName: string, event?: EventListener) => {
-		if (!Instance.Is(selector, elementType) || !Type.IsString(eventName)) return;
+	const Off = (selector: (Window & typeof globalThis) | TElement, eventName: string, event?: EventListener) => {
+		if ((selector !== Win && !Instance.Is(selector, elementType)) || !Type.IsString(eventName)) return;
+		if (selector === Win) {
+			if (!event) return;
+			selector.removeEventListener(eventName, event);
+			return;
+		}
 		let deletedCount = 0;
 		for (let index = 0, length = boundEvents.length; index < length; ++index) {
 			const [target, name, boundEvent] = boundEvents[index - deletedCount];

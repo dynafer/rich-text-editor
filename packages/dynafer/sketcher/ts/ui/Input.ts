@@ -5,17 +5,17 @@ import { IUISettingMap } from '../types/UISetting';
 import Sketcher from './Sketcher';
 
 const Input = (setting: IUISettingMap['Input']): IUISchemaMap['Input'] => {
-	const { label, placeholder, value, events } = setting;
+	const { Label, Placeholder, Value, Events } = setting;
 	const schema = Sketcher.SketchOne({
-		tagName: 'label',
-		elements: [
+		TagName: 'label',
+		Elements: [
 			{
-				tagName: 'div',
-				elements: [label ?? '']
+				TagName: 'div',
+				Elements: [Label ?? '']
 			},
 			{
-				tagName: 'input',
-				events
+				TagName: 'input',
+				Events
 			}
 		]
 	});
@@ -25,8 +25,8 @@ const Input = (setting: IUISettingMap['Input']): IUISchemaMap['Input'] => {
 	const GetValue = () => input.Self.value;
 	const SetValue = (val: string) => input.Self.value = val;
 
-	if (placeholder && !Str.IsEmpty(label)) input.Self.placeholder = placeholder;
-	if (value && !Str.IsEmpty(value)) SetValue(value);
+	if (Placeholder && !Str.IsEmpty(Label)) input.Self.placeholder = Placeholder;
+	if (Value && !Str.IsEmpty(Value)) SetValue(Value);
 
 	return {
 		Schema: schema,

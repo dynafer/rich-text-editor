@@ -6,13 +6,13 @@ import { GetLimitation } from '../utils/UIUtils';
 import Sketcher from './Sketcher';
 
 const PaletteGuide = (setting: IUISettingMap['PaletteGuide']): IUISchemaMap['PaletteGuide'] => {
-	const { palette, bOnlyVertical, events, guiding } = setting;
+	const { Palette, bOnlyVertical, Events, Guiding } = setting;
 	const schema = Sketcher.SketchOne({
-		tagName: 'div',
-		attributes: {
+		TagName: 'div',
+		Attributes: {
 			draggable: 'false',
 		},
-		events,
+		Events,
 	});
 
 	const guide = schema.Self;
@@ -27,12 +27,12 @@ const PaletteGuide = (setting: IUISettingMap['PaletteGuide']): IUISchemaMap['Pal
 	const setLeft = (x: number) => Style.Set(guide, 'left', `${x}px`);
 
 	const SetGuidance = (x: number, y: number) => {
-		const coordX = GetLimitation(x, 0, palette.Self.offsetWidth) - getHalfWidth();
-		const coordY = GetLimitation(y, 0, palette.Self.offsetHeight) - getHalfHeight();
+		const coordX = GetLimitation(x, 0, Palette.Self.offsetWidth) - getHalfWidth();
+		const coordY = GetLimitation(y, 0, Palette.Self.offsetHeight) - getHalfHeight();
 		setTop(coordY);
 		if (!bOnlyVertical) setLeft(coordX);
 
-		guiding();
+		Guiding();
 	};
 
 	let bDragging = false;
@@ -64,7 +64,7 @@ const PaletteGuide = (setting: IUISettingMap['PaletteGuide']): IUISchemaMap['Pal
 	};
 
 	for (const eventName of Arr.MergeUnique(startEvents, moveEvents, endEvents)) {
-		palette.Bind(eventName, guideEvent as EventListener);
+		Palette.Bind(eventName, guideEvent as EventListener);
 		schema.Bind(eventName, guideEvent as EventListener);
 	}
 

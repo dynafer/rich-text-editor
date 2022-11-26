@@ -3,35 +3,33 @@ import { Arr, Str } from '@dynafer/utils';
 import Editor from '../../Editor';
 import DOM from '../../dom/DOM';
 import FormatCaret from '../FormatCaret';
-import FormatDetector from '../FormatDetector';
 import { EFormatUI, EFormatUIType, IFormatOption, IFormatRegistryJoiner } from '../FormatType';
 import FormatUI from '../FormatUI';
 import { FORMAT_BASES } from '../FormatUtils';
 
 interface IFormatPalette extends IFormatOption {
-	defaultColor: string,
+	CurrenttColor: string,
 }
 
 const Color = (editor: Editor): IFormatRegistryJoiner => {
 	const self = editor;
-	const detector = FormatDetector(self);
 	const UI = FormatUI(self);
 	const caretToggler = FormatCaret(self);
 
 	const Formats: Record<string, IFormatPalette> = {
 		forecolor: {
 			...FORMAT_BASES.forecolor,
-			defaultColor: 'rgb(255, 0, 0)',
-			ui: EFormatUI.BUTTON,
-			uiType: EFormatUIType.COLOR_ICON,
-			html: Finer.Icons.Get('ColorA')
+			CurrenttColor: 'rgb(255, 0, 0)',
+			UIName: EFormatUI.DIV,
+			UIType: EFormatUIType.COLOR_ICON,
+			Html: Finer.Icons.Get('ColorA')
 		},
 		backcolor: {
 			...FORMAT_BASES.backcolor,
-			defaultColor: 'rgb(255, 0, 0)',
-			ui: EFormatUI.BUTTON,
-			uiType: EFormatUIType.COLOR_ICON,
-			html: Finer.Icons.Get('Fill')
+			CurrenttColor: 'rgb(255, 0, 0)',
+			UIName: EFormatUI.DIV,
+			UIType: EFormatUIType.COLOR_ICON,
+			Html: Finer.Icons.Get('Fill')
 		}
 	};
 
@@ -41,32 +39,47 @@ const Color = (editor: Editor): IFormatRegistryJoiner => {
 
 		const colorNavigation = DOM.Create('div', {
 			styles: {
-				backgroundColor: formatOption.defaultColor
+				backgroundColor: formatOption.CurrenttColor
 			}
 		});
 
-		const button = UI.Create(formatOption, true, () => {
+		const wrapper = DOM.Create(Str.LowerCase(EFormatUI.BUTTON), {
+			attrs: {
+				title: formatOption.Title
+			},
+			class: DOM.Utils.CreateUEID(Str.LowerCase(EFormatUIType.ICON_WRAP.replace(/_/gi, '-')), false),
+		});
+
+		const button = UI.Create(formatOption, () => {
+			self.Focus();
+			const rgb = DOM.GetStyle(colorNavigation, 'background-color');
+			caretToggler.Toggle(false, { Type: formatOption.Type, Format: formatOption.Format });
+			caretToggler.Toggle(true, { Type: formatOption.Type, Format: formatOption.Format, FormatValue: rgb });
+		});
+
+		const helper = UI.Create({
+			Title: formatOption.Title,
+			UIName: EFormatUI.DIV,
+			UIType: EFormatUIType.HELPER,
+			Html: Finer.Icons.Get('AngleDown'),
+		}, () => {
 			ColorPicker.Create({
-				icons: {
-					close: Finer.Icons.Get('Close')
+				Icons: {
+					Close: Finer.Icons.Get('Close')
 				},
-				pick: (rgb: string) => {
+				Pick: (rgb: string) => {
 					self.Focus();
-					caretToggler.Toggle(false, { type: formatOption.type, format: formatOption.format });
-					caretToggler.Toggle(true, { type: formatOption.type, format: formatOption.format, formatValue: rgb });
+					caretToggler.Toggle(false, { Type: formatOption.Type, Format: formatOption.Format });
+					caretToggler.Toggle(true, { Type: formatOption.Type, Format: formatOption.Format, FormatValue: rgb });
 					DOM.SetStyle(colorNavigation, 'background-color', rgb);
 				}
 			});
 		});
 
 		DOM.Insert(button, colorNavigation);
+		DOM.Insert(wrapper, [button, helper]);
 
-		detector.Register(formatOption, (detectedNode: Node | null) => {
-			if (!detectedNode) return;
-
-			const color = self.DOM.GetStyle(detectedNode as HTMLElement, formatOption.format);
-			DOM.SetStyle(colorNavigation, 'background-color', Str.IsEmpty(color) ? formatOption.defaultColor : color);
-		});
+		self.Toolbar.Add(name, wrapper);
 	};
 
 	return {

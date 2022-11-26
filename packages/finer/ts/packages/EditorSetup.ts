@@ -12,46 +12,49 @@ const EditorSetup = (editor: Editor): Promise<void> => {
 	const frame = self.Frame;
 	const config = self.Config;
 
-	return new Promise((resolve, reject) => {
-		const bodyId = DOM.Utils.CreateUEID('editor-body', false);
-		const editorDefaultId = DOM.Utils.CreateUEID('editor-default', false);
+	const bodyId = DOM.Utils.CreateUEID('editor-body', false);
+	const editorDefaultId = DOM.Utils.CreateUEID('editor-default', false);
+	const editorDefaultCss = `<link id="${editorDefaultId}" rel="stylesheet" href="${Options.JoinUrl('css', 'skins/Editor')}">`;
+
+	const createIframe = () => {
+		self.DOM = DOM.New(
+			(frame.Container as HTMLIFrameElement).contentWindow as Window & typeof globalThis,
+			(frame.Container as HTMLIFrameElement).contentDocument ?? document,
+			true
+		);
+
+		const iframeHTML = `<!DOCTYPE html>
+			<html>
+				<head>${editorDefaultCss}</head>
+				<body id="${bodyId}" contenteditable="true"></body>
+			</html>`;
+
+		(frame.Container as HTMLIFrameElement).contentDocument?.write(iframeHTML);
+		(frame.Container as HTMLIFrameElement).contentDocument?.close();
+
+		return self.DOM.Doc.body;
+	};
+
+	const createDiv = () => {
+		const containerBody = DOM.Create('div', {
+			attrs: {
+				id: bodyId,
+				contenteditable: 'true'
+			}
+		});
+
+		DOM.Insert(frame.Container, containerBody);
+
+		return containerBody;
+	};
+
+	const setEditorBody = () => {
 		const skinId = DOM.Utils.CreateUEID('skin', false);
-		const editorDefaultCss = `<link id="${editorDefaultId}" rel="stylesheet" href="${Options.JoinUrl('css', 'skins/Editor')}">`;
 		const skinLink = `<link id="${skinId}" rel="stylesheet" href="${Options.JoinUrl('css', `skins/${config.Skin}/skin`)}">`;
-		let body: HTMLElement;
+		const body: HTMLElement = self.IsIFrame() ? createIframe() : createDiv();
 
 		if (!DOM.Select(`#${editorDefaultId}`, DOM.Doc.head)) DOM.Insert(DOM.Doc.head, editorDefaultCss);
 		if (!DOM.Select(`#${skinId}`, DOM.Doc.head)) DOM.Insert(DOM.Doc.head, skinLink);
-
-		if (self.IsIFrame()) {
-			self.DOM = DOM.New(
-				(frame.Container as HTMLIFrameElement).contentWindow as Window & typeof globalThis,
-				(frame.Container as HTMLIFrameElement).contentDocument ?? document,
-				true
-			);
-
-			const iframeHTML = `<!DOCTYPE html>
-				<html>
-					<head>${editorDefaultCss}</head>
-					<body id="${bodyId}" contenteditable="true"></body>
-				</html>`;
-
-			(frame.Container as HTMLIFrameElement).contentDocument?.write(iframeHTML);
-			(frame.Container as HTMLIFrameElement).contentDocument?.close();
-
-			body = self.DOM.Doc.body;
-		} else {
-			const containerBody = DOM.Create('div', {
-				attrs: {
-					id: bodyId,
-					contenteditable: 'true'
-				}
-			});
-
-			DOM.Insert(frame.Container, containerBody);
-
-			body = containerBody;
-		}
 
 		let initialContent: string;
 		if (Instance.Is(config.Selector, HTMLTextAreaElement)) {
@@ -64,6 +67,10 @@ const EditorSetup = (editor: Editor): Promise<void> => {
 
 		self.SetBody(body);
 		self.SetContent(initialContent);
+	};
+
+	return new Promise((resolve, reject) => {
+		setEditorBody();
 
 		self.Utils = EditorUtils(self);
 		self.Plugin = PluginManager(self);
@@ -72,13 +79,12 @@ const EditorSetup = (editor: Editor): Promise<void> => {
 
 		const plugins = config.Plugins.filter((plugin) => !self.Formatter.Formats.IsAailable(plugin));
 
-		for (const toolbar of config.Toolbars) {
-			self.Formatter.Register(toolbar);
-		}
-
 		Finer.Loaders.Plugin.LoadParallel(plugins)
 			.then(() => self.Plugin.AttachPlugin())
-			.then(() => resolve())
+			.then(() => {
+				self.Toolbar.LoadAll();
+				resolve();
+			})
 			.catch(error => reject(error));
 	});
 };

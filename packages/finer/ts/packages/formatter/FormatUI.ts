@@ -2,21 +2,22 @@ import { Str } from '@dynafer/utils';
 import Editor from '../Editor';
 import DOM from '../dom/DOM';
 import { ENativeEvents } from '../events/EventSetupUtils';
-import { ACTIVE_CLASS, IFormatOption } from './FormatType';
+import { ACTIVE_CLASS, EFormatUI, IFormatOption } from './FormatType';
 import FormatCaret from './FormatCaret';
 import { FORMAT_BASES } from './FormatUtils';
 
 export interface IFormatUI {
 	GetSystemStyle: (style: string) => string,
-	Create: (option: IFormatOption, bInsert: boolean, event: () => void) => HTMLElement,
+	Create: (option: Pick<IFormatOption, 'Title' | 'UIName' | 'UIType' | 'Html'>, event: () => void) => HTMLElement,
 	CreateLabel: () => HTMLElement,
-	CreateSelection: (label: string, children?: (string | Node)[]) => HTMLElement,
-	CreateOptionWrapper: (type: string, children: Node[]) => HTMLElement,
+	CreateSelection: (ui: string, title: string, children?: (string | Node)[]) => HTMLElement,
+	CreateOptionList: (type: string, children: Node[]) => HTMLElement,
 	CreateOption: (option: IFormatOption, active: boolean, setLabel: (text: string) => void) => HTMLElement,
-	SelectOptionWrapper: () => Node | null,
-	ExistsOptionWrapper: () => boolean,
+	SelectOptionList: () => Node | null,
+	ExistsOptionList: () => boolean,
 	HasTypeAttribute: (type: string) => boolean,
-	DestroyOptionWrapper: () => void,
+	DestroyOptionList: () => void,
+	SetOptionListCoordinate: (name: string, selection: HTMLElement, optionList: HTMLElement) => void,
 }
 
 const FormatUI = (editor: Editor): IFormatUI => {
@@ -25,39 +26,37 @@ const FormatUI = (editor: Editor): IFormatUI => {
 
 	const GetSystemStyle = (style: string): string => self.DOM.GetStyle(self.GetBody(), style);
 
-	const Create = (option: IFormatOption, bInsert: boolean, event: () => void): HTMLElement => {
-		const { label, ui, uiType, html } = option;
-		const togglerUI = DOM.Create(Str.LowerCase(ui), {
+	const Create = (option: Pick<IFormatOption, 'Title' | 'UIName' | 'UIType' | 'Html'>, event: () => void): HTMLElement => {
+		const { Title, UIName, UIType, Html } = option;
+		const formatUI = DOM.Create(Str.LowerCase(UIName), {
 			attrs: {
-				title: label
+				title: Title
 			},
-			class: DOM.Utils.CreateUEID(Str.LowerCase(uiType.replace(/_/gi, '-')), false),
-			html: html
+			class: DOM.Utils.CreateUEID(Str.LowerCase(UIType.replace(/_/gi, '-')), false),
+			html: Html
 		});
 
-		DOM.On(togglerUI, ENativeEvents.click, event);
+		DOM.On(formatUI, ENativeEvents.click, event);
 
-		if (bInsert) DOM.Insert(self.Frame.Toolbar, togglerUI);
-
-		return togglerUI;
+		return formatUI;
 	};
 
 	const CreateLabel = (): HTMLElement =>
-		DOM.Create('div', {
+		DOM.Create(Str.LowerCase(EFormatUI.DIV), {
 			class: DOM.Utils.CreateUEID('label', false)
 		});
 
-	const CreateSelection = (label: string, children: (string | Node)[] = []): HTMLElement =>
-		DOM.Create('div', {
+	const CreateSelection = (ui: string, title: string, children: (string | Node)[] = []): HTMLElement =>
+		DOM.Create(Str.LowerCase(ui), {
 			attrs: {
-				title: label
+				title: title
 			},
 			class: DOM.Utils.CreateUEID('select', false),
 			children: children
 		});
 
-	const CreateOptionWrapper = (type: string, children: Node[] = []): HTMLElement =>
-		DOM.Create('div', {
+	const CreateOptionList = (type: string, children: Node[] = []): HTMLElement =>
+		DOM.Create(Str.LowerCase(EFormatUI.DIV), {
 			attrs: {
 				dataType: type
 			},
@@ -66,17 +65,17 @@ const FormatUI = (editor: Editor): IFormatUI => {
 		});
 
 	const CreateOption = (option: IFormatOption, active: boolean, setLabel: (text: string) => void): HTMLElement => {
-		const { type, format, formatValue, sameOption } = option;
-		const optionElement = Create(option, false, () => {
-			setLabel(option.label);
+		const { Type, Format, FormatValue, SameOption, Title } = option;
+		const optionElement = Create(option, () => {
+			setLabel(Title);
 			self.Focus();
-			caretToggler.Toggle(false, { type, format });
-			if (sameOption) {
-				for (const same of sameOption) {
+			caretToggler.Toggle(false, { Type, Format });
+			if (SameOption) {
+				for (const same of SameOption) {
 					caretToggler.Toggle(false, FORMAT_BASES[same]);
 				}
 			}
-			caretToggler.Toggle(true, { type, format, formatValue });
+			caretToggler.Toggle(true, { Type, Format, FormatValue });
 		});
 
 		if (active) DOM.AddClass(optionElement, ACTIVE_CLASS);
@@ -84,22 +83,48 @@ const FormatUI = (editor: Editor): IFormatUI => {
 		return optionElement;
 	};
 
-	const SelectOptionWrapper = (): Element | null => DOM.Select(`.${DOM.Utils.CreateUEID('options', false)}`, self.Frame.Root);
-	const ExistsOptionWrapper = (): boolean => !!SelectOptionWrapper();
-	const HasTypeAttribute = (type: string): boolean => DOM.GetAttr(SelectOptionWrapper(), 'data-type') === type;
-	const DestroyOptionWrapper = () => DOM.Remove(SelectOptionWrapper(), true);
+	const SelectOptionList = (): Element | null => DOM.Select(`.${DOM.Utils.CreateUEID('options', false)}`, self.Frame.Root);
+	const ExistsOptionList = (): boolean => !!SelectOptionList();
+	const HasTypeAttribute = (type: string): boolean => DOM.GetAttr(SelectOptionList(), 'data-type') === type;
+	const DestroyOptionList = () => DOM.Remove(SelectOptionList(), true);
+
+	const SetOptionListCoordinate = (name: string, selection: HTMLElement, optionList: HTMLElement) => {
+		const bInGroup = self.Toolbar.IsInGroup(name);
+		const browserWidth = DOM.Win.innerWidth + DOM.Win.scrollX;
+		const browserHeight = DOM.Win.innerHeight + DOM.Win.scrollY;
+		let x = selection.offsetLeft - self.Frame.Toolbar.scrollLeft
+			+ (bInGroup ? parseInt(DOM.GetStyle(selection, 'margin-left')) : 0);
+		let y = selection.offsetHeight + selection.offsetTop
+			+ parseInt(DOM.GetStyle(selection, 'margin-bottom'));
+
+		if (x + optionList.offsetWidth >= browserWidth) {
+			x -= Math.max(optionList.offsetWidth, selection.offsetWidth)
+				- Math.min(optionList.offsetWidth, selection.offsetWidth);
+		}
+
+		if (y + optionList.offsetHeight + self.Frame.Root.offsetTop >= browserHeight) {
+			y -= selection.offsetHeight + optionList.offsetHeight
+				+ parseInt(DOM.GetStyle(selection, 'margin-bottom'));
+		}
+
+		DOM.SetStyles(optionList, {
+			left: `${x}px`,
+			top: `${y}px`
+		});
+	};
 
 	return {
 		GetSystemStyle,
 		Create,
 		CreateLabel,
-		CreateOptionWrapper,
+		CreateOptionList,
 		CreateSelection,
-		SelectOptionWrapper,
+		SelectOptionList,
 		CreateOption,
-		ExistsOptionWrapper,
+		ExistsOptionList,
 		HasTypeAttribute,
-		DestroyOptionWrapper,
+		DestroyOptionList,
+		SetOptionListCoordinate,
 	};
 };
 

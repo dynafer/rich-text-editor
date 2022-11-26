@@ -20,6 +20,7 @@
 
 	##{getClassName(editor-body)} {
 		@include all-margin(0.75rem);
+		@include height($line: 1.4);
 		overflow-wrap: break-word;
 		word-wrap: break-word;
 		outline: none;

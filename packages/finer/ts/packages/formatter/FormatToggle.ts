@@ -36,47 +36,47 @@ const FormatToggle = (editor: Editor): IFormatToggle => {
 
 	const GetFormattingOption = (type: EFormatType, format: string, formatValue?: string): IFormattingOption => {
 		const formattingOption: IFormattingOption = {
-			type,
-			format: type === EFormatType.STYLE ? 'span' : format,
-			styleFormat: format,
-			option: {}
+			Type: type,
+			Format: type === EFormatType.STYLE ? 'span' : format,
+			StyleFormat: format,
+			Option: {}
 		};
 
 		if (type === EFormatType.STYLE && formatValue) {
-			formattingOption.option.styles = {};
-			formattingOption.option.styles[format] = formatValue;
+			formattingOption.Option.styles = {};
+			formattingOption.Option.styles[format] = formatValue;
 		}
 
 		return formattingOption;
 	};
 
 	const ToggleOneLineRange = (bWrap: boolean, setting: IToggleSetting, callback: IToggleOneLineCallback): ParentNode => {
-		const { type, format, formatValue, parent, checker } = setting;
+		const { Type, Format, FormatValue, Parent, Checker } = setting;
 		const wrapOrUnwrap = bWrap ? Wrap.WrapRecursive : Unwrap.UnwrapRecursive;
-		const children: Node[] = Array.from(parent.childNodes);
-		const replacer = wrapOrUnwrap(GetFormattingOption(type, format, formatValue), children, checker);
+		const children: Node[] = Array.from(Parent.childNodes);
+		const replacer = wrapOrUnwrap(GetFormattingOption(Type, Format, FormatValue), children, Checker);
 
-		parent.replaceChildren(...replacer);
+		Parent.replaceChildren(...replacer);
 
-		callback(parent);
+		callback(Parent);
 
-		return parent;
+		return Parent;
 	};
 
 	const ToggleRange = (bWrap: boolean, setting: IToggleSetting, callback: IToggleRangeCallback): ParentNode => {
-		const { type, format, formatValue, parent, checker } = setting;
+		const { Type, Format, FormatValue, Parent, Checker } = setting;
 		const wrapOrUnwrap = bWrap ? Wrap.WrapRecursive : Unwrap.UnwrapRecursive;
-		const formattingOption = GetFormattingOption(type, format, formatValue);
+		const formattingOption = GetFormattingOption(Type, Format, FormatValue);
 
-		const children: Node[] = Array.from(parent.childNodes);
+		const children: Node[] = Array.from(Parent.childNodes);
 
-		const firstNodes = wrapOrUnwrap(formattingOption, Array.from(children[0].childNodes), checker);
+		const firstNodes = wrapOrUnwrap(formattingOption, Array.from(children[0].childNodes), Checker);
 		const middleNodes: Node[] = [];
-		const lastNodes = wrapOrUnwrap(formattingOption, Array.from(children[children.length - 1].childNodes), checker);
+		const lastNodes = wrapOrUnwrap(formattingOption, Array.from(children[children.length - 1].childNodes), Checker);
 
 		for (let index = 1, length = children.length - 1; index < length; ++index) {
 			ToggleOneLineRange(bWrap,
-				{ type, format, formatValue, parent: children[index] as ParentNode, checker },
+				{ Type, Format, FormatValue, Parent: children[index] as ParentNode, Checker },
 				(wrapped) => {
 					middleNodes.push(wrapped);
 				}
@@ -85,7 +85,7 @@ const FormatToggle = (editor: Editor): IFormatToggle => {
 
 		callback(firstNodes, middleNodes, lastNodes);
 
-		return parent;
+		return Parent;
 	};
 
 	return {

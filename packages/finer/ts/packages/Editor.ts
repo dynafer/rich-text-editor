@@ -10,6 +10,7 @@ import { ENativeEvents } from './events/EventSetupUtils';
 import { IFormatter } from './formatter/Formatter';
 import { ENotificationStatus, INotificationManager, NotificationManager } from './managers/NotificationManager';
 import { IPluginManager } from './managers/PluginManager';
+import EditorToolbar, { IEditorToolbar } from './EditorToolbar';
 
 enum ELoadingStatus {
 	SHOW = 'SHOW',
@@ -29,6 +30,7 @@ class Editor {
 	public DOM: IDom = DOM.New(window, document, true);
 	public Utils!: IEditorUtils;
 	public Formatter!: IFormatter;
+	public Toolbar: IEditorToolbar;
 
 	private body!: HTMLElement;
 	private mbDestroyed: boolean = false;
@@ -40,6 +42,7 @@ class Editor {
 		this.Config = configuration;
 		this.Frame = EditorFrame(configuration);
 		this.Notification = NotificationManager(this);
+		this.Toolbar = EditorToolbar(this);
 
 		EditorSetup(this)
 			.then(() => this.setLoading(ELoadingStatus.HIDE))

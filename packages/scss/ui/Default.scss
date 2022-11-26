@@ -7,62 +7,124 @@
 	}
 
 	.#{getClassName(toolbar)} {
-		@include flex();
 		@include width(100%);
 		@include border(getVar(toolbar-border), getVar(toolbar-border), null, getVar(toolbar-border));
 		background-color: getVar(toolbar-bg);
-		overflow: auto hidden;
+
+		&[toolbar-style='scroll'] {
+			@include flex($wrap: nowrap);
+			overflow: auto hidden;
+		}
+
+		&[toolbar-style='float'] {
+			@include flex($wrap: wrap);
+			overflow: hidden;
+		}
 
 		.#{getClassName(icon)} {
-			@include flex($inline: true);
-			@include all-margin(0.2rem);
-			@include all-padding(0.3rem);
+			@include flex($align: center, $inline: true);
 			@include all-border(none);
+			@include width($min: 1.625rem);
+			@include square(1.625rem);
+
+			svg {
+				@include square(100%);
+			}
 		}
 
 		.#{getClassName(select)} {
-			@include flex();
-			@include position(relative);
-			@include all-margin(0.2rem);
-			@include all-padding(0.2rem);
-			@include width(120px);
+			@include flex($align: center, $inline: true);
 			@include all-border(getVar(toolbar-item-select-border));
+			@include width($min: 120px);
 			user-select: none;
 
 			.#{getClassName(label)} {
-				@include width(100%);
+				@include width(calc(100% - 1rem));
 				@include truncation;
+				text-align: left;
+			}
+
+			svg {
+				@include square(1rem);
 			}
 		}
 
-		.#{getClassName(color-icon)} {
-			@include padding(rem, $top: 0.1, $right: 0.3, $bottom: 0.1, $left: 0.3);
-			@include all-margin(0.2rem);
+		.#{getClassName(icon-wrap)} {
+			@include flex($align: center, $inline: true);
 			@include all-border(none);
-			display: inline-block;
+			@include all-padding(unset !important);
+			@include padding(rem !important, 0.1, $bottom: 0.1);
 
-			div {
-				@include rectangle(1rem, 0.2rem);
+			.#{getClassName(color-icon)} {
+				@include all-border(none);
+				@include padding(rem !important, 0.1, 0.3, 0.1, 0.3);
+				display: inline-block;
+
+				svg {
+					@include square(0.9rem);
+				}
+
+				div {
+					@include rectangle(1rem, 0.18rem);
+				}
+			}
+
+			& > .#{getClassName(helper)} {
+				@include padding(rem, $right: 0.3, $left: 0.3);
+				@include square(1.25rem);
+
+				svg {
+					@include square(100%);
+				}
+			}
+
+			&:hover {
+				.#{getClassName(color-icon)} {
+					@include padding(null, $right: calc(0.3rem - 1px) !important);
+					@include border($right: getVar(toolbar-item-select-border));
+				}
 			}
 		}
 
-		& > * {
+		.#{getClassName(toolbar-group)} {
+			@include flex($align: center, $inline: true);
+			@include margin(rem, $right: 0.6, $left: 0.6);
+			@include position(relative);
+
+			& > * {
+				@include all-margin(0.2rem !important);
+			}
+		}
+
+		& > :first-child {
+			@include margin(rem, $left: 0.2);
+		}
+
+		& > :last-child {
+			@include margin(rem, $right: 0.2);
+		}
+
+		& > :not(.#{getClassName(toolbar-group)}),
+		& > .#{getClassName(toolbar-group)} > * {
 			@include round(getVar(toolbar-item-radius));
+			@include margin(rem, 0.2, 0.6, 0.2, 0.6);
+			@include all-padding(0.3rem);
 			background-color: getVar(toolbar-item-bg);
 			cursor: pointer;
-
-			& > svg {
-				@include square(1rem);
-				fill: getVar(toolbar-item-icon-fill);
-			}
 		}
 
-		& > .active {
+		& > .active:not(.#{getClassName(toolbar-group)}),
+		& > .#{getClassName(toolbar-group)} > .active {
 			background-color: getVar(toolbar-item-active-bg);
 		}
 
-		& > :hover {
+		& > :hover:not(.#{getClassName(toolbar-group)}),
+		& > .#{getClassName(toolbar-group)} > :hover {
 			background-color: getVar(toolbar-item-hover-bg);
+		}
+
+		svg {
+			fill: getVar(toolbar-item-icon-fill);
 		}
 	}
 
@@ -115,7 +177,7 @@
 
 	.#{getClassName(options)} {
 		@include position(absolute);
-		@include width(fit-content, 120px);
+		@include width(fit-content, $min: 120px);
 		@include margin($top: -1);
 		@include round(getVar(toolbar-item-radius));
 		@include all-border(getVar(toolbar-item-select-border));

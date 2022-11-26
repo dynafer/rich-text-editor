@@ -1,6 +1,7 @@
 import { Arr, Instance, Str, Type } from '@dynafer/utils';
 import { EModeEditor } from '../Options';
 import DOM from './dom/DOM';
+import { EToolbarStyle } from './EditorToolbar';
 import { IFormatConfiguration } from './formatter/FormatType';
 
 export interface IEditorOption {
@@ -9,9 +10,11 @@ export interface IEditorOption {
 	width?: string,
 	height?: string,
 	plugins?: string[],
-	toolbars?: string[],
+	toolbar?: string[],
+	toolbarGroup?: Record<string, string[]>,
+	toolbarStyle?: string,
 	skin?: string,
-	[key: string]: string | string[] | Record<string, string> | HTMLElement | undefined,
+	[key: string]: string | string[] | Record<string, string> | Record<string, string[]> | HTMLElement | undefined,
 }
 
 export interface IConfiguration extends IFormatConfiguration {
@@ -20,17 +23,19 @@ export interface IConfiguration extends IFormatConfiguration {
 	Mode: EModeEditor,
 	Width: string,
 	Height: string,
-	Toolbars: string[],
+	Toolbar: string[],
+	ToolbarGroup: Record<string, string[]>,
+	ToolbarStyle: string,
 	Plugins: string[],
 	Skin: string,
-	[key: string]: string | string[] | Record<string, string> | HTMLElement | undefined,
+	[key: string]: string | string[] | Record<string, string> | Record<string, string[]> | HTMLElement | undefined,
 }
 
 const Configure = (config: IEditorOption): IConfiguration => {
-	const defaultConfigs: string[] = ['selector', 'mode', 'width', 'height', 'plugins', 'toolbars', 'skin'];
+	const defaultConfigs: string[] = ['selector', 'mode', 'width', 'height', 'plugins', 'toolbar', 'toolbarGroup', 'toolbarStyle', 'skin'];
 
 	if (!config.selector || !Instance.IsElement(config.selector)) {
-		throw new Error('Configuration: selector of configuration must be provided');
+		throw new Error('Configuration: selector must be an provided.');
 	}
 
 	const Id: string = DOM.Utils.CreateUEID();
@@ -40,7 +45,7 @@ const Configure = (config: IEditorOption): IConfiguration => {
 
 	const mode: string = Str.LowerCase(config.mode ?? EModeEditor.classic);
 	if (!Type.IsString(mode) || !EModeEditor[mode]) {
-		throw new Error(`Configuration: ${mode} mode doesn't exist`);
+		throw new Error(`Configuration: ${mode} mode doesn't exist.`);
 	}
 
 	const Mode: EModeEditor = EModeEditor[mode] as EModeEditor;
@@ -51,13 +56,33 @@ const Configure = (config: IEditorOption): IConfiguration => {
 
 	const Plugins: string[] = config.plugins ?? [];
 	if (!Type.IsArray(Plugins)) {
-		throw new Error('Configuration: Plugins of configuration must be array');
+		throw new Error('Configuration: Plugins must be an array.');
 	}
 
-	const Toolbars: string[] = config.toolbars ?? [];
-	if (!Type.IsArray(Toolbars)) {
-		throw new Error('Configuration: Toolbars of configuration must be array');
+	let Toolbar: string[];
+	let ToolbarGroup: Record<string, string[]>;
+	if (config.toolbar) {
+		Toolbar = config.toolbar;
+		if (!Type.IsArray(Toolbar)) {
+			throw new Error('Configuration: Toolbar must be an array.');
+		}
+
+		ToolbarGroup = config.toolbarGroup ?? {};
+		if (ToolbarGroup && !Type.IsObject(ToolbarGroup)) {
+			throw new Error('Configuration: Toolbar Group must be an object.');
+		}
+	} else {
+		Toolbar = ['font', 'basic', 'color', 'script'];
+		ToolbarGroup = {
+			basic: ['bold', 'italic', 'underline', 'strikethrough'],
+			script: ['subscript', 'superscript'],
+			font: ['fontsize', 'fontfamily'],
+			color: ['forecolor', 'backcolor'],
+		};
 	}
+
+	let ToolbarStyle: string = Str.UpperCase(Type.IsString(config.toolbarStyle) ? config.toolbarStyle : EToolbarStyle.SCROLL);
+	if (!EToolbarStyle[ToolbarStyle]) ToolbarStyle = EToolbarStyle.SCROLL;
 
 	const excludedDefaultOption = {};
 	for (const [key, value] of Object.entries(config)) {
@@ -75,7 +100,9 @@ const Configure = (config: IEditorOption): IConfiguration => {
 		Width,
 		Height,
 		Plugins,
-		Toolbars,
+		Toolbar,
+		ToolbarGroup,
+		ToolbarStyle,
 		Skin,
 		...excludedDefaultOption
 	};

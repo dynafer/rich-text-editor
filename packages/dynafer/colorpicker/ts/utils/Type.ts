@@ -1,12 +1,12 @@
 export interface IRGBA {
-	readonly red: number,
-	readonly green: number,
-	readonly blue: number,
-	readonly alpha: number,
+	readonly Red: number,
+	readonly Green: number,
+	readonly Blue: number,
+	readonly Alpha: number,
 }
 
 export interface IHSV {
-	readonly hue: number,
-	readonly saturation: number,
-	readonly value: number,
+	readonly Hue: number,
+	readonly Saturation: number,
+	readonly Value: number,
 }

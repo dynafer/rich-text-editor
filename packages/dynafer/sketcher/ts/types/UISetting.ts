@@ -1,34 +1,34 @@
 import { IDOMFactory } from '../dom/DOMFactory';
 
 export interface ISketcherSetting {
-	tagName: string,
-	attributes?: Record<string, string>,
-	events?: [string, EventListener][],
-	elements?: (string | IDOMFactory | ISketcherSetting)[],
+	TagName: string,
+	Attributes?: Record<string, string>,
+	Events?: [string, EventListener][],
+	Elements?: (string | IDOMFactory | ISketcherSetting)[],
 }
 
-export interface IModalSetting extends Pick<ISketcherSetting, 'events'> {
-	title: string,
-	icons: Record<string, string>,
-	body?: IDOMFactory | IDOMFactory[],
-	footer?: IDOMFactory | IDOMFactory[],
+export interface IModalSetting extends Pick<ISketcherSetting, 'Events'> {
+	Title: string,
+	Icons: Record<string, string>,
+	Body?: IDOMFactory | IDOMFactory[],
+	Footer?: IDOMFactory | IDOMFactory[],
 }
 
-export interface IInputSetting extends Pick<ISketcherSetting, 'events'> {
-	label?: string,
-	placeholder?: string,
-	value?: string,
+export interface IInputSetting extends Pick<ISketcherSetting, 'Events'> {
+	Label?: string,
+	Placeholder?: string,
+	Value?: string,
 }
 
-export interface IPaletteSetting extends Pick<ISketcherSetting, 'events'> {
-	width: number,
-	height: number,
+export interface IPaletteSetting extends Pick<ISketcherSetting, 'Events'> {
+	Width: number,
+	Height: number,
 }
 
-export interface IPaletteGuideSetting extends Pick<ISketcherSetting, 'events'> {
-	palette: IDOMFactory<HTMLCanvasElement>,
+export interface IPaletteGuideSetting extends Pick<ISketcherSetting, 'Events'> {
+	Palette: IDOMFactory<HTMLCanvasElement>,
 	bOnlyVertical: boolean,
-	guiding: () => void,
+	Guiding: () => void,
 }
 
 export interface IUISettingMap {

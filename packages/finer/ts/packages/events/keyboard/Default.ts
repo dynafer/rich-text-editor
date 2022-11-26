@@ -1,12 +1,12 @@
 import { Str } from '@dynafer/utils';
 import Editor from '../../Editor';
+import { PreventEvent } from '../EventSetupUtils';
 
 const DefaultEvent = (editor: Editor, event: KeyboardEvent) => {
 	const self = editor;
 
 	if (Str.IsEmpty(self.DOM.GetHTML(self.GetBody()).replace(/(\\n|\\t|\s|\<br\>)/gi, ''))) {
-		event.preventDefault();
-		event.stopPropagation();
+		PreventEvent(event);
 		self.InitContent();
 
 		const newCaret = self.Utils.Range();

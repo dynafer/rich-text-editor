@@ -1,7 +1,7 @@
 import { Arr, Str, Type } from '@dynafer/utils';
 import Editor from '../../Editor';
 import DOM from '../../dom/DOM';
-import { ENativeEvents } from '../../events/EventSetupUtils';
+import { ENativeEvents, PreventEvent } from '../../events/EventSetupUtils';
 import FormatDetector from '../FormatDetector';
 import {
 	ATTRIBUTE_TITLE, EFormatType, EFormatUI, IFormatUIOptionBase, IFormatOption,
@@ -10,9 +10,10 @@ import {
 import FormatUI from '../FormatUI';
 import { ConvertToDetectorValue, EscapeUselessStyleChars, FlipKeyValue, FORMAT_BASES, GetPrimaryValue, LabelConfiguration } from '../FormatUtils';
 
-interface IFormatSelector extends Pick<IFormatUIOptionBase, 'label' | 'type' | 'format' | 'sameOption'> {
-	formatOptions: IFormatOption[],
-	defaultOptions: string[] | Record<string, string>,
+interface IFormatSelector extends Pick<IFormatUIOptionBase, 'Title' | 'Type' | 'Format' | 'SameOption'> {
+	UIName: EFormatUI,
+	FormatOptions: IFormatOption[],
+	DefaultOptions: string[] | Record<string, string>,
 }
 
 interface IFormatGetValue {
@@ -20,9 +21,9 @@ interface IFormatGetValue {
 }
 
 interface IDetectableOption {
-	name: string,
-	selection: HTMLElement,
-	setLabel: (text: string) => void,
+	Name: string,
+	Selection: HTMLElement,
+	SetLabel: (text: string) => void,
 }
 
 const Font = (editor: Editor): IFormatRegistryJoiner => {
@@ -33,13 +34,15 @@ const Font = (editor: Editor): IFormatRegistryJoiner => {
 	const Formats: Record<string, IFormatSelector> = {
 		fontsize: {
 			...FORMAT_BASES.fontsize,
-			formatOptions: [],
-			defaultOptions: ['9pt', '12pt', '18pt', '24pt', '48pt'],
+			UIName: EFormatUI.BUTTON,
+			FormatOptions: [],
+			DefaultOptions: ['9pt', '12pt', '18pt', '24pt', '48pt'],
 		},
 		fontfamily: {
 			...FORMAT_BASES.fontfamily,
-			formatOptions: [],
-			defaultOptions: {
+			UIName: EFormatUI.BUTTON,
+			FormatOptions: [],
+			DefaultOptions: {
 				Arial: 'arial, sans-serif',
 				'Arial Black': 'arial black, sans-serif',
 				'Courier New': 'courier new, monospace',
@@ -73,67 +76,67 @@ const Font = (editor: Editor): IFormatRegistryJoiner => {
 			}
 		};
 
-	const createOptionsWrapper = (detectedValue: string, formatOptions: IFormatOption[], detectable: IDetectableOption) => {
-		const { name, selection, setLabel } = detectable;
+	const createOptionsList = (detectedValue: string, formatOptions: IFormatOption[], detectable: IDetectableOption) => {
+		const { Name, Selection, SetLabel } = detectable;
 
 		const optionElements: Node[] = [];
 		for (const option of formatOptions) {
-			const { formatValue, label } = option;
-			const optionElement = UI.CreateOption(option, detectedValue === label, setLabel);
-			if (name === 'fontfamily') DOM.SetStyle(optionElement, option.format, formatValue ?? '');
+			const { Format, FormatValue, Title } = option;
+			const optionElement = UI.CreateOption(option, detectedValue === Title, SetLabel);
+			if (Name === 'fontfamily') DOM.SetStyle(optionElement, Format, FormatValue ?? '');
 			optionElements.push(optionElement);
 		}
 
-		const optionWrapper = UI.CreateOptionWrapper(name, optionElements);
-		DOM.Insert(optionWrapper, optionElements);
-		DOM.SetStyles(optionWrapper, {
-			left: `${selection.offsetLeft}px`,
-			top: `${selection.offsetHeight + selection.offsetTop}px`
-		});
-
-		DOM.Insert(self.Frame.Root, optionWrapper);
+		const optionList = UI.CreateOptionList(Name, optionElements);
+		DOM.Insert(optionList, optionElements);
+		DOM.Insert(self.Frame.Root, optionList);
+		UI.SetOptionListCoordinate(Name, Selection, optionList);
 	};
 
-	const createUI = (name: string, formatOption: IFormatSelector, labelWrapper: HTMLElement, setLabel: (text: string) => void) => {
-		const { label, formatOptions } = formatOption;
-		const selection = UI.CreateSelection(label, [labelWrapper, Finer.Icons.Get('AngleDown')]);
+	const createUI = (name: string, formatOption: IFormatSelector, label: HTMLElement, setLabel: (text: string) => void) => {
+		const { UIName, Title, FormatOptions } = formatOption;
+		const selection = UI.CreateSelection(UIName, Title, [label, Finer.Icons.Get('AngleDown')]);
 
-		DOM.Insert(self.Frame.Toolbar, selection);
+		const detectable: IDetectableOption = { Name: name, Selection: selection, SetLabel: setLabel };
 
-		const detectable: IDetectableOption = { name, selection, setLabel };
-
-		const destroyOptionWrapper = () => {
-			DOM.Off(DOM.Doc.body, ENativeEvents.click, destroyOptionWrapper);
-			self.DOM.Off(self.DOM.GetRoot(), ENativeEvents.click, destroyOptionWrapper);
-			UI.DestroyOptionWrapper();
+		const destroyOptionList = () => {
+			DOM.Off(self.Frame.Toolbar, ENativeEvents.scroll, destroyOptionList);
+			DOM.Off(DOM.Doc.body, ENativeEvents.click, destroyOptionList);
+			self.DOM.Off(self.DOM.GetRoot(), ENativeEvents.click, destroyOptionList);
+			DOM.Off(DOM.Win, ENativeEvents.scroll, destroyOptionList);
+			DOM.Off(DOM.Win, ENativeEvents.resize, destroyOptionList);
+			UI.DestroyOptionList();
 		};
 
 		DOM.On(selection, ENativeEvents.click, (event: MouseEvent) => {
-			if (UI.ExistsOptionWrapper() && UI.HasTypeAttribute(name)) return destroyOptionWrapper();
-			event.stopImmediatePropagation();
-			event.stopPropagation();
-			event.preventDefault();
+			if (UI.ExistsOptionList() && UI.HasTypeAttribute(name)) return destroyOptionList();
+			PreventEvent(event);
 
-			destroyOptionWrapper();
-			createOptionsWrapper(DOM.GetAttr(labelWrapper, ATTRIBUTE_TITLE) ?? '', formatOptions, detectable);
-			DOM.On(DOM.Doc.body, ENativeEvents.click, destroyOptionWrapper);
-			self.DOM.On(self.DOM.GetRoot(), ENativeEvents.click, destroyOptionWrapper);
+			destroyOptionList();
+			createOptionsList(DOM.GetAttr(label, ATTRIBUTE_TITLE) ?? '', FormatOptions, detectable);
+			DOM.On(self.Frame.Toolbar, ENativeEvents.scroll, destroyOptionList);
+			DOM.On(DOM.Doc.body, ENativeEvents.click, destroyOptionList);
+			self.DOM.On(self.DOM.GetRoot(), ENativeEvents.click, destroyOptionList);
+			DOM.On(DOM.Win, ENativeEvents.scroll, destroyOptionList);
+			DOM.On(DOM.Win, ENativeEvents.resize, destroyOptionList);
 		});
+
+		self.Toolbar.Add(name, selection);
 	};
 
-	const createFormatOptions = (formatOption: IFormatSelector, options: Record<string, string>) => {
-		const { format, sameOption } = formatOption;
+	const createFormatOptions = (formatOption: IFormatSelector, optionSettings: Record<string, string>): IFormatOption[] => {
+		const { Format, SameOption } = formatOption;
 		const formatOptions: IFormatOption[] = [];
-		for (const [label, option] of Object.entries(options)) {
+		for (const [title, setting] of Object.entries(optionSettings)) {
 			formatOptions.push({
-				label: label,
-				type: EFormatType.STYLE,
-				format: format,
-				formatValue: option,
-				sameOption: sameOption,
-				ui: EFormatUI.LI,
-				uiType: EFormatUIType.ITEM,
-				html: `${Finer.Icons.Get('Check')}${label}`
+				Title: title,
+				Type: EFormatType.STYLE,
+				Format: Format,
+				FormatValue: setting,
+				SameOption: SameOption,
+				UIName: EFormatUI.LI,
+				UIType: EFormatUIType.ITEM,
+				Html: `${Finer.Icons.Get('Check')}${title}`
 			});
 		}
 
@@ -145,28 +148,28 @@ const Font = (editor: Editor): IFormatRegistryJoiner => {
 
 		const formatOption = Formats[name];
 		const config = self.Config[name] as string[] | Record<string, string>;
-		const options: Record<string, string> = LabelConfiguration(
+		const optionSettings: Record<string, string> = LabelConfiguration(
 			!config || (!Type.IsArray(config) && !Type.IsObject(config)) || !(Type.IsArray(config) && !Arr.IsEmpty(config))
-				? formatOption.defaultOptions : config
+				? formatOption.DefaultOptions : config
 		);
-		const detectableStyleMap = FlipKeyValue(options);
-		const systemStyle = UI.GetSystemStyle(formatOption.format);
+		const detectableStyleMap = FlipKeyValue(optionSettings);
+		const systemStyle = UI.GetSystemStyle(formatOption.Format);
 
-		formatOption.formatOptions = createFormatOptions(formatOption, options);
+		formatOption.FormatOptions = createFormatOptions(formatOption, optionSettings);
 
-		const labelWrapper = UI.CreateLabel();
+		const label = UI.CreateLabel();
 		const setLabel = (text: string) => {
-			DOM.SetAttr(labelWrapper, ATTRIBUTE_TITLE, text);
-			DOM.SetText(labelWrapper, text);
+			DOM.SetAttr(label, ATTRIBUTE_TITLE, text);
+			DOM.SetText(label, text);
 		};
 		const getStyleValue = createGetStyleValue(name, systemStyle, detectableStyleMap);
 
-		createUI(name, formatOption, labelWrapper, setLabel);
+		createUI(name, formatOption, label, setLabel);
 
 		setLabel(getStyleValue(systemStyle));
 
-		detector.Register({ type: formatOption.type, format: formatOption.format }, (detectedNode: Node | null) => {
-			const detectedValue = !detectedNode ? systemStyle : self.DOM.GetStyle(detectedNode as HTMLElement, formatOption.format);
+		detector.Register({ Type: formatOption.Type, Format: formatOption.Format }, (detectedNode: Node | null) => {
+			const detectedValue = !detectedNode ? systemStyle : self.DOM.GetStyle(detectedNode as HTMLElement, formatOption.Format);
 			const convertedValue = GetPrimaryValue(ConvertToDetectorValue(detectedValue));
 
 			const optionLabel = detectableStyleMap[convertedValue];

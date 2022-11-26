@@ -14,12 +14,12 @@ const Default = (editor: Editor): IFormatRegistryJoiner => {
 	const caretToggler = FormatCaret(self);
 
 	const Formats: Record<string, IFormatOption> = {
-		bold: { ...FORMAT_BASES.bold, ui: EFormatUI.BUTTON, uiType: EFormatUIType.ICON, html: Finer.Icons.Get('Bold') },
-		italic: { ...FORMAT_BASES.italic, ui: EFormatUI.BUTTON, uiType: EFormatUIType.ICON, html: Finer.Icons.Get('Italic') },
-		strikethrough: { ...FORMAT_BASES.strikethrough, ui: EFormatUI.BUTTON, uiType: EFormatUIType.ICON, html: Finer.Icons.Get('Strikethrough') },
-		subscript: { ...FORMAT_BASES.subscript, ui: EFormatUI.BUTTON, uiType: EFormatUIType.ICON, html: Finer.Icons.Get('Subscript') },
-		superscript: { ...FORMAT_BASES.superscript, ui: EFormatUI.BUTTON, uiType: EFormatUIType.ICON, html: Finer.Icons.Get('Superscript') },
-		underline: { ...FORMAT_BASES.underline, ui: EFormatUI.BUTTON, uiType: EFormatUIType.ICON, html: Finer.Icons.Get('Underline') },
+		bold: { ...FORMAT_BASES.bold, UIName: EFormatUI.BUTTON, UIType: EFormatUIType.ICON, Html: Finer.Icons.Get('Bold') },
+		italic: { ...FORMAT_BASES.italic, UIName: EFormatUI.BUTTON, UIType: EFormatUIType.ICON, Html: Finer.Icons.Get('Italic') },
+		strikethrough: { ...FORMAT_BASES.strikethrough, UIName: EFormatUI.BUTTON, UIType: EFormatUIType.ICON, Html: Finer.Icons.Get('Strikethrough') },
+		subscript: { ...FORMAT_BASES.subscript, UIName: EFormatUI.BUTTON, UIType: EFormatUIType.ICON, Html: Finer.Icons.Get('Subscript') },
+		superscript: { ...FORMAT_BASES.superscript, UIName: EFormatUI.BUTTON, UIType: EFormatUIType.ICON, Html: Finer.Icons.Get('Superscript') },
+		underline: { ...FORMAT_BASES.underline, UIName: EFormatUI.BUTTON, UIType: EFormatUIType.ICON, Html: Finer.Icons.Get('Underline') },
 	};
 
 	const toggleButton = (togglerUI: HTMLElement, bActive: boolean) => {
@@ -30,17 +30,18 @@ const Default = (editor: Editor): IFormatRegistryJoiner => {
 	const Register = (name: string) => {
 		if (!Arr.Contains(Object.keys(Formats), name)) return;
 		const formatOption = Formats[name];
-		const togglerUI = UI.Create(formatOption, true, () => {
+		const togglerUI = UI.Create(formatOption, () => {
 			const bActivated = !DOM.HasClass(togglerUI, ACTIVE_CLASS);
 			self.Focus();
 			toggleButton(togglerUI, bActivated);
-			if (formatOption.sameOption) {
-				for (const same of formatOption.sameOption) {
+			if (formatOption.SameOption) {
+				for (const same of formatOption.SameOption) {
 					caretToggler.Toggle(false, FORMAT_BASES[same]);
 				}
 			}
 			caretToggler.Toggle(bActivated, formatOption);
 		});
+		self.Toolbar.Add(name, togglerUI);
 		detector.Register(formatOption, (detectedNode: Node | null) => {
 			toggleButton(togglerUI, !!detectedNode);
 		});
