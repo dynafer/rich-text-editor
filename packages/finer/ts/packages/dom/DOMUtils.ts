@@ -10,6 +10,7 @@ export interface IDOMUtils {
 	IsParagraph: (selector: Node | null) => boolean,
 	IsText: (selector: Node | null) => boolean,
 	GetNodeName: (selector: Node | null) => string,
+	CreateStyleVariable: (name: string, value: string) => string,
 }
 
 const DOMUtils = (): IDOMUtils => {
@@ -34,6 +35,12 @@ const DOMUtils = (): IDOMUtils => {
 
 	const GetNodeName = (selector: Node | null): string => Str.LowerCase(selector?.nodeName ?? '') ?? '';
 
+	const CreateStyleVariable = (name: string, value: string): string =>
+		Str.Join(' ',
+			Str.Merge('--', Options.SHORT_NAME, '-', name, ':'),
+			Str.Merge(value, ';')
+		);
+
 	return {
 		CreateUEID,
 		GetModeTag,
@@ -41,6 +48,7 @@ const DOMUtils = (): IDOMUtils => {
 		IsParagraph,
 		IsText,
 		GetNodeName,
+		CreateStyleVariable,
 	};
 };
 

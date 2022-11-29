@@ -2,7 +2,7 @@ import { Insert } from '@dynafer/dom-control';
 import { Sketcher } from '@dynafer/sketcher';
 import Footer from './ui/Footer';
 import Form from './ui/Form';
-import { NAME } from './utils/Utils';
+import { Hex, HSV, IHexUtils, IHSVUtils, IRGBAUtils, NAME, RGBA } from './utils/Utils';
 
 export interface IColorPickerSetting {
 	Icons: Record<string, string>,
@@ -11,6 +11,11 @@ export interface IColorPickerSetting {
 
 export interface IColorPicker {
 	Create: (setting: IColorPickerSetting) => void,
+	Utils: {
+		RGBA: IRGBAUtils,
+		Hex: IHexUtils,
+		HSV: IHSVUtils,
+	},
 }
 
 const ColorPicker = (): IColorPicker => {
@@ -40,7 +45,12 @@ const ColorPicker = (): IColorPicker => {
 	};
 
 	return {
-		Create
+		Create,
+		Utils: {
+			RGBA,
+			Hex,
+			HSV,
+		}
 	};
 };
 

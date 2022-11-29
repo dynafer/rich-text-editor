@@ -1,3 +1,5 @@
+import { Arr } from '@dynafer/utils';
+
 export interface IEvent {
 	(...params: unknown[]): void;
 }
@@ -6,6 +8,7 @@ export interface IEventUtils {
 	Has: (eventName: string) => boolean,
 	On: (eventName: string, event: IEvent) => void,
 	Off: (eventName: string, event: IEvent) => void,
+	OffAll: () => void,
 	Dispatch: (eventName: string, ...params: unknown[]) => void,
 	Get: () => Record<string, IEvent[]>,
 }
@@ -33,6 +36,13 @@ const EventUtils = (): IEventUtils => {
 		}
 	};
 
+	const OffAll = () => {
+		for (const [eventName, eventList] of Object.entries(events)) {
+			Arr.Clean(eventList);
+			delete events?.[eventName];
+		}
+	};
+
 	const Dispatch = (eventName: string, ...params: unknown[]) => {
 		if (!Has(eventName)) return;
 
@@ -54,6 +64,7 @@ const EventUtils = (): IEventUtils => {
 		Has,
 		On,
 		Off,
+		OffAll,
 		Dispatch,
 		Get,
 	};

@@ -30,7 +30,7 @@ export const FindClosest = (editor: Editor, option: IFormatOptionBase, node: Nod
 };
 
 export const EscapeUselessStyleChars = (value: string): string => value.replace(/["`';]/g, '');
-export const ConvertToDetectorValue = (value: string): string => Str.LowerCase(EscapeUselessStyleChars(value));
+export const ConvertToDetectorValue = (value: string): string => Str.LowerCase(EscapeUselessStyleChars(value)).trim();
 
 export const GetPrimaryValue = (value: string): string => value.split(',')[0].trim();
 

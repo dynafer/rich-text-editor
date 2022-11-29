@@ -17,6 +17,7 @@ export enum EModeEditor {
 
 interface IOptions {
 	readonly PROJECT_NAME: string,
+	readonly SHORT_NAME: string,
 	readonly EDITOR_STYLE_ATTRIBUTE: string,
 	readonly URLS: Record<string, string>,
 	JoinUrl: (type: string, name: string) => string,
@@ -24,6 +25,7 @@ interface IOptions {
 
 const Options = (): IOptions => {
 	const PROJECT_NAME: string = 'finer-editor';
+	const SHORT_NAME: string = 'finer';
 	const EDITOR_STYLE_ATTRIBUTE: string = 'finer-style';
 	const URL_PREFIX: string = new URL(projectUrl).pathname;
 	const URLS: Record<string, string> = {
@@ -51,6 +53,7 @@ const Options = (): IOptions => {
 
 	return {
 		PROJECT_NAME,
+		SHORT_NAME,
 		EDITOR_STYLE_ATTRIBUTE,
 		URLS,
 		JoinUrl,

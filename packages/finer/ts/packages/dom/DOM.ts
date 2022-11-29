@@ -70,6 +70,7 @@ export interface IDom {
 		<K extends keyof GlobalEventHandlersEventMap>(selector: TElement, eventName: K, event?: TEventListener<K>): void;
 		(selector: (Window & typeof globalThis) | TElement, eventName: string, event?: EventListener): void;
 	},
+	OffAll: (selector: (Window & typeof globalThis) | TElement) => void,
 	Dispatch: {
 		<K extends keyof GlobalEventHandlersEventMap>(selector: TElement, eventName: K): void;
 		(selector: TElement, eventName: string): void;
@@ -95,7 +96,7 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 	const elementType = Win.Element;
 	const nodeType = Win.Node;
 
-	const boundEvents: [Element, string, EventListener][] = [];
+	const boundEvents: [(Window & typeof globalThis) | Element, string, EventListener][] = [];
 
 	const New = (win: Window & typeof globalThis, doc: Document, bEditor: boolean): IDom => DOM(win, doc, bEditor);
 
@@ -331,25 +332,36 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 	const On = (selector: (Window & typeof globalThis) | TElement, eventName: string, event: EventListener) => {
 		if ((selector !== Win && !Instance.Is(selector, elementType)) || !Type.IsString(eventName)) return;
 		selector.addEventListener(eventName, event);
-		if (Instance.Is(selector, elementType)) boundEvents.push([selector, eventName, event]);
+		boundEvents.push([selector, eventName, event]);
+	};
+
+	const off = (isSame: (bound: [Element | (Window & typeof globalThis), string, EventListener]) => boolean) => {
+		let deletedCount = 0;
+		for (let index = 0, length = boundEvents.length; index < length; ++index) {
+			const bound = boundEvents[index - deletedCount];
+			if (!isSame(bound)) continue;
+
+			const [target, eventName, event] = bound;
+			target.removeEventListener(eventName, event);
+			boundEvents.splice(index, 1);
+			++deletedCount;
+		}
 	};
 
 	const Off = (selector: (Window & typeof globalThis) | TElement, eventName: string, event?: EventListener) => {
 		if ((selector !== Win && !Instance.Is(selector, elementType)) || !Type.IsString(eventName)) return;
-		if (selector === Win) {
-			if (!event) return;
-			selector.removeEventListener(eventName, event);
-			return;
-		}
-		let deletedCount = 0;
-		for (let index = 0, length = boundEvents.length; index < length; ++index) {
-			const [target, name, boundEvent] = boundEvents[index - deletedCount];
-			if (target === selector && eventName === name && (!event || (event && event === boundEvent))) {
-				target.removeEventListener(name, boundEvent);
-				boundEvents.splice(index - deletedCount, 1);
-				++deletedCount;
-			}
-		}
+		const isSame = (bound: [Element | (Window & typeof globalThis), string, EventListener]): boolean =>
+			selector === bound[0] && eventName === bound[1] && (!event || (event && event === bound[2]));
+
+		off(isSame);
+	};
+
+	const OffAll = (selector: (Window & typeof globalThis) | TElement) => {
+		if (selector !== Win && !Instance.Is(selector, elementType)) return;
+		const isSame = (bound: [Element | (Window & typeof globalThis), string, EventListener]): boolean =>
+			selector === bound[0];
+
+		off(isSame);
 	};
 
 	const Dispatch = (selector: TElement, eventName: string) => {
@@ -397,15 +409,14 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 
 	const RemoveChildren = (selector: Element | null, bBubble: boolean = false) => {
 		if (!Instance.Is(selector, elementType)) return;
-		if (Arr.IsEmpty(Array.from(selector.children))) return;
-		for (const child of selector.children) {
-			for (const [target, eventName, event] of boundEvents) {
-				if (target === child) Off(target, eventName, event);
-			}
+		const children = Array.from(selector.children);
+		if (Arr.IsEmpty(children)) return;
+		for (const child of children) {
+			OffAll(child);
 		}
 
 		if (bBubble) {
-			for (const child of selector.children) {
+			for (const child of children) {
 				RemoveChildren(child, bBubble);
 				child.remove();
 			}
@@ -414,9 +425,7 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 
 	const Remove = (selector: Element | null, bBubble: boolean = false) => {
 		if (!Instance.Is(selector, elementType)) return;
-		for (const [target, eventName, event] of boundEvents) {
-			if (target === selector) Off(target, eventName, event);
-		}
+		OffAll(selector);
 
 		if (bBubble) RemoveChildren(selector, bBubble);
 
@@ -462,6 +471,7 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 		GetParents,
 		On,
 		Off,
+		OffAll,
 		Dispatch,
 		Show,
 		Hide,
