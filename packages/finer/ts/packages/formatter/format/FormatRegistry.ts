@@ -1,5 +1,7 @@
 import { Arr } from '@dynafer/utils';
 import Editor from '../../Editor';
+import FormatDetector from '../FormatDetector';
+import FormatUI from '../FormatUI';
 import Color from './Color';
 import Default from './Default';
 import Font from './Font';
@@ -11,9 +13,12 @@ export interface IFormatRegistry {
 
 const FormatRegistry = (editor: Editor): IFormatRegistry => {
 	const self = editor;
-	const color = Color(self);
-	const defaultFormats = Default(self);
-	const font = Font(self);
+	const detector = FormatDetector(self);
+	const UI = FormatUI(self);
+
+	const color = Color(self, UI);
+	const defaultFormats = Default(self, detector, UI);
+	const font = Font(self, detector, UI);
 
 	const Available = Arr.MergeUnique(
 		color.Formats,

@@ -1,17 +1,15 @@
 import { Arr } from '@dynafer/utils';
 import Editor from '../../Editor';
 import DOM from '../../dom/DOM';
-import FormatCaret from '../FormatCaret';
-import FormatDetector from '../FormatDetector';
+import { IFormatDetector } from '../FormatDetector';
 import { ACTIVE_CLASS, EFormatUI, EFormatUIType, IFormatOption, IFormatRegistryJoiner } from '../FormatType';
-import FormatUI from '../FormatUI';
+import { IFormatUI } from '../FormatUI';
 import { FORMAT_BASES } from '../FormatUtils';
 
-const Default = (editor: Editor): IFormatRegistryJoiner => {
+const Default = (editor: Editor, formatDetector: IFormatDetector, formatUI: IFormatUI): IFormatRegistryJoiner => {
 	const self = editor;
-	const detector = FormatDetector(self);
-	const UI = FormatUI(self);
-	const caretToggler = FormatCaret(self);
+	const detector = formatDetector;
+	const UI = formatUI;
 
 	const Formats: Record<string, IFormatOption> = {
 		bold: { ...FORMAT_BASES.bold, UIName: EFormatUI.BUTTON, UIType: EFormatUIType.ICON, Html: Finer.Icons.Get('Bold') },
@@ -34,12 +32,7 @@ const Default = (editor: Editor): IFormatRegistryJoiner => {
 			const bActivated = !DOM.HasClass(togglerUI, ACTIVE_CLASS);
 			self.Focus();
 			toggleButton(togglerUI, bActivated);
-			if (formatOption.SameOption) {
-				for (const same of formatOption.SameOption) {
-					caretToggler.Toggle(false, FORMAT_BASES[same]);
-				}
-			}
-			caretToggler.Toggle(bActivated, formatOption);
+			UI.ToggleFormatCaret(formatOption, bActivated);
 		});
 		self.Toolbar.Add(name, togglerUI);
 		detector.Register(formatOption, (detectedNode: Node | null) => {

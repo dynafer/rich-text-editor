@@ -1,6 +1,10 @@
 import { IHSV } from './Type';
 
-const HSV = () => {
+export interface IHSVUtils {
+	ToMap: (...hsv: number[]) => IHSV;
+}
+
+const HSV = (): IHSVUtils => {
 	const ToMap = (...hsv: number[]): IHSV => ({
 		Hue: hsv[0],
 		Saturation: hsv[1],

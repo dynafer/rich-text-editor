@@ -8,7 +8,7 @@ interface IDetection {
 }
 
 export interface IFormatDetector {
-	Register: (option: Omit<IFormatOptionBase, 'label'>, activate: IFormatDetectorActivator) => void,
+	Register: (option: Omit<IFormatOptionBase, 'label'>, activate: IFormatDetectorActivator, bIgnoreFormat?: boolean) => void,
 }
 
 const FormatDetector = (editor: Editor): IFormatDetector => {
@@ -31,10 +31,10 @@ const FormatDetector = (editor: Editor): IFormatDetector => {
 			.finally(() => CaretUtils.Clean());
 	}) as IEvent);
 
-	const Register = (option: Omit<IFormatOptionBase, 'label'>, activate: IFormatDetectorActivator) => {
+	const Register = (option: IFormatOptionBase, activate: IFormatDetectorActivator, bIgnoreFormat: boolean = false) => {
 		const asyncDetection: IDetection = (node: Node | null) =>
 			new Promise((resolve) => {
-				activate(FindClosest(self, option, node));
+				activate(bIgnoreFormat ? node : FindClosest(self, option, node));
 				resolve();
 			});
 

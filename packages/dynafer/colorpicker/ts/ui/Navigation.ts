@@ -85,7 +85,7 @@ const Navigation = (palette: IPalette, hue: IHue): INavigation => {
 	};
 
 	const hexKeyEvent = () => {
-		const convertedRGB = RGBA.FromHex(hex.GetValue());
+		const convertedRGB = RGBA.FromHexToMap(hex.GetValue());
 		if (!convertedRGB) return toggleError(hex, true);
 
 		palette.UpdateGuide(convertedRGB);

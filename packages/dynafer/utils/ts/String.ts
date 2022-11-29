@@ -6,7 +6,8 @@ export const IsEmpty: (value: unknown) => boolean = (value) => IsString(value) &
 
 export const LowerCase = (value: string): string => value.toLowerCase();
 export const UpperCase = (value: string): string => value.toUpperCase();
-export const Contains = (value: string, compare: string) => value.includes(compare);
+export const Contains = (value: string, compare: string | RegExp) =>
+	IsString(compare) ? value.includes(compare) : compare.test(value);
 
 export const CapitalToDash = (value: string): string => {
 	if (!IsString(value) || IsEmpty(value) || !regCapital.test(value)) return value;
@@ -24,3 +25,4 @@ export const Padding = (value: number | string, length: number = 2, pad: number 
 	value.toString().padStart(length, pad.toString());
 
 export const Join = (attacher: string, ...args: string[]) => args.join(attacher);
+export const Merge = (...args: string[]) => Join('', ...args);
