@@ -1,6 +1,6 @@
 import { Str, Type } from '@dynafer/utils';
 import Editor from '../Editor';
-import { EFormatType, IFormatOptionBase, IFormatUIOptionBase } from './FormatType';
+import { EFormatType, IFormatOptionBase, IFormatUIOptionBase, STANDARD_PIXEL_FROM_ROOT } from './FormatType';
 
 export const FORMAT_BASES: Record<string, IFormatUIOptionBase> = {
 	bold: { Title: 'Bold', Type: EFormatType.TAG, Format: 'strong' },
@@ -13,6 +13,12 @@ export const FORMAT_BASES: Record<string, IFormatUIOptionBase> = {
 	fontfamily: { Title: 'Font family', Type: EFormatType.STYLE, Format: 'font-family' },
 	forecolor: { Title: 'Text color', Type: EFormatType.STYLE, Format: 'color' },
 	backcolor: { Title: 'Background color', Type: EFormatType.STYLE, Format: 'background-color' },
+	outdent: { Title: 'Outdent', Type: EFormatType.STYLE, Format: 'padding-left' },
+	indent: { Title: 'Indent', Type: EFormatType.STYLE, Format: 'padding-left' },
+	justify: { Title: 'Justify', Type: EFormatType.STYLE, Format: 'text-align', FormatValue: 'justify' },
+	alignleft: { Title: 'Align left', Type: EFormatType.STYLE, Format: 'text-align', FormatValue: 'left' },
+	aligncenter: { Title: 'Align center', Type: EFormatType.STYLE, Format: 'text-align', FormatValue: 'center' },
+	alignright: { Title: 'Align right', Type: EFormatType.STYLE, Format: 'text-align', FormatValue: 'right' },
 };
 
 export const FindClosest = (editor: Editor, option: IFormatOptionBase, node: Node | null): Element | null => {
@@ -68,3 +74,18 @@ export const CheckFormat = (editor: Editor, option: IFormatOptionBase) =>
 				return false;
 		}
 	};
+
+export const ConvertToPixel = (value: string): string => {
+	const defaultType = Str.LowerCase(value.replace(/[^a-z]/gi, ''));
+
+	if (defaultType.includes('em')) {
+		return Str.Merge(
+			(parseFloat(value) * STANDARD_PIXEL_FROM_ROOT).toString(),
+			'px'
+		);
+	}
+
+	if (Str.IsEmpty(defaultType)) return Str.Merge(STANDARD_PIXEL_FROM_ROOT.toString(), 'px');
+
+	return defaultType;
+};

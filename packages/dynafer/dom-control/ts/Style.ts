@@ -15,12 +15,13 @@ export const GetAsMap = (selector: HTMLElement): Record<string, string> => {
 	return styleDict;
 };
 
-export const Get = (selector: HTMLElement, name: string): string => {
-	const styles = GetAsMap(selector);
+export const Get = (selector: HTMLElement, name: string, bComputed?: boolean): string => {
+	const computedStyle = win.getComputedStyle(selector);
 	const capitalisedStyle = Str.DashToCapital(name);
+	if (bComputed) return computedStyle[capitalisedStyle];
+	const styles = GetAsMap(selector);
 	if (!styles[capitalisedStyle]) {
-		const computedStyle = win.getComputedStyle(selector);
-		return computedStyle[name];
+		return computedStyle[capitalisedStyle];
 	}
 
 	return styles[capitalisedStyle] ?? '';

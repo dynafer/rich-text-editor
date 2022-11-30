@@ -72,12 +72,12 @@ const Configure = (config: IEditorOption): IConfiguration => {
 			throw new Error('Configuration: Toolbar Group must be an object.');
 		}
 	} else {
-		Toolbar = ['font', 'basic', 'color', 'script'];
+		Toolbar = ['font', 'basic', 'color', 'script', 'indentation', 'alignment'];
 		ToolbarGroup = {
-			basic: ['bold', 'italic', 'underline', 'strikethrough'],
-			script: ['subscript', 'superscript'],
 			font: ['fontsize', 'fontfamily'],
+			basic: ['bold', 'italic', 'underline', 'strikethrough'],
 			color: ['forecolor', 'backcolor'],
+			script: ['subscript', 'superscript'],
 		};
 	}
 

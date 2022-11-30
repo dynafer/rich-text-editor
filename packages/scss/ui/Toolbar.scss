@@ -1,0 +1,150 @@
+.#{$projectName} {
+	.#{getClassName(toolbar)} {
+		@include width(100%);
+		@include border(getVar(toolbar-border), getVar(toolbar-border), null, getVar(toolbar-border));
+		background-color: getVar(toolbar-bg);
+
+		&[toolbar-style='scroll'] {
+			@include flex($wrap: nowrap);
+			overflow: auto hidden;
+		}
+
+		&[toolbar-style='float'] {
+			@include flex($wrap: wrap);
+			overflow: hidden;
+		}
+
+		.#{getClassName(icon)} {
+			@include all-border(none);
+			@include width($min: 1.625rem);
+			@include square(1.625rem);
+
+			svg {
+				@include square(100%);
+			}
+		}
+
+		.#{getClassName(icon-wrap)} {
+			@include all-border(none);
+			@include all-padding(unset !important);
+			@include padding(rem !important, 0.1, $bottom: 0.1);
+
+			.#{getClassName(color-icon)} {
+				@include all-border(none);
+				@include padding(rem !important, 0.1, 0.3, 0.1, 0.3);
+				display: inline-block;
+
+				svg {
+					@include square(0.9rem);
+				}
+
+				div {
+					@include rectangle(1rem, 0.18rem);
+				}
+			}
+
+			& > .#{getClassName(helper)} {
+				@include padding(rem, $right: 0.3, $left: 0.3);
+				@include square(1.25rem);
+
+				svg {
+					@include square(100%);
+				}
+			}
+
+			&:hover {
+				.#{getClassName(color-icon)} {
+					@include padding(null, $right: calc(0.3rem - 1px) !important);
+					@include border($right: getVar(toolbar-item-select-border));
+				}
+			}
+		}
+
+		.#{getClassName(icon-group)} {
+			@include all-border(none);
+			@include all-padding(unset !important);
+
+			& > * {
+				@include all-margin(0.2rem !important);
+			}
+
+			&:hover {
+				@include font($color: getVar(toolbar-item-text) !important);
+				background-color: getVar(toolbar-item-bg) !important;
+			}
+		}
+
+		.#{getClassName(select)} {
+			@include all-border(getVar(toolbar-item-select-border));
+			@include width($min: 120px);
+			user-select: none;
+
+			.#{getClassName(label)} {
+				@include width(calc(100% - 1rem));
+				@include truncation;
+				text-align: left;
+			}
+
+			svg {
+				@include square(1rem);
+			}
+		}
+
+		.#{getClassName(toolbar-group)} {
+			@include flex($align: center, $inline: true);
+			@include margin(rem, $right: 0.6, $left: 0.6);
+			@include position(relative);
+
+			& > * {
+				@include all-margin(0.2rem !important);
+			}
+		}
+
+		& > :first-child {
+			@include margin(rem, $left: 0.2);
+		}
+
+		& > :last-child {
+			@include margin(rem, $right: 0.2);
+		}
+
+		& > :not(.#{getClassName(toolbar-group)}),
+		.#{getClassName(icon-group)} > *,
+		& > .#{getClassName(toolbar-group)} > * {
+			@include flex($align: center, $inline: true);
+			@include round(getVar(toolbar-item-radius));
+			@include margin(rem, 0.2, 0.6, 0.2, 0.6);
+			@include all-padding(0.3rem);
+			@include font($color: getVar(toolbar-item-text));
+			background-color: getVar(toolbar-item-bg);
+
+			&:not([disabled]) {
+				cursor: pointer;
+			}
+
+			&[disabled] {
+				svg {
+					fill: getVar(toolbar-item-disabled-icon-fill);
+				}
+			}
+		}
+
+		& > .active:not(.#{getClassName(toolbar-group)}),
+		.#{getClassName(icon-group)} > :not([disabled]).active,
+		& > .#{getClassName(toolbar-group)} > .active {
+			@include font($color: getVar(toolbar-item-active-text));
+			background-color: getVar(toolbar-item-active-bg);
+		}
+
+		& > :hover:not(.#{getClassName(toolbar-group)}),
+		.#{getClassName(icon-group)} > :not([disabled]):hover,
+		& > .#{getClassName(toolbar-group)} > :hover {
+			@include font($color: getVar(toolbar-item-hover-text));
+			background-color: getVar(toolbar-item-hover-bg);
+		}
+
+		svg {
+			fill: getVar(toolbar-item-icon-fill);
+		}
+	}
+}

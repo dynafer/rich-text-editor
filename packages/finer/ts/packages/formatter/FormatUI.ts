@@ -2,7 +2,7 @@ import { Str, Type } from '@dynafer/utils';
 import Editor from '../Editor';
 import DOM from '../dom/DOM';
 import { ENativeEvents, PreventEvent } from '../events/EventSetupUtils';
-import { ACTIVE_CLASS, EFormatUI, IFormatOption } from './FormatType';
+import { ACTIVE_CLASS, EFormatUI, IFormatOption, IFormatOptionBase } from './FormatType';
 import FormatCaret from './FormatCaret';
 import { FORMAT_BASES } from './FormatUtils';
 
@@ -12,11 +12,13 @@ export interface IFormatUI {
 	CreateLabel: () => HTMLElement,
 	CreateSelection: (ui: string, title: string, children?: (string | Node)[]) => HTMLElement,
 	CreateOptionList: (type: string, children: Node[]) => HTMLElement,
-	ToggleFormatCaret: (option: Pick<IFormatOption, 'Type' | 'Format' | 'FormatValue' | 'SameOption'>, bActivated?: boolean) => void,
-	UnwrapFormatCaret: (option: Pick<IFormatOption, 'Type' | 'Format'>) => void,
+	ToggleFormatCaret: (option: IFormatOptionBase, bActivated?: boolean) => void,
+	UnwrapFormatCaret: (option: IFormatOptionBase) => void,
 	CreateOption: (option: IFormatOption, active: boolean, setLabel: (text: string) => void) => HTMLElement,
 	CreateOptionEvent: (name: string, clickable: HTMLElement, create: () => void) => void,
 	SetOptionListCoordinate: (name: string, selection: HTMLElement, optionList: HTMLElement) => void,
+	CreateDefaultUIClickEvent: (ui: HTMLElement, callback: (bActivated: boolean) => void, bAddClass?: boolean) => (() => void),
+	ToggleDefaultButton: (ui: HTMLElement, bActive: boolean) => void,
 }
 
 const FormatUI = (editor: Editor): IFormatUI => {
@@ -63,7 +65,7 @@ const FormatUI = (editor: Editor): IFormatUI => {
 			children: children
 		});
 
-	const ToggleFormatCaret = (option: Pick<IFormatOption, 'Type' | 'Format' | 'FormatValue' | 'SameOption'>, bActivated?: boolean) => {
+	const ToggleFormatCaret = (option: IFormatOptionBase, bActivated?: boolean) => {
 		const { Format, FormatValue, SameOption } = option;
 		if (!Type.IsBoolean(bActivated)) {
 			caretToggler.Toggle(false, { Type: option.Type, Format });
@@ -77,7 +79,7 @@ const FormatUI = (editor: Editor): IFormatUI => {
 		caretToggler.Toggle(bActivated, { Type: option.Type, Format, FormatValue });
 	};
 
-	const UnwrapFormatCaret = (option: Pick<IFormatOption, 'Type' | 'Format'>) => {
+	const UnwrapFormatCaret = (option: IFormatOptionBase) => {
 		caretToggler.Toggle(false, { Type: option.Type, Format: option.Format });
 	};
 
@@ -154,6 +156,19 @@ const FormatUI = (editor: Editor): IFormatUI => {
 		});
 	};
 
+	const ToggleDefaultButton = (ui: HTMLElement, bActive: boolean) => {
+		const toggle = bActive ? DOM.AddClass : DOM.RemoveClass;
+		toggle(ui, ACTIVE_CLASS);
+	};
+
+	const CreateDefaultUIClickEvent = (ui: HTMLElement, callback: (bActivated: boolean) => void, bAddClass: boolean = true): (() => void) =>
+		() => {
+			const bActivated = !DOM.HasClass(ui, ACTIVE_CLASS);
+			self.Focus();
+			if (bAddClass) ToggleDefaultButton(ui, bActivated);
+			callback(bActivated);
+		};
+
 	return {
 		GetSystemStyle,
 		Create,
@@ -165,6 +180,8 @@ const FormatUI = (editor: Editor): IFormatUI => {
 		CreateOption,
 		CreateOptionEvent,
 		SetOptionListCoordinate,
+		CreateDefaultUIClickEvent,
+		ToggleDefaultButton,
 	};
 };
 

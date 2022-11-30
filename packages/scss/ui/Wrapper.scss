@@ -1,0 +1,41 @@
+.#{$projectName} {
+	.#{getClassName(wrapper)} {
+		@include position(relative);
+
+		.#{getClassName(notification)} {
+			@include position(absolute, 0, 50%);
+			transform: translateX(-50%);
+
+			.#{getClassName(notification-message)} {
+				@include flex(space-between);
+				@include all-padding(0.5rem);
+				@include round(0.5rem);
+				@include font(1.15rem);
+				background-color: rgba(220, 213, 150, 1);
+
+				.#{getClassName(notification-message-text)} {
+					@include padding(rem, $right: 0.5);
+				}
+
+				.#{getClassName(notification-message-icon)} {
+					@include flex($inline: true);
+					@include round(0.4rem);
+					@include padding($right: 0);
+					@include all-border(none);
+					background: transparent;
+					cursor: pointer;
+
+					svg {
+						@include square(1.15rem);
+					}
+				}
+			}
+		}
+
+		.#{getClassName(classic)} {
+			@include width(100%);
+			@include all-border(getVar(editor-border));
+			background-color: getVar(editor-bg);
+		}
+	}
+}

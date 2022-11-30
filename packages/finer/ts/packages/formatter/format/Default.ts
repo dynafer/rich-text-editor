@@ -1,13 +1,12 @@
 import { Arr } from '@dynafer/utils';
-import Editor from '../../Editor';
 import DOM from '../../dom/DOM';
+import { ENativeEvents } from '../../events/EventSetupUtils';
 import { IFormatDetector } from '../FormatDetector';
-import { ACTIVE_CLASS, EFormatUI, EFormatUIType, IFormatOption, IFormatRegistryJoiner } from '../FormatType';
+import { EFormatUI, EFormatUIType, IFormatOption, IFormatRegistryJoiner } from '../FormatType';
 import { IFormatUI } from '../FormatUI';
 import { FORMAT_BASES } from '../FormatUtils';
 
-const Default = (editor: Editor, formatDetector: IFormatDetector, formatUI: IFormatUI): IFormatRegistryJoiner => {
-	const self = editor;
+const Default = (formatDetector: IFormatDetector, formatUI: IFormatUI): IFormatRegistryJoiner => {
 	const detector = formatDetector;
 	const UI = formatUI;
 
@@ -20,24 +19,21 @@ const Default = (editor: Editor, formatDetector: IFormatDetector, formatUI: IFor
 		underline: { ...FORMAT_BASES.underline, UIName: EFormatUI.BUTTON, UIType: EFormatUIType.ICON, Html: Finer.Icons.Get('Underline') },
 	};
 
-	const toggleButton = (togglerUI: HTMLElement, bActive: boolean) => {
-		const toggle = bActive ? DOM.AddClass : DOM.RemoveClass;
-		toggle(togglerUI, ACTIVE_CLASS);
+	const createUI = (option: IFormatOption): HTMLElement => {
+		const ui = UI.Create(option);
+		const clickEvent = UI.CreateDefaultUIClickEvent(ui, (bActivated: boolean) => UI.ToggleFormatCaret(option, bActivated));
+		DOM.On(ui, ENativeEvents.click, clickEvent);
+
+		detector.Register(option, (detectedNode: Node | null) => UI.ToggleDefaultButton(ui, !!detectedNode));
+
+		return ui;
 	};
 
-	const Register = (name: string) => {
-		if (!Arr.Contains(Object.keys(Formats), name)) return;
+	const Register = (name: string): HTMLElement | null => {
+		if (!Arr.Contains(Object.keys(Formats), name)) return null;
 		const formatOption = Formats[name];
-		const togglerUI = UI.Create(formatOption, () => {
-			const bActivated = !DOM.HasClass(togglerUI, ACTIVE_CLASS);
-			self.Focus();
-			toggleButton(togglerUI, bActivated);
-			UI.ToggleFormatCaret(formatOption, bActivated);
-		});
-		self.Toolbar.Add(name, togglerUI);
-		detector.Register(formatOption, (detectedNode: Node | null) => {
-			toggleButton(togglerUI, !!detectedNode);
-		});
+
+		return createUI(formatOption);
 	};
 
 	return {

@@ -90,14 +90,13 @@ const FormatCaret = (editor: Editor) => {
 		DOM.Insert(caretPointer, bWrap ? createWrapper : '&nbsp;');
 		caret.Range.Insert(caretPointer);
 
-		if (bWrap) {
-			caret.Range.SetStartToEnd(createWrapper, 1, 1);
-		} else {
+		if (!bWrap) {
 			caret.Range.SelectContents(caretPointer);
 			toggler.Unwrap.UnwrapParents(caret.SameRoot, [caretPointer], CheckFormat(self, option));
 			DOM.SetHTML(caretPointer, DOM.Utils.GetEmptyString());
-			caret.Range.SetStartToEnd(caretPointer, 1, 1);
 		}
+
+		caret.Range.SetStartToEnd(bWrap ? createWrapper : caretPointer, 1, 1);
 
 		return caret.Range.Clone();
 	};
