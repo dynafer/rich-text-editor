@@ -8,7 +8,7 @@ interface IDetection {
 }
 
 export interface IFormatDetector {
-	Register: (option: Omit<IFormatOptionBase, 'label'>, activate: IFormatDetectorActivator, bIgnoreFormat?: boolean) => void,
+	Register: (option: IFormatOptionBase, activate: IFormatDetectorActivator, bIgnoreFormat?: boolean) => void,
 }
 
 const FormatDetector = (editor: Editor): IFormatDetector => {

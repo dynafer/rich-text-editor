@@ -1,0 +1,15 @@
+.#{$projectName} {
+	@include position(relative);
+
+	&,
+	* {
+		box-sizing: border-box;
+	}
+
+	.#{getClassName(loading)} {
+		@include position(absolute, 0, 0);
+		@include square(100%);
+		@include flex(center, center);
+		background: rgba(0, 0, 0, 0.5);
+	}
+}

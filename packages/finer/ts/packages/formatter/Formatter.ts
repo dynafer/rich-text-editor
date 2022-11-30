@@ -15,9 +15,12 @@ const Formatter = (editor: Editor): IFormatter => {
 		if (!Formats.IsAailable(name)) return;
 
 		const registry = Formats.GetRegistry(name);
-		if (Type.IsNull(registry)) return;
+		if (!Type.IsFunction(registry)) return;
 
-		registry(name);
+		const ui = registry(name);
+		if (!ui) return;
+
+		self.Toolbar.Add(name, ui);
 	};
 
 	return {

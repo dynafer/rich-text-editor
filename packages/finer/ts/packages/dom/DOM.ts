@@ -34,7 +34,7 @@ export interface IDom {
 	RemoveClass: (selector: TElement, ...classes: string[]) => void,
 	GetStyleText: (selector: HTMLElement | null) => string,
 	GetStyles: (selector: HTMLElement | null) => Record<string, string>,
-	GetStyle: (selector: HTMLElement | null, name: string) => string,
+	GetStyle: (selector: HTMLElement | null, name: string, bComputed?: boolean) => string,
 	SetStyleText: (selector: HTMLElement | null, styleText: string) => void,
 	SetStyle: {
 		<K extends keyof CSSStyleDeclaration>(selector: HTMLElement | null, name: K, value: string): void;
@@ -157,8 +157,8 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 	const GetStyles = (selector: HTMLElement | null): Record<string, string> =>
 		!Instance.Is(selector, elementType) ? {} : Style.GetAsMap(selector);
 
-	const GetStyle = (selector: HTMLElement | null, name: string): string =>
-		!Instance.Is(selector, elementType) ? '' : Style.Get(selector, name);
+	const GetStyle = (selector: HTMLElement | null, name: string, bComputed?: boolean): string =>
+		!Instance.Is(selector, elementType) ? '' : Style.Get(selector, name, bComputed);
 
 	const SetStyleText = (selector: HTMLElement | null, styleText: string) => {
 		if (!Instance.Is(selector, elementType) || !Type.IsString(styleText)) return;
@@ -180,7 +180,10 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 	const RemoveStyle = (selector: HTMLElement | null, name: string) => {
 		if (!Instance.Is(selector, elementType) || !Type.IsString(name)) return;
 		Style.Remove(selector, name);
-		if (bFromEditor && Str.IsEmpty(GetStyleText(selector))) RemoveAttr(selector, Options.EDITOR_STYLE_ATTRIBUTE);
+		if (bFromEditor) {
+			if (Str.IsEmpty(GetStyleText(selector))) return RemoveAttr(selector, Options.EDITOR_STYLE_ATTRIBUTE);
+			SetAttr(selector, Options.EDITOR_STYLE_ATTRIBUTE, GetStyleText(selector));
+		}
 	};
 
 	const HasStyle = (selector: HTMLElement | null, name: string, compareValue?: string): boolean =>

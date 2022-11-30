@@ -1,6 +1,6 @@
 @import '../../_function';
 
-* {
+.#{$projectName} * {
 	#{getVarName(toolbar-bg)}: transparent;
 	#{getVarName(toolbar-border)}: #ececec;
 	#{getVarName(toolbar-item-bg)}: transparent;
@@ -15,6 +15,7 @@
 	#{getVarName(toolbar-item-option-bg)}: #fff;
 	#{getVarName(toolbar-item-select-border)}: #afafaf;
 	#{getVarName(toolbar-item-radius)}: 0.4rem;
+	#{getVarName(toolbar-item-disabled-icon-fill)}: #aeaeae;
 
 	#{getVarName(editor-bg)}: transparent;
 	#{getVarName(editor-border)}: #ececec;

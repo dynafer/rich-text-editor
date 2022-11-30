@@ -89,8 +89,8 @@ const Color = (editor: Editor, formatUI: IFormatUI): IFormatRegistryJoiner => {
 		return paletteGradients;
 	};
 
-	const createPalette = (name: string, option: Pick<IFormatPalette, 'Type' | 'Format' | 'DefaultColor' | 'LastPicked'>, wrapper: HTMLElement, navigation: HTMLElement) => {
-		const { Type, Format, DefaultColor, LastPicked } = option;
+	const createPalette = (name: string, formatOption: Pick<IFormatPalette, 'Type' | 'Format' | 'DefaultColor' | 'LastPicked'>, wrapper: HTMLElement, navigation: HTMLElement) => {
+		const { Type, Format, DefaultColor, LastPicked } = formatOption;
 		const resetButton = UI.Create({
 			Title: 'Default color',
 			UIName: EFormatUI.LI,
@@ -133,8 +133,8 @@ const Color = (editor: Editor, formatUI: IFormatUI): IFormatRegistryJoiner => {
 		UI.SetOptionListCoordinate(name, wrapper, palette);
 	};
 
-	const createHelper = (name: string, option: Pick<IFormatPalette, 'Title' | 'Type' | 'Format' | 'DefaultColor' | 'LastPicked'>, wrapper: HTMLElement, navigation: HTMLElement) => {
-		const { Title } = option;
+	const createHelper = (name: string, formatOption: Pick<IFormatPalette, 'Title' | 'Type' | 'Format' | 'DefaultColor' | 'LastPicked'>, wrapper: HTMLElement, navigation: HTMLElement) => {
+		const { Title } = formatOption;
 
 		const helper = UI.Create({
 			Title,
@@ -143,13 +143,13 @@ const Color = (editor: Editor, formatUI: IFormatUI): IFormatRegistryJoiner => {
 			Html: Finer.Icons.Get('AngleDown'),
 		});
 
-		UI.CreateOptionEvent(name, helper, () => createPalette(name, option, wrapper, navigation));
+		UI.CreateOptionEvent(name, helper, () => createPalette(name, formatOption, wrapper, navigation));
 
 		return helper;
 	};
 
-	const Register = (name: string) => {
-		if (!Arr.Contains(Object.keys(Formats), name)) return;
+	const Register = (name: string): HTMLElement | null => {
+		if (!Arr.Contains(Object.keys(Formats), name)) return null;
 		const formatOption = Formats[name];
 
 		const colorNavigation = DOM.Create('div', {
@@ -181,7 +181,7 @@ const Color = (editor: Editor, formatUI: IFormatUI): IFormatRegistryJoiner => {
 		DOM.Insert(button, colorNavigation);
 		DOM.Insert(wrapper, [button, helper]);
 
-		self.Toolbar.Add(name, wrapper);
+		return wrapper;
 	};
 
 	return {

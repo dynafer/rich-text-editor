@@ -9,7 +9,8 @@ import {
 import { IFormatUI } from '../FormatUI';
 import { ConvertToDetectorValue, EscapeUselessStyleChars, FlipKeyValue, FORMAT_BASES, GetPrimaryValue, LabelConfiguration } from '../FormatUtils';
 
-interface IFormatSelector extends Pick<IFormatOption, 'Title' | 'Type' | 'Format' | 'SameOption' | 'UIName'> {
+interface IFormatFont extends Pick<IFormatOption, 'Title' | 'Type' | 'Format' | 'SameOption' | 'UIName'> {
+	ConfigName: string,
 	FormatOptions: IFormatOption[],
 	DefaultOptions: string[] | Record<string, string>,
 }
@@ -29,16 +30,18 @@ const Font = (editor: Editor, formatDetector: IFormatDetector, formatUI: IFormat
 	const detector = formatDetector;
 	const UI = formatUI;
 
-	const Formats: Record<string, IFormatSelector> = {
+	const Formats: Record<string, IFormatFont> = {
 		fontsize: {
 			...FORMAT_BASES.fontsize,
 			UIName: EFormatUI.BUTTON,
+			ConfigName: 'fontsize_options',
 			FormatOptions: [],
 			DefaultOptions: ['9pt', '10pt', '12pt', '18pt', '24pt', '48pt'],
 		},
 		fontfamily: {
 			...FORMAT_BASES.fontfamily,
 			UIName: EFormatUI.BUTTON,
+			ConfigName: 'fontfamily_options',
 			FormatOptions: [],
 			DefaultOptions: {
 				Arial: 'arial, sans-serif',
@@ -95,7 +98,7 @@ const Font = (editor: Editor, formatDetector: IFormatDetector, formatUI: IFormat
 		UI.SetOptionListCoordinate(Name, Selection, optionList);
 	};
 
-	const createUI = (name: string, formatOption: IFormatSelector, label: HTMLElement, setLabel: (text: string) => void) => {
+	const createUI = (name: string, formatOption: IFormatFont, label: HTMLElement, setLabel: (text: string) => void): HTMLElement => {
 		const { UIName, Title, FormatOptions } = formatOption;
 		const selection = UI.CreateSelection(UIName, Title, [label, Finer.Icons.Get('AngleDown')]);
 
@@ -103,10 +106,10 @@ const Font = (editor: Editor, formatDetector: IFormatDetector, formatUI: IFormat
 
 		UI.CreateOptionEvent(name, selection, () => createOptionsList(DOM.GetAttr(label, ATTRIBUTE_TITLE) ?? '', FormatOptions, detectable));
 
-		self.Toolbar.Add(name, selection);
+		return selection;
 	};
 
-	const createFormatOptions = (formatOption: IFormatSelector, optionSettings: Record<string, string>): IFormatOption[] => {
+	const createFormatOptions = (formatOption: IFormatFont, optionSettings: Record<string, string>): IFormatOption[] => {
 		const { Format, SameOption } = formatOption;
 		const formatOptions: IFormatOption[] = [];
 		for (const [title, setting] of Object.entries(optionSettings)) {
@@ -125,11 +128,11 @@ const Font = (editor: Editor, formatDetector: IFormatDetector, formatUI: IFormat
 		return formatOptions;
 	};
 
-	const Register = (name: string) => {
-		if (!Arr.Contains(Object.keys(Formats), name)) return;
+	const Register = (name: string): HTMLElement | null => {
+		if (!Arr.Contains(Object.keys(Formats), name)) return null;
 
 		const formatOption = Formats[name];
-		const config = self.Config[name] as string[] | Record<string, string>;
+		const config = self.Config[formatOption.ConfigName] as string[] | Record<string, string>;
 		const optionSettings: Record<string, string> = LabelConfiguration(
 			!config || (!Type.IsArray(config) && !Type.IsObject(config)) || (Type.IsArray(config) && Arr.IsEmpty(config))
 				? formatOption.DefaultOptions : config
@@ -148,7 +151,7 @@ const Font = (editor: Editor, formatDetector: IFormatDetector, formatUI: IFormat
 			DOM.SetText(label, text);
 		};
 
-		createUI(name, formatOption, label, setLabel);
+		const ui = createUI(name, formatOption, label, setLabel);
 
 		setLabel(getStyleValue(systemStyle));
 
@@ -165,6 +168,8 @@ const Font = (editor: Editor, formatDetector: IFormatDetector, formatUI: IFormat
 
 			setLabel(detectedNode && optionLabel ? optionLabel : getStyleValue(detectedValue));
 		}, true);
+
+		return ui;
 	};
 
 	return {
