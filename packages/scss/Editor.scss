@@ -1,10 +1,11 @@
 @import '_mixin';
 
-##{getClassName(editor-body)} {
-	@include all-margin(1rem);
+@mixin word-break {
 	overflow-wrap: break-word;
 	word-wrap: break-word;
+}
 
+@mixin firefox {
 	@supports not (-moz-appearance: none) {
 		* {
 			@include margin(rem, 0.75, $bottom: 0.75);
@@ -14,23 +15,30 @@
 	}
 }
 
+@mixin code-tag-style {
+	code {
+		@include padding(rem, $right: 0.2, $left: 0.2);
+		background-color: #dee2e6;
+	}
+}
+
+##{getClassName(editor-body)} {
+	@include firefox;
+	@include all-margin(1rem);
+	@include word-break;
+	@include code-tag-style;
+}
+
 .#{getClassName(inline)} {
 	@include all-border(getVar(editor-border));
 	background-color: getVar(editor-bg);
 
 	##{getClassName(editor-body)} {
+		@include firefox;
 		@include all-margin(0.75rem);
 		@include height($line: 1.4);
-		overflow-wrap: break-word;
-		word-wrap: break-word;
+		@include word-break;
+		@include code-tag-style;
 		outline: none;
-
-		@supports not (-moz-appearance: none) {
-			* {
-				@include margin(rem, 0.75, $bottom: 0.75);
-				@include height($line: 1.4);
-				word-wrap: break-word;
-			}
-		}
 	}
 }

@@ -75,7 +75,7 @@ const Configure = (config: IEditorOption): IConfiguration => {
 		Toolbar = ['font', 'basic', 'color', 'script', 'indentation', 'alignment'];
 		ToolbarGroup = {
 			font: ['fontsize', 'fontfamily'],
-			basic: ['bold', 'italic', 'underline', 'strikethrough'],
+			basic: ['bold', 'italic', 'underline', 'strikethrough', 'code'],
 			color: ['forecolor', 'backcolor'],
 			script: ['subscript', 'superscript'],
 		};

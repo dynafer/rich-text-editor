@@ -142,6 +142,8 @@ const Group = (editor: Editor, formatDetector: IFormatDetector, formatUI: IForma
 
 				process(topNode, bActivated);
 			}
+
+			CaretUtils.Clean();
 		}, !!bToggle);
 	};
 

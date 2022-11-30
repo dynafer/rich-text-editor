@@ -17,6 +17,7 @@ const Default = (formatDetector: IFormatDetector, formatUI: IFormatUI): IFormatR
 		subscript: { ...FORMAT_BASES.subscript, UIName: EFormatUI.BUTTON, UIType: EFormatUIType.ICON, Html: Finer.Icons.Get('Subscript') },
 		superscript: { ...FORMAT_BASES.superscript, UIName: EFormatUI.BUTTON, UIType: EFormatUIType.ICON, Html: Finer.Icons.Get('Superscript') },
 		underline: { ...FORMAT_BASES.underline, UIName: EFormatUI.BUTTON, UIType: EFormatUIType.ICON, Html: Finer.Icons.Get('Underline') },
+		code: { ...FORMAT_BASES.code, UIName: EFormatUI.BUTTON, UIType: EFormatUIType.ICON, Html: Finer.Icons.Get('Terminal') },
 	};
 
 	const createUI = (option: IFormatOption): HTMLElement => {
