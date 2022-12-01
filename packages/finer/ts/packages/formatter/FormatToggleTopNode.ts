@@ -3,7 +3,11 @@ import Editor from '../Editor';
 import { ICaretData } from '../editorUtils/caret/CaretUtils';
 import { EFormatType, IFormatToggleTopNodeSetting } from './FormatType';
 
-const FormatToggleTopNode = (editor: Editor) => {
+export interface IFormatToggleTopNode {
+	Toggle: (bToggle: boolean, setting: IFormatToggleTopNodeSetting, caret: ICaretData) => Range | null,
+}
+
+const FormatToggleTopNode = (editor: Editor): IFormatToggleTopNode => {
 	const self = editor;
 	const DOM = self.DOM;
 
