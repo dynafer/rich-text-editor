@@ -6,7 +6,13 @@ import FormatToggleTopNode from './FormatToggleTopNode';
 import { IFormatOptionBase, IFormatToggleSetting, IFormatToggleTopNodeSetting, IFormatToggleTopNodeSettingBase } from './FormatType';
 import { CheckFormat, ConvertToElement, FindClosest, FindTopNode } from './FormatUtils';
 
-const FormatCaret = (editor: Editor) => {
+export interface IFormatCaret {
+	Toggle: (bWrap: boolean, option: IFormatOptionBase) => void,
+	ToggleTopNode: (bToggle: boolean, option: IFormatOptionBase, topNodeSetting: IFormatToggleTopNodeSettingBase) => void,
+	IsTopNodeZeroPixel: (format: string) => boolean,
+}
+
+const FormatCaret = (editor: Editor): IFormatCaret => {
 	const self = editor;
 	const DOM = self.DOM;
 	const CaretUtils = self.Utils.Caret;
