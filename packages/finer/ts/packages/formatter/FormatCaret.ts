@@ -2,16 +2,18 @@ import { Str } from '@dynafer/utils';
 import Editor from '../Editor';
 import { ICaretData } from '../editorUtils/caret/CaretUtils';
 import FormatToggle from './FormatToggle';
-import { IFormatOptionBase, IToggleSetting } from './FormatType';
-import { CheckFormat, FindClosest } from './FormatUtils';
+import FormatToggleTopNode from './FormatToggleTopNode';
+import { IFormatOptionBase, IFormatToggleSetting, IFormatToggleTopNodeSetting, IFormatToggleTopNodeSettingBase } from './FormatType';
+import { CheckFormat, ConvertToElement, FindClosest, FindTopNode } from './FormatUtils';
 
 const FormatCaret = (editor: Editor) => {
 	const self = editor;
 	const DOM = self.DOM;
 	const CaretUtils = self.Utils.Caret;
 	const toggler = FormatToggle(self);
+	const topNodeToggler = FormatToggleTopNode(self);
 
-	const convertFormatToSetting = <T extends Node = ParentNode>(option: IFormatOptionBase, parent: T): IToggleSetting<T> => ({
+	const convertFormatToSetting = <T extends Node = ParentNode>(option: IFormatOptionBase, parent: T): IFormatToggleSetting<T> => ({
 		...option,
 		Parent: parent,
 		Checker: CheckFormat(self, option)
@@ -37,7 +39,7 @@ const FormatCaret = (editor: Editor) => {
 		toggler.ToggleOneLineRange(bWrap, setting, (parent) => {
 			let children: Node[] = Array.from(parent.childNodes);
 			caret.Range.Insert(parent);
-			if (!bWrap && !!FindClosest(self, option, DOM.Utils.IsText(caret.SameRoot) ? caret.SameRoot.parentNode : caret.SameRoot))
+			if (!bWrap && !!FindClosest(self, option, ConvertToElement(self, caret.SameRoot, true)))
 				children = toggler.Unwrap.UnwrapParents(caret.SameRoot, children, setting.Checker);
 			cleanDirty(caret.SameRoot);
 			caret.Range.SetStartBefore(children[0]);
@@ -108,21 +110,54 @@ const FormatCaret = (editor: Editor) => {
 		for (let index = 0, length = carets.length; index < length; ++index) {
 			const caret = carets[index];
 
-			if (caret.IsRange() || carets.length > 1) {
-				const toggleLines = caret.IsSameLine() ? toggleSameLine : toggleRange;
-				newRanges.push(toggleLines(bWrap, option, caret));
-				continue;
-			} else {
+			if (!caret.IsRange() && carets.length <= 1) {
 				newRanges.push(toggleCaret(bWrap, option, caret));
+				continue;
 			}
+
+			const toggleLines = caret.IsSameLine() ? toggleSameLine : toggleRange;
+			newRanges.push(toggleLines(bWrap, option, caret));
 		}
 
 		CaretUtils.UpdateRanges(newRanges);
 		CaretUtils.Clean();
 	};
 
+	const convertToTopNodeSetting = (topNode: Node, option: IFormatOptionBase, topNodeSetting: IFormatToggleTopNodeSettingBase): IFormatToggleTopNodeSetting => ({
+		...option,
+		TopNode: topNode,
+		...topNodeSetting,
+	});
+
+	const ToggleTopNode = (bToggle: boolean, option: IFormatOptionBase, topNodeSetting: IFormatToggleTopNodeSettingBase) => {
+		const carets: ICaretData[] = CaretUtils.Get(true);
+		const newRanges: Range[] = [];
+		for (let index = 0, length = carets.length; index < length; ++index) {
+			const caret = carets[index];
+
+			const topNode = FindTopNode(self, caret.SameRoot);
+			if (!topNode) continue;
+			const setting = convertToTopNodeSetting(topNode, option, topNodeSetting);
+
+			const range = topNodeToggler.Toggle(bToggle, setting, caret);
+			if (!range) continue;
+			newRanges.push(range);
+			continue;
+		}
+	};
+
+	const IsTopNodeZeroPixel = (format: string): boolean => {
+		const carets: ICaretData[] = CaretUtils.Get();
+		const topNode = FindTopNode(self, carets[0].SameRoot);
+		if (!topNode) return true;
+		const styleValue = self.DOM.GetStyle(topNode as HTMLElement, format, true);
+		return parseFloat(styleValue) <= 0;
+	};
+
 	return {
-		Toggle
+		Toggle,
+		ToggleTopNode,
+		IsTopNodeZeroPixel,
 	};
 };
 

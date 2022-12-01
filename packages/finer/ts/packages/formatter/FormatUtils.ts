@@ -14,13 +14,18 @@ export const FORMAT_BASES: Record<string, IFormatUIOptionBase> = {
 	fontfamily: { Title: 'Font family', Type: EFormatType.STYLE, Format: 'font-family' },
 	forecolor: { Title: 'Text color', Type: EFormatType.STYLE, Format: 'color' },
 	backcolor: { Title: 'Background color', Type: EFormatType.STYLE, Format: 'background-color' },
-	outdent: { Title: 'Outdent', Type: EFormatType.STYLE, Format: 'padding-left' },
-	indent: { Title: 'Indent', Type: EFormatType.STYLE, Format: 'padding-left' },
-	justify: { Title: 'Justify', Type: EFormatType.STYLE, Format: 'text-align', FormatValue: 'justify' },
-	alignleft: { Title: 'Align left', Type: EFormatType.STYLE, Format: 'text-align', FormatValue: 'left' },
-	aligncenter: { Title: 'Align center', Type: EFormatType.STYLE, Format: 'text-align', FormatValue: 'center' },
-	alignright: { Title: 'Align right', Type: EFormatType.STYLE, Format: 'text-align', FormatValue: 'right' },
+	outdent: { Title: 'Outdent', Type: EFormatType.STYLE, Format: 'padding-left', bTopNode: true },
+	indent: { Title: 'Indent', Type: EFormatType.STYLE, Format: 'padding-left', bTopNode: true },
+	justify: { Title: 'Justify', Type: EFormatType.STYLE, Format: 'text-align', FormatValue: 'justify', bTopNode: true },
+	alignleft: { Title: 'Align left', Type: EFormatType.STYLE, Format: 'text-align', FormatValue: 'left', bTopNode: true },
+	aligncenter: { Title: 'Align center', Type: EFormatType.STYLE, Format: 'text-align', FormatValue: 'center', bTopNode: true },
+	alignright: { Title: 'Align right', Type: EFormatType.STYLE, Format: 'text-align', FormatValue: 'right', bTopNode: true },
 };
+
+export const ConvertToElement = (editor: Editor, node: Node | null, bNode: boolean = false): Node | Element | null =>
+	node && editor.DOM.Utils.IsText(node)
+		? (bNode ? node.parentNode : node.parentElement)
+		: node as Element | null;
 
 export const FindClosest = (editor: Editor, option: IFormatOptionBase, node: Node | null): Element | null => {
 	if (!node) return null;
@@ -33,6 +38,35 @@ export const FindClosest = (editor: Editor, option: IFormatOptionBase, node: Nod
 			const style: string | Record<string, string> = option.FormatValue ? {} : option.Format;
 			if (Type.IsObject(style) && option.FormatValue) style[option.Format] = option.FormatValue;
 			return DOM.ClosestByStyle(node as Element | null, style);
+	}
+};
+
+export const FindTopNode = (editor: Editor, node: Node | null): Node | null => {
+	if (!node) return null;
+	let topNode = ConvertToElement(editor, node);
+	while (topNode) {
+		if (topNode.parentElement === editor.GetBody()) break;
+		topNode = topNode.parentElement;
+	}
+	return topNode;
+};
+
+export const FindTopNodeStrict = (editor: Editor, option: IFormatOptionBase, node: Node | null): Node | null => {
+	const topNode = FindTopNode(editor, node);
+	if (!topNode) return null;
+
+	const DOM = editor.DOM;
+
+	const { Format, FormatValue } = option;
+	switch (option.Type) {
+		case EFormatType.TAG:
+			return DOM.Utils.GetNodeName(topNode) === option.Format ? topNode : null;
+		case EFormatType.STYLE:
+			if (!FormatValue) return DOM.HasStyle(topNode as HTMLElement, Format) ? topNode : null;
+			const style = DOM.GetStyle(topNode as HTMLElement, Format);
+			return style === FormatValue ? topNode : null;
+		default:
+			return null;
 	}
 };
 

@@ -31,6 +31,7 @@ export interface IFormatOptionBase {
 	Format: string,
 	FormatValue?: string,
 	SameOption?: string[],
+	bTopNode?: boolean,
 }
 
 export interface IFormatUIOptionBase extends IFormatOptionBase {
@@ -47,9 +48,19 @@ export interface IFormatChecker {
 	(node: Node): boolean;
 }
 
-export interface IToggleSetting<T extends Node = ParentNode> extends Pick<IFormatOptionBase, 'Type' | 'Format' | 'FormatValue'> {
+export interface IFormatToggleSetting<T extends Node = ParentNode> extends Pick<IFormatOptionBase, 'Type' | 'Format' | 'FormatValue'> {
 	Parent: T,
 	Checker: IFormatChecker,
+}
+
+export interface IFormatToggleTopNodeSettingBase {
+	DefaultValue?: string,
+	bCalculate?: boolean,
+	bSubtract?: boolean,
+}
+
+export interface IFormatToggleTopNodeSetting extends Pick<IFormatOptionBase, 'Type' | 'Format' | 'FormatValue'>, IFormatToggleTopNodeSettingBase {
+	TopNode: Node,
 }
 
 export interface IFormattingOption extends Pick<IFormatOptionBase, 'Type' | 'Format'> {

@@ -2,7 +2,7 @@ import { Str, Type } from '@dynafer/utils';
 import Editor from '../Editor';
 import DOM from '../dom/DOM';
 import { ENativeEvents, PreventEvent } from '../events/EventSetupUtils';
-import { ACTIVE_CLASS, EFormatUI, IFormatOption, IFormatOptionBase } from './FormatType';
+import { ACTIVE_CLASS, DISABLED_ATTRIBUTE, EFormatUI, IFormatOption, IFormatOptionBase, IFormatToggleTopNodeSettingBase } from './FormatType';
 import FormatCaret from './FormatCaret';
 import { FORMAT_BASES } from './FormatUtils';
 
@@ -19,6 +19,8 @@ export interface IFormatUI {
 	SetOptionListCoordinate: (name: string, selection: HTMLElement, optionList: HTMLElement) => void,
 	CreateDefaultUIClickEvent: (ui: HTMLElement, callback: (bActivated: boolean) => void, bAddClass?: boolean) => (() => void),
 	ToggleDefaultButton: (ui: HTMLElement, bActive: boolean) => void,
+	ToggleDefaultDisable: (ui: HTMLElement, bDisable: boolean) => void,
+	ToggleTopNodeWithBoolean: (ui: HTMLElement, bToggle: boolean, option: IFormatOptionBase, topNodeSetting: IFormatToggleTopNodeSettingBase) => boolean,
 }
 
 const FormatUI = (editor: Editor): IFormatUI => {
@@ -66,9 +68,9 @@ const FormatUI = (editor: Editor): IFormatUI => {
 		});
 
 	const ToggleFormatCaret = (option: IFormatOptionBase, bActivated?: boolean) => {
-		const { Format, FormatValue, SameOption } = option;
+		const { Format, FormatValue, SameOption, bTopNode } = option;
 		if (!Type.IsBoolean(bActivated)) {
-			caretToggler.Toggle(false, { Type: option.Type, Format });
+			caretToggler.Toggle(false, { Type: option.Type, Format, bTopNode });
 			bActivated = true;
 		}
 		if (SameOption) {
@@ -76,25 +78,24 @@ const FormatUI = (editor: Editor): IFormatUI => {
 				caretToggler.Toggle(false, FORMAT_BASES[same]);
 			}
 		}
-		caretToggler.Toggle(bActivated, { Type: option.Type, Format, FormatValue });
+		caretToggler.Toggle(bActivated, { Type: option.Type, Format, FormatValue, bTopNode });
 	};
 
-	const UnwrapFormatCaret = (option: IFormatOptionBase) => {
-		caretToggler.Toggle(false, { Type: option.Type, Format: option.Format });
-	};
+	const UnwrapFormatCaret = (option: IFormatOptionBase) =>
+		caretToggler.Toggle(false, { Type: option.Type, Format: option.Format, bTopNode: option.bTopNode });
 
 	const CreateOption = (option: IFormatOption, active: boolean, setLabel: (text: string) => void): HTMLElement => {
-		const { Format, FormatValue, SameOption, Title } = option;
+		const { Format, FormatValue, SameOption, Title, bTopNode } = option;
 		const optionElement = Create(option, () => {
 			setLabel(active ? '' : Title);
 			self.Focus();
 
 			if (active) {
-				UnwrapFormatCaret({ Type: option.Type, Format });
+				UnwrapFormatCaret({ Type: option.Type, Format, bTopNode });
 				return;
 			}
 
-			ToggleFormatCaret({ Type: option.Type, Format, FormatValue, SameOption });
+			ToggleFormatCaret({ Type: option.Type, Format, FormatValue, SameOption, bTopNode });
 		});
 
 		if (active) DOM.AddClass(optionElement, ACTIVE_CLASS);
@@ -161,6 +162,15 @@ const FormatUI = (editor: Editor): IFormatUI => {
 		toggle(ui, ACTIVE_CLASS);
 	};
 
+	const ToggleDefaultDisable = (ui: HTMLElement, bDisable: boolean) => {
+		if (bDisable) {
+			DOM.SetAttr(ui, DISABLED_ATTRIBUTE, DISABLED_ATTRIBUTE);
+			return;
+		}
+
+		DOM.RemoveAttr(ui, DISABLED_ATTRIBUTE);
+	};
+
 	const CreateDefaultUIClickEvent = (ui: HTMLElement, callback: (bActivated: boolean) => void, bAddClass: boolean = true): (() => void) =>
 		() => {
 			const bActivated = !DOM.HasClass(ui, ACTIVE_CLASS);
@@ -168,6 +178,20 @@ const FormatUI = (editor: Editor): IFormatUI => {
 			if (bAddClass) ToggleDefaultButton(ui, bActivated);
 			callback(bActivated);
 		};
+
+	const ToggleTopNodeWithBoolean = (ui: HTMLElement, bToggle: boolean, option: IFormatOptionBase, topNodeSetting: IFormatToggleTopNodeSettingBase): boolean => {
+		caretToggler.ToggleTopNode(bToggle, option, topNodeSetting);
+		const { Format } = option;
+		const { DefaultValue, bSubtract } = topNodeSetting;
+
+		if (!DefaultValue) return true;
+
+		const bZero = caretToggler.IsTopNodeZeroPixel(Format);
+		if (bZero && bSubtract) ToggleDefaultDisable(ui, true);
+
+		return bZero;
+	};
+
 
 	return {
 		GetSystemStyle,
@@ -180,8 +204,10 @@ const FormatUI = (editor: Editor): IFormatUI => {
 		CreateOption,
 		CreateOptionEvent,
 		SetOptionListCoordinate,
-		CreateDefaultUIClickEvent,
 		ToggleDefaultButton,
+		ToggleDefaultDisable,
+		CreateDefaultUIClickEvent,
+		ToggleTopNodeWithBoolean,
 	};
 };
 
