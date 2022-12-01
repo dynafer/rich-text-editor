@@ -1,5 +1,5 @@
 import Editor from '../Editor';
-import { EFormatType, IFormattingOption, IToggleSetting } from './FormatType';
+import { EFormatType, IFormattingOption, IFormatToggleSetting } from './FormatType';
 import FormatUnwrap, { IFormatUnwrap } from './FormatUnwrap';
 import FormatWrap, { IFormatWrap } from './FormatWrap';
 
@@ -12,13 +12,13 @@ interface IToggleRangeCallback {
 }
 
 interface IToggleOneLine {
-	<T extends ParentNode>(bWrap: boolean, setting: IToggleSetting<T>, callback: IToggleOneLineCallback<T>): T;
-	(bWrap: boolean, setting: IToggleSetting, callback: IToggleOneLineCallback): ParentNode;
+	<T extends ParentNode>(bWrap: boolean, setting: IFormatToggleSetting<T>, callback: IToggleOneLineCallback<T>): T;
+	(bWrap: boolean, setting: IFormatToggleSetting, callback: IToggleOneLineCallback): ParentNode;
 }
 
 interface IToggleRange {
-	<T extends ParentNode>(bWrap: boolean, setting: IToggleSetting<T>, callback: IToggleRangeCallback): T;
-	(bWrap: boolean, setting: IToggleSetting, callback: IToggleRangeCallback): ParentNode;
+	<T extends ParentNode>(bWrap: boolean, setting: IFormatToggleSetting<T>, callback: IToggleRangeCallback): T;
+	(bWrap: boolean, setting: IFormatToggleSetting, callback: IToggleRangeCallback): ParentNode;
 }
 
 export interface IFormatToggle {
@@ -50,7 +50,7 @@ const FormatToggle = (editor: Editor): IFormatToggle => {
 		return formattingOption;
 	};
 
-	const ToggleOneLineRange = (bWrap: boolean, setting: IToggleSetting, callback: IToggleOneLineCallback): ParentNode => {
+	const ToggleOneLineRange = (bWrap: boolean, setting: IFormatToggleSetting, callback: IToggleOneLineCallback): ParentNode => {
 		const { Type, Format, FormatValue, Parent, Checker } = setting;
 		const wrapOrUnwrap = bWrap ? Wrap.WrapRecursive : Unwrap.UnwrapRecursive;
 		const children: Node[] = Array.from(Parent.childNodes);
@@ -63,7 +63,7 @@ const FormatToggle = (editor: Editor): IFormatToggle => {
 		return Parent;
 	};
 
-	const ToggleRange = (bWrap: boolean, setting: IToggleSetting, callback: IToggleRangeCallback): ParentNode => {
+	const ToggleRange = (bWrap: boolean, setting: IFormatToggleSetting, callback: IToggleRangeCallback): ParentNode => {
 		const { Type, Format, FormatValue, Parent, Checker } = setting;
 		const wrapOrUnwrap = bWrap ? Wrap.WrapRecursive : Unwrap.UnwrapRecursive;
 		const formattingOption = GetFormattingOption(Type, Format, FormatValue);

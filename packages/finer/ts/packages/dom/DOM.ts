@@ -19,10 +19,7 @@ export interface IDom {
 		<T extends Element>(selector: T | string, parent?: TElement): T;
 		(selector: string, parent?: TElement): HTMLElement | null;
 	},
-	SelectAll: {
-		<T extends Element>(selector: T, parent?: TElement): T[];
-		(selector: string, parent?: TElement): HTMLElement[];
-	},
+	SelectAll: (selector: string, parent?: TElement) => HTMLElement[],
 	GetAttr: (selector: TElement, attr: string) => string | null,
 	SetAttr: (selector: TElement, attr: string, value: string) => void,
 	SetAttrs: (selector: TElement, attrs: Record<string, string>) => void,
