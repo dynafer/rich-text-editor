@@ -11,6 +11,7 @@ import { IFormatter } from './formatter/Formatter';
 import { ENotificationStatus, INotificationManager, NotificationManager } from './managers/NotificationManager';
 import { IPluginManager } from './managers/PluginManager';
 import EditorToolbar, { IEditorToolbar } from './EditorToolbar';
+import Commander, { ICommander } from './commander/Commander';
 
 enum ELoadingStatus {
 	SHOW = 'SHOW',
@@ -28,6 +29,7 @@ class Editor {
 	public Notification: INotificationManager;
 	public Plugin!: IPluginManager;
 	public DOM: IDom = DOM.New(window, document, true);
+	public Commander: ICommander = Commander();
 	public Utils!: IEditorUtils;
 	public Formatter!: IFormatter;
 	public Toolbar: IEditorToolbar;

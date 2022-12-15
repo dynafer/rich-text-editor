@@ -13,6 +13,7 @@ interface IInlineFormatUI {
 	Format: IInlineFormat | IInlineFormat[],
 	Title: string,
 	Icon: string,
+	Keys?: string,
 }
 
 const Inline = (editor: Editor, detector: IFormatDetector): IFormatUIRegistryUnit => {
@@ -22,13 +23,13 @@ const Inline = (editor: Editor, detector: IFormatDetector): IFormatUIRegistryUni
 	const inlineFont = InlineFont(self, detector);
 
 	const InlineFormats: Record<string, IInlineFormatUI> = {
-		Bold: { Format: Formats.Bold as IInlineFormat[], Title: 'Bold', Icon: 'Bold' },
-		Italic: { Format: Formats.Italic as IInlineFormat[], Title: 'Italic', Icon: 'Italic' },
+		Bold: { Format: Formats.Bold as IInlineFormat[], Title: 'Bold', Icon: 'Bold', Keys: 'Ctrl+B' },
+		Italic: { Format: Formats.Italic as IInlineFormat[], Title: 'Italic', Icon: 'Italic', Keys: 'Ctrl+I' },
 		Strikethrough: { Format: Formats.Strikethrough as IInlineFormat[], Title: 'Strikethrough', Icon: 'Strikethrough' },
 		Subscript: { Format: Formats.Subscript as IInlineFormat, Title: 'Subscript', Icon: 'Subscript' },
 		Superscript: { Format: Formats.Superscript as IInlineFormat, Title: 'Superscript', Icon: 'Superscript' },
-		Underline: { Format: Formats.Underline as IInlineFormat[], Title: 'Underline', Icon: 'Underline' },
-		Code: { Format: Formats.Code as IInlineFormat, Title: 'Code', Icon: 'Terminal' },
+		Underline: { Format: Formats.Underline as IInlineFormat[], Title: 'Underline', Icon: 'Underline', Keys: 'Ctrl+U' },
+		Code: { Format: Formats.Code as IInlineFormat, Title: 'Code', Icon: 'Code' },
 	};
 
 	const UINames = Object.keys(InlineFormats);
@@ -52,17 +53,24 @@ const Inline = (editor: Editor, detector: IFormatDetector): IFormatUIRegistryUni
 		return false;
 	};
 
-	const createIconButton = (uiFormat: IInlineFormatUI): HTMLElement => {
-		const { Format, Title, Icon } = uiFormat;
-		const button = FormatUI.CreateIconButton(Title, Icon);
+	const createCommand = (format: IInlineFormat | IInlineFormat[], button: HTMLElement) =>
+		<T = boolean>(bActive: T) => {
+			const toggler = ToggleInline(self, format);
+			toggler.ToggleFromCaret(bActive as boolean);
+			if (bActive) FormatUI.UnwrapSameInlineFormats(self, format);
+			console.log(bActive);
+			FormatUI.ToggleActivateClass(button, bActive as boolean);
+		};
 
-		FormatUI.BindClickEvent(button, () => {
-			const bActive = !FormatUI.HasActiveClass(button);
-			const toggler = ToggleInline(self, Format);
-			toggler.ToggleFromCaret(bActive);
-			if (bActive) FormatUI.UnwrapSameInlineFormats(self, Format);
-			FormatUI.ToggleActivateClass(button, bActive);
-		});
+	const createIconButton = (uiName: string, uiFormat: IInlineFormatUI): HTMLElement => {
+		const { Format, Title, Icon, Keys } = uiFormat;
+		const button = FormatUI.CreateIconButton(Title, Icon);
+		const command = createCommand(Format, button);
+
+		FormatUI.RegisterCommand(self, uiName, command);
+		const eventCallback = () => FormatUI.RunCommand(self, uiName, !FormatUI.HasActiveClass(button));
+		FormatUI.BindClickEvent(button, eventCallback);
+		if (Type.IsString(Keys)) FormatUI.RegisterKeyboardEvent(self, Keys, eventCallback);
 
 		Detector.Register((paths: Node[]) => {
 			const node = FormatUtils.GetParentIfText(paths[0]);
@@ -86,7 +94,7 @@ const Inline = (editor: Editor, detector: IFormatDetector): IFormatUIRegistryUni
 		const uiName = FormatUtils.GetFormatName(name, UINames);
 		const uiFormat = InlineFormats[uiName];
 
-		return createIconButton(uiFormat);
+		return createIconButton(uiName, uiFormat);
 	};
 
 	return {

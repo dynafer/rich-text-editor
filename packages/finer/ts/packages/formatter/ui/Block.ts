@@ -1,4 +1,4 @@
-import { Arr, Str } from '@dynafer/utils';
+import { Arr, Str, Type } from '@dynafer/utils';
 import Editor from '../../Editor';
 import DOM from '../../dom/DOM';
 import ToggleBlock from '../format/ToggleBlock';
@@ -11,6 +11,7 @@ import FormatUtils from '../FormatUtils';
 interface IBlockFormatItem {
 	Format: IBlockFormat,
 	Title: string,
+	Keys?: string,
 }
 
 interface IBlockFormatUI {
@@ -27,12 +28,12 @@ const Block = (editor: Editor, detector: IFormatDetector): IFormatUIRegistryUnit
 			bPreview: true,
 			Items: [
 				{ Format: Formats.Paragraph as IBlockFormat, Title: 'Normal' },
-				{ Format: Formats.Heading1 as IBlockFormat, Title: 'Heading1' },
-				{ Format: Formats.Heading2 as IBlockFormat, Title: 'Heading2' },
-				{ Format: Formats.Heading3 as IBlockFormat, Title: 'Heading3' },
-				{ Format: Formats.Heading4 as IBlockFormat, Title: 'Heading4' },
-				{ Format: Formats.Heading5 as IBlockFormat, Title: 'Heading5' },
-				{ Format: Formats.Heading6 as IBlockFormat, Title: 'Heading6' },
+				{ Format: Formats.Heading1 as IBlockFormat, Title: 'Heading1', Keys: 'Alt+Shift+1' },
+				{ Format: Formats.Heading2 as IBlockFormat, Title: 'Heading2', Keys: 'Alt+Shift+2' },
+				{ Format: Formats.Heading3 as IBlockFormat, Title: 'Heading3', Keys: 'Alt+Shift+3' },
+				{ Format: Formats.Heading4 as IBlockFormat, Title: 'Heading4', Keys: 'Alt+Shift+4' },
+				{ Format: Formats.Heading5 as IBlockFormat, Title: 'Heading5', Keys: 'Alt+Shift+5' },
+				{ Format: Formats.Heading6 as IBlockFormat, Title: 'Heading6', Keys: 'Alt+Shift+6' },
 			]
 		},
 		BlockStyle: {
@@ -48,6 +49,8 @@ const Block = (editor: Editor, detector: IFormatDetector): IFormatUIRegistryUnit
 
 	const UINames = Object.keys(BlockFormats);
 
+	const createCommandName = (uiName: string, title: string): string => Str.Merge(uiName, ':', title);
+
 	const isDetected = (tagName: string, nodes: Node[]): boolean => {
 		for (const node of nodes) {
 			if (!self.DOM.Closest(node as Element, tagName)) continue;
@@ -57,23 +60,39 @@ const Block = (editor: Editor, detector: IFormatDetector): IFormatUIRegistryUnit
 		return false;
 	};
 
-	const createOptionsList = (selection: IFormatUISelection, uiName: string, uiFormat: IBlockFormatUI, setLabelText: (value: string) => void) => {
+	const isDetectedByCaret = (tagName: string, nodes?: Node[]) => {
+		const caretNodes: Node[] = Type.IsArray(nodes) ? nodes : [];
+		if (Arr.IsEmpty(caretNodes)) {
+			for (const caret of self.Utils.Caret.Get()) {
+				Arr.Push(caretNodes, FormatUtils.GetParentIfText(caret.Start.Node), FormatUtils.GetParentIfText(caret.End.Node));
+			}
+		}
+
+		return isDetected(tagName, caretNodes);
+	};
+
+	const createCommand = (format: IBlockFormat, title: string, setLabelText: (value: string) => void) =>
+		<T = boolean>(bActive: T) => {
+			const toggler = ToggleBlock(self, format);
+			toggler.ToggleFromCaret(bActive as boolean);
+			setLabelText(bActive ? title : '');
+		};
+
+	const createOptionsList = (selection: IFormatUISelection, uiName: string, uiFormat: IBlockFormatUI) => {
 		const optionElements: HTMLElement[] = [];
 		const caretNodes: Node[] = [];
 		for (const caret of self.Utils.Caret.Get()) {
 			Arr.Push(caretNodes, FormatUtils.GetParentIfText(caret.Start.Node), FormatUtils.GetParentIfText(caret.End.Node));
 		}
+		self.Utils.Caret.Clean();
 
 		for (const format of uiFormat.Items) {
 			const { Format, Title } = format;
 			const html = uiFormat.bPreview ? DOM.Utils.WrapTagHTML(Format.Tag, Title) : Title;
 			const bSelected = isDetected(Format.Tag, caretNodes);
 			const optionElement = FormatUI.CreateOption(html, Title, bSelected);
-			FormatUI.BindClickEvent(optionElement, () => {
-				const toggler = ToggleBlock(self, Format);
-				toggler.ToggleFromCaret(!bSelected);
-				setLabelText(!bSelected ? Title : '');
-			});
+
+			FormatUI.BindClickEvent(optionElement, () => FormatUI.RunCommand(self, createCommandName(uiName, Title), !bSelected));
 
 			optionElements.push(optionElement);
 		}
@@ -93,7 +112,20 @@ const Block = (editor: Editor, detector: IFormatDetector): IFormatUIRegistryUnit
 			DOM.SetText(selection.Label, value);
 		};
 		setLabelText();
-		FormatUI.BindOptionListEvent(self, uiName, selection.Selection, () => createOptionsList(selection, uiName, uiFormat, setLabelText));
+
+		for (const format of uiFormat.Items) {
+			const { Format, Title, Keys } = format;
+			const command = createCommand(Format, Title, setLabelText);
+			const commandName = createCommandName(uiName, Title);
+			FormatUI.RegisterCommand(self, commandName, command);
+
+			if (!Type.IsString(Keys)) continue;
+			FormatUI.RegisterKeyboardEvent(self, Keys, () => {
+				FormatUI.RunCommand(self, commandName, !isDetectedByCaret(Format.Tag));
+			});
+		}
+
+		FormatUI.BindOptionListEvent(self, uiName, selection.Selection, () => createOptionsList(selection, uiName, uiFormat));
 
 		Detector.Register((paths: Node[]) => {
 			const node = FormatUtils.GetParentIfText(paths[0]);
