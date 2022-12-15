@@ -2,110 +2,92 @@ import { Str, Type } from '@dynafer/utils';
 import Editor from '../Editor';
 import DOM from '../dom/DOM';
 import { ENativeEvents, PreventEvent } from '../events/EventSetupUtils';
-import { ACTIVE_CLASS, DISABLED_ATTRIBUTE, EFormatUI, IFormatOption, IFormatOptionBase, IFormatToggleTopNodeSettingBase } from './FormatType';
-import FormatCaret from './FormatCaret';
-import { FORMAT_BASES } from './FormatUtils';
+import { IInlineFormat } from './FormatType';
+import ToggleInline from './format/ToggleInline';
+import { Formats } from './Format';
 
-export interface IFormatUI {
-	GetSystemStyle: (style: string) => string,
-	Create: (option: Pick<IFormatOption, 'Title' | 'UIName' | 'UIType' | 'Html'>, event?: (evt: Event) => void) => HTMLElement,
-	CreateLabel: () => HTMLElement,
-	CreateSelection: (ui: string, title: string, children?: (string | Node)[]) => HTMLElement,
-	CreateOptionList: (type: string, children: Node[]) => HTMLElement,
-	ToggleFormatCaret: (option: IFormatOptionBase, bActivated?: boolean) => void,
-	UnwrapFormatCaret: (option: IFormatOptionBase) => void,
-	CreateOption: (option: IFormatOption, active: boolean, setLabel: (text: string) => void) => HTMLElement,
-	CreateOptionEvent: (name: string, clickable: HTMLElement, create: () => void) => void,
-	SetOptionListCoordinate: (name: string, selection: HTMLElement, optionList: HTMLElement) => void,
-	CreateDefaultUIClickEvent: (ui: HTMLElement, callback: (bActivated: boolean) => void, bAddClass?: boolean) => (() => void),
-	ToggleDefaultButton: (ui: HTMLElement, bActive: boolean) => void,
-	ToggleDefaultDisable: (ui: HTMLElement, bDisable: boolean) => void,
-	ToggleTopNodeWithBoolean: (ui: HTMLElement, bToggle: boolean, option: IFormatOptionBase, topNodeSetting: IFormatToggleTopNodeSettingBase) => boolean,
+const ACTIVE_CLASS = 'active';
+const DISABLED_ATTRIBUTE = 'disabled';
+
+export interface IFormatUISelection {
+	Label: HTMLElement,
+	Selection: HTMLElement,
 }
 
-const FormatUI = (editor: Editor): IFormatUI => {
-	const self = editor;
-	const caretToggler = FormatCaret(self);
+export interface IFormatUI {
+	Create: (tagName: string, title?: string, type?: string, html?: string) => HTMLElement,
+	GetSystemStyle: (editor: Editor, style: string) => string,
+	CreateIconButton: (title: string, iconName: string) => HTMLElement,
+	CreateSelection: (title: string, labelText?: string) => IFormatUISelection,
+	CreateOption: (html: string, title?: string, bSelected?: boolean, bAddIcon?: boolean) => HTMLElement,
+	CreateOptionList: (type: string, items?: HTMLElement[]) => HTMLElement,
+	CreateItemGroup: () => HTMLElement,
+	CreateIconGroup: () => HTMLElement,
+	CreateHelper: (title: string) => HTMLElement,
+	BindOptionListEvent: (editor: Editor, type: string, clickable: HTMLElement, create: () => void) => void,
+	SetOptionListCoordinate: (editor: Editor, name: string, selection: HTMLElement, optionList: HTMLElement) => void,
+	BindClickEvent: (selector: HTMLElement, callback: () => void) => void,
+	ToggleActivateClass: (selector: HTMLElement, bActive: boolean) => void,
+	ToggleDisable: (selector: HTMLElement, bDisable: boolean) => void,
+	HasActiveClass: (selector: HTMLElement) => boolean,
+	UnwrapSameInlineFormats: (editor: Editor, formats: IInlineFormat | IInlineFormat[]) => void,
+}
 
-	const GetSystemStyle = (style: string): string => self.DOM.GetStyle(self.GetBody(), style);
+const FormatUI = (): IFormatUI => {
+	const GetSystemStyle = (editor: Editor, style: string): string => editor.DOM.GetStyle(editor.GetBody(), style);
 
-	const Create = (option: Pick<IFormatOption, 'Title' | 'UIName' | 'UIType' | 'Html'>, event?: (evt: Event) => void): HTMLElement => {
-		const { Title, UIName, UIType, Html } = option;
-		const formatUI = DOM.Create(Str.LowerCase(UIName), {
-			attrs: {
-				title: Title
-			},
-			class: DOM.Utils.CreateUEID(Str.LowerCase(UIType.replace(/_/gi, '-')), false),
-			html: Html
-		});
+	const Create = (tagName: string, title?: string, type?: string, html?: string): HTMLElement => {
+		const createOption: Record<string, string | Record<string, string>> = {
+			attrs: {},
+		};
 
-		if (event) DOM.On(formatUI, ENativeEvents.click, event);
+		if (!!title) (createOption.attrs as Record<string, string>).title = title;
+		if (!!type) createOption.class = DOM.Utils.CreateUEID(type, false);
+		if (!!html) createOption.html = html;
 
-		return formatUI;
+		return DOM.Create(tagName, createOption);
 	};
 
-	const CreateLabel = (): HTMLElement =>
-		DOM.Create(Str.LowerCase(EFormatUI.DIV), {
-			class: DOM.Utils.CreateUEID('label', false)
-		});
+	const CreateIconButton = (title: string, iconName: string): HTMLElement =>
+		Create('button', title, 'icon-button', Finer.Icons.Get(iconName));
 
-	const CreateSelection = (ui: string, title: string, children: (string | Node)[] = []): HTMLElement =>
-		DOM.Create(Str.LowerCase(ui), {
-			attrs: {
-				title: title
-			},
-			class: DOM.Utils.CreateUEID('select', false),
-			children: children
-		});
+	const CreateSelection = (title: string, labelText: string = ''): IFormatUISelection => {
+		const Label = Create('div', undefined, 'select-label', labelText);
 
-	const CreateOptionList = (type: string, children: Node[] = []): HTMLElement =>
-		DOM.Create(Str.LowerCase(EFormatUI.DIV), {
-			attrs: {
-				dataType: type
-			},
-			class: DOM.Utils.CreateUEID('options', false),
-			children: children
-		});
+		const Selection = Create('button', title, 'select');
+		DOM.Insert(Selection, Label);
+		DOM.Insert(Selection, Finer.Icons.Get('AngleDown'));
 
-	const ToggleFormatCaret = (option: IFormatOptionBase, bActivated?: boolean) => {
-		const { Format, FormatValue, SameOption, bTopNode } = option;
-		if (!Type.IsBoolean(bActivated)) {
-			caretToggler.Toggle(false, { Type: option.Type, Format, bTopNode });
-			bActivated = true;
-		}
-		if (SameOption) {
-			for (const same of SameOption) {
-				caretToggler.Toggle(false, FORMAT_BASES[same]);
-			}
-		}
-		caretToggler.Toggle(bActivated, { Type: option.Type, Format, FormatValue, bTopNode });
+		return {
+			Label,
+			Selection,
+		};
 	};
 
-	const UnwrapFormatCaret = (option: IFormatOptionBase) =>
-		caretToggler.Toggle(false, { Type: option.Type, Format: option.Format, bTopNode: option.bTopNode });
-
-	const CreateOption = (option: IFormatOption, active: boolean, setLabel: (text: string) => void): HTMLElement => {
-		const { Format, FormatValue, SameOption, Title, bTopNode } = option;
-		const optionElement = Create(option, () => {
-			setLabel(active ? '' : Title);
-			self.Focus();
-
-			if (active) {
-				UnwrapFormatCaret({ Type: option.Type, Format, bTopNode });
-				return;
-			}
-
-			ToggleFormatCaret({ Type: option.Type, Format, FormatValue, SameOption, bTopNode });
-		});
-
-		if (active) DOM.AddClass(optionElement, ACTIVE_CLASS);
-
-		return optionElement;
+	const CreateOption = (html: string, title?: string, bSelected: boolean = false, bAddIcon: boolean = true): HTMLElement => {
+		const option = Create('li', title ?? html, 'option-item', Str.Merge(bAddIcon ? Finer.Icons.Get('Check') : '', html));
+		if (bSelected) DOM.AddClass(option, ACTIVE_CLASS);
+		return option;
 	};
 
-	const CreateOptionEvent = (name: string, clickable: HTMLElement, create: () => void) => {
+	const CreateOptionList = (type: string, items: HTMLElement[] = []): HTMLElement => {
+		const optionList = Create('div', undefined, 'options');
+		DOM.SetAttr(optionList, 'data-type', type);
+		DOM.Insert(optionList, items);
+		return optionList;
+	};
+
+	const CreateItemGroup = (): HTMLElement => Create('div', undefined, 'item-group');
+
+	const CreateIconGroup = (): HTMLElement => Create('div', undefined, 'icon-group');
+
+	const CreateHelper = (title: string): HTMLElement => Create('div', title, 'helper', Finer.Icons.Get('AngleDown'));
+
+	const BindOptionListEvent = (editor: Editor, type: string, clickable: HTMLElement, create: () => void) => {
+		const self = editor;
+
 		const selectOptionList = (): Element | null => DOM.Select(`.${DOM.Utils.CreateUEID('options', false)}`, self.Frame.Root);
-		const hasTypeAttribute = (): boolean => !!selectOptionList() && DOM.GetAttr(selectOptionList(), 'data-type') === name;
+		const hasTypeAttribute = (): boolean => !!selectOptionList() && DOM.GetAttr(selectOptionList(), 'data-type') === type;
 		const toggleEvents = (bOn: boolean, event: () => void) => {
 			const toggleRoot = bOn ? DOM.On : DOM.Off;
 			const toggleEditor = bOn ? self.DOM.On : self.DOM.Off;
@@ -131,7 +113,9 @@ const FormatUI = (editor: Editor): IFormatUI => {
 		});
 	};
 
-	const SetOptionListCoordinate = (name: string, selection: HTMLElement, optionList: HTMLElement) => {
+	const SetOptionListCoordinate = (editor: Editor, name: string, selection: HTMLElement, optionList: HTMLElement) => {
+		const self = editor;
+
 		const bInGroup = self.Toolbar.IsInGroup(name);
 		const browserWidth = DOM.Win.innerWidth + DOM.Win.scrollX;
 		const browserHeight = DOM.Win.innerHeight + DOM.Win.scrollY;
@@ -157,58 +141,60 @@ const FormatUI = (editor: Editor): IFormatUI => {
 		});
 	};
 
-	const ToggleDefaultButton = (ui: HTMLElement, bActive: boolean) => {
+	const BindClickEvent = (selector: HTMLElement, callback: () => void) =>
+		DOM.On(selector, ENativeEvents.click, callback);
+
+	const ToggleActivateClass = (selector: HTMLElement, bActive: boolean) => {
 		const toggle = bActive ? DOM.AddClass : DOM.RemoveClass;
-		toggle(ui, ACTIVE_CLASS);
+		toggle(selector, ACTIVE_CLASS);
 	};
 
-	const ToggleDefaultDisable = (ui: HTMLElement, bDisable: boolean) => {
+	const ToggleDisable = (selector: HTMLElement, bDisable: boolean) => {
 		if (bDisable) {
-			DOM.SetAttr(ui, DISABLED_ATTRIBUTE, DISABLED_ATTRIBUTE);
+			DOM.SetAttr(selector, DISABLED_ATTRIBUTE, DISABLED_ATTRIBUTE);
 			return;
 		}
 
-		DOM.RemoveAttr(ui, DISABLED_ATTRIBUTE);
+		DOM.RemoveAttr(selector, DISABLED_ATTRIBUTE);
 	};
 
-	const CreateDefaultUIClickEvent = (ui: HTMLElement, callback: (bActivated: boolean) => void, bAddClass: boolean = true): (() => void) =>
-		() => {
-			const bActivated = !DOM.HasClass(ui, ACTIVE_CLASS);
-			self.Focus();
-			if (bAddClass) ToggleDefaultButton(ui, bActivated);
-			callback(bActivated);
+	const HasActiveClass = (selector: HTMLElement): boolean => DOM.HasClass(selector, ACTIVE_CLASS);
+
+	const UnwrapSameInlineFormats = (editor: Editor, formats: IInlineFormat | IInlineFormat[]) => {
+		const unwrap = (format: IInlineFormat) => {
+			const { SameFormats } = format;
+			if (!SameFormats) return;
+			for (const sameFormat of SameFormats) {
+				const toggler = ToggleInline(editor, Formats[sameFormat] as IInlineFormat);
+				toggler.ToggleFromCaret(false);
+			}
 		};
 
-	const ToggleTopNodeWithBoolean = (ui: HTMLElement, bToggle: boolean, option: IFormatOptionBase, topNodeSetting: IFormatToggleTopNodeSettingBase): boolean => {
-		caretToggler.ToggleTopNode(bToggle, option, topNodeSetting);
-		const { Format } = option;
-		const { DefaultValue, bSubtract } = topNodeSetting;
+		if (!Type.IsArray(formats)) return unwrap(formats);
 
-		if (!DefaultValue) return true;
-
-		const bZero = caretToggler.IsTopNodeZeroPixel(Format);
-		if (bZero && bSubtract) ToggleDefaultDisable(ui, true);
-
-		return bZero;
+		for (const format of formats) {
+			unwrap(format);
+		}
 	};
 
-
 	return {
-		GetSystemStyle,
 		Create,
-		CreateLabel,
-		CreateOptionList,
+		GetSystemStyle,
+		CreateIconButton,
 		CreateSelection,
-		ToggleFormatCaret,
-		UnwrapFormatCaret,
 		CreateOption,
-		CreateOptionEvent,
+		CreateOptionList,
+		CreateItemGroup,
+		CreateIconGroup,
+		CreateHelper,
+		BindOptionListEvent,
 		SetOptionListCoordinate,
-		ToggleDefaultButton,
-		ToggleDefaultDisable,
-		CreateDefaultUIClickEvent,
-		ToggleTopNodeWithBoolean,
+		BindClickEvent,
+		ToggleActivateClass,
+		ToggleDisable,
+		HasActiveClass,
+		UnwrapSameInlineFormats,
 	};
 };
 
-export default FormatUI;
+export default FormatUI();

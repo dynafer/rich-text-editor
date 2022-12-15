@@ -19,5 +19,5 @@
 			}
 		}
 	},
-	"ignorePatterns": ["*.js", "*.json", "packages/**/build/**/*.ts", "packages/finer/ts/plugins/template/**/*"]
+	"ignorePatterns": ["*.js", "*.json", "packages/**/build/**/*.ts", "packages/finer/ts/plugins/template/**/*", "example/**/*.ts"]
 }

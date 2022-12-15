@@ -3,12 +3,12 @@ import { IsArray, IsFunction } from './Type';
 export const IsEmpty: (value: unknown) => boolean = (value) => IsArray(value) && value.length === 0;
 
 export const MergeUnique = <T>(...arrays: T[][]): T[] => {
-	let newSet: T[] = [];
+	let newArray: T[] = [];
 	for (const array of arrays) {
 		if (!IsArray(array) || IsEmpty(array)) continue;
-		newSet = [...new Set([...newSet, ...array])];
+		newArray = [...new Set([...newArray, ...array])];
 	}
-	return newSet;
+	return newArray;
 };
 
 export const Merge = <T>(...arrays: T[][]): T[] => {
@@ -32,6 +32,7 @@ export const Contains = <T>(array: T[], compare: T): boolean => IsArray(array) &
 export const Push = <T>(array: T[], ...items: T[]): number => array.push(...items);
 
 export const Unshift = <T>(array: T[], ...items: T[]): number => array.unshift(...items);
+export const Shift = <T>(array: T[]): T | undefined => array.shift();
 
 export const CompareAndGetStartIndex = <T>(bigArray: T[], smallArray: T[]): number =>
 	IsArray(bigArray) && !IsEmpty(bigArray) && IsArray(smallArray) && !IsEmpty(smallArray)
@@ -57,4 +58,14 @@ export const Find = <T>(array: unknown, compare: T): number => {
 	}
 
 	return -1;
+};
+
+export const Compare = <T>(array: T[], compare: T[]): boolean => {
+	if (array.length !== compare.length) return false;
+
+	for (let index = 0, length = array.length; index < length; ++index) {
+		if (array[index] !== compare[index]) return false;
+	}
+
+	return true;
 };

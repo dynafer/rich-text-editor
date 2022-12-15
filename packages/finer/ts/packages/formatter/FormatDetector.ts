@@ -1,14 +1,14 @@
+import { Arr } from '@dynafer/utils';
 import Editor from '../Editor';
 import { IEvent } from '../editorUtils/EventUtils';
-import { IFormatDetectorActivator, IFormatOptionBase } from './FormatType';
-import { ConvertToElement, FindClosest, FindTopNodeStrict } from './FormatUtils';
+import { TFormatDetectCallback } from './FormatType';
 
 interface IDetection {
-	(node: Node | null): Promise<void>;
+	(node: Node[]): Promise<void>;
 }
 
 export interface IFormatDetector {
-	Register: (option: IFormatOptionBase, activate: IFormatDetectorActivator, bIgnoreFormat?: boolean) => void,
+	Register: (callback: TFormatDetectCallback) => void,
 }
 
 const FormatDetector = (editor: Editor): IFormatDetector => {
@@ -16,27 +16,27 @@ const FormatDetector = (editor: Editor): IFormatDetector => {
 	const CaretUtils = self.Utils.Caret;
 	const detections: IDetection[] = [];
 
-	self.On('caret:change', ((paths: Node[]) => {
-		const carets = CaretUtils.Get();
 
-		const closestNode = paths[0] ?? ConvertToElement(self, carets[0].SameRoot, true);
+
+	self.On('caret:change', ((paths: Node[]) => {
+		const caretPaths = Arr.Reverse(paths);
+		if (Arr.IsEmpty(caretPaths)) {
+			const carets = CaretUtils.Get();
+			Arr.Push(caretPaths, ...Arr.Reverse(Arr.MergeUnique(carets[0].Start.Path, carets[0].End.Path)));
+		}
 
 		const promises: Promise<void>[] = [];
 		for (const detection of detections) {
-			promises.push(detection(closestNode));
+			promises.push(detection(caretPaths));
 		}
 
 		Promise.all(promises)
 			.finally(() => CaretUtils.Clean());
 	}) as IEvent);
 
-	const Register = (option: IFormatOptionBase, activate: IFormatDetectorActivator, bIgnoreFormat: boolean = false) => {
-		const find = option.bTopNode ? FindTopNodeStrict : FindClosest;
-		const asyncDetection: IDetection = (node: Node | null) =>
-			new Promise((resolve) => {
-				activate(bIgnoreFormat ? node : find(self, option, node));
-				resolve();
-			});
+	const Register = (callback: TFormatDetectCallback) => {
+		const asyncDetection: IDetection = (paths: Node[]) =>
+			new Promise((resolve) => resolve(callback(paths)));
 
 		detections.push(asyncDetection);
 	};

@@ -1,7 +1,8 @@
 import { Str, Utils } from '@dynafer/utils';
 import Options, { EModeEditor } from '../../Options';
 
-const EMPTY_HEX_CODE = '&#xfeff;';
+export const ESCAPE_EMPTY_TEXT_REGEX = /(%EF%BB%BF|%0A)/gi;
+export const EMPTY_HEX_CODE = '&#xfeff;';
 
 export interface IDOMUtils {
 	CreateUEID: (id?: string, bAddNum?: boolean) => string,
@@ -11,6 +12,9 @@ export interface IDOMUtils {
 	IsText: (selector: Node | null) => boolean,
 	GetNodeName: (selector: Node | null) => string,
 	CreateStyleVariable: (name: string, value: string) => string,
+	WrapTagHTML: (tagName: string, text: string) => string,
+	IsChildOf: (child: Node, parent: Node) => boolean,
+	IsTextEmpty: (selector: Node | null) => boolean,
 }
 
 const DOMUtils = (): IDOMUtils => {
@@ -41,6 +45,13 @@ const DOMUtils = (): IDOMUtils => {
 			Str.Merge(value, ';')
 		);
 
+	const WrapTagHTML = (tagName: string, text: string): string => Str.Merge('<', tagName, '>', text, '</', tagName, '>');
+
+	const IsChildOf = (child: Node, parent: Node): boolean =>
+		child === parent || parent.contains(child);
+
+	const IsTextEmpty = (selector: Node | null): boolean => !selector ? false : Str.IsEmpty(decodeURI(encodeURI(selector.textContent ?? '').replace(ESCAPE_EMPTY_TEXT_REGEX, '')));
+
 	return {
 		CreateUEID,
 		GetModeTag,
@@ -49,6 +60,9 @@ const DOMUtils = (): IDOMUtils => {
 		IsText,
 		GetNodeName,
 		CreateStyleVariable,
+		WrapTagHTML,
+		IsChildOf,
+		IsTextEmpty,
 	};
 };
 

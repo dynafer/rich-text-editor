@@ -1,6 +1,6 @@
 @import '../../_function';
 
-.#{$projectName} * {
+* {
 	#{getVarName(toolbar-bg)}: transparent;
 	#{getVarName(toolbar-border)}: #ececec;
 	#{getVarName(toolbar-item-bg)}: transparent;

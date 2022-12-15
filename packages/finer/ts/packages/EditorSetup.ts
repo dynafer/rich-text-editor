@@ -4,8 +4,8 @@ import Editor from './Editor';
 import DOM from './dom/DOM';
 import EditorUtils from './editorUtils/EditorUtils';
 import EventSetup from './events/EventSetup';
-import { Formatter } from './formatter/Formatter';
 import PluginManager from './managers/PluginManager';
+import Formatter from './formatter/Formatter';
 
 const EditorSetup = (editor: Editor): Promise<void> => {
 	const self = editor;
@@ -77,9 +77,7 @@ const EditorSetup = (editor: Editor): Promise<void> => {
 		EventSetup(self);
 		self.Formatter = Formatter(self);
 
-		const plugins = config.Plugins.filter((plugin) => !self.Formatter.Formats.IsAailable(plugin));
-
-		Finer.Loaders.Plugin.LoadParallel(plugins)
+		Finer.Loaders.Plugin.LoadParallel(config.Plugins)
 			.then(() => self.Plugin.AttachPlugin())
 			.then(() => {
 				self.Toolbar.LoadAll();

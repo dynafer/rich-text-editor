@@ -13,7 +13,6 @@ export interface ICaretData {
 	IsRange: () => boolean,
 	Start: ILineData,
 	End: ILineData,
-	IsSameLine: () => boolean,
 	SameRoot: Node,
 	Range: IRangeUtils,
 }
@@ -68,7 +67,6 @@ const CaretUtils = (editor: Editor): ICaretUtils => {
 			const IsRange = (): boolean => !range.collapsed;
 			const Start = getLine(range.startContainer, range.startOffset);
 			const End = getLine(range.endContainer, range.endOffset);
-			const IsSameLine = (): boolean => Start.Path[0] === End.Path[0];
 			const SameRoot = range.commonAncestorContainer;
 			const Range = RangeUtils(range);
 
@@ -76,7 +74,6 @@ const CaretUtils = (editor: Editor): ICaretUtils => {
 				IsRange,
 				Start,
 				End,
-				IsSameLine,
 				SameRoot,
 				Range,
 			});
@@ -86,6 +83,7 @@ const CaretUtils = (editor: Editor): ICaretUtils => {
 	};
 
 	const UpdateRanges = (newRanges: Range[]) => {
+		if (!selection) selection = DOM.Win.getSelection();
 		selection?.removeAllRanges();
 		Arr.Clean(ranges);
 
