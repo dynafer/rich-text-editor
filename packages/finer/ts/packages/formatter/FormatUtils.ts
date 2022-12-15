@@ -16,12 +16,28 @@ export type TCaretPath = {
 	EndOffset: number,
 };
 
-const FormatUtils = () => {
+export interface IFormatUtils {
+	GetPixelString: (value: number) => string,
+	GetPixcelFromRoot: () => string,
+	ConvertPointsToPixel: (value: number) => number,
+	ConvertPixelToPoints: (value: number) => number,
+	MultiplyPixelSize: (value: number) => number,
+	GetFormatName: (finder: string, names: string[]) => string,
+	HasFormatName: (finder: string, names: string[]) => boolean,
+	GetFormatConfig: (editor: Editor, defaultOptions: TConfigOption, configName: string) => TConfigOption,
+	LabelConfigArray: (config: string[]) => Record<string, string>,
+	GetParentIfText: (node: Node) => Node,
+	RunFormatting: (editor: Editor, toggle: () => void) => void,
+	SplitTextNode: (editor: Editor, node: Node, start: number, end: number) => Node | null,
+	GetStyleSelector: (styles: Record<string, string>, value?: string) => (string | Record<string, string>)[],
+}
+
+const FormatUtils = (): IFormatUtils => {
 	const STANDARD_POINTS_FROM_PIXEL = 0.75;
 	const STANDARD_PIXEL_FROM_POINTS = 1 / STANDARD_POINTS_FROM_PIXEL;
 	const STANDARD_PIXEL_FROM_ROOT = 16;
 
-	const GetPixelString = (value: number) => Str.Merge(value.toString(), 'px');
+	const GetPixelString = (value: number): string => Str.Merge(value.toString(), 'px');
 	const GetPixcelFromRoot = (): string => GetPixelString(STANDARD_PIXEL_FROM_ROOT);
 	const ConvertPointsToPixel = (value: number): number => Math.round(value * STANDARD_PIXEL_FROM_POINTS * 100) / 100;
 	const ConvertPixelToPoints = (value: number): number => Math.round(value * STANDARD_POINTS_FROM_PIXEL * 100) / 100;
