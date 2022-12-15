@@ -1,3 +1,4 @@
+import { Arr } from '@dynafer/utils';
 import Editor from '../Editor';
 
 export enum ENativeEvents {
@@ -168,10 +169,10 @@ export const CaretChangeEvent = <K extends keyof GlobalEventHandlersEventMap>(ed
 	const self = editor;
 	const paths: Node[] = [];
 	for (const path of event.composedPath()) {
-		if (self.DOM.Utils.IsParagraph(path as Node) || self.GetBody() === path || self.DOM.GetRoot() === path) break;
-		paths.push(path as Node);
+		if (self.GetBody() === path || self.DOM.GetRoot() === path) break;
+		Arr.Unshift(paths, path as Node);
 	}
-	editor.Dispatch('caret:change', paths);
+	self.Dispatch('caret:change', paths);
 };
 
 export const PreventEvent = (event: Event) => {

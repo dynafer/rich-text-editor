@@ -14,7 +14,7 @@
 			overflow: hidden;
 		}
 
-		.#{getClassName(icon)} {
+		.#{getClassName(icon-button)} {
 			@include all-border(none);
 			@include width($min: 1.625rem);
 			@include square(1.625rem);
@@ -79,7 +79,7 @@
 			@include width($min: 120px);
 			user-select: none;
 
-			.#{getClassName(label)} {
+			.#{getClassName(select-label)} {
 				@include width(calc(100% - 1rem));
 				@include truncation;
 				text-align: left;

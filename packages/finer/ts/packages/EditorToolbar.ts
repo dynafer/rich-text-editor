@@ -54,7 +54,7 @@ const EditorToolbar = (editor: Editor): IEditorToolbar => {
 
 	const LoadAll = () => {
 		for (const toolbar of ToolbarSet) {
-			if (self.Formatter.Formats.IsAailable(toolbar)) {
+			if (self.Formatter.Registry.IsAvailable(toolbar)) {
 				self.Formatter.Register(toolbar);
 				continue;
 			}

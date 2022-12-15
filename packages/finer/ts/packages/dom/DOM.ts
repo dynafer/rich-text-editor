@@ -1,9 +1,7 @@
 import { Attribute, Style } from '@dynafer/dom-control';
 import { Str, Type, Instance, Arr } from '@dynafer/utils';
 import Options from '../../Options';
-import DOMUtils, { IDOMUtils } from './DOMUtils';
-
-const ESCAPE_EMPTY_TEXT_REGEX = /(%EF%BB%BF|%0A)/gi;
+import DOMUtils, { ESCAPE_EMPTY_TEXT_REGEX, IDOMUtils } from './DOMUtils';
 
 type TElement = Node | Element | null;
 
@@ -48,11 +46,12 @@ export interface IDom {
 	SetText: (selector: HTMLElement, text: string) => void,
 	SetHTML: (selector: HTMLElement, html: string) => void,
 	SetOuterHTML: (selector: HTMLElement, html: string) => void,
+	InsertBefore: (selector: TElement, insertion: TElement | Node[] | string) => void,
 	Insert: (selector: TElement, insertion: TElement | Node[] | string) => void,
 	InsertAfter: (selector: TElement, insertion: TElement | Node[] | string) => void,
-	Clone: (selector: TElement, deep?: boolean, insertion?: TElement | Node[]) => Node | null,
+	Clone: (selector: NonNullable<TElement>, deep?: boolean, insertion?: TElement | Node[]) => Node,
 	Closest: (selector: Element | null, find: string) => Element | null,
-	ClosestByStyle: (selector: Element | null, styles: string | string[] | Record<string, string>) => Element | null,
+	ClosestByStyle: (selector: Element | null, styles: string | (string | Record<string, string>)[] | Record<string, string>) => Element | null,
 	GetTagName: {
 		<K extends keyof HTMLElementTagNameMap>(selector: TElement): K;
 		(selector: TElement): string;
@@ -76,6 +75,7 @@ export interface IDom {
 	Hide: (selector: HTMLElement) => void,
 	IsHidden: (selector: HTMLElement) => boolean,
 	CreateFragment: () => DocumentFragment,
+	CreateTextNode: (text: string) => Text,
 	Create: {
 		<K extends keyof HTMLElementTagNameMap>(tagName: K, option?: Record<string, TCreateOption>): HTMLElementTagNameMap[K];
 		(tagName: string, option?: Record<string, TCreateOption>): HTMLElement;
@@ -92,6 +92,7 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 
 	const elementType = Win.Element;
 	const nodeType = Win.Node;
+	const textType = Win.Text;
 
 	const boundEvents: [(Window & typeof globalThis) | Element, string, EventListener][] = [];
 
@@ -137,7 +138,10 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 
 	const AddClass = (selector: TElement, ...classes: string[]) => {
 		if (!Instance.Is(selector, elementType)) return;
-		selector.classList.add(...classes);
+		for (const className of classes) {
+			if (!className || Str.IsEmpty(className)) continue;
+			selector.classList.add(className);
+		}
 	};
 
 	const HasClass = (selector: TElement, className: string): boolean =>
@@ -207,6 +211,32 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 		selector.outerHTML = html;
 	};
 
+	const InsertBefore = (selector: TElement, insertion: TElement | Node[] | string) => {
+		if (!Instance.Is(selector, elementType) && !Instance.Is(selector, nodeType)
+			|| (
+				!Instance.Is(insertion, elementType)
+				&& !Instance.Is(insertion, nodeType)
+				&& !Type.IsString(insertion)
+				&& !Type.IsArray(insertion)
+			)
+		) return;
+
+		if (Instance.Is(selector, elementType)) {
+			if (Instance.Is(insertion, elementType) || Instance.Is(insertion, nodeType))
+				selector.before(insertion);
+			else if (Type.IsArray(insertion))
+				selector.before(...insertion);
+			else
+				selector.insertAdjacentHTML('beforebegin', insertion);
+			return;
+		}
+
+		if (Type.IsArray(insertion))
+			(selector as ChildNode).before(...insertion);
+		else
+			(selector as ChildNode).before(insertion);
+	};
+
 	const Insert = (selector: TElement, insertion: TElement | Node[] | string) => {
 		if ((!Instance.Is(selector, elementType) && !Instance.Is(selector, nodeType))
 			|| (
@@ -261,17 +291,7 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 			(selector as ChildNode).after(insertion);
 	};
 
-	const Clone = (selector: TElement, deep?: boolean, insertion?: TElement | Node[]): Node | null => {
-		if (!Instance.Is(selector, elementType) && !Instance.Is(selector, nodeType)) return null;
-		if (deep && !Type.IsBoolean(deep)) return null;
-		if (insertion
-			&& (
-				!Instance.Is(insertion, elementType)
-				&& !Instance.Is(insertion, nodeType)
-				&& !Type.IsArray(insertion)
-			)
-		) return null;
-
+	const Clone = (selector: NonNullable<TElement>, deep?: boolean, insertion?: TElement | Node[]): Node => {
 		const clonedSelector = selector.cloneNode(deep);
 		if (insertion) Insert(clonedSelector, insertion);
 
@@ -283,22 +303,27 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 		return selector.closest(find);
 	};
 
-	const ClosestByStyle = (selector: Element | null, styles: string | string[] | Record<string, string>): Element | null => {
+	const ClosestByStyle = (selector: Element | null, styles: string | (string | Record<string, string>)[] | Record<string, string>): Element | null => {
 		if (!Instance.Is(selector, elementType)) return null;
 
-		const createClosestStyleFormat = (style: string) => `[style*="${style}"]`;
+		const createClosestStyleFormat = (style: string): string => `[style*="${Str.CapitalToDash(style)}"]`;
+		const createClosestStyleFromMap = (style: Record<string, string>): string => {
+			let closestSelector = '';
+			for (const [key, value] of Object.entries(style)) {
+				closestSelector += createClosestStyleFormat(Str.Merge(Str.CapitalToDash(key), Str.IsEmpty(value) ? '' : `: ${value}`));
+			}
+			return closestSelector;
+		};
 		let find: string = '';
 
 		if (Type.IsString(styles)) {
 			find = createClosestStyleFormat(styles);
 		} else if (Type.IsArray(styles)) {
 			for (const style of styles) {
-				find += createClosestStyleFormat(style);
+				find += Type.IsString(style) ? createClosestStyleFormat(style) : createClosestStyleFromMap(style);
 			}
 		} else if (Type.IsObject(styles)) {
-			for (const [key, value] of Object.entries(styles)) {
-				find += createClosestStyleFormat(`${key}${Str.IsEmpty(value) ? '' : `: ${value}`}`);
-			}
+			find = createClosestStyleFromMap(styles);
 		} else {
 			return null;
 		}
@@ -321,7 +346,7 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 		if (selector.nodeName !== '#text') add(parents, selector);
 
 		while (parent = parent.parentNode) {
-			if (!Instance.Is(selector, nodeType) || !Instance.Is(parent, nodeType) || IsEditable(parent)) break;
+			if (!Instance.Is(parent, nodeType) || IsEditable(parent)) break;
 
 			add(parents, parent);
 		}
@@ -385,6 +410,8 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 		!Instance.Is(selector, elementType) ? false : GetStyle(selector, 'display') === 'none';
 
 	const CreateFragment = (): DocumentFragment => Doc.createDocumentFragment();
+
+	const CreateTextNode = (text: string): Text => new textType(text);
 
 	const Create = (tagName: string, option?: Record<string, TCreateOption>): HTMLElement => {
 		const newElement = Doc.createElement(tagName);
@@ -461,6 +488,7 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 		SetText,
 		SetHTML,
 		SetOuterHTML,
+		InsertBefore,
 		Insert,
 		InsertAfter,
 		Clone,
@@ -477,6 +505,7 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 		Hide,
 		IsHidden,
 		CreateFragment,
+		CreateTextNode,
 		Create,
 		RemoveChildren,
 		Remove,

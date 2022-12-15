@@ -2,8 +2,6 @@ import { Arr, Instance, Str, Type } from '@dynafer/utils';
 import { EModeEditor } from '../Options';
 import DOM from './dom/DOM';
 import { EToolbarStyle } from './EditorToolbar';
-import { IFormatConfiguration } from './formatter/FormatType';
-
 export interface IEditorOption {
 	selector?: HTMLElement,
 	mode?: string,
@@ -17,7 +15,7 @@ export interface IEditorOption {
 	[key: string]: string | string[] | Record<string, string> | Record<string, string[]> | HTMLElement | undefined,
 }
 
-export interface IConfiguration extends IFormatConfiguration {
+export interface IConfiguration {
 	Id: string,
 	Selector: HTMLElement,
 	Mode: EModeEditor,
@@ -72,11 +70,13 @@ const Configure = (config: IEditorOption): IConfiguration => {
 			throw new Error('Configuration: Toolbar Group must be an object.');
 		}
 	} else {
-		Toolbar = ['font', 'basic', 'color', 'script', 'indentation', 'alignment'];
+		Toolbar = ['styles', 'basic', 'script', 'font', 'color', 'alignment', 'indentation'];
+		ToolbarGroup = {};
 		ToolbarGroup = {
-			font: ['fontsize', 'fontfamily'],
+			styles: ['heading_style', 'block_style'],
+			font: ['fontSize', 'fontFamily'],
 			basic: ['bold', 'italic', 'underline', 'strikethrough', 'code'],
-			color: ['forecolor', 'backcolor'],
+			color: ['foreColor', 'backColor'],
 			script: ['subscript', 'superscript'],
 		};
 	}
@@ -87,7 +87,7 @@ const Configure = (config: IEditorOption): IConfiguration => {
 	const excludedDefaultOption = {};
 	for (const [key, value] of Object.entries(config)) {
 		if (Arr.Contains(defaultConfigs, key)) continue;
-		excludedDefaultOption[key] = value;
+		excludedDefaultOption[Str.CapitaliseFirst(Str.UnderlineToCapital(key))] = value;
 	}
 
 	const skin = config.skin;

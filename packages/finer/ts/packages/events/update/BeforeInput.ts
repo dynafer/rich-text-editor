@@ -1,6 +1,7 @@
 import { Arr, Str } from '@dynafer/utils';
 import Options from '../../../Options';
 import Editor from '../../Editor';
+import { ICaretData } from '../../editorUtils/caret/CaretUtils';
 import { EInputEventType, PreventEvent } from '../EventSetupUtils';
 
 const BeforeInputEvent = (editor: Editor) => {
@@ -41,19 +42,36 @@ const BeforeInputEvent = (editor: Editor) => {
 		}
 	};
 
-	const getAsStringCallback = (html: string) => {
+	const runWithCaret = (callback: (caret: ICaretData) => void) => {
 		const caret = CaretUtils.Get()[0];
-		caret.Range.DeleteContents();
-		const fragment = DOM.Create('fragment');
-		DOM.SetHTML(fragment, Str.Contains(html, '<!--StartFragment-->') ? html.split('StartFragment-->')[1].split('<!--EndFragment')[0] : html);
-		fakeFragment = DOM.CreateFragment();
-		DOM.Insert(fakeFragment, Array.from(fragment.childNodes));
-
-		cleanUnusable(fakeFragment);
-
+		callback(caret);
+		if (!fakeFragment) return;
+		let lastChild = fakeFragment.lastChild;
 		caret.Range.Insert(fakeFragment);
+		if (lastChild) {
+			while (lastChild) {
+				if (!lastChild.lastChild) {
+					caret.Range.SetStartAfter(lastChild);
+					break;
+				}
+				lastChild = lastChild.lastChild;
+			}
+		}
+		CaretUtils.UpdateRanges([caret.Range.Clone()]);
+		CaretUtils.Clean();
 		fakeFragment = null;
 	};
+
+	const getAsStringCallback = (html: string) =>
+		(caret: ICaretData) => {
+			caret.Range.DeleteContents();
+			const fragment = DOM.Create('fragment');
+			DOM.SetHTML(fragment, Str.Contains(html, '<!--StartFragment-->') ? html.split('StartFragment-->')[1].split('<!--EndFragment')[0] : html);
+			fakeFragment = DOM.CreateFragment();
+			DOM.Insert(fakeFragment, Array.from(fragment.childNodes));
+
+			cleanUnusable(fakeFragment);
+		};
 
 	const deleteByDragEvent = (event: InputEvent) => {
 		PreventEvent(event);
@@ -63,15 +81,13 @@ const BeforeInputEvent = (editor: Editor) => {
 		return;
 	};
 
-	const insertFromDropEvent = (event: InputEvent) => {
-		PreventEvent(event);
-		if (!fakeFragment) return;
+	const insertFromDropEvent = (event: InputEvent) =>
+		() => {
+			PreventEvent(event);
+			if (!fakeFragment) return;
 
-		const caret = CaretUtils.Get()[0];
-		cleanUnusable(fakeFragment);
-		caret.Range.Insert(fakeFragment);
-		fakeFragment = null;
-	};
+			cleanUnusable(fakeFragment);
+		};
 
 	const GetEvent = (_editor: Editor, event: InputEvent) => {
 		switch (event.inputType) {
@@ -79,7 +95,7 @@ const BeforeInputEvent = (editor: Editor) => {
 				deleteByDragEvent(event);
 				return;
 			case EInputEventType.insertFromDrop:
-				insertFromDropEvent(event);
+				runWithCaret(insertFromDropEvent(event));
 				return;
 			default:
 				const inputType = Str.LowerCase(event.inputType);
@@ -88,7 +104,7 @@ const BeforeInputEvent = (editor: Editor) => {
 					if (!Str.Contains(data.type, 'html')) continue;
 					PreventEvent(event);
 
-					data.getAsString(getAsStringCallback);
+					data.getAsString((html: string) => runWithCaret(getAsStringCallback(html)));
 				}
 				return;
 		}
