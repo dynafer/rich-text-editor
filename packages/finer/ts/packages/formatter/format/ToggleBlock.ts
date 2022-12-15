@@ -19,9 +19,7 @@ const ToggleBlock = (editor: Editor, format: IBlockFormat): IToggleBlock => {
 	const addInsideSelector = Array.from(AddInside).join(', ');
 
 	const toggleRangeEdge = (bWrap: boolean, node: Node, root: Node, bPrevious: boolean = false) => {
-		if (!AddInside.has(DOM.Utils.GetNodeName(root))) {
-			return Toggler.Toggle(bWrap, format, root);
-		}
+		if (!AddInside.has(DOM.Utils.GetNodeName(root))) return Toggler.Toggle(bWrap, format, root);
 
 		const toggleOption = {
 			except: ToggleUtils.ExceptNodes(node, root, bPrevious),

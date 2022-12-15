@@ -2,6 +2,7 @@ import { Str, Type } from '@dynafer/utils';
 import Editor from '../Editor';
 import DOM from '../dom/DOM';
 import { ENativeEvents, PreventEvent } from '../events/EventSetupUtils';
+import { EKeyCode, SetupWith } from '../events/keyboard/KeyboardUtils';
 import { IInlineFormat } from './FormatType';
 import ToggleInline from './format/ToggleInline';
 import { Formats } from './Format';
@@ -31,6 +32,9 @@ export interface IFormatUI {
 	ToggleDisable: (selector: HTMLElement, bDisable: boolean) => void,
 	HasActiveClass: (selector: HTMLElement) => boolean,
 	UnwrapSameInlineFormats: (editor: Editor, formats: IInlineFormat | IInlineFormat[]) => void,
+	RegisterCommand: (editor: Editor, name: string, command: <T = boolean>(bActive: T) => void) => void,
+	RunCommand: (editor: Editor, name: string, bActive: boolean) => void,
+	RegisterKeyboardEvent: (editor: Editor, combinedKeys: string, callback: () => void) => void,
 }
 
 const FormatUI = (): IFormatUI => {
@@ -177,6 +181,51 @@ const FormatUI = (): IFormatUI => {
 		}
 	};
 
+	const RegisterCommand = (editor: Editor, name: string, command: <T = boolean>(bActive: T) => void) =>
+		editor.Commander.Register(name, command);
+
+	const RunCommand = (editor: Editor, name: string, bActive: boolean) =>
+		editor.Commander.Run(name, bActive);
+
+	const RegisterKeyboardEvent = (editor: Editor, combinedKeys: string, callback: () => void) => {
+		const self = editor;
+
+		const keys = combinedKeys.split('+');
+
+		const keyOptions = {
+			bCtrl: false,
+			bAlt: false,
+			bShift: false,
+			bPrevent: true,
+		};
+		let keyCode;
+
+		for (const key of keys) {
+			const lowercase = Str.LowerCase(key);
+			switch (lowercase) {
+				case 'ctrl':
+					keyOptions.bCtrl = true;
+					break;
+				case 'alt':
+					keyOptions.bAlt = true;
+					break;
+				case 'shift':
+					keyOptions.bShift = true;
+					break;
+				default:
+					keyCode = lowercase.length === 1
+						? EKeyCode[Str.Merge(
+							isNaN(parseInt(lowercase)) ? 'Key' : 'Digit',
+							Str.UpperCase(lowercase)
+						)]
+						: EKeyCode[key];
+					break;
+			}
+		}
+
+		SetupWith(self, ENativeEvents.keydown, keyCode, keyOptions, callback);
+	};
+
 	return {
 		Create,
 		GetSystemStyle,
@@ -194,6 +243,9 @@ const FormatUI = (): IFormatUI => {
 		ToggleDisable,
 		HasActiveClass,
 		UnwrapSameInlineFormats,
+		RegisterCommand,
+		RunCommand,
+		RegisterKeyboardEvent,
 	};
 };
 
