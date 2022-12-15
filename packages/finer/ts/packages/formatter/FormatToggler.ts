@@ -10,7 +10,7 @@ export interface IFormatToggler {
 	ToggleRecursive: (bWrap: boolean, formats: TFormat | TFormat[], node: Node, toggleOption?: IToggleRecursiveOption) => void;
 }
 
-const FormatToggler = (editor: Editor) => {
+const FormatToggler = (editor: Editor): IFormatToggler => {
 	const self = editor;
 	const DOM = self.DOM;
 	const Wrapper = FormatWrapper(self);

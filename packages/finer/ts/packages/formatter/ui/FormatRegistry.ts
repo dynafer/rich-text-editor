@@ -11,7 +11,7 @@ export interface IFormatRegistry {
 	Register: (name: string) => HTMLElement | null,
 }
 
-const FormatRegistry = (editor: Editor) => {
+const FormatRegistry = (editor: Editor): IFormatRegistry => {
 	const self = editor;
 	const detector = FormatDetector(self);
 
