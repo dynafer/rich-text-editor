@@ -13,6 +13,7 @@ export enum EKeyCode {
 	End = 'End',
 	PageUp = 'PageUp',
 	PageDown = 'PageDown',
+	Tab = 'Tab',
 
 	Digit0 = 'Digit0',
 	Digit1 = 'Digit1',
@@ -65,10 +66,16 @@ export const SetupKeyboard = <K extends keyof GlobalEventHandlersEventMap>(edito
 
 export const SetupWith = <K extends keyof GlobalEventHandlersEventMap>(editor: Editor, eventName: K, keyCode: EKeyCode, option: Record<string, boolean>, callback: IEventSetupCallback<K>) => {
 	const { bCtrl, bAlt, bShift, bPrevent } = option;
+
+	const shouldStop = (bOption: boolean, bEventKey: boolean) =>
+		Type.IsBoolean(bOption)
+			? ((bOption && !bEventKey) || (!bOption && bEventKey))
+			: bEventKey;
+
 	const canProcess = (event: KeyboardEvent): boolean => {
-		if (Type.IsBoolean(bCtrl) && bCtrl && !event.ctrlKey) return false;
-		if (Type.IsBoolean(bAlt) && bAlt && !event.altKey) return false;
-		if (Type.IsBoolean(bShift) && bShift && !event.shiftKey) return false;
+		if (shouldStop(bCtrl, event.ctrlKey)) return false;
+		if (shouldStop(bAlt, event.altKey)) return false;
+		if (shouldStop(bShift, event.shiftKey)) return false;
 		if (Type.IsBoolean(bPrevent) && bPrevent) PreventEvent(event);
 
 		return true;

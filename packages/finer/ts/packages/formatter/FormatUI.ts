@@ -32,8 +32,8 @@ export interface IFormatUI {
 	ToggleDisable: (selector: HTMLElement, bDisable: boolean) => void,
 	HasActiveClass: (selector: HTMLElement) => boolean,
 	UnwrapSameInlineFormats: (editor: Editor, formats: IInlineFormat | IInlineFormat[]) => void,
-	RegisterCommand: (editor: Editor, name: string, command: <T = boolean>(bActive: T) => void) => void,
-	RunCommand: (editor: Editor, name: string, bActive: boolean) => void,
+	RegisterCommand: (editor: Editor, name: string, command: <T>(...args: T[]) => void) => void,
+	RunCommand: <T>(editor: Editor, name: string, ...args: T[]) => void,
 	RegisterKeyboardEvent: (editor: Editor, combinedKeys: string, callback: () => void) => void,
 }
 
@@ -181,11 +181,11 @@ const FormatUI = (): IFormatUI => {
 		}
 	};
 
-	const RegisterCommand = (editor: Editor, name: string, command: <T = boolean>(bActive: T) => void) =>
+	const RegisterCommand = (editor: Editor, name: string, command: <T>(...args: T[]) => void) =>
 		editor.Commander.Register(name, command);
 
-	const RunCommand = (editor: Editor, name: string, bActive: boolean) =>
-		editor.Commander.Run(name, bActive);
+	const RunCommand = <T>(editor: Editor, name: string, ...args: T[]) =>
+		editor.Commander.Run(name, ...args);
 
 	const RegisterKeyboardEvent = (editor: Editor, combinedKeys: string, callback: () => void) => {
 		const self = editor;

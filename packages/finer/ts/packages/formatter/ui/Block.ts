@@ -120,9 +120,7 @@ const Block = (editor: Editor, detector: IFormatDetector): IFormatUIRegistryUnit
 			FormatUI.RegisterCommand(self, commandName, command);
 
 			if (!Type.IsString(Keys)) continue;
-			FormatUI.RegisterKeyboardEvent(self, Keys, () => {
-				FormatUI.RunCommand(self, commandName, !isDetectedByCaret(Format.Tag));
-			});
+			FormatUI.RegisterKeyboardEvent(self, Keys, () => FormatUI.RunCommand(self, commandName, !isDetectedByCaret(Format.Tag)));
 		}
 
 		FormatUI.BindOptionListEvent(self, uiName, selection.Selection, () => createOptionsList(selection, uiName, uiFormat));

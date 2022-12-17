@@ -36,7 +36,7 @@ const ToggleBlock = (editor: Editor, format: IBlockFormat): IToggleBlock => {
 			!DOM.Closest(FormatUtils.GetParentIfText(caret.Start.Node) as Element, addInsideSelector)
 			|| caret.Start.Node === caret.End.Node
 		) {
-			return Toggler.Toggle(bWrap, format, caret.Start.Node);
+			return Toggler.Toggle(bWrap, format, caret.Start.Node.childNodes[0] ?? caret.Start.Node);
 		}
 
 		const toggleOption = {

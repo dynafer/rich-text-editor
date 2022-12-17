@@ -53,14 +53,15 @@ const InlineColor = (editor: Editor): IFormatUIRegistryUnit => {
 		[[191, 0, 255], [242, 204, 255], [230, 153, 255], [217, 102, 255], [204, 51, 255], [153, 0, 204], [115, 0, 153], [77, 0, 102]],
 	];
 
-	const selectCallback = (format: IInlineFormat, navigation: HTMLElement, bToggle: boolean, rgb: string) => {
-		const toggler = ToggleInline(self, format);
-		toggler.ToggleFromCaret(bToggle, bToggle ? rgb : undefined);
-		DOM.SetStyle(navigation, 'background-color', rgb);
-		DOM.Dispatch(navigation, 'color:change');
-	};
+	const createCommand = (format: IInlineFormat, navigation: HTMLElement) =>
+		<T = boolean | string>(bActive: T, rgb: T) => {
+			const toggler = ToggleInline(self, format);
+			toggler.ToggleFromCaret(bActive as boolean, bActive ? rgb as string : undefined);
+			DOM.SetStyle(navigation, 'background-color', rgb as string);
+			DOM.Dispatch(navigation, 'color:change');
+		};
 
-	const createPaletteGradients = (format: IInlineFormat, navigation: HTMLElement, colors: TRGBArray[][], bVertical: boolean = true): HTMLElement[] => {
+	const createPaletteGradients = (uiName: string, colors: TRGBArray[][], bVertical: boolean = true): HTMLElement[] => {
 		const paletteGradients = [];
 		for (const standardColor of colors) {
 			const gradient = FormatUI.Create('div', undefined, 'item-group');
@@ -71,7 +72,7 @@ const InlineColor = (editor: Editor): IFormatUIRegistryUnit => {
 				const rgbaString = ColorPicker.Utils.RGBA.ToRGB(...color);
 				const colorElement = FormatUI.Create('li', ColorPicker.Utils.RGBA.ToHex(rgba), 'option-item');
 				DOM.SetStyle(colorElement, 'background-color', rgbaString);
-				FormatUI.BindClickEvent(colorElement, () => selectCallback(format, navigation, true, rgbaString));
+				FormatUI.BindClickEvent(colorElement, () => FormatUI.RunCommand<boolean | string>(self, uiName, true, rgbaString));
 
 				const styleVariable = DOM.Utils.CreateStyleVariable(
 					'toolbar-color-hover-border',
@@ -89,8 +90,8 @@ const InlineColor = (editor: Editor): IFormatUIRegistryUnit => {
 		return paletteGradients;
 	};
 
-	const createResetButton = (uiFormat: IInlineFormatColorPickerUI, navigation: HTMLElement): HTMLElement => {
-		const { Format, DefaultColor } = uiFormat;
+	const createResetButton = (uiName: string, uiFormat: IInlineFormatColorPickerUI): HTMLElement => {
+		const { DefaultColor } = uiFormat;
 
 		const defaultColorText = 'Default color';
 		const defaultColorHTML = DOM.Utils.WrapTagHTML('button', Str.Merge(
@@ -100,14 +101,13 @@ const InlineColor = (editor: Editor): IFormatUIRegistryUnit => {
 
 		const resetButton = FormatUI.CreateOption(defaultColorHTML, defaultColorText, false, false);
 
-		FormatUI.BindClickEvent(DOM.Select('button', resetButton) as HTMLElement, () =>
-			selectCallback(Format, navigation, false, DefaultColor));
+		FormatUI.BindClickEvent(DOM.Select('button', resetButton) as HTMLElement, () => FormatUI.RunCommand<boolean | string>(self, uiName, false, DefaultColor));
 
 		return resetButton;
 	};
 
-	const createFooter = (uiFormat: IInlineFormatColorPickerUI, navigation: HTMLElement): HTMLElement => {
-		const { Format, LastPicked } = uiFormat;
+	const createFooter = (uiName: string, uiFormat: IInlineFormatColorPickerUI): HTMLElement => {
+		const { LastPicked } = uiFormat;
 
 		const moreText = 'More...';
 
@@ -125,34 +125,32 @@ const InlineColor = (editor: Editor): IFormatUIRegistryUnit => {
 				Icons: {
 					Close: Finer.Icons.Get('Close')
 				},
-				Pick: (rgb: string) => selectCallback(Format, navigation, true, rgb),
+				Pick: (rgb: string) => FormatUI.RunCommand<boolean | string>(self, uiName, true, rgb),
 			}));
 
 
-		DOM.Insert(lastPickedList, createPaletteGradients(Format, navigation, [LastPicked], false));
+		DOM.Insert(lastPickedList, createPaletteGradients(uiName, [LastPicked], false));
 
 		return footer;
 	};
 
-	const createPalette = (uiName: string, uiFormat: IInlineFormatColorPickerUI, wrapper: HTMLElement, navigation: HTMLElement) => {
-		const { Format } = uiFormat;
+	const createPalette = (uiName: string, uiFormat: IInlineFormatColorPickerUI, wrapper: HTMLElement) => {
+		const resetButton = createResetButton(uiName, uiFormat);
+		const footer = createFooter(uiName, uiFormat);
 
-		const resetButton = createResetButton(uiFormat, navigation);
-		const footer = createFooter(uiFormat, navigation);
-
-		const palette = FormatUI.CreateOptionList(uiName, [resetButton, ...createPaletteGradients(Format, navigation, STANDARD_PALETTE), footer]);
+		const palette = FormatUI.CreateOptionList(uiName, [resetButton, ...createPaletteGradients(uiName, STANDARD_PALETTE), footer]);
 		DOM.SetAttr(palette, 'palette', 'true');
 
 		DOM.Insert(self.Frame.Root, palette);
 		FormatUI.SetOptionListCoordinate(self, uiName, wrapper, palette);
 	};
 
-	const createHelper = (uiName: string, uiFormat: IInlineFormatColorPickerUI, wrapper: HTMLElement, navigation: HTMLElement) => {
+	const createHelper = (uiName: string, uiFormat: IInlineFormatColorPickerUI, wrapper: HTMLElement) => {
 		const { Title } = uiFormat;
 
 		const helper = FormatUI.CreateHelper(Title);
 
-		FormatUI.BindOptionListEvent(self, uiName, helper, () => createPalette(uiName, uiFormat, wrapper, navigation));
+		FormatUI.BindOptionListEvent(self, uiName, helper, () => createPalette(uiName, uiFormat, wrapper));
 
 		return helper;
 	};
@@ -164,6 +162,9 @@ const InlineColor = (editor: Editor): IFormatUIRegistryUnit => {
 		const colorNavigation = FormatUI.Create('div');
 		DOM.SetStyle(colorNavigation, 'background-color', uiFormat.DefaultColor);
 
+		const command = createCommand(uiFormat.Format, colorNavigation);
+		FormatUI.RegisterCommand(self, uiName, command);
+
 		DOM.On(colorNavigation, 'color:change', () => {
 			if (uiFormat.LastPicked.length >= 5) Arr.Shift(uiFormat.LastPicked);
 			const color = ColorPicker.Utils.RGBA.FromString(DOM.GetStyle(colorNavigation, 'background-color'));
@@ -174,9 +175,9 @@ const InlineColor = (editor: Editor): IFormatUIRegistryUnit => {
 
 		const button = FormatUI.Create('div', uiFormat.Title, 'color-icon');
 		DOM.SetHTML(button, Finer.Icons.Get(uiFormat.Icon));
-		FormatUI.BindClickEvent(button, () => selectCallback(uiFormat.Format, colorNavigation, true, DOM.GetStyle(colorNavigation, 'background-color')));
+		FormatUI.BindClickEvent(button, () => FormatUI.RunCommand<boolean | string>(self, uiName, true, DOM.GetStyle(colorNavigation, 'background-color')));
 
-		const helper = createHelper(uiName, uiFormat, wrapper, colorNavigation);
+		const helper = createHelper(uiName, uiFormat, wrapper);
 		DOM.Insert(button, colorNavigation);
 		DOM.Insert(wrapper, [button, helper]);
 

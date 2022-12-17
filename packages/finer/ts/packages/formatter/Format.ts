@@ -5,7 +5,7 @@ export const BlockFormatTags = {
 	Table: new Set(['table']),
 	TableItems: new Set(['tr', 'td', 'th']),
 	Block: new Set(['p', 'div', 'blockquote', 'pre', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6']),
-	List: new Set(['li', 'ol', 'ul', 'dl']),
+	List: new Set(['li', 'ol', 'ul']),
 };
 export const UnswitchableFormats = new Set([...BlockFormatTags.TableItems, ...BlockFormatTags.List]);
 export const AllStrictFormats = new Set([...BlockFormatTags.Block, ...UnswitchableFormats]);
@@ -83,5 +83,4 @@ export const Formats: Record<string, TFormat | TFormat[]> = {
 
 	OrderedList: { FormatType: EFormatType.LIST, Tag: 'ol', Switchable: BlockFormatTags.List, Following: 'li', UnsetSwitcher: 'p' },
 	UnorderedList: { FormatType: EFormatType.LIST, Tag: 'ul', Switchable: BlockFormatTags.List, Following: 'li', UnsetSwitcher: 'p' },
-	DescriptionList: { FormatType: EFormatType.LIST, Tag: 'dl', Switchable: BlockFormatTags.List, Following: 'li', UnsetSwitcher: 'p' },
 };
