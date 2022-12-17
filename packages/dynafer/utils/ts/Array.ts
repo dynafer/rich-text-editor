@@ -27,7 +27,7 @@ export const Reverse = <T>(array: T[]) => {
 	return reversed;
 };
 
-export const Contains = <T>(array: T[], compare: T): boolean => IsArray(array) && array.includes(compare);
+export const Contains = <T>(array: T[], expect: T): boolean => IsArray(array) && array.includes(expect);
 
 export const Push = <T>(array: T[], ...items: T[]): number => array.push(...items);
 
