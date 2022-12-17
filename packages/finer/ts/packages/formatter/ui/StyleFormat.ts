@@ -14,6 +14,7 @@ interface IStyleFormatUIItem {
 	Icon: string,
 	bDetector: boolean,
 	bSubtract?: boolean,
+	Keys?: string,
 }
 
 interface IStyleFormatUI {
@@ -43,8 +44,8 @@ const StyleFormat = (editor: Editor, detector: IFormatDetector): IFormatUIRegist
 			DefaultValue: FormatUtils.GetPixcelFromRoot(),
 			bCalculate: true,
 			Items: [
-				{ Format: Formats.Outdent as IStyleFormat, Title: 'Outdent', Icon: 'Outdent', bDetector: true, bSubtract: true },
-				{ Format: Formats.Indent as IStyleFormat, Title: 'Indent', Icon: 'Indent', bDetector: false },
+				{ Format: Formats.Outdent as IStyleFormat, Title: 'Outdent', Icon: 'Outdent', bDetector: true, bSubtract: true, Keys: 'Shift+Tab' },
+				{ Format: Formats.Indent as IStyleFormat, Title: 'Indent', Icon: 'Indent', bDetector: false, Keys: 'Tab' },
 			]
 		}
 	};
@@ -96,35 +97,46 @@ const StyleFormat = (editor: Editor, detector: IFormatDetector): IFormatUIRegist
 		};
 	};
 
+	const createCommand = (button: HTMLElement, uiFormat: IStyleFormatUI, uiFormatItem: IStyleFormatUIItem) => {
+		const { DefaultValue, bCalculate } = uiFormat;
+		const { Format, bSubtract } = uiFormatItem;
+
+		return <T = boolean>(bActive: T) => {
+			if (!bCalculate) FormatUI.ToggleActivateClass(button, bActive as boolean);
+
+			const toggler = ToggleStyleFormat(self, Format);
+			if (!bCalculate) toggler.ToggleFromCaret(bActive as boolean, DefaultValue);
+			else toggler.CalculateFromCaret(DefaultValue ?? FormatUtils.GetPixcelFromRoot(), bSubtract);
+
+			self.Dispatch('caret:change', []);
+		};
+	};
+
 	const createGroup = (uiFormat: IStyleFormatUI, bIndentation: boolean): HTMLElement => {
-		const { Items, DefaultValue, bCalculate } = uiFormat;
+		const { Items } = uiFormat;
 
 		const group = FormatUI.CreateIconGroup();
 		const createdDetector = bIndentation ? createIndentationDetector : createAlignmentDetector;
 
 		for (const item of Items) {
-			const { Format, Title, Icon, bDetector, bSubtract } = item;
+			const { Title, Icon, bDetector, bSubtract, Keys } = item;
 			const button = FormatUI.CreateIconButton(Title, Icon);
-			const detection = createdDetector(item.Format as IStyleFormat, button);
+			const command = createCommand(button, uiFormat, item);
+
+			FormatUI.RegisterCommand(self, Title, command);
+
+			const eventCallback = () => FormatUI.RunCommand(self, Title, !FormatUI.HasActiveClass(button));
 
 			if (bSubtract) FormatUI.ToggleDisable(button, true);
 
-			FormatUI.BindClickEvent(button, () => {
-				const bActivated = !FormatUI.HasActiveClass(button);
-				if (!bCalculate) FormatUI.ToggleActivateClass(button, bActivated);
-
-				const toggler = ToggleStyleFormat(self, Format);
-				if (!bCalculate) toggler.ToggleFromCaret(bActivated, DefaultValue);
-				else toggler.CalculateFromCaret(DefaultValue ?? FormatUtils.GetPixcelFromRoot(), bSubtract);
-
-				self.Dispatch('caret:change', []);
-			});
+			if (Type.IsString(Keys)) FormatUI.RegisterKeyboardEvent(self, Keys, eventCallback);
+			FormatUI.BindClickEvent(button, eventCallback);
 
 			DOM.Insert(group, button);
 
 			if (!bDetector) continue;
 
-			Detector.Register(detection);
+			Detector.Register(createdDetector(item.Format as IStyleFormat, button));
 		}
 
 		return group;

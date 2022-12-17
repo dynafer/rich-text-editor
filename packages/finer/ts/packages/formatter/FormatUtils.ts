@@ -134,10 +134,10 @@ const FormatUtils = (): IFormatUtils => {
 		const self = editor;
 		const newRanges: Range[] = [];
 
-		const getTextNode = (parent: Node): Node => {
+		const getTextOrBrNode = (parent: Node): Node => {
 			let node = parent;
 			if (!DOM.Utils.IsText(node)) {
-				while (node && !DOM.Utils.IsText(node)) {
+				while (node && !DOM.Utils.IsText(node) && DOM.Utils.GetNodeName(node) !== 'br') {
 					node = node.childNodes[0];
 				}
 			}
@@ -149,14 +149,14 @@ const FormatUtils = (): IFormatUtils => {
 			const newRange = self.Utils.Range();
 
 			if (!marking.bRange) {
-				const marker = getTextNode(self.DOM.Select(`#${marking.Marker}`).nextSibling as Node);
+				const marker = getTextOrBrNode(self.DOM.Select(`#${marking.Marker}`).nextSibling as Node);
 				newRange.SetStartToEnd(marker, marking.Offset, marking.Offset);
 				Arr.Push(newRanges, newRange.Get());
 				continue;
 			}
 
-			const startMarker = getTextNode(self.DOM.Select(`#${marking.StartMarker}`).nextSibling as Node);
-			const endMarker = getTextNode(self.DOM.Select(`#${marking.EndMarker}`).previousSibling as Node);
+			const startMarker = getTextOrBrNode(self.DOM.Select(`#${marking.StartMarker}`).nextSibling as Node);
+			const endMarker = getTextOrBrNode(self.DOM.Select(`#${marking.EndMarker}`).previousSibling as Node);
 			newRange.SetStart(startMarker, marking.StartOffset);
 			newRange.SetEnd(endMarker, marking.EndOffset);
 			Arr.Push(newRanges, newRange.Get());

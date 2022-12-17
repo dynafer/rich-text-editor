@@ -89,7 +89,15 @@ const InlineFont = (editor: Editor, detector: IFormatDetector): IFormatUIRegistr
 		return checkDetected(self.GetBody());
 	};
 
-	const createOptionElements = (uiFormat: IInlineFormatFontUI, labelValue: string, setLabelText: (value: string) => void): HTMLElement[] => {
+	const createCommand = (format: IInlineFormat, label: string, value: string, setLabelText: (value: string) => void) =>
+		<T = boolean>(bActive: T) => {
+			const toggler = ToggleInline(self, format);
+			toggler.ToggleFromCaret(bActive as boolean, value);
+			if (bActive) FormatUI.UnwrapSameInlineFormats(self, format);
+			setLabelText(bActive ? label : '');
+		};
+
+	const createOptionElements = (uiName: string, uiFormat: IInlineFormatFontUI, labelValue: string, setLabelText: (value: string) => void): HTMLElement[] => {
 		const { Format, bPreview, Options } = uiFormat;
 		const optionElements: HTMLElement[] = [];
 
@@ -99,12 +107,10 @@ const InlineFont = (editor: Editor, detector: IFormatDetector): IFormatUIRegistr
 			const html = bPreview ? DOM.Utils.WrapTagHTML('span', label) : label;
 			const bSelected = label === labelValue;
 			const optionElement = FormatUI.CreateOption(html, label, bSelected);
-			FormatUI.BindClickEvent(optionElement, () => {
-				const toggler = ToggleInline(self, Format);
-				toggler.ToggleFromCaret(!bSelected, value);
-				if (!bSelected) FormatUI.UnwrapSameInlineFormats(self, Format);
-				setLabelText(!bSelected ? label : '');
-			});
+			const command = createCommand(Format, label, value, setLabelText);
+
+			FormatUI.RegisterCommand(self, uiName, command);
+			FormatUI.BindClickEvent(optionElement, () => command(!bSelected));
 
 			if (bPreview && Format.Styles) DOM.SetStyle(DOM.Select('span', optionElement) as HTMLElement, styleName, value);
 
@@ -149,7 +155,7 @@ const InlineFont = (editor: Editor, detector: IFormatDetector): IFormatUIRegistr
 		};
 
 		FormatUI.BindOptionListEvent(self, uiName, selection.Selection, () => {
-			const optionElements = createOptionElements(uiFormat, DOM.GetText(selection.Label), setLabelText);
+			const optionElements = createOptionElements(uiName, uiFormat, DOM.GetText(selection.Label), setLabelText);
 			createOptionsList(selection, uiName, optionElements);
 		});
 
