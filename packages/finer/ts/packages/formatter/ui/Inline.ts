@@ -58,7 +58,6 @@ const Inline = (editor: Editor, detector: IFormatDetector): IFormatUIRegistryUni
 			const toggler = ToggleInline(self, format);
 			toggler.ToggleFromCaret(bActive as boolean);
 			if (bActive) FormatUI.UnwrapSameInlineFormats(self, format);
-			console.log(bActive);
 			FormatUI.ToggleActivateClass(button, bActive as boolean);
 		};
 
