@@ -4,13 +4,19 @@ import Editor from '../../Editor';
 import { ICaretData } from '../../editorUtils/caret/CaretUtils';
 import { EInputEventType, PreventEvent } from '../EventSetupUtils';
 
-const BeforeInputEvent = (editor: Editor) => {
+const Input = (editor: Editor) => {
 	const self = editor;
 	const DOM = self.DOM;
 	const CaretUtils = self.Utils.Caret;
-	let fakeFragment: DocumentFragment | null;
+	let fakeFragment: DocumentFragment | null = null;
+	let lastChildName: string | null = null;
 
 	const cleanUnusable = (fragment: DocumentFragment) => {
+		const brElements = fragment.querySelectorAll('br.Apple-interchange-newline');
+		for (const brElement of brElements) {
+			brElement.remove();
+		}
+
 		const styleElements = fragment.querySelectorAll('[style]');
 
 		for (const styleElement of styleElements) {
@@ -89,13 +95,27 @@ const BeforeInputEvent = (editor: Editor) => {
 			cleanUnusable(fakeFragment);
 		};
 
-	const GetEvent = (_editor: Editor, event: InputEvent) => {
+	const setLastChildName = () => {
+		const root: Node = CaretUtils.Get()[0].SameRoot;
+		let current: Node | null = DOM.Utils.IsText(root) ? root.parentNode : root;
+		while (current && current !== self.GetBody()) {
+			if (current.parentNode && current.parentNode === self.GetBody()) break;
+			current = current.parentNode;
+		}
+		lastChildName = DOM.Utils.GetNodeName(current);
+		CaretUtils.Clean();
+	};
+
+	const processBeforeInput = (event: InputEvent) => {
 		switch (event.inputType) {
 			case EInputEventType.deleteByDrag:
 				deleteByDragEvent(event);
 				return;
 			case EInputEventType.insertFromDrop:
 				runWithCaret(insertFromDropEvent(event));
+				return;
+			case EInputEventType.insertParagraph:
+				setLastChildName();
 				return;
 			default:
 				const inputType = Str.LowerCase(event.inputType);
@@ -110,9 +130,39 @@ const BeforeInputEvent = (editor: Editor) => {
 		}
 	};
 
+	const processInput = (event: InputEvent) => {
+		const clean = () => {
+			lastChildName = null;
+			CaretUtils.Clean();
+		};
+
+		if (event.inputType !== EInputEventType.insertParagraph || !lastChildName || !Arr.Contains(['ol', 'ul'], lastChildName))
+			return clean();
+
+		const caret = CaretUtils.Get()[0];
+
+		if (caret.SameRoot.parentNode !== self.GetBody() || DOM.Utils.IsParagraph(caret.SameRoot)) return clean();
+
+		const paragraph = DOM.Create('p', {
+			html: '<br>'
+		});
+
+		self.GetBody().replaceChild(paragraph, caret.SameRoot);
+
+		const newRange = self.Utils.Range();
+		newRange.SetStartToEnd(paragraph, 0, 0);
+
+		CaretUtils.UpdateRanges([newRange.Get()]);
+		clean();
+	};
+
+	const GetBefore = (_editor: Editor, event: InputEvent) => processBeforeInput(event);
+	const Get = (_editor: Editor, event: Event) => processInput(event as InputEvent);
+
 	return {
-		GetEvent
+		GetBefore,
+		Get,
 	};
 };
 
-export default BeforeInputEvent;
+export default Input;

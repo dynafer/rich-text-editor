@@ -1,4 +1,4 @@
-import { Instance } from '@dynafer/utils';
+import { Instance, Str } from '@dynafer/utils';
 import Options from '../Options';
 import Editor from './Editor';
 import DOM from './dom/DOM';
@@ -59,6 +59,7 @@ const EditorSetup = (editor: Editor): Promise<void> => {
 		let initialContent: string;
 		if (Instance.Is(config.Selector, HTMLTextAreaElement)) {
 			initialContent = config.Selector.value;
+			if (Str.IsEmpty(initialContent)) initialContent = config.Selector.innerHTML.replace(/&lt;/gi, '<').replace(/&gt;/gi, '>');
 			config.Selector.value = '';
 		} else {
 			initialContent = DOM.GetHTML(config.Selector);

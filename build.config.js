@@ -8,7 +8,7 @@ module.exports = async (runner, config) => {
 	const Rollup = runner.Rollup;
 	const Sass = runner.Sass;
 	const Task = runner.Task;
-	const bIsDevelopment = config.Mode === 'development';
+	const bDevelopment = config.Mode === 'development';
 
 	await Task.Run(async () => {
 		if (!fs.existsSync(OUTPUT_PATH)) fs.mkdirSync(OUTPUT_PATH);
@@ -35,18 +35,18 @@ module.exports = async (runner, config) => {
 
 		if (fs.existsSync(path.join(dirPath, './package.json'))) {
 			commandRegister(dirPath);
-		} else {
-			for (const subDir of fs.readdirSync(dirPath)) {
-				const subDirPath = path.join(dirPath, `./${subDir}`);
-				if (fs.existsSync(path.join(subDirPath, './package.json'))) {
-					commandRegister(subDirPath);
-				}
-			}
+			continue;
+		}
+
+		for (const subDir of fs.readdirSync(dirPath)) {
+			const subDirPath = path.join(dirPath, `./${subDir}`);
+			if (!fs.existsSync(path.join(subDirPath, './package.json'))) continue;
+
+			commandRegister(subDirPath);
 		}
 	}
 
 	await Command.Run(commandSettings);
-
 	await Command.Run({
 		cd: path.join(PACKAGE_PATH, `./${PROJECT_NAME}`),
 		command: 'yarn run build'
@@ -83,13 +83,13 @@ module.exports = async (runner, config) => {
 
 	await Sass.Run(sassList);
 
-	if (!bIsDevelopment) DeleteMapFiles();
+	if (!bDevelopment) DeleteMapFiles();
 
 	const outputOption = (filename) => ({
 		file: path.resolve(OUTPUT_PATH, `./${filename}.js`),
 		format: 'iife',
 		createUglified: true,
-		sourcemap: bIsDevelopment
+		sourcemap: bDevelopment
 	});
 
 	const inputPath = path.resolve(PACKAGE_PATH, './finer/build/lib');

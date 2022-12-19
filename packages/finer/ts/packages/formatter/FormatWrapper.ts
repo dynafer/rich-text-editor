@@ -121,7 +121,7 @@ const FormatWrapper = (editor: Editor): IFormatWrapper => {
 				for (const styleFormat of formats) {
 					wrapStyleFormat(styleFormat as IStyleFormat, node, value);
 				}
-				break;
+				return;
 		}
 	};
 

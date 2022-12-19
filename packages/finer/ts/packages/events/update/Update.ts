@@ -1,9 +1,13 @@
 import Editor from '../../Editor';
 import { ENativeEvents, Setup } from '../EventSetupUtils';
-import BeforeInputEvent from './BeforeInput';
+import Input from './Input';
 
 const Update = (editor: Editor) => {
-	Setup(editor, ENativeEvents.beforeinput, BeforeInputEvent(editor).GetEvent);
+	const self = editor;
+	const input = Input(self);
+
+	Setup(self, ENativeEvents.beforeinput, input.GetBefore);
+	Setup(self, ENativeEvents.input, input.Get);
 };
 
 export default Update;
