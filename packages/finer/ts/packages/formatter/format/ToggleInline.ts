@@ -94,8 +94,8 @@ const ToggleInline = (editor: Editor, formats: IInlineFormat | IInlineFormat[]):
 
 		const toggleOption = {
 			except: Arr.MergeUnique(
-				ToggleUtils.ExceptNodes(startNode, caret.SameRoot, true),
-				ToggleUtils.ExceptNodes(endNode, caret.SameRoot)
+				ToggleUtils.ExceptNodes(self, startNode, caret.SameRoot, true),
+				ToggleUtils.ExceptNodes(self, endNode, caret.SameRoot)
 			),
 			endNode,
 			value,

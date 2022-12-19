@@ -3,9 +3,10 @@ import { EFormatType, TFormat } from './FormatType';
 export const BlockFormatTags = {
 	Figures: new Set(['figure', 'img', 'audio', 'video']),
 	Table: new Set(['table']),
-	TableItems: new Set(['tr', 'td', 'th']),
+	TableItems: new Set(['td', 'th', 'tr']),
 	Block: new Set(['p', 'div', 'blockquote', 'pre', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6']),
 	List: new Set(['li', 'ol', 'ul']),
+	FollowingItems: new Set(['li', 'td', 'th']),
 };
 export const UnswitchableFormats = new Set([...BlockFormatTags.TableItems, ...BlockFormatTags.List]);
 export const AllStrictFormats = new Set([...BlockFormatTags.Block, ...UnswitchableFormats]);

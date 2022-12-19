@@ -1,6 +1,7 @@
 import { Arr } from '@dynafer/utils';
 import Editor from '../../Editor';
 import { ICaretData } from '../../editorUtils/caret/CaretUtils';
+import { BlockFormatTags } from '../Format';
 import { IBlockFormat } from '../FormatType';
 import FormatUtils from '../FormatUtils';
 import ToggleUtils from './ToggleUtils';
@@ -22,7 +23,7 @@ const ToggleBlock = (editor: Editor, format: IBlockFormat): IToggleBlock => {
 		if (!AddInside.has(DOM.Utils.GetNodeName(root))) return Toggler.Toggle(bWrap, format, root);
 
 		const toggleOption = {
-			except: ToggleUtils.ExceptNodes(node, root, bPrevious),
+			except: ToggleUtils.ExceptNodes(self, node, root, bPrevious),
 			endNode: node,
 		};
 
@@ -32,17 +33,17 @@ const ToggleBlock = (editor: Editor, format: IBlockFormat): IToggleBlock => {
 	const processSameLine = (bWrap: boolean, caret: ICaretData) => {
 		if (caret.Start.Line !== caret.End.Line) return;
 
+		const startElement = FormatUtils.GetParentIfText(caret.Start.Node) as Element;
+
 		if (
-			!DOM.Closest(FormatUtils.GetParentIfText(caret.Start.Node) as Element, addInsideSelector)
+			(!DOM.Closest(startElement, Array.from(BlockFormatTags.Table).join(',')) && !DOM.Closest(startElement, addInsideSelector))
 			|| caret.Start.Node === caret.End.Node
-		) {
-			return Toggler.Toggle(bWrap, format, caret.Start.Node.childNodes[0] ?? caret.Start.Node);
-		}
+		) return Toggler.Toggle(bWrap, format, caret.Start.Node.childNodes[0] ?? caret.Start.Node);
 
 		const toggleOption = {
 			except: Arr.MergeUnique(
-				ToggleUtils.ExceptNodes(caret.Start.Node, caret.SameRoot, true),
-				ToggleUtils.ExceptNodes(caret.End.Node, caret.SameRoot)
+				ToggleUtils.ExceptNodes(self, caret.Start.Node, caret.SameRoot, true),
+				ToggleUtils.ExceptNodes(self, caret.End.Node, caret.SameRoot)
 			),
 			endNode: caret.End.Node,
 		};

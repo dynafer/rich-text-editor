@@ -18,7 +18,7 @@ const ToggleStyleFormat = (editor: Editor, formats: IStyleFormat | IStyleFormat[
 
 	const toggleRangeEdge = (bWrap: boolean, node: Node, root: Node, value?: string, bPrevious: boolean = false) => {
 		const toggleOption = {
-			except: ToggleUtils.ExceptNodes(node, root, bPrevious),
+			except: ToggleUtils.ExceptNodes(self, node, root, bPrevious),
 			endNode: node,
 			value
 		};
@@ -32,8 +32,8 @@ const ToggleStyleFormat = (editor: Editor, formats: IStyleFormat | IStyleFormat[
 
 		const toggleOption = {
 			except: Arr.MergeUnique(
-				ToggleUtils.ExceptNodes(caret.Start.Node, caret.SameRoot, true),
-				ToggleUtils.ExceptNodes(caret.End.Node, caret.SameRoot)
+				ToggleUtils.ExceptNodes(self, caret.Start.Node, caret.SameRoot, true),
+				ToggleUtils.ExceptNodes(self, caret.End.Node, caret.SameRoot)
 			),
 			endNode: caret.End.Node,
 			value,
