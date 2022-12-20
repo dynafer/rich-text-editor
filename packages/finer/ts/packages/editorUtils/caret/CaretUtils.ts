@@ -40,10 +40,24 @@ const CaretUtils = (editor: Editor): ICaretUtils => {
 	};
 
 	const getLine = (node: Node, offset: number): ILineData => {
-		const Path: Node[] = DOM.GetParents(node);
 		const lines: Node[] = Array.from(self.GetBody().childNodes);
 
-		const Line: number = lines.indexOf(Path[0]);
+		if (node === self.GetBody()) {
+			let current: Node | null = lines[offset - 1];
+			while (current) {
+				if (DOM.Utils.IsText(current) || DOM.Utils.IsBr(current)) break;
+				current = current.lastChild;
+			}
+
+			if (current) {
+				node = current;
+				offset = DOM.Utils.IsText(node) ? node.length : 0;
+			}
+		}
+
+		const Path: Node[] = DOM.GetParents(node);
+
+		const Line: number = Arr.Find(lines, Path[0]);
 
 		return {
 			Node: node,

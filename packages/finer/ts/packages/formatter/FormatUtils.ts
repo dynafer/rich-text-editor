@@ -147,18 +147,36 @@ const FormatUtils = (): IFormatUtils => {
 			return node;
 		};
 
+		const getMarkerSibling = (marker: Node, bPrevious: boolean = false) => {
+			const sibling = bPrevious ? marker.previousSibling : marker.nextSibling;
+			if (sibling) return sibling;
+
+			let current: Node | null = marker;
+			while (current && current !== self.GetBody()) {
+				const currentSibling = bPrevious ? current.previousSibling : current.nextSibling;
+				if (currentSibling) {
+					current = currentSibling;
+					break;
+				}
+
+				current = current.parentNode;
+			}
+
+			return !current ? marker : current;
+		};
+
 		for (const marking of markings) {
 			const newRange = self.Utils.Range();
 
 			if (!marking.bRange) {
-				const marker = getTextOrBrNode(self.DOM.Select(`#${marking.Marker}`).nextSibling as Node);
+				const marker = getTextOrBrNode(getMarkerSibling(self.DOM.Select(`#${marking.Marker}`) as Node));
 				newRange.SetStartToEnd(marker, marking.Offset, marking.Offset);
 				Arr.Push(newRanges, newRange.Get());
 				continue;
 			}
 
-			const startMarker = getTextOrBrNode(self.DOM.Select(`#${marking.StartMarker}`).nextSibling as Node);
-			const endMarker = getTextOrBrNode(self.DOM.Select(`#${marking.EndMarker}`).previousSibling as Node);
+			const startMarker = getTextOrBrNode(getMarkerSibling(self.DOM.Select(`#${marking.StartMarker}`) as Node));
+			const endMarker = getTextOrBrNode(getMarkerSibling(self.DOM.Select(`#${marking.EndMarker}`) as Node, true));
 			newRange.SetStart(startMarker, marking.StartOffset);
 			newRange.SetEnd(endMarker, marking.EndOffset);
 			Arr.Push(newRanges, newRange.Get());
@@ -167,7 +185,14 @@ const FormatUtils = (): IFormatUtils => {
 		self.Utils.Caret.UpdateRanges(newRanges);
 
 		for (const marking of self.DOM.SelectAll('[marker="true"]')) {
-			self.DOM.Remove(marking);
+			let emptyMarking: Element | null = marking;
+			while (emptyMarking?.parentElement && emptyMarking !== self.GetBody()) {
+				if (emptyMarking.parentElement.childNodes.length !== 1) break;
+
+				emptyMarking = emptyMarking.parentElement;
+			}
+
+			self.DOM.Remove(emptyMarking ?? marking);
 		}
 	};
 
