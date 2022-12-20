@@ -44,7 +44,7 @@ const Input = (editor: Editor) => {
 			}
 
 			styleElement.parentNode.replaceChild(children[0], styleElement);
-			DOM.InsertAfter(children[0], children.slice(1, children.length));
+			DOM.InsertAfter(children[0], ...children.slice(1, children.length));
 		}
 	};
 
@@ -74,7 +74,7 @@ const Input = (editor: Editor) => {
 			const fragment = DOM.Create('fragment');
 			DOM.SetHTML(fragment, Str.Contains(html, '<!--StartFragment-->') ? html.split('StartFragment-->')[1].split('<!--EndFragment')[0] : html);
 			fakeFragment = DOM.CreateFragment();
-			DOM.Insert(fakeFragment, Array.from(fragment.childNodes));
+			DOM.Insert(fakeFragment, ...fragment.childNodes);
 
 			cleanUnusable(fakeFragment);
 		};

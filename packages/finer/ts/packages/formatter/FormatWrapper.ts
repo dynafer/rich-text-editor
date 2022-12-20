@@ -16,13 +16,8 @@ const FormatWrapper = (editor: Editor): IFormatWrapper => {
 		if (tagName === DOM.Utils.GetNodeName(oldNode)) return;
 		const newNode = DOM.Create(tagName);
 		if (!!styles) DOM.SetStyles(newNode, styles);
-		if (DOM.Utils.IsText(oldNode) || DOM.Utils.GetNodeName(oldNode) === 'br') {
-			DOM.Insert(newNode, DOM.Clone(oldNode, true));
-		} else {
-			for (const child of oldNode.childNodes) {
-				DOM.Insert(newNode, DOM.Clone(child, true));
-			}
-		}
+		const insertions = DOM.Utils.IsText(oldNode) || DOM.Utils.IsBr(oldNode) ? [oldNode] : oldNode.childNodes;
+		DOM.CloneAndInsert(newNode, true, ...insertions);
 		const parent = oldNode.parentElement as Element;
 		parent.replaceChild(newNode, oldNode);
 	};

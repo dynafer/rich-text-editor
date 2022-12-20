@@ -30,6 +30,8 @@ export interface IFormatUtils {
 	RunFormatting: (editor: Editor, toggle: () => void) => void,
 	SplitTextNode: (editor: Editor, node: Node, start: number, end: number) => Node | null,
 	GetStyleSelector: (styles: Record<string, string>, value?: string) => (string | Record<string, string>)[],
+	GetTableItems: (editor: Editor, table: Node, bSelected: boolean) => Node[],
+	ExceptNodes: (editor: Editor, node: Node, root: Node, bPrevious?: boolean) => Node[],
 }
 
 const FormatUtils = (): IFormatUtils => {
@@ -137,7 +139,7 @@ const FormatUtils = (): IFormatUtils => {
 		const getTextOrBrNode = (parent: Node): Node => {
 			let node = parent;
 			if (!DOM.Utils.IsText(node)) {
-				while (node && !DOM.Utils.IsText(node) && DOM.Utils.GetNodeName(node) !== 'br') {
+				while (node && !DOM.Utils.IsText(node) && !DOM.Utils.IsBr(node)) {
 					node = node.childNodes[0];
 				}
 			}
@@ -221,6 +223,43 @@ const FormatUtils = (): IFormatUtils => {
 		return createdSelector;
 	};
 
+	const getNodesInRoot = (node: Node, root: Node, bPrevious: boolean = false): Node[] => {
+		const nodes: Node[] = [];
+		let currentNode: Node | null = node;
+
+		const getSibling = (selector: Node): Node | null => bPrevious ? selector.previousSibling : selector.nextSibling;
+
+		while (currentNode) {
+			if (currentNode.parentNode === root && !getSibling(currentNode)) break;
+			if (!getSibling(currentNode)) {
+				currentNode = currentNode.parentNode;
+				continue;
+			}
+
+			currentNode = getSibling(currentNode);
+			if (currentNode) Arr.Push(nodes, currentNode);
+		}
+
+		return nodes;
+	};
+
+	const GetTableItems = (editor: Editor, table: Node, bSelected: boolean): Node[] => {
+		const self = editor;
+
+		const selector = bSelected ? '[data-selected]' : ':not[data-selected]';
+
+		return self.DOM.SelectAll(`td${selector}, th${selector}`, table);
+	};
+
+	const ExceptNodes = (editor: Editor, node: Node, root: Node, bPrevious: boolean = false): Node[] => {
+		const self = editor;
+
+		const tableNode = self.DOM.Closest(GetParentIfText(root) as Element, 'table');
+		if (!!tableNode) return GetTableItems(self, tableNode, false);
+
+		return getNodesInRoot(node, root, bPrevious);
+	};
+
 	return {
 		GetPixelString,
 		GetPixcelFromRoot,
@@ -235,6 +274,8 @@ const FormatUtils = (): IFormatUtils => {
 		RunFormatting,
 		SplitTextNode,
 		GetStyleSelector,
+		GetTableItems,
+		ExceptNodes,
 	};
 };
 

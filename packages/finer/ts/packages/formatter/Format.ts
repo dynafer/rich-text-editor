@@ -81,7 +81,4 @@ export const Formats: Record<string, TFormat | TFormat[]> = {
 	Div: { FormatType: EFormatType.BLOCK, Tag: 'div', Switchable: BlockFormatTags.Block, AddInside: UnswitchableFormats, UnsetSwitcher: 'p' },
 	Blockquote: { FormatType: EFormatType.BLOCK, Tag: 'blockquote', Switchable: BlockFormatTags.Block, AddInside: UnswitchableFormats, UnsetSwitcher: 'p' },
 	Pre: { FormatType: EFormatType.BLOCK, Tag: 'pre', Switchable: BlockFormatTags.Block, AddInside: UnswitchableFormats, UnsetSwitcher: 'p' },
-
-	OrderedList: { FormatType: EFormatType.LIST, Tag: 'ol', Switchable: BlockFormatTags.List, Following: 'li', UnsetSwitcher: 'p' },
-	UnorderedList: { FormatType: EFormatType.LIST, Tag: 'ul', Switchable: BlockFormatTags.List, Following: 'li', UnsetSwitcher: 'p' },
 };

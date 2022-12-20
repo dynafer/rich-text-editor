@@ -59,8 +59,7 @@ const FormatUI = (): IFormatUI => {
 		const Label = Create('div', undefined, 'select-label', labelText);
 
 		const Selection = Create('button', title, 'select');
-		DOM.Insert(Selection, Label);
-		DOM.Insert(Selection, Finer.Icons.Get('AngleDown'));
+		DOM.Insert(Selection, Label, Finer.Icons.Get('AngleDown'));
 
 		return {
 			Label,
@@ -77,7 +76,7 @@ const FormatUI = (): IFormatUI => {
 	const CreateOptionList = (type: string, items: HTMLElement[] = []): HTMLElement => {
 		const optionList = Create('div', undefined, 'options');
 		DOM.SetAttr(optionList, 'data-type', type);
-		DOM.Insert(optionList, items);
+		DOM.Insert(optionList, ...items);
 		return optionList;
 	};
 

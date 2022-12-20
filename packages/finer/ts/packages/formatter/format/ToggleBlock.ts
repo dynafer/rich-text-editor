@@ -4,7 +4,6 @@ import { ICaretData } from '../../editorUtils/caret/CaretUtils';
 import { BlockFormatTags } from '../Format';
 import { IBlockFormat } from '../FormatType';
 import FormatUtils from '../FormatUtils';
-import ToggleUtils from './ToggleUtils';
 
 export interface IToggleBlock {
 	ToggleFromCaret: (bWrap: boolean) => void,
@@ -23,7 +22,7 @@ const ToggleBlock = (editor: Editor, format: IBlockFormat): IToggleBlock => {
 		if (!AddInside.has(DOM.Utils.GetNodeName(root))) return Toggler.Toggle(bWrap, format, root);
 
 		const toggleOption = {
-			except: ToggleUtils.ExceptNodes(self, node, root, bPrevious),
+			except: FormatUtils.ExceptNodes(self, node, root, bPrevious),
 			endNode: node,
 		};
 
@@ -42,8 +41,8 @@ const ToggleBlock = (editor: Editor, format: IBlockFormat): IToggleBlock => {
 
 		const toggleOption = {
 			except: Arr.MergeUnique(
-				ToggleUtils.ExceptNodes(self, caret.Start.Node, caret.SameRoot, true),
-				ToggleUtils.ExceptNodes(self, caret.End.Node, caret.SameRoot)
+				FormatUtils.ExceptNodes(self, caret.Start.Node, caret.SameRoot, true),
+				FormatUtils.ExceptNodes(self, caret.End.Node, caret.SameRoot)
 			),
 			endNode: caret.End.Node,
 		};

@@ -1,3 +1,4 @@
+import { Str } from '@dynafer/utils';
 import DOM from './dom/DOM';
 import Editor from './Editor';
 
@@ -8,6 +9,7 @@ export enum EToolbarStyle {
 
 export interface IEditorToolbar {
 	Has: (name: string) => boolean,
+	Get: (name: string) => HTMLElement;
 	LoadAll: () => void,
 	IsInGroup: (name: string) => boolean,
 	Add: (name: string, element: HTMLElement) => void,
@@ -21,7 +23,9 @@ const EditorToolbar = (editor: Editor): IEditorToolbar => {
 	const ToolbarGroup = self.Config.ToolbarGroup;
 	const items: Record<string, HTMLElement> = {};
 
-	const Has = (name: string): boolean => !!items[name];
+	const Has = (name: string): boolean => !!items[Str.LowerCase(name)];
+
+	const Get = (name: string): HTMLElement => items[Str.LowerCase(name)];
 
 	const createGroup = (name: string): HTMLElement => {
 		const group = DOM.Create('div', {
@@ -32,8 +36,8 @@ const EditorToolbar = (editor: Editor): IEditorToolbar => {
 		});
 
 		for (const groupItem of ToolbarGroup[name]) {
-			if (!items[groupItem]) continue;
-			DOM.Insert(group, items[groupItem]);
+			if (!Has(groupItem)) continue;
+			DOM.Insert(group, Get(groupItem));
 		}
 
 		return group;
@@ -41,8 +45,8 @@ const EditorToolbar = (editor: Editor): IEditorToolbar => {
 
 	const addAll = () => {
 		for (const toolbar of ToolbarSet) {
-			if (items[toolbar]) {
-				DOM.Insert(self.Frame.Toolbar, items[toolbar]);
+			if (Has(toolbar)) {
+				DOM.Insert(self.Frame.Toolbar, Get(toolbar));
 				continue;
 			}
 
@@ -59,10 +63,20 @@ const EditorToolbar = (editor: Editor): IEditorToolbar => {
 				continue;
 			}
 
-			if (!ToolbarGroup[toolbar]) continue;
+			if (!ToolbarGroup[toolbar]) {
+				if (self.Plugin.Has(toolbar)) self.Plugin.Get(toolbar)(toolbar);
+				continue;
+			}
 
 			for (const groupItem of ToolbarGroup[toolbar]) {
-				self.Formatter.Register(groupItem);
+				if (self.Formatter.Registry.IsAvailable(groupItem)) {
+					self.Formatter.Register(groupItem);
+					continue;
+				}
+
+				if (!self.Plugin.Has(groupItem)) continue;
+
+				self.Plugin.Get(groupItem)(groupItem);
 			}
 		}
 
@@ -73,12 +87,12 @@ const EditorToolbar = (editor: Editor): IEditorToolbar => {
 
 	const Add = (name: string, element: HTMLElement) => {
 		if (Has(name)) return;
-		items[name] = element;
+		items[Str.LowerCase(name)] = element;
 	};
 
 	const Remove = (name: string) => {
 		if (!Has(name)) return;
-		DOM.Remove(items[name], true);
+		DOM.Remove(items[Str.LowerCase(name)], true);
 	};
 
 	const RemoveAll = () => {
@@ -89,6 +103,7 @@ const EditorToolbar = (editor: Editor): IEditorToolbar => {
 
 	return {
 		Has,
+		Get,
 		LoadAll,
 		IsInGroup,
 		Add,

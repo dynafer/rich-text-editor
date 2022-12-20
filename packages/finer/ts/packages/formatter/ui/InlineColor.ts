@@ -118,7 +118,7 @@ const InlineColor = (editor: Editor): IFormatUIRegistryUnit => {
 			Finer.Icons.Get('Palette'),
 			DOM.Utils.WrapTagHTML('span', moreText)
 		));
-		DOM.Insert(footer, [lastPickedList, moreButton]);
+		DOM.Insert(footer, lastPickedList, moreButton);
 
 		FormatUI.BindClickEvent(moreButton, () =>
 			ColorPicker.Create({
@@ -129,7 +129,7 @@ const InlineColor = (editor: Editor): IFormatUIRegistryUnit => {
 			}));
 
 
-		DOM.Insert(lastPickedList, createPaletteGradients(uiName, [LastPicked], false));
+		DOM.Insert(lastPickedList, ...createPaletteGradients(uiName, [LastPicked], false));
 
 		return footer;
 	};
@@ -179,7 +179,7 @@ const InlineColor = (editor: Editor): IFormatUIRegistryUnit => {
 
 		const helper = createHelper(uiName, uiFormat, wrapper);
 		DOM.Insert(button, colorNavigation);
-		DOM.Insert(wrapper, [button, helper]);
+		DOM.Insert(wrapper, button, helper);
 
 		return wrapper;
 	};

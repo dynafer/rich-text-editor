@@ -8,8 +8,9 @@ export interface IDOMUtils {
 	CreateUEID: (id?: string, bAddNum?: boolean) => string,
 	GetModeTag: (mode: EModeEditor) => string,
 	GetEmptyString: () => string,
-	IsParagraph: (selector: Node | null) => boolean,
-	IsText: (selector: Node | null) => boolean,
+	IsParagraph: (selector: Node | null) => selector is HTMLParagraphElement,
+	IsText: (selector: Node | null) => selector is Text,
+	IsBr: (selector: Node | null) => selector is HTMLBRElement,
 	GetNodeName: (selector: Node | null) => string,
 	CreateStyleVariable: (name: string, value: string) => string,
 	WrapTagHTML: (tagName: string, text: string) => string,
@@ -33,9 +34,11 @@ const DOMUtils = (): IDOMUtils => {
 
 	const GetEmptyString = (): string => EMPTY_HEX_CODE;
 
-	const IsParagraph = (selector: Node | null): boolean => Str.LowerCase(selector?.nodeName ?? '') === 'p' ?? false;
+	const IsParagraph = (selector: Node | null): selector is HTMLParagraphElement => Str.LowerCase(selector?.nodeName ?? '') === 'p' ?? false;
 
-	const IsText = (selector: Node | null): boolean => Str.LowerCase(selector?.nodeName ?? '') === '#text' ?? false;
+	const IsText = (selector: Node | null): selector is Text => Str.LowerCase(selector?.nodeName ?? '') === '#text' ?? false;
+
+	const IsBr = (selector: Node | null): selector is HTMLBRElement => Str.LowerCase(selector?.nodeName ?? '') === 'br' ?? false;
 
 	const GetNodeName = (selector: Node | null): string => Str.LowerCase(selector?.nodeName ?? '') ?? '';
 
@@ -58,6 +61,7 @@ const DOMUtils = (): IDOMUtils => {
 		GetEmptyString,
 		IsParagraph,
 		IsText,
+		IsBr,
 		GetNodeName,
 		CreateStyleVariable,
 		WrapTagHTML,
