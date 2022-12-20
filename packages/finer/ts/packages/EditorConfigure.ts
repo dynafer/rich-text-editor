@@ -71,13 +71,13 @@ const Configure = (config: IEditorOption): IConfiguration => {
 		}
 	} else {
 		Toolbar = ['styles', 'basic', 'script', 'font', 'color', 'alignment', 'indentation'];
-		ToolbarGroup = {};
 		ToolbarGroup = {
 			styles: ['heading_style', 'block_style'],
 			font: ['fontSize', 'fontFamily'],
 			basic: ['bold', 'italic', 'underline', 'strikethrough', 'code'],
 			color: ['foreColor', 'backColor'],
 			script: ['subscript', 'superscript'],
+			lists: ['numberList', 'bulletList'],
 		};
 	}
 

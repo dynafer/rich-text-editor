@@ -3,7 +3,6 @@ import Editor from '../../Editor';
 import { ICaretData } from '../../editorUtils/caret/CaretUtils';
 import { IInlineFormat } from '../FormatType';
 import FormatUtils from '../FormatUtils';
-import ToggleUtils from './ToggleUtils';
 
 export interface IToggleInline {
 	ToggleFromCaret: (bWrap: boolean, value?: string) => void,
@@ -94,8 +93,8 @@ const ToggleInline = (editor: Editor, formats: IInlineFormat | IInlineFormat[]):
 
 		const toggleOption = {
 			except: Arr.MergeUnique(
-				ToggleUtils.ExceptNodes(self, startNode, caret.SameRoot, true),
-				ToggleUtils.ExceptNodes(self, endNode, caret.SameRoot)
+				FormatUtils.ExceptNodes(self, startNode, caret.SameRoot, true),
+				FormatUtils.ExceptNodes(self, endNode, caret.SameRoot)
 			),
 			endNode,
 			value,

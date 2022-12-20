@@ -3,7 +3,6 @@ import Editor from '../../Editor';
 import { ICaretData } from '../../editorUtils/caret/CaretUtils';
 import { IStyleFormat } from '../FormatType';
 import FormatUtils from '../FormatUtils';
-import ToggleUtils from './ToggleUtils';
 
 export interface IToggleStyleFormat {
 	ToggleFromCaret: (bWrap: boolean, value?: string) => void,
@@ -18,7 +17,7 @@ const ToggleStyleFormat = (editor: Editor, formats: IStyleFormat | IStyleFormat[
 
 	const toggleRangeEdge = (bWrap: boolean, node: Node, root: Node, value?: string, bPrevious: boolean = false) => {
 		const toggleOption = {
-			except: ToggleUtils.ExceptNodes(self, node, root, bPrevious),
+			except: FormatUtils.ExceptNodes(self, node, root, bPrevious),
 			endNode: node,
 			value
 		};
@@ -32,8 +31,8 @@ const ToggleStyleFormat = (editor: Editor, formats: IStyleFormat | IStyleFormat[
 
 		const toggleOption = {
 			except: Arr.MergeUnique(
-				ToggleUtils.ExceptNodes(self, caret.Start.Node, caret.SameRoot, true),
-				ToggleUtils.ExceptNodes(self, caret.End.Node, caret.SameRoot)
+				FormatUtils.ExceptNodes(self, caret.Start.Node, caret.SameRoot, true),
+				FormatUtils.ExceptNodes(self, caret.End.Node, caret.SameRoot)
 			),
 			endNode: caret.End.Node,
 			value,

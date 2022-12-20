@@ -69,12 +69,8 @@ const EditorFrame = (config: IConfiguration): IEditorFrame => {
 
 	DOM.Hide(Notification);
 
-	DOM.Insert(wrapper, Notification);
-	DOM.Insert(wrapper, Container);
-
-	DOM.Insert(Root, Toolbar);
-	DOM.Insert(Root, wrapper);
-	DOM.Insert(Root, Loading);
+	DOM.Insert(wrapper, Notification, Container);
+	DOM.Insert(Root, Toolbar, wrapper, Loading);
 	DOM.InsertAfter(config.Selector, Root);
 
 	return {

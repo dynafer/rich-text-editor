@@ -1,6 +1,6 @@
 import { Arr } from '@dynafer/utils';
 import Editor from '../../Editor';
-import FormatDetector from '../FormatDetector';
+import { IFormatDetector } from '../FormatDetector';
 import FormatUtils from '../FormatUtils';
 import Block from './Block';
 import Inline from './Inline';
@@ -11,9 +11,8 @@ export interface IFormatRegistry {
 	Register: (name: string) => HTMLElement | null,
 }
 
-const FormatRegistry = (editor: Editor): IFormatRegistry => {
+const FormatRegistry = (editor: Editor, detector: IFormatDetector): IFormatRegistry => {
 	const self = editor;
-	const detector = FormatDetector(self);
 
 	// UI list start
 	const block = Block(self, detector);

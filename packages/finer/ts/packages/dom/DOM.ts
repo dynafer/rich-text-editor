@@ -46,10 +46,11 @@ export interface IDom {
 	SetText: (selector: HTMLElement, text: string) => void,
 	SetHTML: (selector: HTMLElement, html: string) => void,
 	SetOuterHTML: (selector: HTMLElement, html: string) => void,
-	InsertBefore: (selector: TElement, insertion: TElement | Node[] | string) => void,
-	Insert: (selector: TElement, insertion: TElement | Node[] | string) => void,
-	InsertAfter: (selector: TElement, insertion: TElement | Node[] | string) => void,
-	Clone: (selector: NonNullable<TElement>, deep?: boolean, insertion?: TElement | Node[]) => Node,
+	InsertBefore: (selector: TElement, ...insertions: (string | TElement)[]) => void,
+	Insert: (selector: TElement, ...insertions: (string | TElement)[]) => void,
+	InsertAfter: (selector: TElement, ...insertions: (string | TElement)[]) => void,
+	Clone: (selector: NonNullable<TElement>, deep?: boolean) => Node,
+	CloneAndInsert: (selector: NonNullable<TElement>, deep: boolean, ...insertions: (string | TElement)[]) => void,
 	Closest: (selector: Element | null, find: string) => Element | null,
 	ClosestByStyle: (selector: Element | null, styles: string | (string | Record<string, string>)[] | Record<string, string>) => Element | null,
 	GetTagName: {
@@ -211,91 +212,60 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 		selector.outerHTML = html;
 	};
 
-	const InsertBefore = (selector: TElement, insertion: TElement | Node[] | string) => {
-		if (!Instance.Is(selector, elementType) && !Instance.Is(selector, nodeType)
-			|| (
-				!Instance.Is(insertion, elementType)
-				&& !Instance.Is(insertion, nodeType)
-				&& !Type.IsString(insertion)
-				&& !Type.IsArray(insertion)
-			)
-		) return;
+	const InsertBefore = (selector: TElement, ...insertions: (string | TElement)[]) => {
+		if (!Instance.Is(selector, elementType) && !Instance.Is(selector, nodeType)) return;
 
-		if (Instance.Is(selector, elementType)) {
-			if (Instance.Is(insertion, elementType) || Instance.Is(insertion, nodeType))
-				selector.before(insertion);
-			else if (Type.IsArray(insertion))
-				selector.before(...insertion);
-			else
+		for (const insertion of insertions) {
+			if (!insertion) continue;
+
+			if (Instance.Is(selector, elementType) && Type.IsString(insertion)) {
 				selector.insertAdjacentHTML('beforebegin', insertion);
-			return;
-		}
-
-		if (Type.IsArray(insertion))
-			(selector as ChildNode).before(...insertion);
-		else
-			(selector as ChildNode).before(insertion);
-	};
-
-	const Insert = (selector: TElement, insertion: TElement | Node[] | string) => {
-		if ((!Instance.Is(selector, elementType) && !Instance.Is(selector, nodeType))
-			|| (
-				!Instance.Is(insertion, elementType)
-				&& !Instance.Is(insertion, nodeType)
-				&& !Type.IsArray(insertion)
-				&& !Type.IsString(insertion)
-			)
-		) return;
-
-		if (Instance.Is(selector, elementType)) {
-			if (Instance.Is(insertion, elementType) || Instance.Is(insertion, nodeType))
-				selector.appendChild(insertion);
-			else if (Type.IsArray(insertion))
-				selector.append(...insertion);
-			else
-				selector.insertAdjacentHTML('beforeend', insertion);
-			return;
-		}
-
-		if (Type.IsArray(insertion))
-			for (const insert of insertion) {
-				selector.appendChild(insert);
+				continue;
 			}
-		else
-			selector.appendChild(Type.IsString(insertion) ? new Text(insertion) : insertion);
-	};
 
-	const InsertAfter = (selector: TElement, insertion: TElement | Node[] | string) => {
-		if (!Instance.Is(selector, elementType) && !Instance.Is(selector, nodeType)
-			|| (
-				!Instance.Is(insertion, elementType)
-				&& !Instance.Is(insertion, nodeType)
-				&& !Type.IsString(insertion)
-				&& !Type.IsArray(insertion)
-			)
-		) return;
-
-		if (Instance.Is(selector, elementType)) {
-			if (Instance.Is(insertion, elementType) || Instance.Is(insertion, nodeType))
-				selector.after(insertion);
-			else if (Type.IsArray(insertion))
-				selector.after(...insertion);
-			else
-				selector.insertAdjacentHTML('afterend', insertion);
-			return;
+			(selector as ChildNode).before(insertion);
 		}
-
-		if (Type.IsArray(insertion))
-			(selector as ChildNode).after(...insertion);
-		else
-			(selector as ChildNode).after(insertion);
 	};
 
-	const Clone = (selector: NonNullable<TElement>, deep?: boolean, insertion?: TElement | Node[]): Node => {
-		const clonedSelector = selector.cloneNode(deep);
-		if (insertion) Insert(clonedSelector, insertion);
+	const Insert = (selector: TElement, ...insertions: (string | TElement)[]) => {
+		if ((!Instance.Is(selector, elementType) && !Instance.Is(selector, nodeType))) return;
 
-		return clonedSelector;
+		for (const insertion of insertions) {
+			if (!insertion) continue;
+
+			if (Instance.Is(selector, elementType) && Type.IsString(insertion)) {
+				selector.insertAdjacentHTML('beforeend', insertion);
+				continue;
+			}
+
+			selector.appendChild(Type.IsString(insertion) ? new Text(insertion) : insertion);
+		}
+	};
+
+	const InsertAfter = (selector: TElement, ...insertions: (string | TElement)[]) => {
+		if (!Instance.Is(selector, elementType) && !Instance.Is(selector, nodeType)) return;
+
+		for (const insertion of insertions) {
+			if (!insertion) continue;
+
+			if (Instance.Is(selector, elementType) && Type.IsString(insertion)) {
+				selector.insertAdjacentHTML('afterend', insertion);
+				continue;
+			}
+
+			(selector as ChildNode).after(insertion);
+		}
+	};
+
+	const Clone = (selector: NonNullable<TElement>, deep?: boolean): Node => selector.cloneNode(deep);
+
+	const CloneAndInsert = (selector: TElement, deep: boolean, ...insertions: (string | TElement)[]) => {
+		if ((!Instance.Is(selector, elementType) && !Instance.Is(selector, nodeType))) return;
+
+		for (const insertion of insertions) {
+			if (!insertion) continue;
+			Insert(selector, Type.IsString(insertion) ? insertion : Clone(insertion, deep));
+		}
 	};
 
 	const Closest = (selector: Element | null, find: string): Element | null => {
@@ -492,6 +462,7 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 		Insert,
 		InsertAfter,
 		Clone,
+		CloneAndInsert,
 		Closest,
 		ClosestByStyle,
 		GetTagName,

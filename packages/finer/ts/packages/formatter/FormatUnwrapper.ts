@@ -21,7 +21,7 @@ const FormatUnwrapper = (editor: Editor): IFormatUnwrapper => {
 	const switchFormat = (tagName: string, oldNode: Node) => {
 		if (DOM.Utils.GetNodeName(oldNode) === tagName) return oldNode;
 		const newTag = DOM.Create(tagName);
-		DOM.Insert(newTag, Array.from(oldNode.childNodes));
+		DOM.Insert(newTag, ...oldNode.childNodes);
 		(oldNode.parentElement as Element).replaceChild(newTag, oldNode);
 	};
 

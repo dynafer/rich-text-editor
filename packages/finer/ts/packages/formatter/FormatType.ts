@@ -5,7 +5,7 @@ export enum EFormatType {
 	LIST = 'LIST',
 }
 
-export type TFormat = IBlockFormat | IInlineFormat | IStyleFormat | IListFormat;
+export type TFormat = IBlockFormat | IInlineFormat | IStyleFormat;
 
 export type TFormatDetectCallback = (paths: Node[]) => void;
 
@@ -28,14 +28,6 @@ export interface IStyleFormat {
 	FormatType: EFormatType.STYLE,
 	StrictFormats: Set<string>,
 	Styles: Record<string, string>,
-}
-
-export interface IListFormat {
-	FormatType: EFormatType.LIST,
-	Tag: string,
-	Switchable: Set<string>,
-	Following: string,
-	UnsetSwitcher: string,
 }
 
 export interface IFormatUIRegistryUnit {

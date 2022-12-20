@@ -5,12 +5,17 @@ import { ENativeEvents } from '../events/EventSetupUtils';
 import { ENotificationStatus } from './NotificationManager';
 
 export interface IPluginManager {
+	Has: (name: string) => boolean,
+	Add: (name: string, plugin: <T>(...args: T[]) => void) => void,
+	Get: (name: string) => (<T>(...args: T[]) => void),
 	AttachPlugin: () => Promise<void>,
 }
 
 const PluginManager = (editor: Editor): IPluginManager => {
 	const self = editor;
 	const DOM = self.DOM;
+
+	const plugins: Record<string, (<T>(...args: T[]) => void)> = {};
 
 	self.On('caret:change', ((paths: Node[]) => {
 		const caretPointers = DOM.SelectAll('[caret]');
@@ -40,6 +45,13 @@ const PluginManager = (editor: Editor): IPluginManager => {
 			}
 		}
 	}) as IEvent);
+
+	const Has = (name: string): boolean => !!plugins[Str.LowerCase(name)];
+	const Add = (name: string, plugin: <T>(...args: T[]) => void) => {
+		if (Has(name)) return;
+		plugins[Str.LowerCase(name)] = plugin;
+	};
+	const Get = (name: string): (<T>(...args: T[]) => void) => plugins[Str.LowerCase(name)];
 
 	const AttachPlugin = (): Promise<void> =>
 		new Promise((resolve, reject) => {
@@ -74,7 +86,10 @@ const PluginManager = (editor: Editor): IPluginManager => {
 		});
 
 	return {
-		AttachPlugin
+		Has,
+		Add,
+		Get,
+		AttachPlugin,
 	};
 };
 
