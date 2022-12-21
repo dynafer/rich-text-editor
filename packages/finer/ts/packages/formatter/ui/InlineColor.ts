@@ -64,13 +64,17 @@ const InlineColor = (editor: Editor): IFormatUIRegistryUnit => {
 	const createPaletteGradients = (uiName: string, colors: TRGBArray[][], bVertical: boolean = true): HTMLElement[] => {
 		const paletteGradients = [];
 		for (const standardColor of colors) {
-			const gradient = FormatUI.Create('div', undefined, 'item-group');
+			const gradient = FormatUI.CreateItemGroup();
 			DOM.SetAttr(gradient, 'vertical', bVertical ? 'true' : 'false');
 
 			for (const color of standardColor) {
 				const rgba = ColorPicker.Utils.RGBA.ToMap(...color);
 				const rgbaString = ColorPicker.Utils.RGBA.ToRGB(...color);
-				const colorElement = FormatUI.Create('li', ColorPicker.Utils.RGBA.ToHex(rgba), 'option-item');
+				const colorElement = FormatUI.Create({
+					tagName: 'li',
+					title: ColorPicker.Utils.RGBA.ToHex(rgba),
+					type: 'option-item'
+				});
 				DOM.SetStyle(colorElement, 'background-color', rgbaString);
 				FormatUI.BindClickEvent(colorElement, () => FormatUI.RunCommand<boolean | string>(self, uiName, true, rgbaString));
 
@@ -113,7 +117,7 @@ const InlineColor = (editor: Editor): IFormatUIRegistryUnit => {
 
 		const footer = FormatUI.CreateOption('', moreText, false, false);
 		const lastPickedList = FormatUI.CreateItemGroup();
-		const moreButton = FormatUI.Create('button');
+		const moreButton = FormatUI.Create({ tagName: 'button' });
 		DOM.SetHTML(moreButton, Str.Merge(
 			Finer.Icons.Get('Palette'),
 			DOM.Utils.WrapTagHTML('span', moreText)
@@ -159,7 +163,7 @@ const InlineColor = (editor: Editor): IFormatUIRegistryUnit => {
 		const uiName = FormatUtils.GetFormatName(name, UINames);
 		const uiFormat = ColorFormats[uiName];
 
-		const colorNavigation = FormatUI.Create('div');
+		const colorNavigation = FormatUI.Create({ tagName: 'div' });
 		DOM.SetStyle(colorNavigation, 'background-color', uiFormat.DefaultColor);
 
 		const command = createCommand(uiFormat.Format, colorNavigation);
@@ -171,9 +175,17 @@ const InlineColor = (editor: Editor): IFormatUIRegistryUnit => {
 			uiFormat.LastPicked.push(color as TRGBArray);
 		});
 
-		const wrapper = FormatUI.Create('button', uiFormat.Title, 'icon-wrap');
+		const wrapper = FormatUI.Create({
+			tagName: 'button',
+			title: uiFormat.Title,
+			type: 'icon-wrap',
+		});
 
-		const button = FormatUI.Create('div', uiFormat.Title, 'color-icon');
+		const button = FormatUI.Create({
+			tagName: 'div',
+			title: uiFormat.Title,
+			type: 'color-icon',
+		});
 		DOM.SetHTML(button, Finer.Icons.Get(uiFormat.Icon));
 		FormatUI.BindClickEvent(button, () => FormatUI.RunCommand<boolean | string>(self, uiName, true, DOM.GetStyle(colorNavigation, 'background-color')));
 
