@@ -61,7 +61,7 @@ const InlineFont = (editor: Editor, detector: IFormatDetector): IFormatUIRegistr
 		const { Styles } = format;
 		if (!Styles) return false;
 
-		const selector = FormatUtils.GetStyleSelector(Styles);
+		const selector = FormatUtils.GetStyleSelectorMap(Styles);
 		const styleName = Object.keys(Styles as object)[0];
 
 		const bNumber = Str.Contains(value, FONT_SIZE_REGEXP);

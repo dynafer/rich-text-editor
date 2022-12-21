@@ -14,26 +14,26 @@ const FormatUnwrapper = (editor: Editor): IFormatUnwrapper => {
 
 	const unwrapFormat = (oldNode: Node) => {
 		const fragment = DOM.CreateFragment();
-		fragment.append(...oldNode.childNodes);
+		fragment.append(...DOM.GetChildNodes(oldNode, false));
 		(oldNode.parentElement as Element).replaceChild(fragment, oldNode);
 	};
 
 	const switchFormat = (tagName: string, oldNode: Node) => {
 		if (DOM.Utils.GetNodeName(oldNode) === tagName) return oldNode;
 		const newTag = DOM.Create(tagName);
-		DOM.Insert(newTag, ...oldNode.childNodes);
+		DOM.Insert(newTag, ...DOM.GetChildNodes(oldNode, false));
 		(oldNode.parentElement as Element).replaceChild(newTag, oldNode);
 	};
 
 	const getClosestByStyles = (node: Node, styles: Record<string, string>): Node | null => {
-		const closest = DOM.ClosestByStyle(FormatUtils.GetParentIfText(node) as HTMLElement, FormatUtils.GetStyleSelector(styles));
+		const closest = DOM.ClosestByStyle(FormatUtils.GetParentIfText(node) as HTMLElement, FormatUtils.GetStyleSelectorMap(styles));
 		return closest;
 	};
 
 	const unwrapBlock = (format: IBlockFormat, node: Node) => {
 		const { Tag, Switchable, AddInside, UnsetSwitcher } = format;
-		const switchableSelector = Array.from(Switchable).join(', ');
-		const addInsideSelector = Array.from(AddInside).join(', ');
+		const switchableSelector = Str.Join(',', ...Switchable);
+		const addInsideSelector = Str.Join(',', ...AddInside);
 		const oldElement: Element | null = FormatUtils.GetParentIfText(node) as Element;
 
 		if (!DOM.Closest(oldElement, addInsideSelector)) return switchFormat(UnsetSwitcher ?? Tag, oldElement);
@@ -62,7 +62,7 @@ const FormatUnwrapper = (editor: Editor): IFormatUnwrapper => {
 
 		const closest = !Styles
 			? DOM.Closest(FormatUtils.GetParentIfText(node) as Element, Tag)
-			: DOM.ClosestByStyle(FormatUtils.GetParentIfText(node) as Element, FormatUtils.GetStyleSelector(Styles));
+			: DOM.ClosestByStyle(FormatUtils.GetParentIfText(node) as Element, FormatUtils.GetStyleSelectorMap(Styles));
 		if (!closest) return;
 
 		const isUnwrappable = (selector: Node) => {
@@ -81,7 +81,7 @@ const FormatUnwrapper = (editor: Editor): IFormatUnwrapper => {
 		while (current && !AllStrictFormats.has(DOM.Utils.GetNodeName(current))) {
 			const currentNode = current;
 			const bUnwrappable = isUnwrappable(currentNode);
-			const childNodes = Array.from(currentNode.childNodes);
+			const children = DOM.GetChildNodes(currentNode);
 			current = current.parentNode;
 			if (!current) break;
 
@@ -93,7 +93,7 @@ const FormatUnwrapper = (editor: Editor): IFormatUnwrapper => {
 				return wrapped;
 			};
 
-			for (const child of childNodes) {
+			for (const child of children) {
 				if (DOM.HasAttr(child, 'marker')) {
 					Arr.Push(replacedNodes, child);
 					continue;

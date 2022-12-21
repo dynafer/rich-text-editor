@@ -1,7 +1,7 @@
 import { Attribute, Style } from '@dynafer/dom-control';
 import { Str, Type, Instance, Arr } from '@dynafer/utils';
 import Options from '../../Options';
-import DOMUtils, { ESCAPE_EMPTY_TEXT_REGEX, IDOMUtils } from './DOMUtils';
+import DOMUtils, { ESCAPE_EMPTY_TEXT_REGEX, ICreateSelectorOption, IDOMUtils } from './DOMUtils';
 
 type TElement = Node | Element | null;
 
@@ -14,10 +14,10 @@ export interface IDom {
 	New: (win: Window & typeof globalThis, doc: Document, bEditor: boolean) => IDom,
 	GetRoot: () => HTMLElement,
 	Select: {
-		<T extends Element>(selector: T | string, parent?: TElement): T;
-		(selector: string, parent?: TElement): HTMLElement | null;
+		<T extends Element>(selector: T | string | ICreateSelectorOption, parent?: TElement): T;
+		(selector: string | ICreateSelectorOption, parent?: TElement): HTMLElement | null;
 	},
-	SelectAll: (selector: string, parent?: TElement) => HTMLElement[],
+	SelectAll: (selector: string | ICreateSelectorOption, parent?: TElement) => HTMLElement[],
 	GetAttr: (selector: TElement, attr: string) => string | null,
 	SetAttr: (selector: TElement, attr: string, value: string) => void,
 	SetAttrs: (selector: TElement, attrs: Record<string, string>) => void,
@@ -53,12 +53,10 @@ export interface IDom {
 	CloneAndInsert: (selector: NonNullable<TElement>, deep: boolean, ...insertions: (string | TElement)[]) => void,
 	Closest: (selector: Element | null, find: string) => Element | null,
 	ClosestByStyle: (selector: Element | null, styles: string | (string | Record<string, string>)[] | Record<string, string>) => Element | null,
-	GetTagName: {
-		<K extends keyof HTMLElementTagNameMap>(selector: TElement): K;
-		(selector: TElement): string;
-	},
 	IsEditable: (selector: Node) => boolean,
 	GetParents: (selector: Node | null, bReverse?: boolean) => Node[],
+	GetChildNodes: <T extends boolean = true>(selector: Node | null, bArray?: T | true) => T extends true ? Node[] : NodeListOf<Node>,
+	GetChildren: <T extends boolean = true>(selector: Element | null, bArray?: T | true) => T extends true ? Element[] : HTMLCollection,
 	On: {
 		<K extends keyof GlobalEventHandlersEventMap>(selector: TElement, eventName: K, event: TEventListener<K>): void;
 		(selector: (Window & typeof globalThis) | TElement, eventName: string, event: EventListener): void;
@@ -101,11 +99,16 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 
 	const GetRoot = (): HTMLElement => Doc.documentElement;
 
-	const Select = (selector: string, parent?: TElement): HTMLElement | null =>
-		Instance.Is(parent, elementType) ? parent.querySelector(selector) : Doc.querySelector(selector);
+	const Select = (selector: string | ICreateSelectorOption, parent?: TElement): HTMLElement | null =>
+		Instance.Is(parent, elementType)
+			? parent.querySelector(Type.IsString(selector) ? selector : Utils.CreateSelector(selector))
+			: Doc.querySelector(Type.IsString(selector) ? selector : Utils.CreateSelector(selector));
 
-	const SelectAll = (selector: string, parent?: TElement): HTMLElement[] =>
-		Array.from(Instance.Is(parent, elementType) ? parent.querySelectorAll(selector) : Doc.querySelectorAll(selector));
+	const SelectAll = (selector: string | ICreateSelectorOption, parent?: TElement): HTMLElement[] =>
+		Array.from(Instance.Is(parent, elementType)
+			? parent.querySelectorAll(Type.IsString(selector) ? selector : Utils.CreateSelector(selector))
+			: Doc.querySelectorAll(Type.IsString(selector) ? selector : Utils.CreateSelector(selector))
+		);
 
 	const GetAttr = (selector: TElement, attr: string): string | null =>
 		!Instance.Is(selector, elementType) || !Type.IsString(attr) ? null : Attribute.Get(selector, attr);
@@ -276,33 +279,12 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 	const ClosestByStyle = (selector: Element | null, styles: string | (string | Record<string, string>)[] | Record<string, string>): Element | null => {
 		if (!Instance.Is(selector, elementType)) return null;
 
-		const createClosestStyleFormat = (style: string): string => `[style*="${Str.CapitalToDash(style)}"]`;
-		const createClosestStyleFromMap = (style: Record<string, string>): string => {
-			let closestSelector = '';
-			for (const [key, value] of Object.entries(style)) {
-				closestSelector += createClosestStyleFormat(Str.Merge(Str.CapitalToDash(key), Str.IsEmpty(value) ? '' : `: ${value}`));
-			}
-			return closestSelector;
-		};
-		let find: string = '';
+		if (!Type.IsString(styles) && !Type.IsArray(styles) && !Type.IsObject(styles)) return null;
 
-		if (Type.IsString(styles)) {
-			find = createClosestStyleFormat(styles);
-		} else if (Type.IsArray(styles)) {
-			for (const style of styles) {
-				find += Type.IsString(style) ? createClosestStyleFormat(style) : createClosestStyleFromMap(style);
-			}
-		} else if (Type.IsObject(styles)) {
-			find = createClosestStyleFromMap(styles);
-		} else {
-			return null;
-		}
-
-		return Closest(selector, find);
+		return Closest(selector, Utils.CreateSelector({
+			styles,
+		}));
 	};
-
-	const GetTagName = (selector: TElement): string =>
-		!Instance.Is(selector, elementType) ? '' : Str.LowerCase(selector.tagName);
 
 	const IsEditable = (selector: Node): boolean =>
 		HasAttr(selector, 'contenteditable');
@@ -311,7 +293,7 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 		if (!Instance.Is(selector, nodeType) || IsEditable(selector)) return [];
 		const parents: Node[] = [];
 		const add = bReverse ? Arr.Push : Arr.Unshift;
-		let parent: ParentNode | Node | null = selector;
+		let parent: Node | null = selector;
 
 		if (selector.nodeName !== '#text') add(parents, selector);
 
@@ -322,6 +304,24 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 		}
 
 		return parents;
+	};
+
+	const GetChildNodes = <T extends boolean>(selector: Node | null, bArray: T | true = true): T extends true ? Node[] : NodeListOf<Node> => {
+		if (!selector) return ([] as Node[]) as T extends true ? Node[] : NodeListOf<Node>;
+
+		return (bArray === true
+			? Array.from(selector.childNodes)
+			: selector.childNodes as NodeListOf<Node>
+		) as T extends true ? Node[] : NodeListOf<Node>;
+	};
+
+	const GetChildren = <T extends boolean>(selector: Element | null, bArray: T | true = true): T extends true ? Element[] : HTMLCollection => {
+		if (!selector) return ([] as Element[]) as T extends true ? Element[] : HTMLCollection;
+
+		return (bArray === true
+			? Array.from(selector.children)
+			: selector.children
+		) as T extends true ? Element[] : HTMLCollection;
 	};
 
 	const On = (selector: (Window & typeof globalThis) | TElement, eventName: string, event: EventListener) => {
@@ -406,17 +406,17 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 
 	const RemoveChildren = (selector: Element | null, bBubble: boolean = false) => {
 		if (!Instance.Is(selector, elementType)) return;
-		const children = Array.from(selector.children);
+		const children = GetChildren(selector);
 		if (Arr.IsEmpty(children)) return;
 		for (const child of children) {
 			OffAll(child);
 		}
 
-		if (bBubble) {
-			for (const child of children) {
-				RemoveChildren(child, bBubble);
-				child.remove();
-			}
+		if (!bBubble) return;
+
+		for (const child of children) {
+			RemoveChildren(child, bBubble);
+			child.remove();
 		}
 	};
 
@@ -465,9 +465,10 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 		CloneAndInsert,
 		Closest,
 		ClosestByStyle,
-		GetTagName,
 		IsEditable,
 		GetParents,
+		GetChildNodes,
+		GetChildren,
 		On,
 		Off,
 		OffAll,

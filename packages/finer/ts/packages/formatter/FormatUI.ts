@@ -89,7 +89,9 @@ const FormatUI = (): IFormatUI => {
 	const BindOptionListEvent = (editor: Editor, type: string, clickable: HTMLElement, create: () => void) => {
 		const self = editor;
 
-		const selectOptionList = (): Element | null => DOM.Select(`.${DOM.Utils.CreateUEID('options', false)}`, self.Frame.Root);
+		const selectOptionList = (): Element | null => DOM.Select({
+			class: DOM.Utils.CreateUEID('options', false)
+		}, self.Frame.Root);
 		const hasTypeAttribute = (): boolean => !!selectOptionList() && DOM.GetAttr(selectOptionList(), 'data-type') === type;
 		const toggleEvents = (bOn: boolean, event: () => void) => {
 			const toggleRoot = bOn ? DOM.On : DOM.Off;

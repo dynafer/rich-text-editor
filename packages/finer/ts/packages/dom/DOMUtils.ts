@@ -1,8 +1,18 @@
-import { Str, Utils } from '@dynafer/utils';
+import { Arr, Str, Type, Utils } from '@dynafer/utils';
 import Options, { EModeEditor } from '../../Options';
 
 export const ESCAPE_EMPTY_TEXT_REGEX = /(%EF%BB%BF|%0A)/gi;
 export const EMPTY_HEX_CODE = '&#xfeff;';
+
+export interface ICreateSelectorOption {
+	tagName?: string | string[],
+	id?: string,
+	attrs?: string | Record<string, string> | (string | Record<string, string>)[],
+	class?: string | string[],
+	styles?: string | Record<string, string> | (string | Record<string, string>)[],
+	bNot?: boolean,
+	children?: ICreateSelectorOption,
+}
 
 export interface IDOMUtils {
 	CreateUEID: (id?: string, bAddNum?: boolean) => string,
@@ -16,6 +26,12 @@ export interface IDOMUtils {
 	WrapTagHTML: (tagName: string, text: string) => string,
 	IsChildOf: (child: Node, parent: Node) => boolean,
 	IsTextEmpty: (selector: Node | null) => boolean,
+	HasChildNodes: (selector: Node | null) => boolean,
+	CreateAttrSelector: (attr: string) => string,
+	CreateAttrSelectorFromMap: (attrs: Record<string, string>) => string,
+	CreateStyleSelector: (style: string) => string,
+	CreateStyleSelectorFromMap: (styles: Record<string, string>) => string,
+	CreateSelector: (opts: ICreateSelectorOption) => string,
 }
 
 const DOMUtils = (): IDOMUtils => {
@@ -55,6 +71,94 @@ const DOMUtils = (): IDOMUtils => {
 
 	const IsTextEmpty = (selector: Node | null): boolean => !selector ? false : Str.IsEmpty(decodeURI(encodeURI(selector.textContent ?? '').replace(ESCAPE_EMPTY_TEXT_REGEX, '')));
 
+	const HasChildNodes = (selector: Node | null): boolean => selector?.hasChildNodes() ?? false;
+
+	const CreateAttrSelector = (attr: string): string => `[${attr}]`;
+	const CreateAttrSelectorFromMap = (attrs: Record<string, string>): string => {
+		let selector = '';
+		for (const [key, value] of Object.entries(attrs)) {
+			selector += CreateAttrSelector(Str.Merge(Str.CapitalToDash(key), '="', value, '"'));
+		}
+		return selector;
+	};
+
+	const CreateStyleSelector = (style: string): string => `[style*="${Str.CapitalToDash(style)}"]`;
+	const CreateStyleSelectorFromMap = (styles: Record<string, string>): string => {
+		let selector = '';
+		for (const [name, value] of Object.entries(styles)) {
+			selector += CreateStyleSelector(Str.Merge(Str.CapitalToDash(name), Str.IsEmpty(value) ? '' : `: ${value}`));
+		}
+		return selector;
+	};
+
+	const CreateSelector = (opts: ICreateSelectorOption): string => {
+		const { tagName, id, attrs, styles, bNot, children } = opts;
+
+		let selector = Type.IsString(tagName) ? tagName : '';
+
+		if (bNot) selector += ':not(';
+		if (Type.IsString(id)) selector += `#${id}`;
+
+		if (!!attrs) {
+			if (Type.IsString(attrs)) {
+				selector += CreateAttrSelector(attrs);
+			}
+
+			if (Type.IsArray(attrs)) {
+				for (const attr of attrs) {
+					selector += Type.IsString(attr) ? CreateAttrSelector(attr) : CreateAttrSelectorFromMap(attr);
+				}
+			}
+
+			if (!Type.IsArray(attrs) && Type.IsObject(attrs)) {
+				selector += CreateAttrSelectorFromMap(attrs);
+			}
+		}
+
+		if (!!opts.class) {
+			if (Type.IsString(opts.class)) {
+				selector += Str.Merge('.', opts.class);
+			}
+
+			if (Type.IsArray(opts.class)) {
+				for (const className of opts.class) {
+					if (!Type.IsString(className)) continue;
+					selector += Str.Merge('.', className);
+				}
+			}
+		}
+
+		if (!!styles) {
+			if (Type.IsString(styles)) {
+				selector += CreateStyleSelector(styles);
+			}
+
+			if (Type.IsArray(styles)) {
+				for (const style of styles) {
+					selector += Type.IsString(style) ? CreateStyleSelector(style) : CreateStyleSelectorFromMap(style);
+				}
+			}
+
+			if (!Type.IsArray(styles) && Type.IsObject(styles)) {
+				selector += CreateStyleSelectorFromMap(styles);
+			}
+		}
+
+		if (bNot) selector += ')';
+
+		if (Type.IsArray(tagName)) {
+			const newSelector: string[] = [];
+			for (const name of tagName) {
+				Arr.Push(newSelector, `${name}${selector}`);
+			}
+			selector = Str.Join(',', ...newSelector);
+		}
+
+		if (!!children && Type.IsObject(children)) selector += ` ${CreateSelector(children)}`;
+
+		return selector;
+	};
+
 	return {
 		CreateUEID,
 		GetModeTag,
@@ -67,6 +171,12 @@ const DOMUtils = (): IDOMUtils => {
 		WrapTagHTML,
 		IsChildOf,
 		IsTextEmpty,
+		HasChildNodes,
+		CreateAttrSelector,
+		CreateAttrSelectorFromMap,
+		CreateStyleSelector,
+		CreateStyleSelectorFromMap,
+		CreateSelector,
 	};
 };
 

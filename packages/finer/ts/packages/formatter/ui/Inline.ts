@@ -37,7 +37,7 @@ const Inline = (editor: Editor, detector: IFormatDetector): IFormatUIRegistryUni
 	const isDetected = (format: IInlineFormat, nodes: Node[]): boolean => {
 		const { Tag, Styles } = format;
 
-		const selector = !!Styles ? FormatUtils.GetStyleSelector(Styles) : Tag;
+		const selector = !!Styles ? FormatUtils.GetStyleSelectorMap(Styles) : Tag;
 
 		for (const node of nodes) {
 			if (!!Styles) {

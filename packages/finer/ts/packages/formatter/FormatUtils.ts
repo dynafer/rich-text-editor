@@ -29,7 +29,7 @@ export interface IFormatUtils {
 	GetParentIfText: (node: Node) => Node,
 	RunFormatting: (editor: Editor, toggle: () => void) => void,
 	SplitTextNode: (editor: Editor, node: Node, start: number, end: number) => Node | null,
-	GetStyleSelector: (styles: Record<string, string>, value?: string) => (string | Record<string, string>)[],
+	GetStyleSelectorMap: (styles: Record<string, string>, value?: string) => (string | Record<string, string>)[],
 	GetTableItems: (editor: Editor, table: Node, bSelected: boolean) => Node[],
 	ExceptNodes: (editor: Editor, node: Node, root: Node, bPrevious?: boolean) => Node[],
 }
@@ -81,15 +81,15 @@ const FormatUtils = (): IFormatUtils => {
 	const GetParentIfText = (node: Node): Node =>
 		DOM.Utils.IsText(node) ? node.parentNode as Node : node;
 
-	const createMarkings = (editor: Editor): TCaretPath[] => {
+	const createMarkers = (editor: Editor): TCaretPath[] => {
 		const self = editor;
 		const CaretUtils = self.Utils.Caret;
 		const carets = CaretUtils.Get();
 
-		const markings: TCaretPath[] = [];
+		const markers: TCaretPath[] = [];
 
-		const createMarking = (): [string, Node] => {
-			const id = DOM.Utils.CreateUEID('marking');
+		const createMarker = (): [string, Node] => {
+			const id = DOM.Utils.CreateUEID('marker');
 			const marker = self.DOM.Create('span', {
 				attrs: {
 					id,
@@ -102,9 +102,9 @@ const FormatUtils = (): IFormatUtils => {
 
 		for (const caret of carets) {
 			if (!caret.IsRange()) {
-				const newMarker = createMarking();
+				const newMarker = createMarker();
 				self.DOM.InsertBefore(caret.Start.Node, newMarker[1]);
-				Arr.Push(markings, {
+				Arr.Push(markers, {
 					bRange: false,
 					Marker: newMarker[0],
 					Offset: caret.Start.Offset,
@@ -112,13 +112,13 @@ const FormatUtils = (): IFormatUtils => {
 				continue;
 			}
 
-			const startMarker = createMarking();
-			const endMarker = createMarking();
+			const startMarker = createMarker();
+			const endMarker = createMarker();
 
 			self.DOM.InsertBefore(caret.Start.Node, startMarker[1]);
 			self.DOM.InsertAfter(caret.End.Node, endMarker[1]);
 
-			Arr.Push(markings, {
+			Arr.Push(markers, {
 				bRange: true,
 				StartMarker: startMarker[0],
 				StartOffset: caret.Start.Offset,
@@ -129,27 +129,31 @@ const FormatUtils = (): IFormatUtils => {
 
 		CaretUtils.Clean();
 
-		return markings;
+		return markers;
 	};
 
-	const applyCaretsByMarkings = (editor: Editor, markings: TCaretPath[]) => {
+	const applyCaretsByMarkers = (editor: Editor, markers: TCaretPath[]) => {
 		const self = editor;
 		const newRanges: Range[] = [];
 
 		const getTextOrBrNode = (parent: Node): Node => {
+			if (DOM.Utils.IsText(parent)) return parent;
+
 			let node = parent;
-			if (!DOM.Utils.IsText(node)) {
-				while (node && !DOM.Utils.IsText(node) && !DOM.Utils.IsBr(node)) {
-					node = node.childNodes[0];
-				}
+			while (node && !DOM.Utils.IsText(node) && !DOM.Utils.IsBr(node)) {
+				node = DOM.GetChildNodes(node, false)[0];
 			}
 
 			return node;
 		};
 
-		const getMarkerSibling = (marker: Node, bPrevious: boolean = false) => {
+		const getMarkerSibling = (markerId: string, bPrevious: boolean = false): Node => {
+			const marker = self.DOM.Select({
+				id: markerId
+			});
+
 			const sibling = bPrevious ? marker.previousSibling : marker.nextSibling;
-			if (sibling) return sibling;
+			if (sibling) return getTextOrBrNode(sibling);
 
 			let current: Node | null = marker;
 			while (current && current !== self.GetBody()) {
@@ -162,47 +166,53 @@ const FormatUtils = (): IFormatUtils => {
 				current = current.parentNode;
 			}
 
-			return !current ? marker : current;
+			return getTextOrBrNode(!current ? marker : current);
 		};
 
-		for (const marking of markings) {
+		for (const marker of markers) {
 			const newRange = self.Utils.Range();
 
-			if (!marking.bRange) {
-				const marker = getTextOrBrNode(getMarkerSibling(self.DOM.Select(`#${marking.Marker}`) as Node));
-				newRange.SetStartToEnd(marker, marking.Offset, marking.Offset);
+			if (!marker.bRange) {
+				const markerNode = getMarkerSibling(marker.Marker);
+				newRange.SetStartToEnd(markerNode, marker.Offset, marker.Offset);
 				Arr.Push(newRanges, newRange.Get());
 				continue;
 			}
 
-			const startMarker = getTextOrBrNode(getMarkerSibling(self.DOM.Select(`#${marking.StartMarker}`) as Node));
-			const endMarker = getTextOrBrNode(getMarkerSibling(self.DOM.Select(`#${marking.EndMarker}`) as Node, true));
-			newRange.SetStart(startMarker, marking.StartOffset);
-			newRange.SetEnd(endMarker, marking.EndOffset);
+			const startMarker = getMarkerSibling(marker.StartMarker);
+			const endMarker = getMarkerSibling(marker.EndMarker, true);
+			newRange.SetStart(startMarker, marker.StartOffset);
+			newRange.SetEnd(endMarker, marker.EndOffset);
 			Arr.Push(newRanges, newRange.Get());
 		}
 
 		self.Utils.Caret.UpdateRanges(newRanges);
 
-		for (const marking of self.DOM.SelectAll('[marker="true"]')) {
-			let emptyMarking: Element | null = marking;
-			while (emptyMarking?.parentElement && emptyMarking !== self.GetBody()) {
-				if (emptyMarking.parentElement.childNodes.length !== 1) break;
+		const markerNodes = self.DOM.SelectAll({
+			attrs: {
+				marker: 'true',
+			}
+		});
 
-				emptyMarking = emptyMarking.parentElement;
+		for (const marker of markerNodes) {
+			let emptyMarker: Element | null = marker;
+			while (emptyMarker?.parentElement && emptyMarker !== self.GetBody()) {
+				if (DOM.GetChildNodes(emptyMarker.parentElement, false).length !== 1) break;
+
+				emptyMarker = emptyMarker.parentElement;
 			}
 
-			self.DOM.Remove(emptyMarking ?? marking);
+			self.DOM.Remove(emptyMarker ?? marker);
 		}
 	};
 
 	const RunFormatting = (editor: Editor, toggle: () => void) => {
 		const self = editor;
-		const markings: TCaretPath[] = createMarkings(self);
+		const markers: TCaretPath[] = createMarkers(self);
 
 		toggle();
 
-		applyCaretsByMarkings(self, markings);
+		applyCaretsByMarkers(self, markers);
 	};
 
 	const SplitTextNode = (editor: Editor, node: Node, start: number, end: number): Node | null => {
@@ -225,13 +235,14 @@ const FormatUtils = (): IFormatUtils => {
 		if (middleNode.length > 0) fragment.append(middleNode);
 		if (endNode.length > 0) fragment.append(endNode);
 
-		const index = Arr.Find(parent.childNodes, node) + (bInsertedStartNode ? 1 : 0);
+		const children = DOM.GetChildNodes(parent, false);
+		const index = Arr.Find(children, node) + (bInsertedStartNode ? 1 : 0);
 		parent.replaceChild(fragment, node);
 
-		return parent.childNodes[index];
+		return children[index];
 	};
 
-	const GetStyleSelector = (styles: Record<string, string>, value?: string): (string | Record<string, string>)[] => {
+	const GetStyleSelectorMap = (styles: Record<string, string>, value?: string): (string | Record<string, string>)[] => {
 		const createdSelector: (string | Record<string, string>)[] = [];
 		const selectorMap = {};
 		for (const [styleName, styleValue] of Object.entries(styles)) {
@@ -271,9 +282,11 @@ const FormatUtils = (): IFormatUtils => {
 	const GetTableItems = (editor: Editor, table: Node, bSelected: boolean): Node[] => {
 		const self = editor;
 
-		const selector = bSelected ? '[data-selected]' : ':not[data-selected]';
-
-		return self.DOM.SelectAll(`td${selector}, th${selector}`, table);
+		return self.DOM.SelectAll({
+			tagName: ['td', 'th'],
+			attrs: ['data-selected'],
+			bNot: !bSelected,
+		}, table);
 	};
 
 	const ExceptNodes = (editor: Editor, node: Node, root: Node, bPrevious: boolean = false): Node[] => {
@@ -298,7 +311,7 @@ const FormatUtils = (): IFormatUtils => {
 		GetParentIfText,
 		RunFormatting,
 		SplitTextNode,
-		GetStyleSelector,
+		GetStyleSelectorMap,
 		GetTableItems,
 		ExceptNodes,
 	};

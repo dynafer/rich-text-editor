@@ -53,8 +53,8 @@ const EditorSetup = (editor: Editor): Promise<void> => {
 		const skinLink = `<link id="${skinId}" rel="stylesheet" href="${Options.JoinUrl('css', `skins/${config.Skin}/skin`)}">`;
 		const body: HTMLElement = self.IsIFrame() ? createIframe() : createDiv();
 
-		if (!DOM.Select(`#${editorDefaultId}`, DOM.Doc.head)) DOM.Insert(DOM.Doc.head, editorDefaultCss);
-		if (!DOM.Select(`#${skinId}`, DOM.Doc.head)) DOM.Insert(DOM.Doc.head, skinLink);
+		if (!DOM.Select({ id: editorDefaultId }, DOM.Doc.head)) DOM.Insert(DOM.Doc.head, editorDefaultCss);
+		if (!DOM.Select({ id: skinId }, DOM.Doc.head)) DOM.Insert(DOM.Doc.head, skinLink);
 
 		let initialContent: string;
 		if (Instance.Is(config.Selector, HTMLTextAreaElement)) {

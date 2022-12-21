@@ -18,7 +18,7 @@ const ToggleInline = (editor: Editor, formats: IInlineFormat | IInlineFormat[]):
 		(DOM.Utils.IsText(node) && Str.IsEmpty(node.textContent)) || (!DOM.Utils.IsText(node) && Str.IsEmpty(DOM.GetText(node as HTMLElement)));
 
 	const cleanDirty = (root: Node) => {
-		const children = Array.from(root.childNodes);
+		const children = DOM.GetChildNodes(root);
 		for (const child of children) {
 			if (!child || !isNodeEmpty(child)) continue;
 
@@ -32,7 +32,7 @@ const ToggleInline = (editor: Editor, formats: IInlineFormat | IInlineFormat[]):
 			const { Tag, Styles } = format;
 			if (!Styles && DOM.Closest(parent as Element, Tag)) return true;
 			if (!!Styles) {
-				const selector = FormatUtils.GetStyleSelector(Styles, value);
+				const selector = FormatUtils.GetStyleSelectorMap(Styles, value);
 				if (DOM.ClosestByStyle(parent as Element, selector)) return true;
 			}
 			return false;
@@ -106,17 +106,17 @@ const ToggleInline = (editor: Editor, formats: IInlineFormat | IInlineFormat[]):
 	const cleanExistedCaret = (caret: ICaretData) => {
 		const node = caret.Start.Node;
 		const offset = caret.Start.Offset;
-		const existedCaret = DOM.Closest(FormatUtils.GetParentIfText(node) as Element, '[caret]');
+		const existedCaret = DOM.Closest(FormatUtils.GetParentIfText(node) as Element, DOM.Utils.CreateAttrSelector('caret'));
 
 		if (!existedCaret) return;
 
 		const fragment = DOM.CreateFragment();
-		for (const child of existedCaret.childNodes) {
+		for (const child of DOM.GetChildNodes(existedCaret, false)) {
 			if (DOM.Utils.IsText(child) ? DOM.Utils.IsTextEmpty(child) : Str.IsEmpty(DOM.GetText(child as HTMLElement))) continue;
 			fragment.append(child);
 		}
 
-		if (Arr.IsEmpty(Array.from(fragment.childNodes))) {
+		if (Arr.IsEmpty(DOM.GetChildNodes(fragment))) {
 			caret.Range.SetEndAfter(existedCaret);
 			existedCaret.remove();
 			return;
@@ -143,7 +143,7 @@ const ToggleInline = (editor: Editor, formats: IInlineFormat | IInlineFormat[]):
 			DOM.Insert(caretSpliter, DOM.Utils.GetEmptyString());
 			caret.Range.Insert(caretSpliter);
 			caret.Range.SetStartToEnd(caretSpliter, 1, 1);
-			const child = caretSpliter.childNodes[0];
+			const child = DOM.GetChildNodes(caretSpliter, false)[0];
 			Toggler.Toggle(false, formats, child, value);
 			return;
 		}
