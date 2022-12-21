@@ -1,4 +1,4 @@
-import { Arr } from '@dynafer/utils';
+import { Arr, Str } from '@dynafer/utils';
 import Editor from '../../Editor';
 import { ICaretData } from '../../editorUtils/caret/CaretUtils';
 import { BlockFormatTags } from '../Format';
@@ -16,7 +16,7 @@ const ToggleBlock = (editor: Editor, format: IBlockFormat): IToggleBlock => {
 	const CaretUtils = self.Utils.Caret;
 	const { AddInside } = format;
 
-	const addInsideSelector = Array.from(AddInside).join(', ');
+	const addInsideSelector = Str.Join(',', ...AddInside);
 
 	const toggleRangeEdge = (bWrap: boolean, node: Node, root: Node, bPrevious: boolean = false) => {
 		if (!AddInside.has(DOM.Utils.GetNodeName(root))) return Toggler.Toggle(bWrap, format, root);
@@ -37,7 +37,7 @@ const ToggleBlock = (editor: Editor, format: IBlockFormat): IToggleBlock => {
 		if (
 			(!DOM.Closest(startElement, Array.from(BlockFormatTags.Table).join(',')) && !DOM.Closest(startElement, addInsideSelector))
 			|| caret.Start.Node === caret.End.Node
-		) return Toggler.Toggle(bWrap, format, caret.Start.Node.childNodes[0] ?? caret.Start.Node);
+		) return Toggler.Toggle(bWrap, format, DOM.GetChildNodes(caret.Start.Node, false)[0] ?? caret.Start.Node);
 
 		const toggleOption = {
 			except: Arr.MergeUnique(
@@ -53,7 +53,7 @@ const ToggleBlock = (editor: Editor, format: IBlockFormat): IToggleBlock => {
 	const processRange = (bWrap: boolean, caret: ICaretData) => {
 		if (caret.Start.Line === caret.End.Line) return;
 
-		const lines = self.GetBody().childNodes;
+		const lines = DOM.GetChildNodes(self.GetBody());
 
 		toggleRangeEdge(bWrap, caret.Start.Node, lines[caret.Start.Line], true);
 		for (let index = caret.Start.Line + 1; index < caret.End.Line; ++index) {

@@ -2,6 +2,7 @@ import { Arr, Str } from '@dynafer/utils';
 import Options from '../../../Options';
 import Editor from '../../Editor';
 import { ICaretData } from '../../editorUtils/caret/CaretUtils';
+import { BlockFormatTags } from '../../formatter/Format';
 import { EInputEventType, PreventEvent } from '../EventSetupUtils';
 
 const Input = (editor: Editor) => {
@@ -12,34 +13,36 @@ const Input = (editor: Editor) => {
 	let lastChildName: string | null = null;
 
 	const cleanUnusable = (fragment: DocumentFragment) => {
-		const brElements = fragment.querySelectorAll('br.Apple-interchange-newline');
+		const brElements = DOM.SelectAll({
+			tagName: 'br',
+			class: 'Apple-interchange-newline'
+		}, fragment);
 		for (const brElement of brElements) {
 			brElement.remove();
 		}
 
-		const styleElements = fragment.querySelectorAll('[style]');
+		const styleElements = DOM.SelectAll(DOM.Utils.CreateAttrSelector('style'), fragment);
 
 		for (const styleElement of styleElements) {
 			const editorStyle = DOM.GetAttr(styleElement, Options.EDITOR_STYLE_ATTRIBUTE) ?? '';
 			if (!Str.IsEmpty(editorStyle)) {
-				DOM.SetStyleText(styleElement as HTMLElement, editorStyle);
+				DOM.SetStyleText(styleElement, editorStyle);
 				continue;
 			}
 
-			if (DOM.GetTagName(styleElement) !== 'span') {
+			if (DOM.Utils.GetNodeName(styleElement) !== 'span') {
 				DOM.RemoveAttr(styleElement, 'style');
 				continue;
 			}
 
 			if (!styleElement.parentNode) continue;
 
-			const children = Array.from(styleElement.childNodes);
+			const children = DOM.GetChildNodes(styleElement);
 
 			if (Arr.IsEmpty(children)) {
 				if (!styleElement.parentElement) continue;
 
-				if (Str.IsEmpty(DOM.GetText(styleElement.parentElement))) styleElement.parentElement.remove();
-				else styleElement.remove();
+				DOM.Remove(Str.IsEmpty(DOM.GetText(styleElement.parentElement)) ? styleElement.parentElement : styleElement);
 				continue;
 			}
 
@@ -74,7 +77,7 @@ const Input = (editor: Editor) => {
 			const fragment = DOM.Create('fragment');
 			DOM.SetHTML(fragment, Str.Contains(html, '<!--StartFragment-->') ? html.split('StartFragment-->')[1].split('<!--EndFragment')[0] : html);
 			fakeFragment = DOM.CreateFragment();
-			DOM.Insert(fakeFragment, ...fragment.childNodes);
+			DOM.Insert(fakeFragment, ...DOM.GetChildNodes(fragment, false));
 
 			cleanUnusable(fakeFragment);
 		};
@@ -106,12 +109,32 @@ const Input = (editor: Editor) => {
 		CaretUtils.Clean();
 	};
 
+	const processWithDataTransfer = (event: InputEvent) => {
+		if (!event.dataTransfer) return;
+
+		if (event.dataTransfer.items.length === 1) {
+			PreventEvent(event);
+
+			event.dataTransfer.items[0].getAsString((html: string) => runWithCaret(getAsStringCallback(html)));
+			return;
+		}
+
+		for (const data of event.dataTransfer.items) {
+			if (!Str.Contains(data.type, 'html')) continue;
+			PreventEvent(event);
+
+			data.getAsString((html: string) => runWithCaret(getAsStringCallback(html)));
+		}
+	};
+
 	const processBeforeInput = (event: InputEvent) => {
 		switch (event.inputType) {
 			case EInputEventType.deleteByDrag:
 				deleteByDragEvent(event);
 				return;
 			case EInputEventType.insertFromDrop:
+				if (!fakeFragment) return processWithDataTransfer(event);
+
 				runWithCaret(insertFromDropEvent(event));
 				return;
 			case EInputEventType.insertParagraph:
@@ -120,12 +143,8 @@ const Input = (editor: Editor) => {
 			default:
 				const inputType = Str.LowerCase(event.inputType);
 				if (Str.Contains(inputType, 'delete') || Str.Contains(inputType, 'text') || !event.dataTransfer) return;
-				for (const data of event.dataTransfer.items) {
-					if (!Str.Contains(data.type, 'html')) continue;
-					PreventEvent(event);
 
-					data.getAsString((html: string) => runWithCaret(getAsStringCallback(html)));
-				}
+				processWithDataTransfer(event);
 				return;
 		}
 	};
@@ -136,7 +155,7 @@ const Input = (editor: Editor) => {
 			CaretUtils.Clean();
 		};
 
-		if (event.inputType !== EInputEventType.insertParagraph || !lastChildName || !Arr.Contains(['ol', 'ul'], lastChildName))
+		if (event.inputType !== EInputEventType.insertParagraph || !lastChildName || !BlockFormatTags.List.has(lastChildName))
 			return clean();
 
 		const caret = CaretUtils.Get()[0];

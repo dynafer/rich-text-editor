@@ -44,7 +44,7 @@ const ToggleStyleFormat = (editor: Editor, formats: IStyleFormat | IStyleFormat[
 	const toggleRange = (bWrap: boolean, caret: ICaretData, value?: string) => {
 		if (caret.Start.Line === caret.End.Line) return;
 
-		const lines = self.GetBody().childNodes;
+		const lines = DOM.GetChildNodes(self.GetBody());
 
 		toggleRangeEdge(bWrap, caret.Start.Node, lines[caret.Start.Line], value, true);
 		for (let index = caret.Start.Line + 1; index < caret.End.Line; ++index) {
@@ -55,7 +55,7 @@ const ToggleStyleFormat = (editor: Editor, formats: IStyleFormat | IStyleFormat[
 	};
 
 	const calculateRange = (caret: ICaretData, styleName: string, calculateValue: number) => {
-		const lines = self.GetBody().childNodes;
+		const lines = DOM.GetChildNodes(self.GetBody());
 
 		for (let index = caret.Start.Line; index <= caret.End.Line; ++index) {
 			const line = lines[index] as HTMLElement;

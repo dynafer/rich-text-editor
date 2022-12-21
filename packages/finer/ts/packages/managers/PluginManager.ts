@@ -18,7 +18,9 @@ const PluginManager = (editor: Editor): IPluginManager => {
 	const plugins: Record<string, (<T>(...args: T[]) => void)> = {};
 
 	self.On('caret:change', ((paths: Node[]) => {
-		const caretPointers = DOM.SelectAll('[caret]');
+		const caretPointers = DOM.SelectAll({
+			attrs: 'caret'
+		});
 		if (Arr.IsEmpty(caretPointers)) return;
 
 		const currentCarets: Node[] = [];

@@ -40,7 +40,7 @@ const CaretUtils = (editor: Editor): ICaretUtils => {
 	};
 
 	const getLine = (node: Node, offset: number): ILineData => {
-		const lines: Node[] = Array.from(self.GetBody().childNodes);
+		const lines = DOM.GetChildNodes(self.GetBody());
 
 		if (node === self.GetBody()) {
 			let current: Node | null = lines[offset - 1];
