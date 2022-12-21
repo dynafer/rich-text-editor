@@ -16,7 +16,7 @@ export interface IFormatUISelection {
 }
 
 export interface IFormatUI {
-	Create: (tagName: string, title?: string, type?: string, html?: string) => HTMLElement,
+	Create: (opts: Record<string, string>) => HTMLElement,
 	GetSystemStyle: (editor: Editor, style: string) => string,
 	CreateIconButton: (title: string, iconName: string) => HTMLElement,
 	CreateSelection: (title: string, labelText?: string) => IFormatUISelection,
@@ -40,7 +40,8 @@ export interface IFormatUI {
 const FormatUI = (): IFormatUI => {
 	const GetSystemStyle = (editor: Editor, style: string): string => editor.DOM.GetStyle(editor.GetBody(), style);
 
-	const Create = (tagName: string, title?: string, type?: string, html?: string): HTMLElement => {
+	const Create = (opts: Record<string, string>): HTMLElement => {
+		const { tagName, title, type, html } = opts;
 		const createOption: Record<string, string | Record<string, string>> = {
 			attrs: {},
 		};
@@ -53,12 +54,25 @@ const FormatUI = (): IFormatUI => {
 	};
 
 	const CreateIconButton = (title: string, iconName: string): HTMLElement =>
-		Create('button', title, 'icon-button', Finer.Icons.Get(iconName));
+		Create({
+			tagName: 'button',
+			title,
+			type: 'icon-button',
+			html: Finer.Icons.Get(iconName),
+		});
 
 	const CreateSelection = (title: string, labelText: string = ''): IFormatUISelection => {
-		const Label = Create('div', undefined, 'select-label', labelText);
+		const Label = Create({
+			tagName: 'div',
+			type: 'select-label',
+			html: labelText
+		});
 
-		const Selection = Create('button', title, 'select');
+		const Selection = Create({
+			tagName: 'button',
+			title,
+			type: 'select'
+		});
 		DOM.Insert(Selection, Label, Finer.Icons.Get('AngleDown'));
 
 		return {
@@ -68,23 +82,42 @@ const FormatUI = (): IFormatUI => {
 	};
 
 	const CreateOption = (html: string, title?: string, bSelected: boolean = false, bAddIcon: boolean = true): HTMLElement => {
-		const option = Create('li', title ?? html, 'option-item', Str.Merge(bAddIcon ? Finer.Icons.Get('Check') : '', html));
+		const option = Create({
+			tagName: 'li',
+			title: title ?? html,
+			type: 'option-item',
+			html: Str.Merge(bAddIcon ? Finer.Icons.Get('Check') : '', html)
+		});
 		if (bSelected) DOM.AddClass(option, ACTIVE_CLASS);
 		return option;
 	};
 
 	const CreateOptionList = (type: string, items: HTMLElement[] = []): HTMLElement => {
-		const optionList = Create('div', undefined, 'options');
+		const optionList = Create({
+			tagName: 'div',
+			type: 'options'
+		});
 		DOM.SetAttr(optionList, 'data-type', type);
 		DOM.Insert(optionList, ...items);
 		return optionList;
 	};
 
-	const CreateItemGroup = (): HTMLElement => Create('div', undefined, 'item-group');
+	const CreateItemGroup = (): HTMLElement => Create({
+		tagName: 'div',
+		type: 'item-group'
+	});
 
-	const CreateIconGroup = (): HTMLElement => Create('div', undefined, 'icon-group');
+	const CreateIconGroup = (): HTMLElement => Create({
+		tagName: 'div',
+		type: 'icon-group'
+	});
 
-	const CreateHelper = (title: string): HTMLElement => Create('div', title, 'helper', Finer.Icons.Get('AngleDown'));
+	const CreateHelper = (title: string): HTMLElement => Create({
+		tagName: 'div',
+		title,
+		type: 'helper',
+		html: Finer.Icons.Get('AngleDown')
+	});
 
 	const BindOptionListEvent = (editor: Editor, type: string, clickable: HTMLElement, create: () => void) => {
 		const self = editor;
