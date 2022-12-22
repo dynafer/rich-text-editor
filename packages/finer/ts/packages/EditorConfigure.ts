@@ -77,7 +77,6 @@ const Configure = (config: IEditorOption): IConfiguration => {
 			basic: ['bold', 'italic', 'underline', 'strikethrough', 'code'],
 			color: ['foreColor', 'backColor'],
 			script: ['subscript', 'superscript'],
-			lists: ['numberList', 'bulletList'],
 		};
 	}
 

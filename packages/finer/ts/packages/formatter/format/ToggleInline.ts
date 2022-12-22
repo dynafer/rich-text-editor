@@ -113,7 +113,7 @@ const ToggleInline = (editor: Editor, formats: IInlineFormat | IInlineFormat[]):
 		const fragment = DOM.CreateFragment();
 		for (const child of DOM.GetChildNodes(existedCaret, false)) {
 			if (DOM.Utils.IsText(child) ? DOM.Utils.IsTextEmpty(child) : Str.IsEmpty(DOM.GetText(child as HTMLElement))) continue;
-			fragment.append(child);
+			DOM.CloneAndInsert(fragment, true, child);
 		}
 
 		if (Arr.IsEmpty(DOM.GetChildNodes(fragment))) {
@@ -180,6 +180,7 @@ const ToggleInline = (editor: Editor, formats: IInlineFormat | IInlineFormat[]):
 		}
 
 		CaretUtils.Clean();
+		self.Focus();
 	};
 
 	return {
