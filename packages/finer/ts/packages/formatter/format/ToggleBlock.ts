@@ -77,6 +77,7 @@ const ToggleBlock = (editor: Editor, format: IBlockFormat): IToggleBlock => {
 		}
 
 		CaretUtils.Clean();
+		self.Focus();
 	};
 
 	return {

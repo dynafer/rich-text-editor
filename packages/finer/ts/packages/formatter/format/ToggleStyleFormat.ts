@@ -81,6 +81,7 @@ const ToggleStyleFormat = (editor: Editor, formats: IStyleFormat | IStyleFormat[
 		}
 
 		CaretUtils.Clean();
+		self.Focus();
 	};
 
 	const CalculateFromCaret = (value: string, bSubtract?: boolean) => {
@@ -95,6 +96,7 @@ const ToggleStyleFormat = (editor: Editor, formats: IStyleFormat | IStyleFormat[
 		}
 
 		CaretUtils.Clean();
+		self.Focus();
 	};
 
 	return {
