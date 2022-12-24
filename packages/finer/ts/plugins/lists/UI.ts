@@ -1,16 +1,10 @@
 import Editor from '../../packages/Editor';
 import Toggler from './format/Toggler';
-import { IPluginListFormat } from './Type';
-
-interface IListFormatUI {
-	Format: IPluginListFormat,
-	Title: string,
-	Icon: string,
-}
+import { IPluginListFormat, IPluginListFormatUI } from './Type';
 
 export interface IPluginListUI {
 	IsDetected: (tagName: string, nodes: Node[]) => boolean,
-	CreateIconButton: (uiName: string, uiFormat: IListFormatUI) => HTMLElement,
+	CreateIconButton: (uiName: string, uiFormat: IPluginListFormatUI) => HTMLElement,
 	RegisterDetector: (button: HTMLElement, format: IPluginListFormat) => void,
 }
 
@@ -38,7 +32,7 @@ const UI = (editor: Editor): IPluginListUI => {
 			self.Dispatch('caret:change', []);
 		};
 
-	const CreateIconButton = (uiName: string, uiFormat: IListFormatUI): HTMLElement => {
+	const CreateIconButton = (uiName: string, uiFormat: IPluginListFormatUI): HTMLElement => {
 		const { Format, Title, Icon } = uiFormat;
 		const button = formatUI.CreateIconButton(Title, Icon);
 		const command = createCommand(Format, button);

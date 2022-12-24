@@ -1,4 +1,5 @@
 import Editor from '../../../packages/Editor';
+import { IPluginListFormatUI } from '../Type';
 import { IPluginListUI } from '../UI';
 
 const NumberList = (editor: Editor, ui: IPluginListUI) => {
@@ -6,7 +7,7 @@ const NumberList = (editor: Editor, ui: IPluginListUI) => {
 	const blockFormats = self.Formatter.BlockFormats;
 
 	const uiName = 'NumberList';
-	const uiFormat = {
+	const uiFormat: IPluginListFormatUI = {
 		Format: { Tag: 'ol', Switchable: blockFormats.List, Following: 'li', UnsetSwitcher: 'p' },
 		Title: 'Numbered List',
 		Icon: 'OrderedList'
