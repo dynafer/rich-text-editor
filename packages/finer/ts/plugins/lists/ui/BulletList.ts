@@ -1,4 +1,5 @@
 import Editor from '../../../packages/Editor';
+import { IPluginListFormatUI } from '../Type';
 import { IPluginListUI } from '../UI';
 
 const BulletList = (editor: Editor, ui: IPluginListUI) => {
@@ -6,7 +7,7 @@ const BulletList = (editor: Editor, ui: IPluginListUI) => {
 	const blockFormats = self.Formatter.BlockFormats;
 
 	const uiName = 'BulletList';
-	const uiFormat = {
+	const uiFormat: IPluginListFormatUI = {
 		Format: { Tag: 'ul', Switchable: blockFormats.List, Following: 'li', UnsetSwitcher: 'p' },
 		Title: 'Bulleted List',
 		Icon: 'UnorderedList'
