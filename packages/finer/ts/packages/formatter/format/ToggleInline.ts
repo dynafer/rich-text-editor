@@ -27,13 +27,13 @@ const ToggleInline = (editor: Editor, formats: IInlineFormat | IInlineFormat[]):
 		}
 	};
 
-	const hasFormat = (parent: Node, value?: string): boolean => {
+	const hasFormat = (node: Node, value?: string): boolean => {
 		const checkFormat = (format: IInlineFormat): boolean => {
 			const { Tag, Styles } = format;
-			if (!Styles && DOM.Closest(parent as Element, Tag)) return true;
+			if (!Styles && DOM.Closest(node as Element, Tag)) return true;
 			if (!!Styles) {
 				const selector = FormatUtils.GetStyleSelectorMap(Styles, value);
-				if (DOM.ClosestByStyle(parent as Element, selector)) return true;
+				if (DOM.ClosestByStyle(node as Element, selector)) return true;
 			}
 			return false;
 		};
@@ -51,9 +51,8 @@ const ToggleInline = (editor: Editor, formats: IInlineFormat | IInlineFormat[]):
 		if (!caret.IsRange() || caret.Start.Node !== caret.End.Node) return;
 
 		const node = caret.Start.Node;
-		const parent = FormatUtils.GetParentIfText(node);
 
-		const bFormat = hasFormat(parent, value);
+		const bFormat = hasFormat(FormatUtils.GetParentIfText(node), value);
 		if ((bWrap && bFormat) || (!bWrap && !bFormat)) return;
 
 		const splitedTextNode = FormatUtils.SplitTextNode(self, node, caret.Start.Offset, caret.End.Offset);
@@ -65,9 +64,9 @@ const ToggleInline = (editor: Editor, formats: IInlineFormat | IInlineFormat[]):
 	};
 
 	const trimRangeEdge = (bWrap: boolean, node: Node, offset: number, value?: string, bPrevious: boolean = false): Node => {
-		const parent = FormatUtils.GetParentIfText(node);
+		const element = FormatUtils.GetParentIfText(node);
 
-		const bFormat = hasFormat(parent, value);
+		const bFormat = hasFormat(element, value);
 		if ((bWrap && bFormat) || (!bWrap && !bFormat)) return node;
 
 		const text = node.textContent;

@@ -39,19 +39,19 @@ const CaretUtils = (editor: Editor): ICaretUtils => {
 		}
 	};
 
-	const getLine = (node: Node, offset: number): ILineData => {
+	const getLine = (node: Node, offset: number, bStart: boolean): ILineData => {
 		const lines = DOM.GetChildNodes(self.GetBody());
 
 		if (node === self.GetBody()) {
-			let current: Node | null = lines[offset - 1];
+			let current: Node | null = bStart ? lines[0] : lines[offset - 1];
 			while (current) {
 				if (DOM.Utils.IsText(current) || DOM.Utils.IsBr(current)) break;
-				current = current.lastChild;
+				current = bStart ? current.firstChild : current.lastChild;
 			}
 
 			if (current) {
 				node = current;
-				offset = DOM.Utils.IsText(node) ? node.length : 0;
+				offset = DOM.Utils.IsText(node) && !bStart ? node.length : 0;
 			}
 		}
 
@@ -79,8 +79,8 @@ const CaretUtils = (editor: Editor): ICaretUtils => {
 
 		for (const range of ranges) {
 			const IsRange = (): boolean => !range.collapsed;
-			const Start = getLine(range.startContainer, range.startOffset);
-			const End = getLine(range.endContainer, range.endOffset);
+			const Start = getLine(range.startContainer, range.startOffset, true);
+			const End = getLine(range.endContainer, range.endOffset, false);
 			const SameRoot = range.commonAncestorContainer;
 			const Range = RangeUtils(range);
 

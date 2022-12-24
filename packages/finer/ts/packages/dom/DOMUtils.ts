@@ -4,12 +4,14 @@ import Options, { EModeEditor } from '../../Options';
 export const ESCAPE_EMPTY_TEXT_REGEX = /(%EF%BB%BF|%0A)/gi;
 export const EMPTY_HEX_CODE = '&#xfeff;';
 
+type TSelectorOptionCommon = string | Record<string, string> | (string | Record<string, string>)[];
+
 export interface ICreateSelectorOption {
 	tagName?: string | string[],
 	id?: string,
-	attrs?: string | Record<string, string> | (string | Record<string, string>)[],
+	attrs?: TSelectorOptionCommon,
 	class?: string | string[],
-	styles?: string | Record<string, string> | (string | Record<string, string>)[],
+	styles?: TSelectorOptionCommon,
 	bNot?: boolean,
 	children?: ICreateSelectorOption,
 }
@@ -91,6 +93,21 @@ const DOMUtils = (): IDOMUtils => {
 		return selector;
 	};
 
+	const createSelectorBy = (target: TSelectorOptionCommon | undefined, stringCallback: (target: string) => string, mapCallback: (target: Record<string, string>) => string): string => {
+		if (Type.IsString(target)) return stringCallback(target);
+		if (Type.IsArray(target)) {
+			let newValue = '';
+			for (const attr of target) {
+				newValue += Type.IsString(attr) ? stringCallback(attr) : mapCallback(attr);
+			}
+			return newValue;
+		}
+
+		if (!Type.IsArray(target) && Type.IsObject(target)) return mapCallback(target);
+
+		return '';
+	};
+
 	const CreateSelector = (opts: ICreateSelectorOption): string => {
 		const { tagName, id, attrs, styles, bNot, children } = opts;
 
@@ -99,50 +116,20 @@ const DOMUtils = (): IDOMUtils => {
 		if (bNot) selector += ':not(';
 		if (Type.IsString(id)) selector += `#${id}`;
 
-		if (!!attrs) {
-			if (Type.IsString(attrs)) {
-				selector += CreateAttrSelector(attrs);
-			}
+		selector += createSelectorBy(attrs, CreateAttrSelector, CreateAttrSelectorFromMap);
 
-			if (Type.IsArray(attrs)) {
-				for (const attr of attrs) {
-					selector += Type.IsString(attr) ? CreateAttrSelector(attr) : CreateAttrSelectorFromMap(attr);
-				}
-			}
+		if (Type.IsString(opts.class)) {
+			selector += Str.Merge('.', opts.class);
+		}
 
-			if (!Type.IsArray(attrs) && Type.IsObject(attrs)) {
-				selector += CreateAttrSelectorFromMap(attrs);
+		if (Type.IsArray(opts.class)) {
+			for (const className of opts.class) {
+				if (!Type.IsString(className)) continue;
+				selector += Str.Merge('.', className);
 			}
 		}
 
-		if (!!opts.class) {
-			if (Type.IsString(opts.class)) {
-				selector += Str.Merge('.', opts.class);
-			}
-
-			if (Type.IsArray(opts.class)) {
-				for (const className of opts.class) {
-					if (!Type.IsString(className)) continue;
-					selector += Str.Merge('.', className);
-				}
-			}
-		}
-
-		if (!!styles) {
-			if (Type.IsString(styles)) {
-				selector += CreateStyleSelector(styles);
-			}
-
-			if (Type.IsArray(styles)) {
-				for (const style of styles) {
-					selector += Type.IsString(style) ? CreateStyleSelector(style) : CreateStyleSelectorFromMap(style);
-				}
-			}
-
-			if (!Type.IsArray(styles) && Type.IsObject(styles)) {
-				selector += CreateStyleSelectorFromMap(styles);
-			}
-		}
+		selector += createSelectorBy(styles, CreateStyleSelector, CreateStyleSelectorFromMap);
 
 		if (bNot) selector += ')';
 
