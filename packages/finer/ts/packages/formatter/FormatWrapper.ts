@@ -69,20 +69,20 @@ const FormatWrapper = (editor: Editor): IFormatWrapper => {
 			return wrapFormat(node, Tag);
 		}
 
-		const parent: Node | null = DOM.Closest(elementForCheck, DOM.Utils.CreateAttrSelector('style')) as Node | null;
+		const closestStyle: Node | null = DOM.Closest(elementForCheck, DOM.Utils.CreateAttrSelector('style')) as Node | null;
 
 		const styles = {};
 		for (const [styleName, styleValue] of Object.entries(Styles)) {
 			styles[styleName] = value ? styleValue.replace('{{value}}', value) : styleValue;
 		}
 
-		if (!parent) return wrapFormat(node, Tag, styles);
+		if (!closestStyle) return wrapFormat(node, Tag, styles);
 
-		let currentChild = parent;
+		let currentChild = closestStyle;
 		while (currentChild) {
 			const children = DOM.GetChildNodes(currentChild, false);
 			if (children.length > 1) return wrapFormat(node, Tag, styles);
-			if (currentChild === node) return mergeStyle(parent, styles);
+			if (currentChild === node) return mergeStyle(closestStyle, styles);
 
 			currentChild = children[0];
 		}

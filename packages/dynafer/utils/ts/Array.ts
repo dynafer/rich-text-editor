@@ -46,14 +46,14 @@ export const CompareAndGetEndIndex = <T>(bigArray: T[], smallArray: T[]): number
 
 export const Clean = <T>(array: T[]) => array.splice(0, array.length);
 
-export const Find = <T>(array: unknown, compare: T): number => {
-	if (IsArray(array)) return array.indexOf(compare);
+export const Find = <T>(array: unknown, target: T): number => {
+	if (IsArray(array)) return array.indexOf(target);
 
 	if (!IsFunction((array as T[])[Symbol.iterator])) return -1;
 
 	let index = 0;
 	for (const item of array as T[]) {
-		if (item === compare) return index;
+		if (item === target) return index;
 		++index;
 	}
 
