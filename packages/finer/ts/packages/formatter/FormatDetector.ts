@@ -16,8 +16,6 @@ const FormatDetector = (editor: Editor): IFormatDetector => {
 	const CaretUtils = self.Utils.Caret;
 	const detections: IDetection[] = [];
 
-
-
 	self.On('caret:change', ((paths: Node[]) => {
 		const caretPaths = Arr.Reverse(paths);
 		if (Arr.IsEmpty(caretPaths)) {

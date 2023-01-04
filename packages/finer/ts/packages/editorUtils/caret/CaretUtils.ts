@@ -18,9 +18,10 @@ export interface ICaretData {
 }
 
 export interface ICaretUtils {
-	Get: (bNeedCheckUpdate?: boolean) => ICaretData[],
-	UpdateRanges: (newRanges: Range[]) => void;
 	Clean: () => void,
+	CleanRanges: () => void,
+	UpdateRanges: (newRanges: Range[]) => void,
+	Get: () => ICaretData[],
 }
 
 const CaretUtils = (editor: Editor): ICaretUtils => {
@@ -67,13 +68,23 @@ const CaretUtils = (editor: Editor): ICaretUtils => {
 		};
 	};
 
-	const isUpdatable = (): boolean => ranges.length <= 1;
+	const CleanRanges = () => {
+		if (!selection) selection = DOM.Win.getSelection();
+		selection?.removeAllRanges();
+	};
 
-	const Get = (bNeedCheckUpdate: boolean = false): ICaretData[] => {
-		if (!bNeedCheckUpdate || (bNeedCheckUpdate && isUpdatable())) {
-			selection = DOM.Win.getSelection();
-			refreshRanges();
+	const UpdateRanges = (newRanges: Range[]) => {
+		CleanRanges();
+		Arr.Clean(ranges);
+
+		for (const range of newRanges) {
+			selection?.addRange(range);
 		}
+	};
+
+	const Get = (): ICaretData[] => {
+		selection = DOM.Win.getSelection();
+		refreshRanges();
 
 		const CaretData: ICaretData[] = [];
 
@@ -96,25 +107,16 @@ const CaretUtils = (editor: Editor): ICaretUtils => {
 		return CaretData;
 	};
 
-	const UpdateRanges = (newRanges: Range[]) => {
-		if (!selection) selection = DOM.Win.getSelection();
-		selection?.removeAllRanges();
-		Arr.Clean(ranges);
-
-		for (const range of newRanges) {
-			selection?.addRange(range);
-		}
-	};
-
 	const Clean = () => {
 		Arr.Clean(ranges);
 		selection = null;
 	};
 
 	return {
-		Get,
-		UpdateRanges,
 		Clean,
+		CleanRanges,
+		UpdateRanges,
+		Get,
 	};
 };
 

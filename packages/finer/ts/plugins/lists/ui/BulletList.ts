@@ -4,7 +4,7 @@ import { IPluginListUI } from '../UI';
 
 const BulletList = (editor: Editor, ui: IPluginListUI) => {
 	const self = editor;
-	const blockFormats = self.Formatter.BlockFormats;
+	const blockFormats = self.Formatter.Formats.BlockFormatTags;
 
 	const uiName = 'BulletList';
 	const uiFormat: IPluginListFormatUI = {

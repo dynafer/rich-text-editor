@@ -4,7 +4,7 @@ import { IPluginListUI } from '../UI';
 
 const NumberList = (editor: Editor, ui: IPluginListUI) => {
 	const self = editor;
-	const blockFormats = self.Formatter.BlockFormats;
+	const blockFormats = self.Formatter.Formats.BlockFormatTags;
 
 	const uiName = 'NumberList';
 	const uiFormat: IPluginListFormatUI = {

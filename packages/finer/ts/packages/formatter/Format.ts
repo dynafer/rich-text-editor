@@ -1,12 +1,19 @@
+import { Str } from '@dynafer/utils';
 import { EFormatType, TFormat } from './FormatType';
 
+export const FigureSelector = 'figure';
+export const TableSelector = 'table';
+export const TableRowSelector = 'tr';
+export const TableCellSet = new Set(['th', 'td']);
+export const TableCellSelector = Str.Join(',', ...TableCellSet);
+
 export const BlockFormatTags = {
-	Figures: new Set(['figure', 'img', 'audio', 'video']),
-	Table: new Set(['table']),
-	TableItems: new Set(['td', 'th', 'tr']),
+	Figures: new Set([FigureSelector, 'img', 'audio', 'video']),
+	Table: new Set([TableSelector]),
+	TableItems: new Set([...TableCellSet, TableRowSelector]),
 	Block: new Set(['p', 'div', 'blockquote', 'pre', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6']),
 	List: new Set(['li', 'ol', 'ul']),
-	FollowingItems: new Set(['li', 'td', 'th']),
+	FollowingItems: new Set(['li', ...TableCellSet]),
 };
 export const UnswitchableFormats = new Set([...BlockFormatTags.TableItems, ...BlockFormatTags.List]);
 export const AllStrictFormats = new Set([...BlockFormatTags.Block, ...UnswitchableFormats]);
@@ -42,12 +49,12 @@ export const Formats: Record<string, TFormat | TFormat[]> = {
 
 	Outdent: {
 		FormatType: EFormatType.STYLE,
-		StrictFormats: new Set(['figure', ...AllStrictFormats]),
+		StrictFormats: new Set([FigureSelector, ...AllStrictFormats]),
 		Styles: { marginLeft: '{{value}}' }
 	},
 	Indent: {
 		FormatType: EFormatType.STYLE,
-		StrictFormats: new Set(['figure', ...AllStrictFormats]),
+		StrictFormats: new Set([FigureSelector, ...AllStrictFormats]),
 		Styles: { marginLeft: '{{value}}' }
 	},
 	Justify: {
@@ -56,19 +63,19 @@ export const Formats: Record<string, TFormat | TFormat[]> = {
 		Styles: { textAlign: 'justify' }
 	},
 	AlignLeft: [
-		{ FormatType: EFormatType.STYLE, StrictFormats: BlockFormatTags.Figures, Styles: { float: 'left' } },
+		{ FormatType: EFormatType.STYLE, StrictFormats: AllStrictFormats, Styles: { textAlign: 'left' } },
 		{ FormatType: EFormatType.STYLE, StrictFormats: BlockFormatTags.Table, Styles: { marginLeft: '0px', marginRight: 'auto' } },
-		{ FormatType: EFormatType.STYLE, StrictFormats: AllStrictFormats, Styles: { textAlign: 'left' } }
+		{ FormatType: EFormatType.STYLE, StrictFormats: BlockFormatTags.Figures, Styles: { float: 'left' } }
 	],
 	AlignCenter: [
-		{ FormatType: EFormatType.STYLE, StrictFormats: BlockFormatTags.Figures, Styles: { float: 'center' } },
+		{ FormatType: EFormatType.STYLE, StrictFormats: AllStrictFormats, Styles: { textAlign: 'center' } },
 		{ FormatType: EFormatType.STYLE, StrictFormats: BlockFormatTags.Table, Styles: { marginLeft: 'auto', marginRight: 'auto' } },
-		{ FormatType: EFormatType.STYLE, StrictFormats: AllStrictFormats, Styles: { textAlign: 'center' } }
+		{ FormatType: EFormatType.STYLE, StrictFormats: BlockFormatTags.Figures, Styles: { float: 'center' } }
 	],
 	AlignRight: [
-		{ FormatType: EFormatType.STYLE, StrictFormats: BlockFormatTags.Figures, Styles: { float: 'right' } },
+		{ FormatType: EFormatType.STYLE, StrictFormats: AllStrictFormats, Styles: { textAlign: 'right' } },
 		{ FormatType: EFormatType.STYLE, StrictFormats: BlockFormatTags.Table, Styles: { marginLeft: 'auto', marginRight: '0px' } },
-		{ FormatType: EFormatType.STYLE, StrictFormats: AllStrictFormats, Styles: { textAlign: 'right' } }
+		{ FormatType: EFormatType.STYLE, StrictFormats: BlockFormatTags.Figures, Styles: { float: 'right' } }
 	],
 
 	Paragraph: { FormatType: EFormatType.BLOCK, Tag: 'p', Switchable: BlockFormatTags.Block, AddInside: UnswitchableFormats },

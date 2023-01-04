@@ -23,9 +23,10 @@ const FormatToggler = (editor: Editor): IFormatToggler => {
 
 	const processRecursive = (bWrap: boolean, formats: TFormat | TFormat[], node: Node, toggleOption: IToggleRecursiveOption = {}) => {
 		const { except, endNode, value } = toggleOption;
-		for (const child of DOM.GetChildNodes(node, false)) {
+		const children = DOM.GetChildNodes(node, false);
+		for (const child of children) {
 			if (Arr.Contains(except ?? [], child)) continue;
-			if (!DOM.Utils.IsText(child)) {
+			if (!DOM.Utils.IsText(child) && (children.length !== 1 || !DOM.Utils.IsBr(child))) {
 				processRecursive(bWrap, formats, child, toggleOption);
 				if (endNode && DOM.Utils.IsChildOf(endNode, child)) return;
 				continue;

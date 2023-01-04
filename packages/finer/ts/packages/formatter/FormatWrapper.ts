@@ -88,7 +88,7 @@ const FormatWrapper = (editor: Editor): IFormatWrapper => {
 		}
 	};
 
-	const wrapStyleFormat = (format: IStyleFormat, node: Node, value?: string) => {
+	const wrapStyleFormat = (format: IStyleFormat, node: Node, value?: string): boolean => {
 		const { StrictFormats, Styles } = format;
 
 		const styles = {};
@@ -98,10 +98,15 @@ const FormatWrapper = (editor: Editor): IFormatWrapper => {
 
 		let currentParent: Node | null = node;
 		while (currentParent) {
-			if (StrictFormats.has(DOM.Utils.GetNodeName(currentParent))) return mergeStyle(currentParent, styles);
+			if (StrictFormats.has(DOM.Utils.GetNodeName(currentParent))) {
+				mergeStyle(currentParent, styles);
+				return true;
+			}
 
 			currentParent = currentParent.parentNode;
 		}
+
+		return false;
 	};
 
 	const Wrap = (formats: TFormat | TFormat[], node: Node, value?: string) => {
@@ -112,10 +117,13 @@ const FormatWrapper = (editor: Editor): IFormatWrapper => {
 			case EFormatType.INLINE:
 				return wrapInline(format, node, value);
 			case EFormatType.STYLE:
-				if (!Type.IsArray(formats)) return wrapStyleFormat(format, node, value);
+				if (!Type.IsArray(formats)) {
+					wrapStyleFormat(format, node, value);
+					return;
+				}
 
 				for (const styleFormat of formats) {
-					wrapStyleFormat(styleFormat as IStyleFormat, node, value);
+					if (wrapStyleFormat(styleFormat as IStyleFormat, node, value)) break;
 				}
 				return;
 		}

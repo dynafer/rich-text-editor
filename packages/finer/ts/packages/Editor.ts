@@ -1,4 +1,4 @@
-import { Instance, Str } from '@dynafer/utils';
+import { Arr, Instance, Str } from '@dynafer/utils';
 import Configure, { IEditorOption, IConfiguration } from './EditorConfigure';
 import EditorDestroy from './EditorDestroy';
 import EditorFrame, { IEditorFrame } from './EditorFrame';
@@ -34,7 +34,7 @@ class Editor {
 	public Formatter!: IFormatter;
 	public Toolbar: IEditorToolbar;
 
-	private body!: HTMLElement;
+	private mBody!: HTMLElement;
 	private mbDestroyed: boolean = false;
 
 	public constructor(config: IEditorOption) {
@@ -84,15 +84,40 @@ class Editor {
 	}
 
 	// body getter and setter
-	public SetBody(body: HTMLElement) { this.body = body; }
-	public GetBody(): HTMLElement { return this.body; }
+	public SetBody(body: HTMLElement) { this.mBody = body; }
+	public GetBody(): HTMLElement { return this.mBody; }
 
 	public GetRootDOM(): IDom {
 		return DOM;
 	}
 
 	public Focus() {
+		const carets = this.Utils.Caret.Get();
+		const copiedRanges: Range[] = [];
+		for (const caret of carets) {
+			Arr.Push(copiedRanges, caret.Range.Clone());
+		}
+
+		if (Arr.IsEmpty(copiedRanges)) {
+			const newRange = this.Utils.Range();
+			let firstNode = this.GetBody().firstChild;
+			while (firstNode) {
+				if (DOM.Utils.IsText(firstNode) || DOM.Utils.IsBr(firstNode)) break;
+				firstNode = firstNode.firstChild;
+			}
+			newRange.SetStartToEnd(firstNode ?? this.GetBody(), 0, 0);
+			Arr.Push(copiedRanges, newRange.Get());
+		}
+
 		this.GetBody().focus();
+		this.Utils.Caret.UpdateRanges(copiedRanges);
+		this.Utils.Caret.Clean();
+	}
+
+	public CreateEmptyParagraph(): HTMLElement {
+		return this.DOM.Create('p', {
+			html: '<br>'
+		});
 	}
 
 	public InitContent(html: string = '<p><br></p>') {

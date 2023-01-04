@@ -10,7 +10,7 @@
 		}
 
 		&[toolbar-style='float'] {
-			@include flex($wrap: wrap);
+			@include flex($align: center, $wrap: wrap);
 			overflow: hidden;
 		}
 
@@ -41,6 +41,13 @@
 				div {
 					@include rectangle(1rem, 0.18rem);
 				}
+			}
+
+			.#{getClassName(icon-button)} {
+				@include all-border(none);
+				@include padding(rem !important, 0.1, 0.3, 0.1, 0.3);
+				@include all-margin(0 !important);
+				display: inline-block;
 			}
 
 			& > .#{getClassName(helper)} {
@@ -110,7 +117,8 @@
 
 		& > :not(.#{getClassName(toolbar-group)}),
 		.#{getClassName(icon-group)} > *,
-		& > .#{getClassName(toolbar-group)} > * {
+		& > .#{getClassName(toolbar-group)} > *,
+		.#{getClassName(icon-wrap)} > .#{getClassName(icon-button)} {
 			@include flex($align: center, $inline: true);
 			@include round(getVar(toolbar-item-radius));
 			@include margin(rem, 0.2, 0.6, 0.2, 0.6);
@@ -119,7 +127,7 @@
 			background-color: getVar(toolbar-item-bg);
 
 			&:not([disabled]) {
-				cursor: pointer;
+				cursor: pointer !important;
 			}
 
 			&[disabled] {

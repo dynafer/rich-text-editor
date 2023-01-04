@@ -21,7 +21,7 @@ export interface IDom {
 	GetAttr: (selector: TElement, attr: string) => string | null,
 	SetAttr: (selector: TElement, attr: string, value: string) => void,
 	SetAttrs: (selector: TElement, attrs: Record<string, string>) => void,
-	HasAttr: (selector: TElement, attr: string) => boolean,
+	HasAttr: (selector: TElement, attr: string, value?: string) => boolean,
 	RemoveAttr: (selector: TElement, attr: string) => void,
 	RemoveAttrs: (selector: TElement, attrs: string[]) => void,
 	AddClass: (selector: TElement, ...classes: string[]) => void,
@@ -125,8 +125,8 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 		}
 	};
 
-	const HasAttr = (selector: TElement, attr: string): boolean =>
-		!Instance.Is(selector, elementType) ? false : Attribute.Has(selector, attr);
+	const HasAttr = (selector: TElement, attr: string, value?: string): boolean =>
+		!Instance.Is(selector, elementType) ? false : Attribute.Has(selector, attr, value);
 
 	const RemoveAttr = (selector: TElement, attr: string) => {
 		if (!Instance.Is(selector, elementType) || !Type.IsString(attr)) return;
@@ -173,21 +173,21 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 	const SetStyle = (selector: HTMLElement | null, name: string, value: string) => {
 		if (!Instance.Is(selector, elementType) || !Type.IsString(name) || !Type.IsString(value)) return;
 		Style.Set(selector, name, value);
-		if (bFromEditor) SetAttr(selector, Options.EDITOR_STYLE_ATTRIBUTE, GetStyleText(selector));
+		if (bFromEditor) SetAttr(selector, Options.ATTRIBUTE_EDITOR_STYLE, GetStyleText(selector));
 	};
 
 	const SetStyles = (selector: HTMLElement | null, styles: Record<string, string>) => {
 		if (!Instance.Is(selector, elementType)) return;
 		Style.SetAsMap(selector, styles);
-		if (bFromEditor) SetAttr(selector, Options.EDITOR_STYLE_ATTRIBUTE, GetStyleText(selector));
+		if (bFromEditor) SetAttr(selector, Options.ATTRIBUTE_EDITOR_STYLE, GetStyleText(selector));
 	};
 
 	const RemoveStyle = (selector: HTMLElement | null, name: string) => {
 		if (!Instance.Is(selector, elementType) || !Type.IsString(name)) return;
 		Style.Remove(selector, name);
 		if (bFromEditor) {
-			if (Str.IsEmpty(GetStyleText(selector))) return RemoveAttr(selector, Options.EDITOR_STYLE_ATTRIBUTE);
-			SetAttr(selector, Options.EDITOR_STYLE_ATTRIBUTE, GetStyleText(selector));
+			if (Str.IsEmpty(GetStyleText(selector))) return RemoveAttr(selector, Options.ATTRIBUTE_EDITOR_STYLE);
+			SetAttr(selector, Options.ATTRIBUTE_EDITOR_STYLE, GetStyleText(selector));
 		}
 	};
 
@@ -286,8 +286,7 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 		}));
 	};
 
-	const IsEditable = (selector: Node): boolean =>
-		HasAttr(selector, 'contenteditable');
+	const IsEditable = (selector: Node): boolean => HasAttr(selector, 'contenteditable');
 
 	const GetParents = (selector: Node | null, bReverse: boolean = false): Node[] => {
 		if (!Instance.Is(selector, nodeType) || IsEditable(selector)) return [];
@@ -298,7 +297,7 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 		if (selector.nodeName !== '#text') add(parents, selector);
 
 		while (parent = parent.parentNode) {
-			if (!Instance.Is(parent, nodeType) || IsEditable(parent)) break;
+			if (!Instance.Is(parent, nodeType) || HasAttr(parent, 'id', Utils.CreateUEID('editor-body', false))) break;
 
 			add(parents, parent);
 		}

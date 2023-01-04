@@ -1,4 +1,4 @@
-import { Arr, Str } from '@dynafer/utils';
+import { Arr } from '@dynafer/utils';
 import Editor from '../../../packages/Editor';
 import { ICaretData } from '../../../packages/editorUtils/caret/CaretUtils';
 import { IPluginListFormat } from '../Type';
@@ -6,14 +6,14 @@ import { IPluginListFormat } from '../Type';
 const Unwrapper = (editor: Editor, format: IPluginListFormat) => {
 	const self = editor;
 	const DOM = self.DOM;
+	const formatter = self.Formatter;
 
-	const formatUtils = self.Formatter.Utils;
-	const blockFormats = self.Formatter.BlockFormats;
+	const formatUtils = formatter.Utils;
 	const { Tag, UnsetSwitcher } = format;
 
-	const tableSelector = 'table';
-	const tableItemsSelector = Str.Join(',', ...blockFormats.TableItems);
-	const tableRowSelector = 'tr';
+	const tableSelector = formatter.Formats.TableSelector;
+	const tableItemsSelector = formatter.Formats.TableCellSelector;
+	const tableRowSelector = formatter.Formats.TableRowSelector;
 
 	const unwrap = (oldList: Node, start: Node, end: Node, bTable: boolean = false) => {
 		const startList = DOM.Create(Tag);
@@ -108,7 +108,7 @@ const Unwrapper = (editor: Editor, format: IPluginListFormat) => {
 		if (!oldList && !table) return;
 
 		if (table) {
-			const selectedTableItems = formatUtils.GetTableItems(self, table, true);
+			const selectedTableItems = formatUtils.GetTableItems(self, true, table);
 			if (!Arr.IsEmpty(selectedTableItems)) return unwrapNodesInTable(selectedTableItems);
 		}
 
@@ -154,8 +154,6 @@ const Unwrapper = (editor: Editor, format: IPluginListFormat) => {
 	};
 
 	const UnwrapFromCaret = (caret: ICaretData) => {
-		self.Focus();
-
 		processSameLine(caret);
 		processRange(caret);
 	};

@@ -1,5 +1,5 @@
 import Editor from '../Editor';
-import { BlockFormatTags } from './Format';
+import { BlockFormatTags, FigureSelector, TableCellSelector, TableCellSet, TableRowSelector, TableSelector } from './Format';
 import FormatDetector, { IFormatDetector } from './FormatDetector';
 import FormatToggler, { IFormatToggler } from './FormatToggler';
 import FormatUI, { IFormatUI } from './FormatUI';
@@ -7,7 +7,14 @@ import FormatUtils, { IFormatUtils } from './FormatUtils';
 import FormatRegistry, { IFormatRegistry } from './ui/FormatRegistry';
 
 export interface IFormatter {
-	BlockFormats: Record<string, Set<string>>,
+	Formats: {
+		FigureSelector: string,
+		TableSelector: string,
+		TableRowSelector: string,
+		TableCellSet: Set<string>,
+		TableCellSelector: string,
+		BlockFormatTags: Record<string, Set<string>>,
+	},
 	UI: IFormatUI,
 	Utils: IFormatUtils,
 	Toggler: IFormatToggler,
@@ -30,7 +37,14 @@ const Formatter = (editor: Editor): IFormatter => {
 	};
 
 	return {
-		BlockFormats: BlockFormatTags,
+		Formats: {
+			FigureSelector,
+			TableSelector,
+			TableRowSelector,
+			TableCellSet,
+			TableCellSelector,
+			BlockFormatTags,
+		},
 		UI: FormatUI,
 		Utils: FormatUtils,
 		Toggler,
