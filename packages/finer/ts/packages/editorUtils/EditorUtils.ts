@@ -11,7 +11,7 @@ export interface IEditorUtils {
 
 const EditorUtils = (editor: Editor): IEditorUtils => ({
 	Caret: CaretUtils(editor),
-	Range: RangeUtils,
+	Range: (range: Range = new editor.DOM.Win.Range()) => RangeUtils(range),
 	Event: EventUtils(),
 });
 

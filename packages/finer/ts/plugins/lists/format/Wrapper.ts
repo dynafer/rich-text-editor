@@ -6,14 +6,14 @@ import { IPluginListFormat } from '../Type';
 const Wrapper = (editor: Editor, format: IPluginListFormat) => {
 	const self = editor;
 	const DOM = self.DOM;
+	const formatter = self.Formatter;
 
-	const formatUtils = self.Formatter.Utils;
-	const blockFormats = self.Formatter.BlockFormats;
+	const formatUtils = formatter.Utils;
+	const blockFormats = formatter.Formats.BlockFormatTags;
 	const { Tag, Switchable, Following } = format;
 
-	const tableSelector = 'table';
-	const tableAndList = new Set([tableSelector, ...blockFormats.List]);
-	const tableAndListSelector = Str.Join(',', ...tableAndList);
+	const tableSelector = formatter.Formats.TableSelector;
+	const tableAndListSelector = Str.Join(',', ...[tableSelector, ...blockFormats.List]);
 
 	const createListItem = (...nodes: Node[]): HTMLElement => {
 		const newListItem = DOM.Create(Following);
@@ -203,7 +203,7 @@ const Wrapper = (editor: Editor, format: IPluginListFormat) => {
 
 		const table = DOM.Closest(startNode as Element, tableSelector);
 		if (!!table) {
-			const selectedTableItems = formatUtils.GetTableItems(self, table, true);
+			const selectedTableItems = formatUtils.GetTableItems(self, true, table);
 			if (!Arr.IsEmpty(selectedTableItems)) return wrapNodesInTable(selectedTableItems);
 		}
 

@@ -24,6 +24,7 @@ export interface IFormatUI {
 	CreateOptionList: (type: string, items?: HTMLElement[]) => HTMLElement,
 	CreateItemGroup: () => HTMLElement,
 	CreateIconGroup: () => HTMLElement,
+	CreateIconWrap: (title: string) => HTMLElement,
 	CreateHelper: (title: string) => HTMLElement,
 	BindOptionListEvent: (editor: Editor, type: string, clickable: HTMLElement, create: () => void) => void,
 	SetOptionListCoordinate: (editor: Editor, name: string, selection: HTMLElement, optionList: HTMLElement) => void,
@@ -110,6 +111,12 @@ const FormatUI = (): IFormatUI => {
 	const CreateIconGroup = (): HTMLElement => Create({
 		tagName: 'div',
 		type: 'icon-group'
+	});
+
+	const CreateIconWrap = (title: string): HTMLElement => Create({
+		tagName: 'button',
+		title,
+		type: 'icon-wrap',
 	});
 
 	const CreateHelper = (title: string): HTMLElement => Create({
@@ -269,6 +276,7 @@ const FormatUI = (): IFormatUI => {
 		CreateOptionList,
 		CreateItemGroup,
 		CreateIconGroup,
+		CreateIconWrap,
 		CreateHelper,
 		BindOptionListEvent,
 		SetOptionListCoordinate,

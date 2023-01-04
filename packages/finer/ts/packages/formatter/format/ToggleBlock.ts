@@ -13,7 +13,6 @@ const ToggleBlock = (editor: Editor, format: IBlockFormat): IToggleBlock => {
 	const self = editor;
 	const DOM = self.DOM;
 	const Toggler = self.Formatter.Toggler;
-	const CaretUtils = self.Utils.Caret;
 	const { AddInside } = format;
 
 	const addInsideSelector = Str.Join(',', ...AddInside);
@@ -29,15 +28,29 @@ const ToggleBlock = (editor: Editor, format: IBlockFormat): IToggleBlock => {
 		Toggler.ToggleRecursive(bWrap, format, root, toggleOption);
 	};
 
-	const processSameLine = (bWrap: boolean, caret: ICaretData) => {
-		if (caret.Start.Line !== caret.End.Line) return;
+	const tableProcessor = (bWrap: boolean): boolean => {
+		const cells = FormatUtils.GetTableItems(self, true);
+		if (cells.length === 0) return false;
+
+		for (const cell of cells) {
+			Toggler.ToggleRecursive(bWrap, format, cell);
+		}
+
+		return true;
+	};
+
+	const smaeLineProcessor = (bWrap: boolean, caret: ICaretData): boolean => {
+		if (caret.Start.Line !== caret.End.Line) return false;
 
 		const startElement = FormatUtils.GetParentIfText(caret.Start.Node) as Element;
 
 		if (
 			(!DOM.Closest(startElement, Array.from(BlockFormatTags.Table).join(',')) && !DOM.Closest(startElement, addInsideSelector))
 			|| caret.Start.Node === caret.End.Node
-		) return Toggler.Toggle(bWrap, format, DOM.GetChildNodes(caret.Start.Node, false)[0] ?? caret.Start.Node);
+		) {
+			Toggler.Toggle(bWrap, format, DOM.GetChildNodes(caret.Start.Node, false)[0] ?? caret.Start.Node);
+			return true;
+		}
 
 		const toggleOption = {
 			except: Arr.MergeUnique(
@@ -48,10 +61,11 @@ const ToggleBlock = (editor: Editor, format: IBlockFormat): IToggleBlock => {
 		};
 
 		Toggler.ToggleRecursive(bWrap, format, caret.SameRoot, toggleOption);
+		return true;
 	};
 
-	const processRange = (bWrap: boolean, caret: ICaretData) => {
-		if (caret.Start.Line === caret.End.Line) return;
+	const rangeProcessor = (bWrap: boolean, caret: ICaretData): boolean => {
+		if (caret.Start.Line === caret.End.Line) return false;
 
 		const lines = DOM.GetChildNodes(self.GetBody());
 
@@ -66,19 +80,19 @@ const ToggleBlock = (editor: Editor, format: IBlockFormat): IToggleBlock => {
 			Toggler.Toggle(bWrap, format, line);
 		}
 		toggleRangeEdge(bWrap, caret.End.Node, lines[caret.End.Line]);
+
+		return true;
 	};
 
-	const ToggleFromCaret = (bWrap: boolean) => {
-		self.Focus();
-
-		for (const caret of CaretUtils.Get()) {
-			processSameLine(bWrap, caret);
-			processRange(bWrap, caret);
-		}
-
-		CaretUtils.Clean();
-		self.Focus();
-	};
+	const ToggleFromCaret = (bWrap: boolean) =>
+		FormatUtils.SerialiseWithProcessors(self, {
+			bWrap,
+			tableProcessor,
+			processors: [
+				{ processor: smaeLineProcessor },
+				{ processor: rangeProcessor },
+			]
+		});
 
 	return {
 		ToggleFromCaret,

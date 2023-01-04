@@ -19,7 +19,7 @@ const FormatUnwrapper = (editor: Editor): IFormatUnwrapper => {
 	};
 
 	const switchFormat = (tagName: string, oldNode: Node) => {
-		if (DOM.Utils.GetNodeName(oldNode) === tagName) return oldNode;
+		if (DOM.Utils.GetNodeName(oldNode) === tagName) return;
 		const newTag = DOM.Create(tagName);
 		DOM.Insert(newTag, ...DOM.GetChildNodes(oldNode, false));
 		(oldNode.parentElement as Element).replaceChild(newTag, oldNode);
@@ -30,13 +30,16 @@ const FormatUnwrapper = (editor: Editor): IFormatUnwrapper => {
 		return closest;
 	};
 
-	const unwrapBlock = (format: IBlockFormat, node: Node) => {
+	const unwrapBlock = (format: IBlockFormat, node: Node): boolean => {
 		const { Tag, Switchable, AddInside, UnsetSwitcher } = format;
 		const switchableSelector = Str.Join(',', ...Switchable);
 		const addInsideSelector = Str.Join(',', ...AddInside);
 		const oldElement: Element | null = FormatUtils.GetParentIfText(node) as Element;
 
-		if (!DOM.Closest(oldElement, addInsideSelector)) return switchFormat(UnsetSwitcher ?? Tag, oldElement);
+		if (!DOM.Closest(oldElement, addInsideSelector)) {
+			switchFormat(UnsetSwitcher ?? Tag, oldElement);
+			return true;
+		}
 
 		let current: Element | null = DOM.Closest(oldElement, switchableSelector);
 		while (current) {
@@ -55,15 +58,17 @@ const FormatUnwrapper = (editor: Editor): IFormatUnwrapper => {
 			current = nextSwitch;
 			continue;
 		}
+
+		return true;
 	};
 
-	const unwrapInline = (format: IInlineFormat, node: Node) => {
+	const unwrapInline = (format: IInlineFormat, node: Node): boolean => {
 		const { Tag, Styles } = format;
 
 		const closest = !Styles
 			? DOM.Closest(FormatUtils.GetParentIfText(node) as Element, Tag)
 			: DOM.ClosestByStyle(FormatUtils.GetParentIfText(node) as Element, FormatUtils.GetStyleSelectorMap(Styles));
-		if (!closest) return;
+		if (!closest) return false;
 
 		const isUnwrappable = (selector: Node) => {
 			if (!Styles) return DOM.Utils.GetNodeName(selector) === Tag;
@@ -133,21 +138,24 @@ const FormatUnwrapper = (editor: Editor): IFormatUnwrapper => {
 				DOM.InsertAfter(replacedNodes[index - 1], replacedNodes[index]);
 			}
 		}
+
+		return true;
 	};
 
-	const unwrapStyleFormat = (format: IStyleFormat, node: Node) => {
+	const unwrapStyleFormat = (format: IStyleFormat, node: Node): boolean => {
 		const { StrictFormats, Styles } = format;
 
 		const closest = getClosestByStyles(node, Styles);
-		if (!closest) return;
-		if (!StrictFormats.has(DOM.Utils.GetNodeName(closest))) return;
+		if (!closest || !StrictFormats.has(DOM.Utils.GetNodeName(closest))) return false;
 
 		for (const styleName of Object.keys(Styles)) {
 			DOM.RemoveStyle(closest as HTMLElement, styleName);
 		}
+
+		return true;
 	};
 
-	const processUnwrap = (format: TFormat, node: Node) => {
+	const processUnwrap = (format: TFormat, node: Node): boolean => {
 		switch (format.FormatType) {
 			case EFormatType.BLOCK:
 				return unwrapBlock(format, node);
@@ -162,7 +170,7 @@ const FormatUnwrapper = (editor: Editor): IFormatUnwrapper => {
 		if (!Type.IsArray(formats)) return processUnwrap(formats, node);
 
 		for (const format of formats) {
-			processUnwrap(format, node);
+			if (processUnwrap(format, node)) return;
 		}
 	};
 

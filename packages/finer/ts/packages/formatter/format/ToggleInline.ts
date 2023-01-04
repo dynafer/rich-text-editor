@@ -12,15 +12,14 @@ const ToggleInline = (editor: Editor, formats: IInlineFormat | IInlineFormat[]):
 	const self = editor;
 	const DOM = self.DOM;
 	const Toggler = self.Formatter.Toggler;
-	const CaretUtils = self.Utils.Caret;
 
 	const isNodeEmpty = (node: Node) =>
 		(DOM.Utils.IsText(node) && Str.IsEmpty(node.textContent)) || (!DOM.Utils.IsText(node) && Str.IsEmpty(DOM.GetText(node as HTMLElement)));
 
-	const cleanDirty = (root: Node) => {
-		const children = DOM.GetChildNodes(root);
+	const cleanDirty = (caret: ICaretData) => {
+		const children = DOM.GetChildNodes(caret.SameRoot);
 		for (const child of children) {
-			if (!child || !isNodeEmpty(child)) continue;
+			if (!child || !isNodeEmpty(child) || DOM.HasAttr(child, 'caret') || DOM.HasAttr(child, 'marker')) continue;
 
 			if (DOM.Utils.IsText(child)) child.remove();
 			else DOM.Remove(child as Element, false);
@@ -47,20 +46,33 @@ const ToggleInline = (editor: Editor, formats: IInlineFormat | IInlineFormat[]):
 		return false;
 	};
 
-	const processInSameNode = (bWrap: boolean, caret: ICaretData, value?: string) => {
-		if (!caret.IsRange() || caret.Start.Node !== caret.End.Node) return;
+	const tableProcessor = (bWrap: boolean, value?: string): boolean => {
+		const cells = FormatUtils.GetTableItems(self, true);
+		if (cells.length === 0) return false;
+
+		for (const cell of cells) {
+			Toggler.ToggleRecursive(bWrap, formats, cell, { value });
+		}
+
+		return true;
+	};
+
+	const sameNodeProcessor = (bWrap: boolean, caret: ICaretData, value?: string): boolean => {
+		if (!caret.IsRange() || caret.Start.Node !== caret.End.Node) return false;
 
 		const node = caret.Start.Node;
 
 		const bFormat = hasFormat(FormatUtils.GetParentIfText(node), value);
-		if ((bWrap && bFormat) || (!bWrap && !bFormat)) return;
+		if ((bWrap && bFormat) || (!bWrap && !bFormat)) return false;
 
 		const splitedTextNode = FormatUtils.SplitTextNode(self, node, caret.Start.Offset, caret.End.Offset);
-		if (!splitedTextNode) return;
+		if (!splitedTextNode) return false;
 
 		caret.Range.SetStartToEnd(splitedTextNode, 0, (splitedTextNode as Text).length);
 
 		Toggler.Toggle(bWrap, formats, splitedTextNode, value);
+
+		return true;
 	};
 
 	const trimRangeEdge = (bWrap: boolean, node: Node, offset: number, value?: string, bPrevious: boolean = false): Node => {
@@ -81,8 +93,8 @@ const ToggleInline = (editor: Editor, formats: IInlineFormat | IInlineFormat[]):
 		return splitedTextNode;
 	};
 
-	const processRange = (bWrap: boolean, caret: ICaretData, value?: string) => {
-		if (!caret.IsRange() || caret.Start.Node === caret.End.Node) return;
+	const rangeProcessor = (bWrap: boolean, caret: ICaretData, value?: string): boolean => {
+		if (!caret.IsRange() || caret.Start.Node === caret.End.Node) return false;
 
 		const startNode = trimRangeEdge(bWrap, caret.Start.Node, caret.Start.Offset, value, true);
 		const endNode = trimRangeEdge(bWrap, caret.End.Node, caret.End.Offset, value);
@@ -100,6 +112,8 @@ const ToggleInline = (editor: Editor, formats: IInlineFormat | IInlineFormat[]):
 		};
 
 		Toggler.ToggleRecursive(bWrap, formats, caret.SameRoot, toggleOption);
+
+		return true;
 	};
 
 	const cleanExistedCaret = (caret: ICaretData) => {
@@ -111,8 +125,10 @@ const ToggleInline = (editor: Editor, formats: IInlineFormat | IInlineFormat[]):
 
 		const fragment = DOM.CreateFragment();
 		for (const child of DOM.GetChildNodes(existedCaret, false)) {
-			if (DOM.Utils.IsText(child) ? DOM.Utils.IsTextEmpty(child) : Str.IsEmpty(DOM.GetText(child as HTMLElement))) continue;
-			DOM.CloneAndInsert(fragment, true, child);
+			const bEmpty = DOM.Utils.IsText(child) ? DOM.Utils.IsTextEmpty(child) : Str.IsEmpty(DOM.GetText(child as HTMLElement));
+			const bMakrer = !DOM.Utils.IsText(child) && DOM.HasAttr(child, 'marker');
+			if (bEmpty && !DOM.Utils.IsBr(child) && !bMakrer) continue;
+			DOM.Insert(fragment, child);
 		}
 
 		if (Arr.IsEmpty(DOM.GetChildNodes(fragment))) {
@@ -123,10 +139,12 @@ const ToggleInline = (editor: Editor, formats: IInlineFormat | IInlineFormat[]):
 
 		existedCaret.parentNode?.replaceChild(fragment, existedCaret);
 		caret.Range.SetStartToEnd(node, offset, offset);
+
+		console.log(node);
 	};
 
-	const processCaret = (bWrap: boolean, caret: ICaretData, value?: string) => {
-		if (caret.IsRange() || caret.Start.Node !== caret.End.Node || caret.Start.Offset !== caret.End.Offset) return;
+	const caretProcessor = (bWrap: boolean, caret: ICaretData, value?: string): boolean => {
+		if (caret.IsRange() || caret.Start.Node !== caret.End.Node || caret.Start.Offset !== caret.End.Offset) return false;
 		cleanExistedCaret(caret);
 
 		const caretId = DOM.Utils.CreateUEID('caret');
@@ -144,7 +162,7 @@ const ToggleInline = (editor: Editor, formats: IInlineFormat | IInlineFormat[]):
 			caret.Range.SetStartToEnd(caretSpliter, 1, 1);
 			const child = DOM.GetChildNodes(caretSpliter, false)[0];
 			Toggler.Toggle(false, formats, child, value);
-			return;
+			return true;
 		}
 
 		const { Tag, Styles } = Type.IsArray(formats) ? formats[0] : formats;
@@ -162,25 +180,26 @@ const ToggleInline = (editor: Editor, formats: IInlineFormat | IInlineFormat[]):
 		}
 
 		const wrapped = DOM.Create(Tag, createOption);
-
 		DOM.Insert(caretSpliter, wrapped);
+
 		caret.Range.Insert(caretSpliter);
-		caret.Range.SetStartToEnd(bWrap ? wrapped : caretSpliter, 1, 1);
+		caret.Range.SetStartToEnd(wrapped, 1, 1);
+
+		return true;
 	};
 
-	const ToggleFromCaret = (bWrap: boolean, value?: string) => {
-		self.Focus();
-
-		for (const caret of CaretUtils.Get()) {
-			processInSameNode(bWrap, caret, value);
-			processRange(bWrap, caret, value);
-			processCaret(bWrap, caret, value);
-			cleanDirty(caret.SameRoot);
-		}
-
-		CaretUtils.Clean();
-		self.Focus();
-	};
+	const ToggleFromCaret = (bWrap: boolean, value?: string) =>
+		FormatUtils.SerialiseWithProcessors(self, {
+			bWrap,
+			value,
+			tableProcessor,
+			processors: [
+				{ processor: caretProcessor },
+				{ processor: sameNodeProcessor },
+				{ processor: rangeProcessor },
+			],
+			afterProcessors: cleanDirty
+		});
 
 	return {
 		ToggleFromCaret,

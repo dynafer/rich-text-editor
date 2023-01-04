@@ -175,11 +175,7 @@ const InlineColor = (editor: Editor): IFormatUIRegistryUnit => {
 			uiFormat.LastPicked.push(color as TRGBArray);
 		});
 
-		const wrapper = FormatUI.Create({
-			tagName: 'button',
-			title: uiFormat.Title,
-			type: 'icon-wrap',
-		});
+		const wrapper = FormatUI.CreateIconWrap(uiFormat.Title);
 
 		const button = FormatUI.Create({
 			tagName: 'div',

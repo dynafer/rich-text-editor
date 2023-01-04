@@ -1,8 +1,13 @@
-import { Arr, Str } from '@dynafer/utils';
+import { Arr, Str, Type } from '@dynafer/utils';
+import Options from '../../Options';
 import DOM from '../dom/DOM';
+import { ICaretData } from '../editorUtils/caret/CaretUtils';
 import Editor from '../Editor';
+import { TableCellSet, TableSelector } from './Format';
 
 export type TConfigOption = string | string[] | Record<string, string>;
+
+export type TFormatProcessor = (bWrap: boolean, caret: ICaretData, value?: string) => boolean;
 
 export type TCaretPath = {
 	bRange: false,
@@ -15,6 +20,17 @@ export type TCaretPath = {
 	EndMarker: string,
 	EndOffset: number,
 };
+
+export interface IProcessorOption {
+	bWrap: boolean,
+	value?: string,
+	tableProcessor: (bWrap: boolean, value?: string) => ReturnType<TFormatProcessor>,
+	processors: ({
+		processor: TFormatProcessor,
+		bSkipFocus?: boolean,
+	})[],
+	afterProcessors?: (caret: ICaretData) => void,
+}
 
 export interface IFormatUtils {
 	GetPixelString: (value: number) => string,
@@ -30,8 +46,9 @@ export interface IFormatUtils {
 	RunFormatting: (editor: Editor, toggle: () => void) => void,
 	SplitTextNode: (editor: Editor, node: Node, start: number, end: number) => Node | null,
 	GetStyleSelectorMap: (styles: Record<string, string>, value?: string) => (string | Record<string, string>)[],
-	GetTableItems: (editor: Editor, table: Node, bSelected: boolean) => Node[],
+	GetTableItems: (editor: Editor, bSelected: boolean, table?: Node) => Node[],
 	ExceptNodes: (editor: Editor, node: Node, root: Node, bPrevious?: boolean) => Node[],
+	SerialiseWithProcessors: (editor: Editor, options: IProcessorOption) => void,
 }
 
 const FormatUtils = (): IFormatUtils => {
@@ -279,12 +296,12 @@ const FormatUtils = (): IFormatUtils => {
 		return nodes;
 	};
 
-	const GetTableItems = (editor: Editor, table: Node, bSelected: boolean): Node[] => {
+	const GetTableItems = (editor: Editor, bSelected: boolean, table?: Node): Node[] => {
 		const self = editor;
 
 		return self.DOM.SelectAll({
-			tagName: ['td', 'th'],
-			attrs: ['data-selected'],
+			tagName: [...TableCellSet],
+			attrs: [Options.ATTRIBUTE_SELECTED],
 			bNot: !bSelected,
 		}, table);
 	};
@@ -292,10 +309,31 @@ const FormatUtils = (): IFormatUtils => {
 	const ExceptNodes = (editor: Editor, node: Node, root: Node, bPrevious: boolean = false): Node[] => {
 		const self = editor;
 
-		const tableNode = self.DOM.Closest(GetParentIfText(root) as Element, 'table');
-		if (!!tableNode) return GetTableItems(self, tableNode, false);
+		const tableNode = self.DOM.Closest(GetParentIfText(root) as Element, TableSelector);
+		if (!!tableNode) return GetTableItems(self, false, tableNode);
 
 		return getNodesInRoot(node, root, bPrevious);
+	};
+
+	const SerialiseWithProcessors = (editor: Editor, options: IProcessorOption) => {
+		const self = editor;
+		const CaretUtils = self.Utils.Caret;
+		const { bWrap, value, tableProcessor, processors, afterProcessors } = options;
+
+		if (tableProcessor(bWrap, value)) return;
+
+		for (const caret of CaretUtils.Get()) {
+			for (const option of processors) {
+				if (option.processor(bWrap, caret, value)) {
+					if (!option.bSkipFocus) self.Focus();
+					break;
+				}
+			}
+
+			if (Type.IsFunction(afterProcessors)) afterProcessors(caret);
+		}
+
+		CaretUtils.Clean();
 	};
 
 	return {
@@ -314,6 +352,7 @@ const FormatUtils = (): IFormatUtils => {
 		GetStyleSelectorMap,
 		GetTableItems,
 		ExceptNodes,
+		SerialiseWithProcessors,
 	};
 };
 

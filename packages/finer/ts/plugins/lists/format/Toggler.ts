@@ -12,8 +12,6 @@ const Toggler = (editor: Editor, format: IPluginListFormat) => {
 	const unwrapper = Unwrapper(self, format);
 
 	const ToggleFromCaret = (bWrap: boolean) => {
-		self.Focus();
-
 		const toggle = bWrap ? wrapper.WrapFromCaret : unwrapper.UnwrapFromCaret;
 
 		for (const caret of CaretUtils.Get()) {
@@ -21,7 +19,6 @@ const Toggler = (editor: Editor, format: IPluginListFormat) => {
 		}
 
 		CaretUtils.Clean();
-		self.Focus();
 	};
 
 	return {

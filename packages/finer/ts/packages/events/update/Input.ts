@@ -24,7 +24,7 @@ const Input = (editor: Editor) => {
 		const styleElements = DOM.SelectAll(DOM.Utils.CreateAttrSelector('style'), fragment);
 
 		for (const styleElement of styleElements) {
-			const editorStyle = DOM.GetAttr(styleElement, Options.EDITOR_STYLE_ATTRIBUTE) ?? '';
+			const editorStyle = DOM.GetAttr(styleElement, Options.ATTRIBUTE_EDITOR_STYLE) ?? '';
 			if (!Str.IsEmpty(editorStyle)) {
 				DOM.SetStyleText(styleElement, editorStyle);
 				continue;
@@ -162,9 +162,7 @@ const Input = (editor: Editor) => {
 
 		if (caret.SameRoot.parentNode !== self.GetBody() || DOM.Utils.IsParagraph(caret.SameRoot)) return clean();
 
-		const paragraph = DOM.Create('p', {
-			html: '<br>'
-		});
+		const paragraph = self.CreateEmptyParagraph();
 
 		self.GetBody().replaceChild(paragraph, caret.SameRoot);
 

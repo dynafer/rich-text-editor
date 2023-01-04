@@ -30,6 +30,7 @@ export const Reverse = <T>(array: T[]) => {
 export const Contains = <T>(array: T[], expect: T): boolean => IsArray(array) && array.includes(expect);
 
 export const Push = <T>(array: T[], ...items: T[]): number => array.push(...items);
+export const Pop = <T>(array: T[]): T | undefined => array.pop();
 
 export const Unshift = <T>(array: T[], ...items: T[]): number => array.unshift(...items);
 export const Shift = <T>(array: T[]): T | undefined => array.shift();

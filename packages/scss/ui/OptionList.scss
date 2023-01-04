@@ -14,9 +14,55 @@
 			white-space: nowrap;
 		}
 
+		&[table='true'] {
+			& > .#{getClassName(item-group)} {
+				@include flex();
+
+				&:not(:first-child) {
+					@include margin($top: -1);
+				}
+
+				&:first-child {
+					.#{getClassName(option-item)} {
+						&:first-child {
+							@include round(getVar(toolbar-item-radius) 0px 0px 0px);
+						}
+
+						&:last-child {
+							@include round(0px getVar(toolbar-item-radius) 0px 0px);
+						}
+					}
+				}
+
+				.#{getClassName(option-item)} {
+					@include square(1.2rem);
+					@include border($bottom: getVar(toolbar-item-select-border));
+					cursor: pointer;
+
+					&:not(:last-child) {
+						@include border($right: getVar(toolbar-item-select-border));
+					}
+
+					&:not(:first-child) {
+						@include margin($left: -1);
+					}
+
+					&.hover {
+						background-color: getVar(toolbar-item-hover-bg);
+					}
+				}
+			}
+
+			& > .#{getClassName(option-item)} {
+				@include flex(center, center);
+				@include margin(rem, $bottom: 0.5);
+				@include padding(rem, 0.5);
+			}
+		}
+
 		&[palette='true'] {
 			& > .#{getClassName(option-item)}:first-child {
-				@include flex($justify: center, $align: center);
+				@include flex(center, center);
 				@include border($bottom: getVar(toolbar-item-select-border));
 				@include margin(rem, $bottom: 0.3);
 
@@ -32,7 +78,7 @@
 			}
 
 			& > .#{getClassName(option-item)}:last-child {
-				@include flex($justify: space-between, $align: center);
+				@include flex(space-between, center);
 				@include border(getVar(toolbar-item-select-border));
 				@include margin(rem, 0.3);
 			}
@@ -108,7 +154,7 @@
 			}
 		}
 
-		&:not([palette='true']) {
+		&:not([palette='true'], [table='true']) {
 			.#{getClassName(option-item)} {
 				@include flex($align: center);
 				@include all-padding(0.4rem);

@@ -1,6 +1,8 @@
 import { Arr, Type } from '@dynafer/utils';
+import Options from '../../../Options';
 import Editor from '../../Editor';
 import { ICaretData } from '../../editorUtils/caret/CaretUtils';
+import { FigureSelector, TableSelector } from '../Format';
 import { IStyleFormat } from '../FormatType';
 import FormatUtils from '../FormatUtils';
 
@@ -24,10 +26,32 @@ const ToggleStyleFormat = (editor: Editor, formats: IStyleFormat | IStyleFormat[
 		Toggler.ToggleRecursive(bWrap, formats, root, toggleOption);
 	};
 
-	const toggleSameLine = (bWrap: boolean, caret: ICaretData, value?: string) => {
-		if (caret.Start.Line !== caret.End.Line) return;
+	const tableProcessor = (bWrap: boolean, value?: string): boolean => {
+		const cells = FormatUtils.GetTableItems(self, true);
+		if (cells.length === 0) return false;
 
-		if (caret.Start.Node === caret.End.Node) return Toggler.Toggle(bWrap, formats, caret.Start.Node, value);
+		const table = DOM.Closest(cells[0] as Element, TableSelector);
+		if (!table) return false;
+
+		if (DOM.HasAttr(table, Options.ATTRIBUTE_SELECTED)) {
+			Toggler.Toggle(bWrap, formats, table, value);
+			return true;
+		}
+
+		for (const cell of cells) {
+			Toggler.ToggleRecursive(bWrap, formats, cell, { value });
+		}
+
+		return true;
+	};
+
+	const smaeLineProcessor = (bWrap: boolean, caret: ICaretData, value?: string): boolean => {
+		if (caret.Start.Line !== caret.End.Line) return false;
+
+		if (caret.Start.Node === caret.End.Node) {
+			Toggler.Toggle(bWrap, formats, caret.Start.Node, value);
+			return true;
+		}
 
 		const toggleOption = {
 			except: Arr.MergeUnique(
@@ -39,10 +63,11 @@ const ToggleStyleFormat = (editor: Editor, formats: IStyleFormat | IStyleFormat[
 		};
 		Toggler.ToggleRecursive(bWrap, formats, caret.SameRoot, toggleOption);
 
+		return true;
 	};
 
-	const toggleRange = (bWrap: boolean, caret: ICaretData, value?: string) => {
-		if (caret.Start.Line === caret.End.Line) return;
+	const rangeProcessor = (bWrap: boolean, caret: ICaretData, value?: string): boolean => {
+		if (caret.Start.Line === caret.End.Line) return false;
 
 		const lines = DOM.GetChildNodes(self.GetBody());
 
@@ -52,51 +77,56 @@ const ToggleStyleFormat = (editor: Editor, formats: IStyleFormat | IStyleFormat[
 			Toggler.ToggleRecursive(bWrap, formats, line, { value });
 		}
 		toggleRangeEdge(bWrap, caret.End.Node, lines[caret.End.Line], value);
+
+		return true;
 	};
 
 	const calculateRange = (caret: ICaretData, styleName: string, calculateValue: number) => {
 		const lines = DOM.GetChildNodes(self.GetBody());
 
-		for (let index = caret.Start.Line; index <= caret.End.Line; ++index) {
-			const line = lines[index] as HTMLElement;
-
-			const styleValue = DOM.GetStyle(line, styleName, true);
+		const toggleStyle = (element: HTMLElement) => {
+			const styleValue = DOM.GetStyle(element, styleName, true);
 			const calculated = parseFloat(styleValue) + calculateValue;
 
-			if (calculated <= 0) {
-				DOM.RemoveStyle(line, styleName);
-				continue;
+			const toggle = calculated <= 0 ? DOM.RemoveStyle : DOM.SetStyle;
+			toggle(element, styleName, FormatUtils.GetPixelString(calculated));
+		};
+
+		const cells = FormatUtils.GetTableItems(self, true);
+		if (cells.length === 0) {
+			for (let index = caret.Start.Line; index <= caret.End.Line; ++index) {
+				toggleStyle(lines[index] as HTMLElement);
 			}
-
-			DOM.SetStyle(line, styleName, FormatUtils.GetPixelString(calculated));
-		}
-	};
-
-	const ToggleFromCaret = (bWrap: boolean, value?: string) => {
-		self.Focus();
-
-		for (const caret of CaretUtils.Get()) {
-			toggleSameLine(bWrap, caret, value);
-			toggleRange(bWrap, caret, value);
+			return;
 		}
 
-		CaretUtils.Clean();
-		self.Focus();
+		const figure = DOM.Closest(cells[0] as Element, FigureSelector) as HTMLElement | null;
+		if (!figure) return;
+		toggleStyle(figure);
 	};
+
+	const ToggleFromCaret = (bWrap: boolean, value?: string) =>
+		FormatUtils.SerialiseWithProcessors(self, {
+			bWrap,
+			value,
+			tableProcessor,
+			processors: [
+				{ processor: smaeLineProcessor },
+				{ processor: rangeProcessor },
+			]
+		});
 
 	const CalculateFromCaret = (value: string, bSubtract?: boolean) => {
 		const format = Type.IsArray(formats) ? formats[0] : formats;
 		const { Styles } = format;
 		const styleName = Object.keys(Styles)[0];
 		const calculateValue = bSubtract ? -1 * parseFloat(value) : parseFloat(value);
-		self.Focus();
 
 		for (const caret of CaretUtils.Get()) {
 			calculateRange(caret, styleName, calculateValue);
 		}
 
 		CaretUtils.Clean();
-		self.Focus();
 	};
 
 	return {
