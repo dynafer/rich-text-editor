@@ -139,8 +139,6 @@ const ToggleInline = (editor: Editor, formats: IInlineFormat | IInlineFormat[]):
 
 		existedCaret.parentNode?.replaceChild(fragment, existedCaret);
 		caret.Range.SetStartToEnd(node, offset, offset);
-
-		console.log(node);
 	};
 
 	const caretProcessor = (bWrap: boolean, caret: ICaretData, value?: string): boolean => {
