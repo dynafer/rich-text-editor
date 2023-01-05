@@ -5,7 +5,7 @@ const TableFormat = (editor: Editor) => {
 	const DOM = self.DOM;
 	const formatterFormats = self.Formatter.Formats;
 
-	const CreateFromCaret = (row: number, column: number) => {
+	const CreateFromCaret = (rowNum: number, cellNum: number) => {
 		const caretForDeletion = self.Utils.Caret.Get()[0];
 		const bRange = caretForDeletion.IsRange();
 		if (bRange) {
@@ -31,14 +31,14 @@ const TableFormat = (editor: Editor) => {
 
 		let firstCell: HTMLElement = table;
 
-		for (let rowIndex = 0; rowIndex <= row; ++rowIndex) {
+		for (let rowIndex = 0; rowIndex <= rowNum; ++rowIndex) {
 			const tr = DOM.Create(formatterFormats.TableRowSelector);
 
-			for (let columnIndex = 0; columnIndex <= column; ++columnIndex) {
+			for (let cellIndex = 0; cellIndex <= cellNum; ++cellIndex) {
 				const cell = DOM.Create('td', {
 					html: '<br>'
 				});
-				if (rowIndex === 0 && columnIndex === 0) firstCell = cell;
+				if (rowIndex === 0 && cellIndex === 0) firstCell = cell;
 				DOM.Insert(tr, cell);
 			}
 
