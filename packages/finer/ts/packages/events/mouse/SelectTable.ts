@@ -20,7 +20,7 @@ const SelectTable = (editor: Editor, event: MouseEvent) => {
 	const rows = DOM.SelectAll(TableRowSelector, targetTable);
 
 	const startRowNum = Arr.Find(rows, targetRow);
-	const startColumnNum = Arr.Find(DOM.GetChildren(targetRow), targetCell);
+	const startCellNum = Arr.Find(DOM.GetChildren(targetRow), targetCell);
 
 	const mouseMoveEvent = (e: MouseEvent) => {
 		const currentCell = DOM.Closest(e.composedPath()[0] as Element, TableCellSelector);
@@ -44,21 +44,21 @@ const SelectTable = (editor: Editor, event: MouseEvent) => {
 		bDragged = true;
 
 		const currentRowNum = Arr.Find(rows, currentRow);
-		const currentColumnNum = Arr.Find(DOM.GetChildren(currentRow), currentCell);
+		const currentCellNum = Arr.Find(DOM.GetChildren(currentRow), currentCell);
 
 		const minRowNum = Math.min(startRowNum, currentRowNum);
 		const maxRowNum = Math.max(startRowNum, currentRowNum);
-		const minColumnNum = Math.min(startColumnNum, currentColumnNum);
-		const maxColumnNum = Math.max(startColumnNum, currentColumnNum);
+		const minCellNum = Math.min(startCellNum, currentCellNum);
+		const maxCellNum = Math.max(startCellNum, currentCellNum);
 
 		for (let rowIndex = 0, rowLength = rows.length; rowIndex < rowLength; ++rowIndex) {
 			const row = rows[rowIndex];
 			const cellsInRange = DOM.GetChildren(row);
 			const bRowInRange = rowIndex >= minRowNum && rowIndex <= maxRowNum;
 
-			for (let columnIndex = 0, columnLength = cellsInRange.length; columnIndex < columnLength; ++columnIndex) {
-				const cellInRange = cellsInRange[columnIndex];
-				if (bRowInRange && columnIndex >= minColumnNum && columnIndex <= maxColumnNum) {
+			for (let cellIndex = 0, cellLength = cellsInRange.length; cellIndex < cellLength; ++cellIndex) {
+				const cellInRange = cellsInRange[cellIndex];
+				if (bRowInRange && cellIndex >= minCellNum && cellIndex <= maxCellNum) {
 					DOM.SetAttr(cellInRange, Options.ATTRIBUTE_SELECTED, '');
 					continue;
 				}

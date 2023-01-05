@@ -18,31 +18,31 @@ const Table = (editor: Editor, ui: IPluginTableUI) => {
 	};
 
 	const numRows = 10;
-	const numColumns = 10;
+	const numCells = 10;
 
-	const setNavigationText = (navigation: HTMLElement, row: number, column: number, add: number = 1) =>
-		DOM.SetHTML(navigation, Str.Merge((row + add).toString(), ' × ', (column + add).toString()));
+	const setNavigationText = (navigation: HTMLElement, row: number, cell: number, add: number = 1) =>
+		DOM.SetHTML(navigation, Str.Merge((row + add).toString(), ' × ', (cell + add).toString()));
 
-	const bindCellMouseEnterEvent = (navigation: HTMLElement, columnItem: HTMLElement, row: number, column: number) =>
-		DOM.On(columnItem, 'mouseenter', () => {
-			if (!columnItem.parentElement?.parentElement) return;
+	const bindCellMouseEnterEvent = (navigation: HTMLElement, cellItem: HTMLElement, row: number, cell: number) =>
+		DOM.On(cellItem, 'mouseenter', () => {
+			if (!cellItem.parentElement?.parentElement) return;
 
-			for (let rowIndex = 0; rowIndex < numColumns; ++rowIndex) {
+			for (let rowIndex = 0; rowIndex < numCells; ++rowIndex) {
 				const itemRowToHover = DOM.Select({
 					attrs: {
 						row: rowIndex.toString()
 					}
-				}, columnItem.parentElement?.parentElement);
+				}, cellItem.parentElement?.parentElement);
 
-				const columns = DOM.GetChildren(itemRowToHover, false);
-				for (let columnIndex = 0; columnIndex < numColumns; ++columnIndex) {
-					const bHovered = rowIndex <= row && columnIndex <= column;
+				const cells = DOM.GetChildren(itemRowToHover, false);
+				for (let cellIndex = 0; cellIndex < numCells; ++cellIndex) {
+					const bHovered = rowIndex <= row && cellIndex <= cell;
 					const toggle = bHovered ? DOM.AddClass : DOM.RemoveClass;
-					toggle(columns[columnIndex], 'hover');
+					toggle(cells[cellIndex], 'hover');
 				}
 			}
 
-			setNavigationText(navigation, row, column);
+			setNavigationText(navigation, row, cell);
 		});
 
 	const removeAllHovered = (navigation: HTMLElement, parent: Node) =>
@@ -54,7 +54,7 @@ const Table = (editor: Editor, ui: IPluginTableUI) => {
 			setNavigationText(navigation, 1, 1, 0);
 		};
 
-	const createRowsAndColumns = (navigation: HTMLElement): HTMLElement[] => {
+	const createRowsAndCells = (navigation: HTMLElement): HTMLElement[] => {
 		const items: HTMLElement[] = [];
 
 		for (let row = 0; row < numRows; ++row) {
@@ -63,24 +63,24 @@ const Table = (editor: Editor, ui: IPluginTableUI) => {
 				row: row.toString(),
 			});
 
-			for (let column = 0; column < numColumns; ++column) {
-				const columnItem = formatUI.Create({
+			for (let cell = 0; cell < numCells; ++cell) {
+				const cellItem = formatUI.Create({
 					tagName: 'li',
 					type: 'option-item',
 				});
 
-				DOM.SetAttrs(columnItem, {
-					column: column.toString(),
+				DOM.SetAttrs(cellItem, {
+					cell: cell.toString(),
 				});
 
-				DOM.Insert(rowItem, columnItem);
+				DOM.Insert(rowItem, cellItem);
 
-				bindCellMouseEnterEvent(navigation, columnItem, row, column);
+				bindCellMouseEnterEvent(navigation, cellItem, row, cell);
 
-				formatUI.BindClickEvent(columnItem, () => {
+				formatUI.BindClickEvent(cellItem, () => {
 					const tableFormat = TableFormat(self);
 
-					tableFormat.CreateFromCaret(row, column);
+					tableFormat.CreateFromCaret(row, cell);
 				});
 			}
 			Arr.Push(items, rowItem);
@@ -102,7 +102,7 @@ const Table = (editor: Editor, ui: IPluginTableUI) => {
 			DOM.Insert(navigationWrapper, navigation);
 			DOM.On(navigationWrapper, 'mouseover', removeAllHovered(navigation, navigationWrapper.parentElement as Node));
 
-			const items: HTMLElement[] = createRowsAndColumns(navigation);
+			const items: HTMLElement[] = createRowsAndCells(navigation);
 			Arr.Push(items, navigationWrapper);
 
 			const tableList = formatUI.CreateOptionList(uiName, items);

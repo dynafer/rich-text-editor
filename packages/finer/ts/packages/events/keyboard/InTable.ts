@@ -23,11 +23,11 @@ const InTable = (editor: Editor, event: KeyboardEvent) => {
 	const from = bUp || bLeft ? caret.Start.Node : caret.End.Node;
 	const fromElement = (DOM.Utils.IsText(from) ? from.parentNode : from) as Element;
 	const row = DOM.Closest(fromElement, TableRowSelector);
-	const column = DOM.Closest(fromElement, TableCellSelector);
-	if (!row || !column) return CaretUtils.Clean();
+	const cell = DOM.Closest(fromElement, TableCellSelector);
+	if (!row || !cell) return CaretUtils.Clean();
 
-	const columnIndex = Arr.Find(DOM.GetChildNodes(row, false), column);
-	if (columnIndex === -1) return CaretUtils.Clean();
+	const cellIndex = Arr.Find(DOM.GetChildNodes(row, false), cell);
+	if (cellIndex === -1) return CaretUtils.Clean();
 
 	const newRange = self.Utils.Range();
 
@@ -61,10 +61,10 @@ const InTable = (editor: Editor, event: KeyboardEvent) => {
 		const rows = DOM.SelectAll(TableRowSelector, line);
 		const cells = DOM.SelectAll(TableCellSelector, line);
 
-		const rowIndex = bLeft ? 0 : rows.length - 1;
-		const cellIndex = bLeft ? 0 : cells.length - 1;
+		const targetRowIndex = bLeft ? 0 : rows.length - 1;
+		const targetCellIndex = bLeft ? 0 : cells.length - 1;
 
-		if (row !== rows[rowIndex] || column !== cells[cellIndex]) return CaretUtils.Clean();
+		if (row !== rows[targetRowIndex] || cell !== cells[targetCellIndex]) return CaretUtils.Clean();
 
 		PreventEvent(event);
 
@@ -89,20 +89,20 @@ const InTable = (editor: Editor, event: KeyboardEvent) => {
 	}
 
 	const cells: Node[] = [];
-	for (const cell of DOM.GetChildNodes(targetRow)) {
-		const colspan = parseInt(DOM.GetAttr(cell, 'colspan') ?? '0');
+	for (const eachCell of DOM.GetChildNodes(targetRow)) {
+		const colspan = parseInt(DOM.GetAttr(eachCell, 'colspan') ?? '0');
 
 		if (!colspan || colspan <= 0) {
-			Arr.Push(cells, cell);
+			Arr.Push(cells, eachCell);
 			continue;
 		}
 
 		for (let index = 0; index < colspan; ++index) {
-			Arr.Push(cells, cell);
+			Arr.Push(cells, eachCell);
 		}
 	}
 
-	const targetCell = cells[columnIndex];
+	const targetCell = cells[cellIndex];
 	if (!targetCell) return CaretUtils.Clean();
 
 	return findAndUpdate(false, targetCell);
