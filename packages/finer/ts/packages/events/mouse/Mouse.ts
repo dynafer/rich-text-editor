@@ -1,10 +1,12 @@
 import Editor from '../../Editor';
 import { CaretChangeEvent, ENativeEvents, Setup } from '../EventSetupUtils';
-import SelectTable from './SelectTable';
+import SelectTableCell from './SelectTableCell';
 
 const Mouse = (editor: Editor) => {
-	Setup(editor, ENativeEvents.mouseup, CaretChangeEvent);
-	Setup(editor, ENativeEvents.mousedown, SelectTable);
+	const self = editor;
+
+	Setup(self, ENativeEvents.mouseup, CaretChangeEvent);
+	Setup(self, ENativeEvents.mousedown, SelectTableCell);
 };
 
 export default Mouse;

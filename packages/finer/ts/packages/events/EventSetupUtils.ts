@@ -1,4 +1,4 @@
-import { Arr } from '@dynafer/utils';
+import { Arr, Str } from '@dynafer/utils';
 import Editor from '../Editor';
 
 export enum ENativeEvents {
@@ -7,7 +7,6 @@ export enum ENativeEvents {
 	animationend = 'animationend',
 	animationiteration = 'animationiteration',
 	animationstart = 'animationstart',
-	beforeinput = 'beforeinput',
 	cancel = 'cancel',
 	canplay = 'canplay',
 	canplaythrough = 'canplaythrough',
@@ -23,7 +22,6 @@ export enum ENativeEvents {
 	error = 'error',
 	formdata = 'formdata',
 	gotpointercapture = 'gotpointercapture',
-	input = 'input',
 	invalid = 'invalid',
 	load = 'load',
 	loadeddata = 'loadeddata',
@@ -102,6 +100,9 @@ export enum ENativeEvents {
 	focusin = 'focusin',
 	focusout = 'focusout',
 	blur = 'blur',
+
+	beforeinput = 'beforeinput',
+	input = 'input',
 }
 
 export enum EInputEventType {
@@ -179,4 +180,19 @@ export const PreventEvent = (event: Event) => {
 	event.preventDefault();
 	event.stopImmediatePropagation();
 	event.stopPropagation();
+};
+
+export const ChangeMovablePosition = (editor: Editor) => {
+	const self = editor;
+	const DOM = self.DOM;
+	for (const movable of DOM.SelectAll({ attrs: ['data-movable'] })) {
+		const figure = movable.parentElement?.parentElement ?? null;
+		const figureType = DOM.GetAttr(figure, 'type');
+		if (!figure || !figureType) continue;
+
+		const figureElement = DOM.Select(figureType, figure) as HTMLElement;
+		if (!figureElement) continue;
+
+		DOM.SetStyle(movable, 'left', Str.Merge(figureElement.offsetLeft.toString(), 'px'));
+	}
 };

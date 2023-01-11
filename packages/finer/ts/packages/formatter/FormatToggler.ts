@@ -22,13 +22,13 @@ const FormatToggler = (editor: Editor): IFormatToggler => {
 	};
 
 	const processRecursive = (bWrap: boolean, formats: TFormat | TFormat[], node: Node, toggleOption: IToggleRecursiveOption = {}) => {
-		const { except, endNode, value } = toggleOption;
-		const children = DOM.GetChildNodes(node, false);
+		const { except, endNode, value, bInline } = toggleOption;
+		const children = DOM.GetChildNodes(node, bInline);
 		for (const child of children) {
 			if (Arr.Contains(except ?? [], child)) continue;
 			if (!DOM.Utils.IsText(child) && (children.length !== 1 || !DOM.Utils.IsBr(child))) {
 				processRecursive(bWrap, formats, child, toggleOption);
-				if (endNode && DOM.Utils.IsChildOf(endNode, child)) return;
+				if (endNode && ((!bInline && DOM.Utils.IsChildOf(endNode, child)) || (bInline && child === endNode))) return;
 				continue;
 			}
 

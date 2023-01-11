@@ -1,6 +1,6 @@
 import { Style } from '@dynafer/dom-control';
 import { IDOMFactory, Schema, Sketcher } from '@dynafer/sketcher';
-import { Str } from '@dynafer/utils';
+import { Arr, Str } from '@dynafer/utils';
 import { RGBA, IRGBA, CreateName } from '../utils/Utils';
 import { IPalette } from './Palette';
 import { IHue } from './Hue';
@@ -11,12 +11,12 @@ export interface INavigation extends IDOMFactory {
 }
 
 const Navigation = (palette: IPalette, hue: IHue): INavigation => {
-	const inputs = [];
-	const elements = [];
+	const inputs: Schema.IInputSchema[] = [];
+	const elements: IDOMFactory[] = [];
 	for (const Label of ['R', 'G', 'B', '#']) {
 		const input = Sketcher.Input({ Label });
-		inputs.push(input);
-		elements.push(input.Schema);
+		Arr.Push(inputs, input);
+		Arr.Push(elements, input.Schema);
 	}
 
 	const schema = Sketcher.SketchOne({
@@ -54,7 +54,7 @@ const Navigation = (palette: IPalette, hue: IHue): INavigation => {
 	};
 
 	const GetRGB = (bArray: boolean): string | number[] | null => {
-		const rgb = [];
+		const rgb: number[] = [];
 		for (const inputSchema of Object.values(rgbElements)) {
 			if (Str.IsEmpty(inputSchema.GetValue())) {
 				toggleError(inputSchema, true);
@@ -65,7 +65,7 @@ const Navigation = (palette: IPalette, hue: IHue): INavigation => {
 				toggleError(inputSchema, true);
 				return null;
 			}
-			rgb.push(value);
+			Arr.Push(rgb, value);
 			toggleError(inputSchema, false);
 		}
 

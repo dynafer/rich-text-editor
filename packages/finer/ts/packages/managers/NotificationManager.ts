@@ -1,3 +1,4 @@
+import { Arr } from '@dynafer/utils';
 import Editor from '../Editor';
 import DOM from '../dom/DOM';
 import { ENativeEvents } from '../events/EventSetupUtils';
@@ -87,7 +88,7 @@ const NotificationManager = (editor: Editor): INotificationManager => {
 		});
 
 		DOM.Insert(notification, wrapper);
-		stacks.push(wrapper);
+		Arr.Push(stacks, wrapper);
 	};
 
 	return {

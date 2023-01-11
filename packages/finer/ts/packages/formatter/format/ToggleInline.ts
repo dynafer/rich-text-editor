@@ -100,7 +100,7 @@ const ToggleInline = (editor: Editor, formats: IInlineFormat | IInlineFormat[]):
 		const endNode = trimRangeEdge(bWrap, caret.End.Node, caret.End.Offset, value);
 
 		caret.Range.SetStart(startNode, startNode === caret.Start.Node ? caret.Start.Offset : 0);
-		caret.Range.SetEnd(endNode, endNode === caret.End.Node ? caret.End.Offset : (endNode.textContent?.length ?? 0));
+		caret.Range.SetEnd(endNode, endNode.textContent?.length ?? 0);
 
 		const toggleOption = {
 			except: Arr.MergeUnique(
@@ -109,6 +109,7 @@ const ToggleInline = (editor: Editor, formats: IInlineFormat | IInlineFormat[]):
 			),
 			endNode,
 			value,
+			bInline: true,
 		};
 
 		Toggler.ToggleRecursive(bWrap, formats, caret.SameRoot, toggleOption);

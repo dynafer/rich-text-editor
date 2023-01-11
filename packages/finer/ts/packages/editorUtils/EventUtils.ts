@@ -1,7 +1,7 @@
 import { Arr } from '@dynafer/utils';
 
-export interface IEvent {
-	(...params: unknown[]): void;
+export interface IEvent<T = unknown> {
+	(...params: T[]): void;
 }
 
 export interface IEventUtils {
@@ -21,7 +21,7 @@ const EventUtils = (): IEventUtils => {
 	const On = (eventName: string, event: IEvent) => {
 		if (!Has(eventName)) events[eventName] = [];
 
-		events[eventName].push(event);
+		Arr.Push(events[eventName], event);
 	};
 
 	const Off = (eventName: string, event: IEvent) => {
@@ -48,7 +48,7 @@ const EventUtils = (): IEventUtils => {
 
 		const eventList: Promise<void>[] = [];
 		for (const event of events[eventName]) {
-			eventList.push(new Promise((resolve) => {
+			Arr.Push(eventList, new Promise((resolve) => {
 				event(...params);
 				resolve();
 			}));

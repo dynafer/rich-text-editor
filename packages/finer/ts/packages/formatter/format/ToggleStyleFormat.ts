@@ -1,8 +1,7 @@
 import { Arr, Type } from '@dynafer/utils';
-import Options from '../../../Options';
 import Editor from '../../Editor';
 import { ICaretData } from '../../editorUtils/caret/CaretUtils';
-import { FigureSelector, TableSelector } from '../Format';
+import { FigureSelector } from '../Format';
 import { IStyleFormat } from '../FormatType';
 import FormatUtils from '../FormatUtils';
 
@@ -29,14 +28,6 @@ const ToggleStyleFormat = (editor: Editor, formats: IStyleFormat | IStyleFormat[
 	const tableProcessor = (bWrap: boolean, value?: string): boolean => {
 		const cells = FormatUtils.GetTableItems(self, true);
 		if (cells.length === 0) return false;
-
-		const table = DOM.Closest(cells[0] as Element, TableSelector);
-		if (!table) return false;
-
-		if (DOM.HasAttr(table, Options.ATTRIBUTE_SELECTED)) {
-			Toggler.Toggle(bWrap, formats, table, value);
-			return true;
-		}
 
 		for (const cell of cells) {
 			Toggler.ToggleRecursive(bWrap, formats, cell, { value });

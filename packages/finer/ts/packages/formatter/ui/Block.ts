@@ -94,7 +94,7 @@ const Block = (editor: Editor, detector: IFormatDetector): IFormatUIRegistryUnit
 
 			FormatUI.BindClickEvent(optionElement, () => FormatUI.RunCommand(self, createCommandName(uiName, Title), !bSelected));
 
-			optionElements.push(optionElement);
+			Arr.Push(optionElements, optionElement);
 		}
 
 		const optionList = FormatUI.CreateOptionList(uiName, optionElements);

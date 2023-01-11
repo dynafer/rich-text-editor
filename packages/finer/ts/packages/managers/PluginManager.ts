@@ -1,6 +1,5 @@
 import { Arr, Str } from '@dynafer/utils';
 import Editor from '../Editor';
-import { IEvent } from '../editorUtils/EventUtils';
 import { ENativeEvents } from '../events/EventSetupUtils';
 import { ENotificationStatus } from './NotificationManager';
 
@@ -16,37 +15,6 @@ const PluginManager = (editor: Editor): IPluginManager => {
 	const DOM = self.DOM;
 
 	const plugins: Record<string, (<T>(...args: T[]) => void)> = {};
-
-	self.On('caret:change', ((paths: Node[]) => {
-		const caretPointers = DOM.SelectAll({
-			attrs: 'caret'
-		});
-		if (Arr.IsEmpty(caretPointers)) return;
-
-		const currentCarets: Node[] = [];
-		for (const path of paths) {
-			if (DOM.HasAttr(path, 'caret')) currentCarets.push(path);
-		}
-
-		for (const caretPointer of caretPointers) {
-			if (Arr.Contains(currentCarets, caretPointer)) continue;
-
-			if (!Str.IsEmpty(DOM.GetText(caretPointer))) {
-				DOM.SetOuterHTML(caretPointer, DOM.GetHTML(caretPointer));
-				continue;
-			}
-
-			const parents = DOM.GetParents(caretPointer, true);
-			for (const parent of parents) {
-				if (Str.IsEmpty(DOM.GetText(parent as HTMLElement))) {
-					DOM.Remove(parent as Element, true);
-					continue;
-				}
-
-				break;
-			}
-		}
-	}) as IEvent);
 
 	const Has = (name: string): boolean => !!plugins[Str.LowerCase(name)];
 	const Add = (name: string, plugin: <T>(...args: T[]) => void) => {
@@ -64,7 +32,7 @@ const PluginManager = (editor: Editor): IPluginManager => {
 					continue;
 				}
 
-				attachPlugins.push(Finer.Loaders.Plugin.Attach(self, name));
+				Arr.Push(attachPlugins, Finer.Loaders.Plugin.Attach(self, name));
 			}
 
 			Promise.all(attachPlugins)

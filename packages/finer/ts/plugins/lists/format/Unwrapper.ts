@@ -75,9 +75,11 @@ const Unwrapper = (editor: Editor, format: IPluginListFormat) => {
 			if (Arr.IsEmpty(lists)) continue;
 
 			for (const list of lists) {
-				if (!list.firstChild || !list.lastChild) continue;
+				const firstChild = DOM.Utils.GetFirstChild(list);
+				const lastChild = DOM.Utils.GetLastChild(list);
+				if (!firstChild || !lastChild) continue;
 
-				unwrap(list, list.firstChild, list.lastChild, true);
+				unwrap(list, firstChild, lastChild, true);
 			}
 		}
 	};
@@ -128,9 +130,12 @@ const Unwrapper = (editor: Editor, format: IPluginListFormat) => {
 			if (bHasStart) bStart = true;
 			if (!bStart) continue;
 
-			if (DOM.Utils.GetNodeName(child) === Tag && child.firstChild && child.lastChild) {
-				const startNode = bHasStart ? caret.Start.Node : child.firstChild;
-				const endNode = bHasEnd ? caret.End.Node : child.lastChild;
+			const firstChild = DOM.Utils.GetFirstChild(child);
+			const lastChild = DOM.Utils.GetLastChild(child);
+
+			if (DOM.Utils.GetNodeName(child) === Tag && firstChild && lastChild) {
+				const startNode = bHasStart ? caret.Start.Node : firstChild;
+				const endNode = bHasEnd ? caret.End.Node : lastChild;
 
 				unwrap(child, startNode, endNode, true);
 			}
@@ -148,7 +153,9 @@ const Unwrapper = (editor: Editor, format: IPluginListFormat) => {
 		for (let index = caret.Start.Line + 1; index < caret.End.Line; ++index) {
 			const line = lines[index];
 
-			unwrapRange(line.firstChild as Node);
+			const firstChild = DOM.Utils.GetFirstChild(line);
+			if (!firstChild) continue;
+			unwrapRange(firstChild);
 		}
 		unwrapRange(caret.End.Node, true);
 	};

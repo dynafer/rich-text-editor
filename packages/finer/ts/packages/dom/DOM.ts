@@ -4,6 +4,7 @@ import Options from '../../Options';
 import DOMUtils, { ESCAPE_EMPTY_TEXT_REGEX, ICreateSelectorOption, IDOMUtils } from './DOMUtils';
 
 type TElement = Node | Element | null;
+type TBoundEvent = [(Window & typeof globalThis) | Document | Element, string, EventListener];
 
 export type TCreateOption = Record<string, string> | string[] | string | TElement[] | (string | TElement)[];
 export type TEventListener<K extends keyof GlobalEventHandlersEventMap> = (event: GlobalEventHandlersEventMap[K]) => void;
@@ -13,6 +14,8 @@ export interface IDom {
 	Doc: Document,
 	New: (win: Window & typeof globalThis, doc: Document, bEditor: boolean) => IDom,
 	GetRoot: () => HTMLElement,
+	CreateFragment: () => DocumentFragment,
+	CreateTextNode: (text: string) => Text,
 	Select: {
 		<T extends Element>(selector: T | string | ICreateSelectorOption, parent?: TElement): T;
 		(selector: string | ICreateSelectorOption, parent?: TElement): HTMLElement | null;
@@ -45,12 +48,13 @@ export interface IDom {
 	GetHTML: (selector: HTMLElement) => string,
 	SetText: (selector: HTMLElement, text: string) => void,
 	SetHTML: (selector: HTMLElement, html: string) => void,
+	GetOuterHTML: (selector: HTMLElement) => string,
 	SetOuterHTML: (selector: HTMLElement, html: string) => void,
 	InsertBefore: (selector: TElement, ...insertions: (string | TElement)[]) => void,
 	Insert: (selector: TElement, ...insertions: (string | TElement)[]) => void,
 	InsertAfter: (selector: TElement, ...insertions: (string | TElement)[]) => void,
-	Clone: (selector: NonNullable<TElement>, deep?: boolean) => Node,
-	CloneAndInsert: (selector: NonNullable<TElement>, deep: boolean, ...insertions: (string | TElement)[]) => void,
+	Clone: (selector: NonNullable<TElement>, bDeep?: boolean) => Node,
+	CloneAndInsert: (selector: NonNullable<TElement>, bDeep: boolean, ...insertions: (string | TElement)[]) => void,
 	Closest: (selector: Element | null, find: string) => Element | null,
 	ClosestByStyle: (selector: Element | null, styles: string | (string | Record<string, string>)[] | Record<string, string>) => Element | null,
 	IsEditable: (selector: Node) => boolean,
@@ -58,23 +62,21 @@ export interface IDom {
 	GetChildNodes: <T extends boolean = true>(selector: Node | null, bArray?: T | true) => T extends true ? Node[] : NodeListOf<Node>,
 	GetChildren: <T extends boolean = true>(selector: Element | null, bArray?: T | true) => T extends true ? Element[] : HTMLCollection,
 	On: {
-		<K extends keyof GlobalEventHandlersEventMap>(selector: TElement, eventName: K, event: TEventListener<K>): void;
-		(selector: (Window & typeof globalThis) | TElement, eventName: string, event: EventListener): void;
+		<K extends keyof GlobalEventHandlersEventMap>(selector: TBoundEvent[0], eventName: K, event: TEventListener<K>): void;
+		(selector: TBoundEvent[0], eventName: string, event: EventListener): void;
 	},
 	Off: {
-		<K extends keyof GlobalEventHandlersEventMap>(selector: TElement, eventName: K, event?: TEventListener<K>): void;
-		(selector: (Window & typeof globalThis) | TElement, eventName: string, event?: EventListener): void;
+		<K extends keyof GlobalEventHandlersEventMap>(selector: TBoundEvent[0], eventName: K, event?: TEventListener<K>): void;
+		(selector: TBoundEvent[0], eventName: string, event?: EventListener): void;
 	},
-	OffAll: (selector: (Window & typeof globalThis) | TElement) => void,
+	OffAll: (selector: TBoundEvent[0]) => void,
 	Dispatch: {
-		<K extends keyof GlobalEventHandlersEventMap>(selector: TElement, eventName: K): void;
-		(selector: TElement, eventName: string): void;
+		<K extends keyof GlobalEventHandlersEventMap>(selector: TBoundEvent[0], eventName: K): void;
+		(selector: TBoundEvent[0], eventName: string): void;
 	},
 	Show: (selector: HTMLElement, displayType?: string) => void,
 	Hide: (selector: HTMLElement) => void,
 	IsHidden: (selector: HTMLElement) => boolean,
-	CreateFragment: () => DocumentFragment,
-	CreateTextNode: (text: string) => Text,
 	Create: {
 		<K extends keyof HTMLElementTagNameMap>(tagName: K, option?: Record<string, TCreateOption>): HTMLElementTagNameMap[K];
 		(tagName: string, option?: Record<string, TCreateOption>): HTMLElement;
@@ -91,21 +93,25 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 
 	const elementType = Win.Element;
 	const nodeType = Win.Node;
-	const textType = Win.Text;
+	const fragmentType = Win.DocumentFragment;
 
-	const boundEvents: [(Window & typeof globalThis) | Element, string, EventListener][] = [];
+	const boundEvents: TBoundEvent[] = [];
 
 	const New = (win: Window & typeof globalThis, doc: Document, bEditor: boolean): IDom => DOM(win, doc, bEditor);
 
 	const GetRoot = (): HTMLElement => Doc.documentElement;
 
+	const CreateFragment = (): DocumentFragment => Doc.createDocumentFragment();
+
+	const CreateTextNode = (text: string): Text => Doc.createTextNode(text);
+
 	const Select = (selector: string | ICreateSelectorOption, parent?: TElement): HTMLElement | null =>
-		Instance.Is(parent, elementType)
+		Instance.Is(parent, elementType) || Instance.Is(parent, fragmentType)
 			? parent.querySelector(Type.IsString(selector) ? selector : Utils.CreateSelector(selector))
 			: Doc.querySelector(Type.IsString(selector) ? selector : Utils.CreateSelector(selector));
 
 	const SelectAll = (selector: string | ICreateSelectorOption, parent?: TElement): HTMLElement[] =>
-		Array.from(Instance.Is(parent, elementType)
+		Array.from(Instance.Is(parent, elementType) || Instance.Is(parent, fragmentType)
 			? parent.querySelectorAll(Type.IsString(selector) ? selector : Utils.CreateSelector(selector))
 			: Doc.querySelectorAll(Type.IsString(selector) ? selector : Utils.CreateSelector(selector))
 		);
@@ -210,6 +216,9 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 		selector.innerHTML = html;
 	};
 
+	const GetOuterHTML = (selector: HTMLElement): string =>
+		!Instance.Is(selector, elementType) ? '' : decodeURI(encodeURI(selector.outerHTML).replace(ESCAPE_EMPTY_TEXT_REGEX, ''));
+
 	const SetOuterHTML = (selector: HTMLElement, html: string) => {
 		if (!Instance.Is(selector, elementType)) return;
 		selector.outerHTML = html;
@@ -241,7 +250,7 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 				continue;
 			}
 
-			selector.appendChild(Type.IsString(insertion) ? new Text(insertion) : insertion);
+			selector.appendChild(Type.IsString(insertion) ? CreateTextNode(insertion) : insertion);
 		}
 	};
 
@@ -260,14 +269,14 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 		}
 	};
 
-	const Clone = (selector: NonNullable<TElement>, deep?: boolean): Node => selector.cloneNode(deep);
+	const Clone = (selector: NonNullable<TElement>, bDeep?: boolean): Node => selector.cloneNode(bDeep);
 
-	const CloneAndInsert = (selector: TElement, deep: boolean, ...insertions: (string | TElement)[]) => {
+	const CloneAndInsert = (selector: TElement, bDeep: boolean, ...insertions: (string | TElement)[]) => {
 		if ((!Instance.Is(selector, elementType) && !Instance.Is(selector, nodeType))) return;
 
 		for (const insertion of insertions) {
 			if (!insertion) continue;
-			Insert(selector, Type.IsString(insertion) ? insertion : Clone(insertion, deep));
+			Insert(selector, Type.IsString(insertion) ? insertion : Clone(insertion, bDeep));
 		}
 	};
 
@@ -286,15 +295,15 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 		}));
 	};
 
-	const IsEditable = (selector: Node): boolean => HasAttr(selector, 'contenteditable');
+	const IsEditable = (selector: Node): boolean => HasAttr(selector, 'contenteditable', 'true');
 
 	const GetParents = (selector: Node | null, bReverse: boolean = false): Node[] => {
-		if (!Instance.Is(selector, nodeType) || IsEditable(selector)) return [];
+		if (!Instance.Is(selector, nodeType) || HasAttr(selector, 'id', Utils.CreateUEID('editor-body', false))) return [];
 		const parents: Node[] = [];
 		const add = bReverse ? Arr.Push : Arr.Unshift;
 		let parent: Node | null = selector;
 
-		if (selector.nodeName !== '#text') add(parents, selector);
+		if (!Utils.IsText(selector)) add(parents, selector);
 
 		while (parent = parent.parentNode) {
 			if (!Instance.Is(parent, nodeType) || HasAttr(parent, 'id', Utils.CreateUEID('editor-body', false))) break;
@@ -323,13 +332,13 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 		) as T extends true ? Element[] : HTMLCollection;
 	};
 
-	const On = (selector: (Window & typeof globalThis) | TElement, eventName: string, event: EventListener) => {
-		if ((selector !== Win && !Instance.Is(selector, elementType)) || !Type.IsString(eventName)) return;
+	const On = (selector: TBoundEvent[0], eventName: string, event: EventListener) => {
+		if ((selector !== Win && selector !== Doc && !Instance.Is(selector, elementType)) || !Type.IsString(eventName)) return;
 		selector.addEventListener(eventName, event);
-		boundEvents.push([selector, eventName, event]);
+		Arr.Push(boundEvents, [selector, eventName, event]);
 	};
 
-	const off = (isSame: (bound: [Element | (Window & typeof globalThis), string, EventListener]) => boolean) => {
+	const off = (isSame: (bound: TBoundEvent) => boolean) => {
 		let deletedCount = 0;
 		for (let index = 0, length = boundEvents.length; index < length; ++index) {
 			const bound = boundEvents[index - deletedCount];
@@ -342,24 +351,24 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 		}
 	};
 
-	const Off = (selector: (Window & typeof globalThis) | TElement, eventName: string, event?: EventListener) => {
-		if ((selector !== Win && !Instance.Is(selector, elementType)) || !Type.IsString(eventName)) return;
-		const isSame = (bound: [Element | (Window & typeof globalThis), string, EventListener]): boolean =>
+	const Off = (selector: TBoundEvent[0], eventName: string, event?: EventListener) => {
+		if ((selector !== Win && selector !== Doc && !Instance.Is(selector, elementType)) || !Type.IsString(eventName)) return;
+		const isSame = (bound: TBoundEvent): boolean =>
 			selector === bound[0] && eventName === bound[1] && (!event || (event && event === bound[2]));
 
 		off(isSame);
 	};
 
-	const OffAll = (selector: (Window & typeof globalThis) | TElement) => {
-		if (selector !== Win && !Instance.Is(selector, elementType)) return;
-		const isSame = (bound: [Element | (Window & typeof globalThis), string, EventListener]): boolean =>
+	const OffAll = (selector: TBoundEvent[0]) => {
+		if (selector !== Win && selector !== Doc && !Instance.Is(selector, elementType)) return;
+		const isSame = (bound: TBoundEvent): boolean =>
 			selector === bound[0];
 
 		off(isSame);
 	};
 
-	const Dispatch = (selector: TElement, eventName: string) => {
-		if (!Instance.Is(selector, elementType) || !Type.IsString(eventName)) return;
+	const Dispatch = (selector: TBoundEvent[0], eventName: string) => {
+		if ((selector !== Win && selector !== Doc && !Instance.Is(selector, elementType)) || !Type.IsString(eventName)) return;
 		const customEvent = new CustomEvent(eventName);
 
 		selector.dispatchEvent(customEvent);
@@ -377,10 +386,6 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 
 	const IsHidden = (selector: HTMLElement): boolean =>
 		!Instance.Is(selector, elementType) ? false : GetStyle(selector, 'display') === 'none';
-
-	const CreateFragment = (): DocumentFragment => Doc.createDocumentFragment();
-
-	const CreateTextNode = (text: string): Text => new textType(text);
 
 	const Create = (tagName: string, option?: Record<string, TCreateOption>): HTMLElement => {
 		const newElement = Doc.createElement(tagName);
@@ -456,6 +461,7 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 		GetHTML,
 		SetText,
 		SetHTML,
+		GetOuterHTML,
 		SetOuterHTML,
 		InsertBefore,
 		Insert,

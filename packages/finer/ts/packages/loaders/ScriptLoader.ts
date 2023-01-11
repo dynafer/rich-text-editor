@@ -24,7 +24,7 @@ const ScriptLoader = (loaderName: string): IScriptLoader => {
 			});
 
 			script.onload = () => {
-				if (!Has(name)) loaded.push(name);
+				if (!Has(name)) Arr.Push(loaded, name);
 				DOM.Remove(script);
 				resolve();
 			};
@@ -40,7 +40,7 @@ const ScriptLoader = (loaderName: string): IScriptLoader => {
 		new Promise((resolve, reject) => {
 			const load: Promise<void>[] = [];
 			for (const name of names) {
-				load.push(Load(name));
+				Arr.Push(load, Load(name));
 			}
 
 			Promise.all(load)

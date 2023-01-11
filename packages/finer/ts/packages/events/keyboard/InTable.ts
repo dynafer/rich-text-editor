@@ -32,11 +32,9 @@ const InTable = (editor: Editor, event: KeyboardEvent) => {
 	const newRange = self.Utils.Range();
 
 	const findAndUpdate = (bPrevious: boolean, node: Node) => {
-		let findNode: Node | null = node;
-		while (findNode) {
-			if (DOM.Utils.IsText(findNode) || DOM.Utils.IsBr(findNode)) break;
-			findNode = bPrevious ? findNode.lastChild : findNode.firstChild;
-		}
+		const getChild = !bPrevious ? DOM.Utils.GetFirstChild : DOM.Utils.GetLastChild;
+		let findNode: Node | null = getChild(node, true);
+		if (DOM.Utils.IsBr(findNode)) findNode = findNode.parentNode;
 		if (!findNode) findNode = node;
 
 		const position = DOM.Utils.IsText(findNode)
