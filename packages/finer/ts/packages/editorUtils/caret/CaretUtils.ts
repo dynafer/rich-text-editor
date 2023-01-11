@@ -36,7 +36,7 @@ const CaretUtils = (editor: Editor): ICaretUtils => {
 		if (!selection) return;
 		for (let rangeIndex = 0; rangeIndex < selection.rangeCount; ++rangeIndex) {
 			const range = selection.getRangeAt(rangeIndex);
-			ranges.push(range);
+			Arr.Push(ranges, range);
 		}
 	};
 
@@ -44,11 +44,8 @@ const CaretUtils = (editor: Editor): ICaretUtils => {
 		const lines = DOM.GetChildNodes(self.GetBody());
 
 		if (node === self.GetBody()) {
-			let current: Node | null = bStart ? lines[0] : lines[offset - 1];
-			while (current) {
-				if (DOM.Utils.IsText(current) || DOM.Utils.IsBr(current)) break;
-				current = bStart ? current.firstChild : current.lastChild;
-			}
+			const getChild = bStart ? DOM.Utils.GetFirstChild : DOM.Utils.GetLastChild;
+			const current: Node | null = getChild(bStart ? lines[0] : lines[offset - 1], true);
 
 			if (current) {
 				node = current;
@@ -95,7 +92,7 @@ const CaretUtils = (editor: Editor): ICaretUtils => {
 			const SameRoot = range.commonAncestorContainer;
 			const Range = RangeUtils(range);
 
-			CaretData.push({
+			Arr.Push(CaretData, {
 				IsRange,
 				Start,
 				End,

@@ -13,6 +13,7 @@ const Wrapper = (editor: Editor, format: IPluginListFormat) => {
 	const { Tag, Switchable, Following } = format;
 
 	const tableSelector = formatter.Formats.TableSelector;
+	const tableCellSelector = formatter.Formats.TableCellSelector;
 	const tableAndListSelector = Str.Join(',', ...[tableSelector, ...blockFormats.List]);
 
 	const createListItem = (...nodes: Node[]): HTMLElement => {
@@ -58,9 +59,10 @@ const Wrapper = (editor: Editor, format: IPluginListFormat) => {
 
 		if (!node.nextSibling || DOM.Utils.GetNodeName(node.nextSibling) !== Tag) return false;
 
-		const bFirstChild = !!node.nextSibling.firstChild;
+		const firstChild = DOM.Utils.GetFirstChild(node.nextSibling);
+		const bFirstChild = !!firstChild;
 		const insert = bFirstChild ? DOM.InsertBefore : DOM.Insert;
-		const selector = bFirstChild ? node.nextSibling.firstChild : node.nextSibling;
+		const selector = bFirstChild ? firstChild : node.nextSibling;
 		insert(selector, ...(!!insertion ? [insertion] : DOM.GetChildNodes(node, false)));
 		DOM.Remove(node as Element, true);
 		return true;
@@ -88,9 +90,10 @@ const Wrapper = (editor: Editor, format: IPluginListFormat) => {
 		}
 
 		if (node.nextSibling && DOM.Utils.GetNodeName(node.nextSibling) === Tag) {
-			const bFirstChild = !!node.nextSibling.firstChild;
+			const firstChild = DOM.Utils.GetFirstChild(node.nextSibling);
+			const bFirstChild = !!firstChild;
 			const insert = bFirstChild ? DOM.InsertBefore : DOM.Insert;
-			const selector = bFirstChild ? node.nextSibling.firstChild : node.nextSibling;
+			const selector = bFirstChild ? firstChild : node.nextSibling;
 			insert(selector, ...[newListItem]);
 			DOM.Remove(node as Element, true);
 			return;
@@ -189,6 +192,47 @@ const Wrapper = (editor: Editor, format: IPluginListFormat) => {
 		wrapNodesInList(root, !bFromFirst ? item : children[0], !bFromFirst ? children[children.length - 1] : item);
 	};
 
+	const wrapNodesInTableCell = (root: Node, startNode: Node, endNode: Node) => {
+		const rootChildren = DOM.GetChildNodes(root, true);
+		let bStart = false;
+
+		const wrapBlockBeforeWrapList = (node: Node): Node => {
+			const paragraph = DOM.Create('p');
+			DOM.CloneAndInsert(paragraph, true, node);
+			node.parentNode?.replaceChild(paragraph, node);
+			return paragraph;
+		};
+
+		const wrapNodeInTableCell = (child: Node, marker?: Node | null, bPrevious?: boolean) => {
+			if (DOM.Utils.IsBr(child)) return DOM.Remove(child);
+
+			const bChildText = DOM.Utils.IsText(child);
+			const node = bChildText ? wrapBlockBeforeWrapList(child) : child;
+			if (bChildText && marker) {
+				const insert = bPrevious ? DOM.InsertBefore : DOM.InsertAfter;
+				insert(node.firstChild, marker);
+			}
+			wrapNodesInSameLine(node);
+		};
+
+		for (const child of rootChildren) {
+			if (DOM.Utils.IsChildOf(startNode, child)) {
+				bStart = true;
+				const marker = DOM.HasAttr(child.previousSibling, 'marker') ? child.previousSibling : null;
+				wrapNodeInTableCell(child, marker, true);
+				continue;
+			}
+
+			if (DOM.Utils.IsChildOf(endNode, child)) {
+				const marker = DOM.HasAttr(child.nextSibling, 'marker') ? child.nextSibling : null;
+				wrapNodeInTableCell(child, marker);
+				break;
+			}
+
+			if (bStart) wrapNodeInTableCell(child);
+		}
+	};
+
 	const processSameLine = (caret: ICaretData) => {
 		if (caret.Start.Line !== caret.End.Line) return;
 
@@ -218,14 +262,14 @@ const Wrapper = (editor: Editor, format: IPluginListFormat) => {
 			let bStart = false;
 
 			for (const child of rootChildren) {
-				if (DOM.Utils.IsChildOf(startNode, child)) {
+				if (DOM.Utils.IsChildOf(caret.Start.Node, child)) {
 					bStart = true;
-					wrapNodesInSameLine(child, startNode);
+					wrapNodesInSameLine(child, caret.Start.Node);
 					continue;
 				}
 
-				if (DOM.Utils.IsChildOf(endNode, child)) {
-					wrapNodesInSameLine(child, endNode, true);
+				if (DOM.Utils.IsChildOf(caret.End.Node, child)) {
+					wrapNodesInSameLine(child, caret.End.Node, true);
 					break;
 				}
 
@@ -234,6 +278,11 @@ const Wrapper = (editor: Editor, format: IPluginListFormat) => {
 
 			if (bStart) return;
 		}
+
+		const bRootTableCell = DOM.Closest(startNode as Element, tableCellSelector) === DOM.Closest(endNode as Element, tableCellSelector);
+		if (!bRootTableCell) return;
+
+		wrapNodesInTableCell(caret.SameRoot, caret.Start.Node, caret.End.Node);
 	};
 
 	const processRange = (caret: ICaretData) => {
@@ -245,7 +294,9 @@ const Wrapper = (editor: Editor, format: IPluginListFormat) => {
 		for (let index = caret.Start.Line + 1; index < caret.End.Line; ++index) {
 			const line = lines[index];
 
-			wrapRange(line.firstChild as Node);
+			const firstChild = DOM.Utils.GetFirstChild(line);
+			if (!firstChild) continue;
+			wrapRange(firstChild);
 		}
 		wrapRange(caret.End.Node, true);
 	};

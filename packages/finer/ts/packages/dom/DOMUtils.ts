@@ -34,6 +34,8 @@ export interface IDOMUtils {
 	CreateStyleSelector: (style: string) => string,
 	CreateStyleSelectorFromMap: (styles: Record<string, string>) => string,
 	CreateSelector: (opts: ICreateSelectorOption) => string,
+	GetFirstChild: (node: Node | null, bDeep?: boolean) => Node | null,
+	GetLastChild: (node: Node | null, bDeep?: boolean) => Node | null,
 }
 
 const DOMUtils = (): IDOMUtils => {
@@ -146,6 +148,31 @@ const DOMUtils = (): IDOMUtils => {
 		return selector;
 	};
 
+	const getDeepestChild = (node: Node, bFirst: boolean): Node | null => {
+		let child: Node | null = node;
+
+		while (child) {
+			if (IsText(child) || IsBr(child)) break;
+			child = bFirst ? child.firstChild : child.lastChild;
+		}
+
+		return child;
+	};
+
+	const GetFirstChild = (node: Node | null, bDeep: boolean = false): Node | null => {
+		if (!node) return null;
+		if (!bDeep) return node.firstChild;
+
+		return getDeepestChild(node, true);
+	};
+
+	const GetLastChild = (node: Node | null, bDeep: boolean = false): Node | null => {
+		if (!node) return null;
+		if (!bDeep) return node.lastChild;
+
+		return getDeepestChild(node, false);
+	};
+
 	return {
 		CreateUEID,
 		GetModeTag,
@@ -164,6 +191,8 @@ const DOMUtils = (): IDOMUtils => {
 		CreateStyleSelector,
 		CreateStyleSelectorFromMap,
 		CreateSelector,
+		GetFirstChild,
+		GetLastChild,
 	};
 };
 

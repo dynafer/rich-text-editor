@@ -62,7 +62,7 @@ const InlineColor = (editor: Editor): IFormatUIRegistryUnit => {
 		};
 
 	const createPaletteGradients = (uiName: string, colors: TRGBArray[][], bVertical: boolean = true): HTMLElement[] => {
-		const paletteGradients = [];
+		const paletteGradients: HTMLElement[] = [];
 		for (const standardColor of colors) {
 			const gradient = FormatUI.CreateItemGroup();
 			DOM.SetAttr(gradient, 'vertical', bVertical ? 'true' : 'false');
@@ -88,7 +88,7 @@ const InlineColor = (editor: Editor): IFormatUIRegistryUnit => {
 
 				DOM.Insert(gradient, colorElement);
 			}
-			paletteGradients.push(gradient);
+			Arr.Push(paletteGradients, gradient);
 		}
 
 		return paletteGradients;
@@ -172,7 +172,7 @@ const InlineColor = (editor: Editor): IFormatUIRegistryUnit => {
 		DOM.On(colorNavigation, 'color:change', () => {
 			if (uiFormat.LastPicked.length >= 5) Arr.Shift(uiFormat.LastPicked);
 			const color = ColorPicker.Utils.RGBA.FromString(DOM.GetStyle(colorNavigation, 'background-color'));
-			uiFormat.LastPicked.push(color as TRGBArray);
+			Arr.Push(uiFormat.LastPicked, color as TRGBArray);
 		});
 
 		const wrapper = FormatUI.CreateIconWrap(uiFormat.Title);

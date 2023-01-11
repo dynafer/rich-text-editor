@@ -50,6 +50,8 @@ const TableFormat = (editor: Editor) => {
 
 		caret.Range.SetStartToEnd(firstCell, 0, 0);
 		self.Focus();
+
+		self.Dispatch('caret:change', [firstCell]);
 	};
 
 	return {

@@ -3,7 +3,7 @@ import Options from '../../../Options';
 import Editor from '../../Editor';
 import { ICaretData } from '../../editorUtils/caret/CaretUtils';
 import { BlockFormatTags } from '../../formatter/Format';
-import { EInputEventType, PreventEvent } from '../EventSetupUtils';
+import { ChangeMovablePosition, EInputEventType, PreventEvent } from '../EventSetupUtils';
 
 const Input = (editor: Editor) => {
 	const self = editor;
@@ -21,7 +21,9 @@ const Input = (editor: Editor) => {
 			brElement.remove();
 		}
 
-		const styleElements = DOM.SelectAll(DOM.Utils.CreateAttrSelector('style'), fragment);
+		const styleElements = DOM.SelectAll({
+			attrs: ['style']
+		}, fragment);
 
 		for (const styleElement of styleElements) {
 			const editorStyle = DOM.GetAttr(styleElement, Options.ATTRIBUTE_EDITOR_STYLE) ?? '';
@@ -55,18 +57,15 @@ const Input = (editor: Editor) => {
 		const caret = CaretUtils.Get()[0];
 		callback(caret);
 		if (!fakeFragment) return;
-		let lastChild = fakeFragment.lastChild;
+		const newRange = self.Utils.Range();
+		const lastChild = DOM.Utils.GetLastChild(fakeFragment, true);
 		caret.Range.Insert(fakeFragment);
+
 		if (lastChild) {
-			while (lastChild) {
-				if (!lastChild.lastChild) {
-					caret.Range.SetStartAfter(lastChild);
-					break;
-				}
-				lastChild = lastChild.lastChild;
-			}
+			const offset = DOM.Utils.IsText(lastChild) ? lastChild.length : 0;
+			newRange.SetStartToEnd(lastChild, offset, offset);
 		}
-		CaretUtils.UpdateRanges([caret.Range.Clone()]);
+		CaretUtils.UpdateRanges([newRange.Get()]);
 		CaretUtils.Clean();
 		fakeFragment = null;
 	};
@@ -151,6 +150,7 @@ const Input = (editor: Editor) => {
 
 	const processInput = (event: InputEvent) => {
 		const clean = () => {
+			ChangeMovablePosition(self);
 			lastChildName = null;
 			CaretUtils.Clean();
 		};

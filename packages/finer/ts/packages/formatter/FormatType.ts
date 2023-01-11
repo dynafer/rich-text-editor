@@ -38,5 +38,6 @@ export interface IFormatUIRegistryUnit {
 export interface IToggleRecursiveOption {
 	except?: Node[],
 	endNode?: Node,
-	value?: string;
+	value?: string,
+	bInline?: boolean,
 }

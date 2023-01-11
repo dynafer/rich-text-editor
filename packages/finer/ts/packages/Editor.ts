@@ -57,6 +57,7 @@ class Editor {
 
 	public On<K extends keyof GlobalEventHandlersEventMap>(eventName: K, event: TEventListener<K>): void;
 	public On(eventName: string, event: IEvent): void;
+	public On<T = unknown>(eventName: string, event: IEvent<T>): void;
 	public On(eventName: string, event: IEvent) {
 		this.Utils.Event.On(eventName, event);
 	}
@@ -100,11 +101,9 @@ class Editor {
 
 		if (Arr.IsEmpty(copiedRanges)) {
 			const newRange = this.Utils.Range();
-			let firstNode = this.GetBody().firstChild;
-			while (firstNode) {
-				if (DOM.Utils.IsText(firstNode) || DOM.Utils.IsBr(firstNode)) break;
-				firstNode = firstNode.firstChild;
-			}
+			const firstLine = DOM.Utils.GetFirstChild(this.GetBody());
+			let firstNode = DOM.Utils.GetFirstChild(firstLine, true);
+			if (DOM.Utils.IsBr(firstNode)) firstNode = firstNode.parentNode;
 			newRange.SetStartToEnd(firstNode ?? this.GetBody(), 0, 0);
 			Arr.Push(copiedRanges, newRange.Get());
 		}

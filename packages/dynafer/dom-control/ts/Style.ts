@@ -1,4 +1,4 @@
-import { Str, Type } from '@dynafer/utils';
+import { Arr, Str, Type } from '@dynafer/utils';
 import * as Attribute from './Attribute';
 
 const win = window;
@@ -36,8 +36,8 @@ export const Set = (selector: HTMLElement, name: string, value: string) => {
 	}
 
 	const styleList = selector.style.cssText.split(';');
-	styleList.push(`${Str.CapitalToDash(name)}: ${value}`);
-	selector.style.cssText = styleList.join(';');
+	Arr.Push(styleList, Str.Merge(Str.CapitalToDash(name), ':', value));
+	selector.style.cssText = Str.Join(';', ...styleList);
 };
 
 export const SetAsMap = (selector: HTMLElement, styles: Record<string, string>) => {

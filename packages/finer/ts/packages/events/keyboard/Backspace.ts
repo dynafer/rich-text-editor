@@ -17,11 +17,8 @@ const Backspace = (editor: Editor) => {
 
 	DOM.Remove(currentLine as HTMLElement);
 
-	let lastChild: Node | null = lines[lines.length - 1];
-	while (lastChild) {
-		if (DOM.Utils.IsText(lastChild) || DOM.Utils.IsBr(lastChild)) break;
-		lastChild = lastChild.lastChild;
-	}
+	let lastChild: Node | null = DOM.Utils.GetLastChild(lines[lines.length - 1], true);
+	if (DOM.Utils.IsBr(lastChild)) lastChild = lastChild.parentNode;
 
 	if (!lastChild) return CaretUtils.Clean();
 

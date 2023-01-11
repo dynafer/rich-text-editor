@@ -126,6 +126,14 @@
 	@include check-null(border-left, $left, #{$size} #{$style} #{$left});
 }
 
+@mixin outline($color, $style: solid, $size: 1px) {
+	@if $color == none {
+		outline: none;
+	} @else {
+		outline: #{$color} #{$style} #{$size};
+	}
+}
+
 @mixin mobile {
 	@media (min-width: 0px) and (max-width: #{$max-mobile-width}) {
 		@content;

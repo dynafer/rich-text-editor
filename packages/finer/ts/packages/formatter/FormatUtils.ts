@@ -100,6 +100,8 @@ const FormatUtils = (): IFormatUtils => {
 
 	const createMarkers = (editor: Editor): TCaretPath[] => {
 		const self = editor;
+		if (self.DOM.Select({ tagName: TableSelector, attrs: [Options.ATTRIBUTE_SELECTED] })) return [];
+
 		const CaretUtils = self.Utils.Caret;
 		const carets = CaretUtils.Get();
 
@@ -219,7 +221,7 @@ const FormatUtils = (): IFormatUtils => {
 				emptyMarker = emptyMarker.parentElement;
 			}
 
-			self.DOM.Remove(emptyMarker ?? marker);
+			// self.DOM.Remove(emptyMarker ?? marker);
 		}
 	};
 
@@ -265,13 +267,13 @@ const FormatUtils = (): IFormatUtils => {
 		for (const [styleName, styleValue] of Object.entries(styles)) {
 			if (styleValue === '{{value}}') {
 				if (!!value) selectorMap[styleName] = value;
-				else createdSelector.push(styleName);
+				else Arr.Push(createdSelector, styleName);
 				continue;
 			}
 
 			selectorMap[styleName] = styleValue;
 		}
-		createdSelector.push(selectorMap);
+		Arr.Push(createdSelector, selectorMap);
 
 		return createdSelector;
 	};

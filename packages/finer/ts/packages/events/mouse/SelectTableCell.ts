@@ -1,14 +1,14 @@
 import { Arr } from '@dynafer/utils';
 import Options from '../../../Options';
-import { TableCellSelector, TableRowSelector, TableSelector } from '../../formatter/Format';
+import { TableCellSelector, TableCellSet, TableRowSelector, TableSelector } from '../../formatter/Format';
 import Editor from '../../Editor';
 
-const SelectTable = (editor: Editor, event: MouseEvent) => {
+const SelectTableCell = (editor: Editor, event: MouseEvent) => {
 	const self = editor;
 	const DOM = self.DOM;
 	let bDragged = false;
 
-	for (const selected of DOM.SelectAll({ attrs: [Options.ATTRIBUTE_SELECTED] })) {
+	for (const selected of DOM.SelectAll({ tagName: [...TableCellSet], attrs: [Options.ATTRIBUTE_SELECTED] })) {
 		DOM.RemoveAttr(selected, Options.ATTRIBUTE_SELECTED);
 	}
 
@@ -31,9 +31,7 @@ const SelectTable = (editor: Editor, event: MouseEvent) => {
 			self.Utils.Caret.CleanRanges();
 			DOM.SetAttr(targetCell, Options.ATTRIBUTE_SELECTED, '');
 			for (const selected of DOM.SelectAll({ attrs: [Options.ATTRIBUTE_SELECTED] }, targetTable)) {
-				if (selected === targetCell) {
-					continue;
-				}
+				if (selected === targetCell) continue;
 
 				DOM.RemoveAttr(selected, Options.ATTRIBUTE_SELECTED);
 			}
@@ -57,13 +55,10 @@ const SelectTable = (editor: Editor, event: MouseEvent) => {
 			const bRowInRange = rowIndex >= minRowNum && rowIndex <= maxRowNum;
 
 			for (let cellIndex = 0, cellLength = cellsInRange.length; cellIndex < cellLength; ++cellIndex) {
-				const cellInRange = cellsInRange[cellIndex];
-				if (bRowInRange && cellIndex >= minCellNum && cellIndex <= maxCellNum) {
-					DOM.SetAttr(cellInRange, Options.ATTRIBUTE_SELECTED, '');
-					continue;
-				}
-
-				DOM.RemoveAttr(cellInRange, Options.ATTRIBUTE_SELECTED);
+				const cell = cellsInRange[cellIndex];
+				const bCellInRange = bRowInRange && cellIndex >= minCellNum && cellIndex <= maxCellNum;
+				const toggle = bCellInRange ? DOM.SetAttr : DOM.RemoveAttr;
+				toggle(cell, Options.ATTRIBUTE_SELECTED, '');
 			}
 		}
 	};
@@ -78,4 +73,4 @@ const SelectTable = (editor: Editor, event: MouseEvent) => {
 	DOM.On(DOM.GetRoot(), 'mouseup', mouseUpEvent);
 };
 
-export default SelectTable;
+export default SelectTableCell;

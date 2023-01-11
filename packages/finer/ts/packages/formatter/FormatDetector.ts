@@ -25,7 +25,7 @@ const FormatDetector = (editor: Editor): IFormatDetector => {
 
 		const promises: Promise<void>[] = [];
 		for (const detection of detections) {
-			promises.push(detection(caretPaths));
+			Arr.Push(promises, detection(caretPaths));
 		}
 
 		Promise.all(promises)
@@ -36,7 +36,7 @@ const FormatDetector = (editor: Editor): IFormatDetector => {
 		const asyncDetection: IDetection = (paths: Node[]) =>
 			new Promise((resolve) => resolve(callback(paths)));
 
-		detections.push(asyncDetection);
+		Arr.Push(detections, asyncDetection);
 	};
 
 	return {

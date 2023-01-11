@@ -1,4 +1,4 @@
-import { Str } from '@dynafer/utils';
+import { Arr, Str } from '@dynafer/utils';
 import Hex from './Hex';
 import HSV from './HSV';
 import { IHSV, IRGBA } from './Type';
@@ -103,11 +103,12 @@ const RGBA = (): IRGBAUtils => {
 				return MapToArray(converted);
 			case 'rgba':
 				const array = str.replace(/[^\d,]/gi, '').split(',');
-				const result = [];
+				const result: number[] = [];
 				for (const part of array) {
-					result.push(parseInt(part));
+					Arr.Push(result, parseInt(part));
 				}
-				if (result.length <= 3) result.push(1);
+
+				if (result.length <= 3) Arr.Push(result, 1);
 				return result;
 			default:
 				return [];

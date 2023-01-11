@@ -43,7 +43,7 @@ const DOMFactory: IDOMFactoryConstructor = (creation: string): IDOMFactory => {
 			if (!child) continue;
 
 			Insert.AfterInner(Self, child.Self);
-			children.push(child);
+			Arr.Push(children, child);
 		}
 
 		return children;
@@ -61,7 +61,7 @@ const DOMFactory: IDOMFactoryConstructor = (creation: string): IDOMFactory => {
 		if (!boundEvents[eventName]) boundEvents[eventName] = [];
 		if (Arr.Contains(boundEvents[eventName], event)) return;
 		Self.addEventListener(eventName, event, bCapture);
-		boundEvents[eventName].push(event);
+		Arr.Push(boundEvents[eventName], event);
 	};
 
 	const Unbind = (eventName: string, event: EventListener, bCapture: boolean = false) => {

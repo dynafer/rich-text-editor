@@ -1,5 +1,5 @@
 import { Attribute } from '@dynafer/dom-control';
-import { Type } from '@dynafer/utils';
+import { Arr, Type } from '@dynafer/utils';
 import DOMFactory, { IDOMFactory } from '../dom/DOMFactory';
 import { ISketcherSetting } from '../types/UISetting';
 
@@ -39,7 +39,7 @@ const Sketcher = (): ISketcher => {
 		const sketches: IDOMFactory[] = [];
 
 		for (const setting of settings) {
-			sketches.push(SketchOne(setting));
+			Arr.Push(sketches, SketchOne(setting));
 		}
 
 		return sketches;

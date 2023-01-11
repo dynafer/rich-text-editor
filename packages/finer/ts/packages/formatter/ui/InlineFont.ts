@@ -1,4 +1,4 @@
-import { Str, Type } from '@dynafer/utils';
+import { Arr, Str, Type } from '@dynafer/utils';
 import Editor from '../../Editor';
 import DOM from '../../dom/DOM';
 import { Formats } from '../Format';
@@ -114,7 +114,7 @@ const InlineFont = (editor: Editor, detector: IFormatDetector): IFormatUIRegistr
 
 			if (bPreview && Format.Styles) DOM.SetStyle(DOM.Select('span', optionElement) as HTMLElement, styleName, value);
 
-			optionElements.push(optionElement);
+			Arr.Push(optionElements, optionElement);
 		}
 
 		return optionElements;
