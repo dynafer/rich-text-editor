@@ -12,6 +12,15 @@ const FormatWrapper = (editor: Editor): IFormatWrapper => {
 	const self = editor;
 	const DOM = self.DOM;
 
+	const createStyleMap = (styles: Record<string, string>, value?: string): Record<string, string> => {
+		const styleMap: Record<string, string> = {};
+		for (const [styleName, styleValue] of Object.entries(styles)) {
+			styleMap[styleName] = value ? styleValue.replace('{{value}}', value) : styleValue;
+		}
+
+		return styleMap;
+	};
+
 	const wrapFormat = (oldNode: Node, tagName: string, styles?: Record<string, string>) => {
 		if (tagName === DOM.Utils.GetNodeName(oldNode)) return;
 		const newNode = DOM.Create(tagName);
@@ -71,10 +80,7 @@ const FormatWrapper = (editor: Editor): IFormatWrapper => {
 
 		const closestStyle: Node | null = DOM.Closest(elementForCheck, DOM.Utils.CreateAttrSelector('style')) as Node | null;
 
-		const styles = {};
-		for (const [styleName, styleValue] of Object.entries(Styles)) {
-			styles[styleName] = value ? styleValue.replace('{{value}}', value) : styleValue;
-		}
+		const styles = createStyleMap(Styles, value);
 
 		if (!closestStyle) return wrapFormat(node, Tag, styles);
 
@@ -91,10 +97,7 @@ const FormatWrapper = (editor: Editor): IFormatWrapper => {
 	const wrapStyleFormat = (format: IStyleFormat, node: Node, value?: string): boolean => {
 		const { StrictFormats, Styles } = format;
 
-		const styles = {};
-		for (const [styleName, styleValue] of Object.entries(Styles)) {
-			styles[styleName] = value ? styleValue.replace('{{value}}', value) : styleValue;
-		}
+		const styles = createStyleMap(Styles, value);
 
 		let currentParent: Node | null = node;
 		while (currentParent) {

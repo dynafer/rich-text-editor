@@ -3,7 +3,6 @@
 		"strict": true,
 		"baseUrl": ".",
 		"rootDir": ".",
-		"suppressImplicitAnyIndexErrors": true,
 		"composite": true,
 		"declaration": true,
 		"declarationMap": true,

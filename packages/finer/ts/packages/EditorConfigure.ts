@@ -2,6 +2,9 @@ import { Arr, Instance, Str, Type } from '@dynafer/utils';
 import { EModeEditor } from '../Options';
 import DOM from './dom/DOM';
 import { EToolbarStyle } from './EditorToolbar';
+
+type TOptionKey = string | string[] | Record<string, string> | Record<string, string[]> | HTMLElement | undefined;
+
 export interface IEditorOption {
 	selector?: HTMLElement,
 	mode?: string,
@@ -12,7 +15,7 @@ export interface IEditorOption {
 	toolbarGroup?: Record<string, string[]>,
 	toolbarStyle?: string,
 	skin?: string,
-	[key: string]: string | string[] | Record<string, string> | Record<string, string[]> | HTMLElement | undefined,
+	[key: string]: TOptionKey,
 }
 
 export interface IConfiguration {
@@ -26,7 +29,7 @@ export interface IConfiguration {
 	ToolbarStyle: string,
 	Plugins: string[],
 	Skin: string,
-	[key: string]: string | string[] | Record<string, string> | Record<string, string[]> | HTMLElement | undefined,
+	[key: string]: TOptionKey,
 }
 
 const Configure = (config: IEditorOption): IConfiguration => {
@@ -42,11 +45,11 @@ const Configure = (config: IEditorOption): IConfiguration => {
 	DOM.Hide(Selector);
 
 	const mode: string = Str.LowerCase(config.mode ?? EModeEditor.classic);
-	if (!Type.IsString(mode) || !EModeEditor[mode]) {
+	if (!Type.IsString(mode) || !EModeEditor[mode as EModeEditor]) {
 		throw new Error(`Configuration: ${mode} mode doesn't exist.`);
 	}
 
-	const Mode: EModeEditor = EModeEditor[mode] as EModeEditor;
+	const Mode: EModeEditor = EModeEditor[mode as EModeEditor] as EModeEditor;
 
 	const Width: string = config.width ?? '100%';
 	const defaultHeight: string = Mode === EModeEditor.classic ? '400px' : 'auto';
@@ -81,9 +84,9 @@ const Configure = (config: IEditorOption): IConfiguration => {
 	}
 
 	let ToolbarStyle: string = Str.UpperCase(Type.IsString(config.toolbarStyle) ? config.toolbarStyle : EToolbarStyle.SCROLL);
-	if (!EToolbarStyle[ToolbarStyle]) ToolbarStyle = EToolbarStyle.SCROLL;
+	if (!EToolbarStyle[ToolbarStyle as EToolbarStyle]) ToolbarStyle = EToolbarStyle.SCROLL;
 
-	const excludedDefaultOption = {};
+	const excludedDefaultOption: Record<string, TOptionKey> = {};
 	for (const [key, value] of Object.entries(config)) {
 		if (Arr.Contains(defaultConfigs, key)) continue;
 		excludedDefaultOption[Str.CapitaliseFirst(Str.UnderlineToCapital(key))] = value;

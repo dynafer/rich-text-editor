@@ -20,7 +20,7 @@ const Sketcher = (): ISketcher => {
 					continue;
 				}
 
-				sketch.Insert(element['Doc'] ? element as IDOMFactory : SketchOne(element as ISketcherSetting));
+				sketch.Insert(!!(element as IDOMFactory).Doc ? element as IDOMFactory : SketchOne(element as ISketcherSetting));
 			}
 		}
 
