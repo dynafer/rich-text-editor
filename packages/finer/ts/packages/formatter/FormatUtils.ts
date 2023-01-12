@@ -263,7 +263,7 @@ const FormatUtils = (): IFormatUtils => {
 
 	const GetStyleSelectorMap = (styles: Record<string, string>, value?: string): (string | Record<string, string>)[] => {
 		const createdSelector: (string | Record<string, string>)[] = [];
-		const selectorMap = {};
+		const selectorMap: Record<string, string> = {};
 		for (const [styleName, styleValue] of Object.entries(styles)) {
 			if (styleValue === '{{value}}') {
 				if (!!value) selectorMap[styleName] = value;

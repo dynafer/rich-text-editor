@@ -65,9 +65,7 @@ const DOMFactory: IDOMFactoryConstructor = (creation: string): IDOMFactory => {
 	};
 
 	const Unbind = (eventName: string, event: EventListener, bCapture: boolean = false) => {
-		if (boundEvents[eventName]) {
-			boundEvents[eventName] = boundEvents[eventName].filter(bound => bound[0] !== event);
-		}
+		if (boundEvents[eventName]) boundEvents[eventName] = boundEvents[eventName].filter(bound => bound !== event);
 		Self.removeEventListener(eventName, event, bCapture);
 	};
 

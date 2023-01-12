@@ -69,7 +69,7 @@ class Editor {
 	}
 
 	public Dispatch(eventName: string, ...params: unknown[]) {
-		if (!ENativeEvents[eventName]) {
+		if (!ENativeEvents[eventName as ENativeEvents]) {
 			this.Utils.Event.Dispatch(eventName, ...params);
 		} else {
 			this.DOM.Dispatch(this.GetBody(), eventName);

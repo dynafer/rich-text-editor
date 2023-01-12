@@ -254,17 +254,15 @@ const FormatUI = (): IFormatUI => {
 					keyOptions.bShift = true;
 					break;
 				default:
-					keyCode = lowercase.length === 1
-						? EKeyCode[Str.Merge(
-							isNaN(parseInt(lowercase)) ? 'Key' : 'Digit',
-							Str.UpperCase(lowercase)
-						)]
-						: EKeyCode[key];
+					const keyName: EKeyCode = (lowercase.length === 1
+						? Str.Merge(isNaN(parseInt(lowercase)) ? 'Key' : 'Digit', Str.UpperCase(lowercase))
+						: key) as EKeyCode;
+					keyCode = EKeyCode[keyName];
 					break;
 			}
 		}
 
-		SetupWith(self, ENativeEvents.keydown, keyCode, keyOptions, callback);
+		if (keyCode) SetupWith(self, ENativeEvents.keydown, keyCode, keyOptions, callback);
 	};
 
 	return {

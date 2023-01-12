@@ -18,10 +18,10 @@ export const GetAsMap = (selector: HTMLElement): Record<string, string> => {
 export const Get = (selector: HTMLElement, name: string, bComputed?: boolean): string => {
 	const computedStyle = win.getComputedStyle(selector);
 	const capitalisedStyle = Str.DashToCapital(name);
-	if (bComputed) return computedStyle[capitalisedStyle];
+	if (bComputed) return computedStyle[capitalisedStyle as 'all'];
 	const styles = GetAsMap(selector);
 	if (!styles[capitalisedStyle]) {
-		return computedStyle[capitalisedStyle];
+		return computedStyle[capitalisedStyle as 'all'];
 	}
 
 	return styles[capitalisedStyle] ?? '';
@@ -30,8 +30,8 @@ export const Get = (selector: HTMLElement, name: string, bComputed?: boolean): s
 export const GetText = (selector: HTMLElement): string => selector.style.cssText;
 
 export const Set = (selector: HTMLElement, name: string, value: string) => {
-	if (selector.style[name]) {
-		selector.style[name] = value;
+	if (selector.style[name as 'all']) {
+		selector.style[name as 'all'] = value;
 		return;
 	}
 
@@ -56,8 +56,8 @@ export const SetText = (selector: HTMLElement, styleText: string) => {
 };
 
 export const Remove = (selector: HTMLElement, name: string) => {
-	if (selector.style[name]) {
-		selector.style[name] = '';
+	if (selector.style[name as 'all']) {
+		selector.style[name as 'all'] = '';
 		if (Str.IsEmpty(selector.style.cssText)) Attribute.Remove(selector, 'style');
 		return;
 	}

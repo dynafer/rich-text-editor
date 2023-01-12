@@ -41,7 +41,7 @@ const Navigation = (palette: IPalette, hue: IHue): INavigation => {
 
 	const UpdateRGB = (rgb: IRGBA) => {
 		for (const [key, inputSchema] of Object.entries(rgbElements)) {
-			inputSchema.SetValue(rgb[key].toString());
+			inputSchema.SetValue(rgb[key as 'Red'].toString());
 		}
 
 		hex.SetValue(RGBA.ToHex(rgb, false));
