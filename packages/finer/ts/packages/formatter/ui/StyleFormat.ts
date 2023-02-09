@@ -1,7 +1,7 @@
 import { Str, Type } from '@dynafer/utils';
 import Editor from '../../Editor';
 import DOM from '../../dom/DOM';
-import { Formats } from '../Format';
+import { FigureSelector, Formats } from '../Format';
 import { IFormatDetector } from '../FormatDetector';
 import { IFormatUIRegistryUnit, IStyleFormat, TFormatDetectCallback } from '../FormatType';
 import FormatUI from '../FormatUI';
@@ -105,8 +105,8 @@ const StyleFormat = (editor: Editor, detector: IFormatDetector): IFormatUIRegist
 			if (!bCalculate) FormatUI.ToggleActivateClass(button, bActive as boolean);
 
 			const toggler = ToggleStyleFormat(self, Format);
-			if (!bCalculate) toggler.ToggleFromCaret(bActive as boolean, DefaultValue);
-			else toggler.CalculateFromCaret(DefaultValue ?? FormatUtils.GetPixcelFromRoot(), bSubtract);
+			if (!bCalculate) return toggler.ToggleFromCaret(bActive as boolean, DefaultValue);
+			toggler.CalculateFromCaret(DefaultValue ?? FormatUtils.GetPixcelFromRoot(), bSubtract);
 
 			self.Dispatch('caret:change', []);
 		};
@@ -129,7 +129,11 @@ const StyleFormat = (editor: Editor, detector: IFormatDetector): IFormatUIRegist
 
 			if (bSubtract) FormatUI.ToggleDisable(button, true);
 
-			if (Type.IsString(Keys)) FormatUI.RegisterKeyboardEvent(self, Keys, eventCallback);
+			if (Type.IsString(Keys)) FormatUI.RegisterKeyboardEvent(self, Keys, (e: Editor, event: Event) => {
+				const figure = self.DOM.Closest(event.target as Element, FigureSelector);
+				if (figure) return;
+				eventCallback();
+			});
 			FormatUI.BindClickEvent(button, eventCallback);
 
 			DOM.Insert(group, button);

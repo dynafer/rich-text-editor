@@ -1,5 +1,6 @@
 import { Arr } from '@dynafer/utils';
 import Options from '../../../Options';
+import { GetTableGridWithIndex } from '../../dom/tools/table/TableToolsUtils';
 import { TableCellSelector, TableCellSet, TableRowSelector, TableSelector } from '../../formatter/Format';
 import Editor from '../../Editor';
 
@@ -20,7 +21,10 @@ const SelectTableCell = (editor: Editor, event: MouseEvent) => {
 	const rows = DOM.SelectAll(TableRowSelector, targetTable);
 
 	const startRowNum = Arr.Find(rows, targetRow);
-	const startCellNum = Arr.Find(DOM.GetChildren(targetRow), targetCell);
+
+	const { TableGrid, TargetCellIndex } = GetTableGridWithIndex(self, targetTable, targetCell);
+
+	if (TargetCellIndex === -1) return;
 
 	const mouseMoveEvent = (e: MouseEvent) => {
 		const currentCell = DOM.Closest(e.composedPath()[0] as Element, TableCellSelector);
@@ -42,20 +46,25 @@ const SelectTableCell = (editor: Editor, event: MouseEvent) => {
 		bDragged = true;
 
 		const currentRowNum = Arr.Find(rows, currentRow);
-		const currentCellNum = Arr.Find(DOM.GetChildren(currentRow), currentCell);
+		let currentCellNum = -1;
+		for (const tableRow of TableGrid) {
+			if (currentCellNum !== -1) break;
+			currentCellNum = Arr.Find(tableRow, currentCell);
+		}
+
+		if (currentCellNum === -1) return;
 
 		const minRowNum = Math.min(startRowNum, currentRowNum);
 		const maxRowNum = Math.max(startRowNum, currentRowNum);
-		const minCellNum = Math.min(startCellNum, currentCellNum);
-		const maxCellNum = Math.max(startCellNum, currentCellNum);
+		const minCellNum = Math.min(TargetCellIndex, currentCellNum);
+		const maxCellNum = Math.max(TargetCellIndex, currentCellNum);
 
-		for (let rowIndex = 0, rowLength = rows.length; rowIndex < rowLength; ++rowIndex) {
-			const row = rows[rowIndex];
-			const cellsInRange = DOM.GetChildren(row);
+		for (let rowIndex = 0, rowLength = TableGrid.length; rowIndex < rowLength; ++rowIndex) {
+			const row = TableGrid[rowIndex];
 			const bRowInRange = rowIndex >= minRowNum && rowIndex <= maxRowNum;
 
-			for (let cellIndex = 0, cellLength = cellsInRange.length; cellIndex < cellLength; ++cellIndex) {
-				const cell = cellsInRange[cellIndex];
+			for (let cellIndex = 0, cellLength = row.length; cellIndex < cellLength; ++cellIndex) {
+				const cell = row[cellIndex];
 				const bCellInRange = bRowInRange && cellIndex >= minCellNum && cellIndex <= maxCellNum;
 				const toggle = bCellInRange ? DOM.SetAttr : DOM.RemoveAttr;
 				toggle(cell, Options.ATTRIBUTE_SELECTED, '');

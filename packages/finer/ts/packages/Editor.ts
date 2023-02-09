@@ -12,10 +12,15 @@ import { ENotificationStatus, INotificationManager, NotificationManager } from '
 import { IPluginManager } from './managers/PluginManager';
 import EditorToolbar, { IEditorToolbar } from './EditorToolbar';
 import Commander, { ICommander } from './commander/Commander';
+import { IDOMTools } from './dom/DOMTools';
 
 enum ELoadingStatus {
 	SHOW = 'SHOW',
 	HIDE = 'HIDE'
+}
+
+interface IEditorTools {
+	DOM: IDOMTools,
 }
 
 export interface IEditorConstructor {
@@ -33,6 +38,7 @@ class Editor {
 	public Utils!: IEditorUtils;
 	public Formatter!: IFormatter;
 	public Toolbar: IEditorToolbar;
+	public Tools!: IEditorTools;
 
 	private mBody!: HTMLElement;
 	private mbDestroyed: boolean = false;

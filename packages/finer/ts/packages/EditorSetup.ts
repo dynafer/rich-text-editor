@@ -6,6 +6,7 @@ import EditorUtils from './editorUtils/EditorUtils';
 import EventSetup from './events/EventSetup';
 import PluginManager from './managers/PluginManager';
 import Formatter from './formatter/Formatter';
+import DOMTools from './dom/DOMTools';
 
 const EditorSetup = (editor: Editor): Promise<void> => {
 	const self = editor;
@@ -72,6 +73,10 @@ const EditorSetup = (editor: Editor): Promise<void> => {
 
 	return new Promise((resolve, reject) => {
 		setEditorBody();
+
+		self.Tools = {
+			DOM: DOMTools(self)
+		};
 
 		self.Utils = EditorUtils(self);
 		self.Plugin = PluginManager(self);
