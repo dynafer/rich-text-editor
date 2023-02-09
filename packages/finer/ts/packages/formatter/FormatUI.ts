@@ -35,7 +35,7 @@ export interface IFormatUI {
 	UnwrapSameInlineFormats: (editor: Editor, formats: IInlineFormat | IInlineFormat[]) => void,
 	RegisterCommand: (editor: Editor, name: string, command: <T>(...args: T[]) => void) => void,
 	RunCommand: <T>(editor: Editor, name: string, ...args: T[]) => void,
-	RegisterKeyboardEvent: (editor: Editor, combinedKeys: string, callback: () => void) => void,
+	RegisterKeyboardEvent: (editor: Editor, combinedKeys: string, callback: (editor: Editor, event: Event) => void) => void,
 }
 
 const FormatUI = (): IFormatUI => {
@@ -228,7 +228,7 @@ const FormatUI = (): IFormatUI => {
 	const RunCommand = <T>(editor: Editor, name: string, ...args: T[]) =>
 		editor.Commander.Run(name, ...args);
 
-	const RegisterKeyboardEvent = (editor: Editor, combinedKeys: string, callback: () => void) => {
+	const RegisterKeyboardEvent = (editor: Editor, combinedKeys: string, callback: (editor: Editor, event: Event) => void) => {
 		const self = editor;
 
 		const keys = combinedKeys.split('+');

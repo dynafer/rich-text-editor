@@ -1,5 +1,4 @@
 import { Arr, Str } from '@dynafer/utils';
-import TableTools from '../../dom/TableTools';
 import { IEvent } from '../../editorUtils/EventUtils';
 import { FigureSelector, TableCellSelector, TableSelector } from '../../formatter/Format';
 import Editor from '../../Editor';
@@ -9,8 +8,7 @@ const CaretChange = (editor: Editor) => {
 	const self = editor;
 	const DOM = self.DOM;
 	const CaretUtils = self.Utils.Caret;
-
-	const tableTools = TableTools(self);
+	const TableTools = self.Tools.DOM.Table;
 
 	const removeCaretPointers = (paths: Node[]) => {
 		const caretPointers = DOM.SelectAll({
@@ -41,21 +39,17 @@ const CaretChange = (editor: Editor) => {
 	};
 
 	const addTableTools = (figure: Element) => {
-		const table = DOM.SelectAll(TableSelector, figure)[0];
-		if (!table) return;
-
-		DOM.Insert(figure, tableTools.Create(table));
-	};
-
-	const removeTableTools = (figure: Element) => {
-		const table = DOM.SelectAll(TableSelector, figure)[0];
-		if (!table) return;
-
-		DOM.Remove(DOM.Select({
+		const bHasTool = !!DOM.Select({
 			attrs: {
 				dataType: 'table-tool'
 			}
-		}, figure));
+		}, figure);
+		if (bHasTool) return;
+
+		const table = DOM.SelectAll(TableSelector, figure)[0];
+		if (!table) return;
+
+		DOM.Insert(figure, TableTools.Create(table));
 	};
 
 	const setFocusTable = (paths: Node[]) => {
@@ -68,7 +62,7 @@ const CaretChange = (editor: Editor) => {
 		const figure = DOM.Closest(node as Element, FigureSelector);
 		for (const focused of DOM.SelectAll({ attrs: ['data-focused'] })) {
 			if (focused === figure) continue;
-			removeTableTools(focused);
+			TableTools.RemoveAll();
 			DOM.RemoveAttr(focused, 'data-focused');
 		}
 

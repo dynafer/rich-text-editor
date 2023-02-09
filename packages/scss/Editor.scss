@@ -43,9 +43,11 @@
 			table {
 				@include position(relative);
 			}
+		}
 
+		[data-type='table-tool'] {
 			[data-movable] {
-				@include position(absolute, -1rem, 0);
+				@include position(absolute, -1.25rem, 0);
 				@include all-border(rgba(116, 195, 255, 0.7) !important, 3px);
 				@include all-margin(0px);
 				@include square(calc(1rem - 6px));
@@ -55,6 +57,53 @@
 				svg {
 					@include all-margin(0px);
 					@include square(calc(1rem - 6px));
+				}
+			}
+
+			[data-adjustable-edge-group] {
+				[data-adjustable-edge] {
+					@include position(absolute);
+					@include all-margin(0px);
+					@include square(0.75rem);
+					@include height($line: 0);
+					background-color: rgba(116, 195, 255, 0.7);
+
+					&[data-adjustable-edge='east'] {
+						cursor: ne-resize;
+					}
+
+					&[data-adjustable-edge='west'] {
+						cursor: nw-resize;
+					}
+				}
+			}
+
+			[data-adjustable-line-group] {
+				[data-adjustable-line] {
+					@include position(absolute);
+					@include all-margin(0px);
+
+					&[data-adjusting] {
+						background-color: rgba(116, 195, 255, 0.7);
+					}
+				}
+
+				[data-adjustable-line='width'] {
+					cursor: col-resize;
+				}
+
+				[data-adjustable-line='height'] {
+					cursor: row-resize;
+				}
+			}
+
+			table {
+				@include font($color: transparent);
+				border-style: dotted;
+
+				th,
+				td {
+					border-style: dotted;
 				}
 			}
 		}

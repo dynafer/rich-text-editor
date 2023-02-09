@@ -5,10 +5,12 @@ import { PreventEvent } from '../EventSetupUtils';
 import { EKeyCode, IsTableFigure } from './KeyboardUtils';
 
 const InTable = (editor: Editor, event: KeyboardEvent) => {
+	const bTab = event.key === EKeyCode.Tab || event.code === EKeyCode.Tab;
+	const bShift = event.shiftKey;
 	const bUp = event.key === EKeyCode.ArrowUp || event.code === EKeyCode.ArrowUp;
 	const bDown = event.key === EKeyCode.ArrowDown || event.code === EKeyCode.ArrowDown;
-	const bLeft = event.key === EKeyCode.ArrowLeft || event.code === EKeyCode.ArrowLeft;
-	const bRight = event.key === EKeyCode.ArrowRight || event.code === EKeyCode.ArrowRight;
+	const bLeft = (bShift && bTab) || event.key === EKeyCode.ArrowLeft || event.code === EKeyCode.ArrowLeft;
+	const bRight = (!bShift && bTab) || event.key === EKeyCode.ArrowRight || event.code === EKeyCode.ArrowRight;
 
 	if (!bUp && !bDown && !bLeft && !bRight) return;
 
@@ -40,8 +42,10 @@ const InTable = (editor: Editor, event: KeyboardEvent) => {
 		const position = DOM.Utils.IsText(findNode)
 			? (bPrevious ? findNode.length : 0)
 			: 0;
+
 		newRange.SetStartToEnd(findNode, position, position);
 		CaretUtils.UpdateRanges([newRange.Get()]);
+		self.Dispatch('caret:change', []);
 	};
 
 	const insertOrMove = (bPrevious: boolean) => {
@@ -52,7 +56,8 @@ const InTable = (editor: Editor, event: KeyboardEvent) => {
 		const insert = bPrevious ? DOM.InsertBefore : DOM.InsertAfter;
 		insert(line, paragraph);
 		newRange.SetStartToEnd(paragraph, 0, 0);
-		return CaretUtils.UpdateRanges([newRange.Get()]);
+		CaretUtils.UpdateRanges([newRange.Get()]);
+		return self.Dispatch('caret:change', []);
 	};
 
 	if (bLeft || bRight) {
@@ -62,7 +67,13 @@ const InTable = (editor: Editor, event: KeyboardEvent) => {
 		const targetRowIndex = bLeft ? 0 : rows.length - 1;
 		const targetCellIndex = bLeft ? 0 : cells.length - 1;
 
-		if (row !== rows[targetRowIndex] || cell !== cells[targetCellIndex]) return CaretUtils.Clean();
+		if (row !== rows[targetRowIndex] || cell !== cells[targetCellIndex]) {
+			if (!bTab) return CaretUtils.Clean();
+
+			PreventEvent(event);
+			const nextCellIndex = Arr.Find(cells, cell);
+			return findAndUpdate(bLeft, cells[nextCellIndex + (bShift ? -1 : 1)]);
+		}
 
 		PreventEvent(event);
 
@@ -90,7 +101,7 @@ const InTable = (editor: Editor, event: KeyboardEvent) => {
 	for (const eachCell of DOM.GetChildNodes(targetRow)) {
 		const colspan = parseInt(DOM.GetAttr(eachCell, 'colspan') ?? '0');
 
-		if (!colspan || colspan <= 0) {
+		if (!colspan || colspan <= 1) {
 			Arr.Push(cells, eachCell);
 			continue;
 		}

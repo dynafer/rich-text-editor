@@ -221,7 +221,7 @@ const FormatUtils = (): IFormatUtils => {
 				emptyMarker = emptyMarker.parentElement;
 			}
 
-			// self.DOM.Remove(emptyMarker ?? marker);
+			self.DOM.Remove(emptyMarker ?? marker);
 		}
 	};
 

@@ -1,5 +1,6 @@
-import { Arr, Str } from '@dynafer/utils';
+import { Arr } from '@dynafer/utils';
 import Editor from '../Editor';
+import { ADJUSTABLE_LINE_HALF_SIZE, CreateAdjustableEdgeSize, CreateMovableHorizontalSize } from '../dom/tools/table/TableToolsUtils';
 
 export enum ENativeEvents {
 	abort = 'abort',
@@ -193,6 +194,41 @@ export const ChangeMovablePosition = (editor: Editor) => {
 		const figureElement = DOM.Select(figureType, figure) as HTMLElement;
 		if (!figureElement) continue;
 
-		DOM.SetStyle(movable, 'left', Str.Merge(figureElement.offsetLeft.toString(), 'px'));
+		DOM.SetStyle(movable, 'left', CreateMovableHorizontalSize(figureElement.offsetLeft, true));
+	}
+
+	for (const edge of DOM.SelectAll({ attrs: ['data-adjustable-edge'] })) {
+		const figure = edge.parentElement?.parentElement?.parentElement ?? null;
+		const figureType = DOM.GetAttr(figure, 'type');
+		if (!figure || !figureType) continue;
+
+		const figureElement = DOM.Select(figureType, figure) as HTMLElement;
+		if (!figureElement) continue;
+
+		const bLeft = DOM.HasAttr(edge, 'data-horizontal', 'left');
+		const bTop = DOM.HasAttr(edge, 'data-vertical', 'top');
+
+		DOM.SetStyles(edge, {
+			left: CreateAdjustableEdgeSize(figureElement.offsetLeft + (bLeft ? 0 : figureElement.offsetWidth), true),
+			top: CreateAdjustableEdgeSize(figureElement.offsetTop + (bTop ? 0 : figureElement.offsetHeight), true),
+		});
+	}
+
+	for (const line of DOM.SelectAll({ attrs: ['data-adjustable-line'] })) {
+		const figure = line.parentElement?.parentElement?.parentElement ?? null;
+		const figureType = DOM.GetAttr(figure, 'type');
+		if (!figure || !figureType) continue;
+
+		const figureElement = DOM.Select(figureType, figure) as HTMLElement;
+		if (!figureElement) continue;
+
+		const bWidth = DOM.HasAttr(line, 'data-adjustable-line', 'width');
+
+		DOM.SetStyles(line, {
+			width: `${bWidth ? ADJUSTABLE_LINE_HALF_SIZE * 2 - 1 : figureElement.offsetWidth}px`,
+			height: `${bWidth ? figureElement.offsetHeight : ADJUSTABLE_LINE_HALF_SIZE * 2 - 1}px`,
+			left: `${bWidth ? 0 : figureElement.offsetLeft}px`,
+			top: `${bWidth ? figureElement.offsetTop : 0}px`,
+		});
 	}
 };
