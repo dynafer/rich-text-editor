@@ -52,22 +52,19 @@ const CaretChange = (editor: Editor) => {
 		DOM.Insert(figure, TableTools.Create(table));
 	};
 
-	const setFocusTable = (paths: Node[]) => {
-		if (!paths[0]) return;
-
+	const setFocusTable = () => {
 		const carets = CaretUtils.Get();
-		const node = DOM.Utils.IsText(paths[0]) ? paths[0].parentNode : paths[0];
 		const sameRoot = DOM.Utils.IsText(carets[0]?.SameRoot) ? carets[0]?.SameRoot.parentNode : carets[0]?.SameRoot;
 
-		const figure = DOM.Closest(node as Element, FigureSelector);
+		const figure = DOM.Closest(sameRoot as Element, FigureSelector);
 		for (const focused of DOM.SelectAll({ attrs: ['data-focused'] })) {
 			if (focused === figure) continue;
-			TableTools.RemoveAll();
 			DOM.RemoveAttr(focused, 'data-focused');
+			TableTools.RemoveAll();
 		}
 
 		const bNotSameRootFigure = !!figure && !!carets[0]?.IsRange() && DOM.Closest(sameRoot as Element, FigureSelector) !== figure;
-		if (!figure || !DOM.HasAttr(figure, 'type', TableSelector) || bNotSameRootFigure) return;
+		if (!figure || !DOM.HasAttr(figure, 'type', TableSelector) || bNotSameRootFigure) return CaretUtils.Clean();
 
 		for (const caret of carets) {
 			if (caret.Start.Node !== figure || caret.End.Node !== figure) continue;
@@ -84,7 +81,7 @@ const CaretChange = (editor: Editor) => {
 			CaretUtils.UpdateRanges([caret.Range.Clone()]);
 		}
 
-		if (DOM.HasAttr(figure, 'data-focused')) return;
+		if (DOM.HasAttr(figure, 'data-focused')) return CaretUtils.Clean();
 
 		addTableTools(figure);
 
@@ -95,7 +92,7 @@ const CaretChange = (editor: Editor) => {
 		(paths: Node[]) => {
 			ChangeMovablePosition(self);
 			removeCaretPointers(paths);
-			setFocusTable(paths);
+			setFocusTable();
 		};
 
 	self.On('caret:change', listener());
