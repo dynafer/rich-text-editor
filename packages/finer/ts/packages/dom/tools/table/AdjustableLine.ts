@@ -158,7 +158,7 @@ const AdjustableLine = (editor: Editor, table: HTMLElement): IAdjustableLine => 
 		const finishAdjusting = (e: MouseEvent) => {
 			PreventEvent(e);
 			commonFinishAdjusting();
-			// do something after mouse up
+			// TODO: Event after adjusting
 		};
 
 		Arr.Push(boundEvents,
