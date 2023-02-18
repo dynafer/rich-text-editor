@@ -6,6 +6,7 @@ const TableFormat = (editor: Editor) => {
 	const formatterFormats = self.Formatter.Formats;
 
 	const CreateFromCaret = (rowNum: number, cellNum: number) => {
+		self.Focus();
 		const caretForDeletion = self.Utils.Caret.Get()[0];
 		const bRange = caretForDeletion.IsRange();
 		if (bRange) {

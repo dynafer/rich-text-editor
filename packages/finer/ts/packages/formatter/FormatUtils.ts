@@ -56,7 +56,7 @@ const FormatUtils = (): IFormatUtils => {
 	const STANDARD_PIXEL_FROM_POINTS = 1 / STANDARD_POINTS_FROM_PIXEL;
 	const STANDARD_PIXEL_FROM_ROOT = 16;
 
-	const GetPixelString = (value: number): string => Str.Merge(value.toString(), 'px');
+	const GetPixelString = (value: number): string => `${value}px`;
 	const GetPixcelFromRoot = (): string => GetPixelString(STANDARD_PIXEL_FROM_ROOT);
 	const ConvertPointsToPixel = (value: number): number => Math.round(value * STANDARD_PIXEL_FROM_POINTS * 100) / 100;
 	const ConvertPixelToPoints = (value: number): number => Math.round(value * STANDARD_POINTS_FROM_PIXEL * 100) / 100;

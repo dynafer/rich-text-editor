@@ -3,6 +3,7 @@ import Options from '../../../Options';
 import { GetTableGridWithIndex } from '../../dom/tools/table/TableToolsUtils';
 import { TableCellSelector, TableCellSet, TableRowSelector, TableSelector } from '../../formatter/Format';
 import Editor from '../../Editor';
+import { ENativeEvents } from '../EventSetupUtils';
 
 const SelectTableCell = (editor: Editor, event: MouseEvent) => {
 	const self = editor;
@@ -74,12 +75,12 @@ const SelectTableCell = (editor: Editor, event: MouseEvent) => {
 
 	const mouseUpEvent = () => {
 		bDragged = false;
-		DOM.Off(targetTable, 'mousemove', mouseMoveEvent);
-		DOM.Off(DOM.GetRoot(), 'mouseup', mouseUpEvent);
+		DOM.Off(targetTable, ENativeEvents.mousemove, mouseMoveEvent);
+		DOM.Off(DOM.GetRoot(), ENativeEvents.mouseup, mouseUpEvent);
 	};
 
-	DOM.On(targetTable, 'mousemove', mouseMoveEvent);
-	DOM.On(DOM.GetRoot(), 'mouseup', mouseUpEvent);
+	DOM.On(targetTable, ENativeEvents.mousemove, mouseMoveEvent);
+	DOM.On(DOM.GetRoot(), ENativeEvents.mouseup, mouseUpEvent);
 };
 
 export default SelectTableCell;

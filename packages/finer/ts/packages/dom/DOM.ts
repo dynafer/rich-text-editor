@@ -346,7 +346,7 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 
 			const [target, eventName, event] = bound;
 			target.removeEventListener(eventName, event);
-			boundEvents.splice(index, 1);
+			boundEvents.splice(index - deletedCount, 1);
 			++deletedCount;
 		}
 	};

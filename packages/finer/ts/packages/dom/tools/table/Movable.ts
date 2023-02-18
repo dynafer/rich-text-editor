@@ -38,15 +38,15 @@ const Movable = (editor: Editor, table: HTMLElement): HTMLElement => {
 
 		let savedPoint = CreateCurrentPoint(self, table);
 
-		const cells = DOM.SelectAll(TableCellSelector, table);
-		for (const cell of cells) {
-			DOM.SetAttr(cell, Options.ATTRIBUTE_SELECTED, '');
-		}
-
 		const moveToSavedPoint = () => {
 			MoveToCurrentPoint(self, table, savedPoint);
 			savedPoint = undefined;
 		};
+
+		const cells = DOM.SelectAll(TableCellSelector, table);
+		for (const cell of cells) {
+			DOM.SetAttr(cell, Options.ATTRIBUTE_SELECTED, '');
+		}
 
 		const stopDragEvent = (e: InputEvent) => {
 			PreventEvent(e);

@@ -3,12 +3,14 @@ import Options from '../../../Options';
 import Editor from '../../Editor';
 import { ICaretData } from '../../editorUtils/caret/CaretUtils';
 import { BlockFormatTags } from '../../formatter/Format';
-import { ChangeMovablePosition, EInputEventType, PreventEvent } from '../EventSetupUtils';
+import { EInputEventType, PreventEvent } from '../EventSetupUtils';
 
 const Input = (editor: Editor) => {
 	const self = editor;
 	const DOM = self.DOM;
 	const CaretUtils = self.Utils.Caret;
+	const TableTools = self.Tools.DOM.Table;
+
 	let fakeFragment: DocumentFragment | null = null;
 	let lastChildName: string | null = null;
 
@@ -150,7 +152,7 @@ const Input = (editor: Editor) => {
 
 	const processInput = (event: InputEvent) => {
 		const clean = () => {
-			ChangeMovablePosition(self);
+			TableTools.ChangePositions();
 			lastChildName = null;
 			CaretUtils.Clean();
 		};

@@ -1,10 +1,10 @@
-import { Arr, Str, Type } from '@dynafer/utils';
+import { Arr, Type } from '@dynafer/utils';
 import Options from '../../../../Options';
 import { ICaretData } from '../../../editorUtils/caret/CaretUtils';
 import { TableCellSelector, TableCellSet, TableRowSelector } from '../../../formatter/Format';
 import Editor from '../../../Editor';
 
-export const MOVABLE_ADDABLE_SIZE = 8;
+export const MOVABLE_ADDABLE_SIZE = 16;
 export const ADJUSTABLE_EDGE_ADDABLE_SIZE = -6;
 export const ADJUSTABLE_LINE_HALF_SIZE = 3;
 export const ADJUSTABLE_LINE_ADDABLE_SIZE = -2;
@@ -13,19 +13,19 @@ type TCurrentPoint = ICaretData | HTMLElement[] | undefined;
 
 export const CreateMovableHorizontalSize = <T extends boolean = false>(size: number, bWithPixel: T | false = false): T extends false ? number : string =>
 	(bWithPixel
-		? Str.Merge((size + MOVABLE_ADDABLE_SIZE).toString(), 'px')
+		? `${size + MOVABLE_ADDABLE_SIZE}px`
 		: size + MOVABLE_ADDABLE_SIZE
 	) as T extends false ? number : string;
 
 export const CreateAdjustableEdgeSize = <T extends boolean = false>(size: number, bWithPixel: T | false = false): T extends false ? number : string =>
 	(bWithPixel
-		? Str.Merge((size + ADJUSTABLE_EDGE_ADDABLE_SIZE).toString(), 'px')
+		? `${size + ADJUSTABLE_EDGE_ADDABLE_SIZE}px`
 		: size + ADJUSTABLE_EDGE_ADDABLE_SIZE
 	) as T extends false ? number : string;
 
 export const CreateAdjustableLineSize = <T extends boolean = false>(size: number, bWithPixel: T | false = false): T extends false ? number : string =>
 	(bWithPixel
-		? Str.Merge((size + ADJUSTABLE_LINE_ADDABLE_SIZE).toString(), 'px')
+		? `${size + ADJUSTABLE_LINE_ADDABLE_SIZE}px`
 		: size + ADJUSTABLE_LINE_ADDABLE_SIZE
 	) as T extends false ? number : string;
 
@@ -150,3 +150,5 @@ export const CreateFakeTable = (editor: Editor, table: HTMLElement): HTMLElement
 
 	return fakeTable;
 };
+
+export const GetClientSize = (target: HTMLElement, type: 'width' | 'height'): number => target.getClientRects()[0][type];

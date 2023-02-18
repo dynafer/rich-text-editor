@@ -2,7 +2,6 @@ import { Arr, Str } from '@dynafer/utils';
 import { IEvent } from '../../editorUtils/EventUtils';
 import { FigureSelector, TableCellSelector, TableSelector } from '../../formatter/Format';
 import Editor from '../../Editor';
-import { ChangeMovablePosition } from '../EventSetupUtils';
 
 const CaretChange = (editor: Editor) => {
 	const self = editor;
@@ -90,7 +89,7 @@ const CaretChange = (editor: Editor) => {
 
 	const listener = (): IEvent<Node[]> =>
 		(paths: Node[]) => {
-			ChangeMovablePosition(self);
+			TableTools.ChangePositions();
 			removeCaretPointers(paths);
 			setFocusTable();
 		};

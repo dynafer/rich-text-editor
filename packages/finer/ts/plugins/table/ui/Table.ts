@@ -1,4 +1,4 @@
-import { Arr, Str } from '@dynafer/utils';
+import { Arr } from '@dynafer/utils';
 import Editor from '../../../packages/Editor';
 import TableFormat from '../format/Table';
 import { IPluginsTableFormatUI } from '../Type';
@@ -21,7 +21,7 @@ const Table = (editor: Editor, ui: IPluginTableUI) => {
 	const numCells = 10;
 
 	const setNavigationText = (navigation: HTMLElement, row: number, cell: number, add: number = 1) =>
-		DOM.SetHTML(navigation, Str.Merge((row + add).toString(), ' × ', (cell + add).toString()));
+		DOM.SetHTML(navigation, `${row + add} × ${cell + add}`);
 
 	const bindCellMouseEnterEvent = (navigation: HTMLElement, cellItem: HTMLElement, row: number, cell: number) =>
 		DOM.On(cellItem, 'mouseenter', () => {
