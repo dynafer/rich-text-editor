@@ -15,7 +15,7 @@ const Backspace = (editor: Editor) => {
 		|| !DOM.Utils.IsTextEmpty(currentLine)
 		|| IsTableFigure(self, currentLine)) return CaretUtils.Clean();
 
-	DOM.Remove(currentLine as HTMLElement);
+	DOM.Remove(currentLine as Element);
 
 	let lastChild: Node | null = DOM.Utils.GetLastChild(lines[lines.length - 1], true);
 	if (DOM.Utils.IsBr(lastChild)) lastChild = lastChild.parentNode;

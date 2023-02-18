@@ -5,7 +5,7 @@ import Editor from '../../../Editor';
 import { ADJUSTABLE_LINE_HALF_SIZE, CreateAdjustableLineSize, CreateCurrentPoint, CreateFakeTable, GetClientSize, GetTableGridWithIndex, MoveToCurrentPoint } from './TableToolsUtils';
 
 interface IAdjustableLine {
-	BoundEvents: [ENativeEvents, (event: Event) => void],
+	BoundEvents: [ENativeEvents, EventListener],
 	Element: HTMLElement,
 }
 
@@ -59,7 +59,7 @@ const AdjustableLine = (editor: Editor, table: HTMLElement): IAdjustableLine => 
 			savedPoint = undefined;
 		};
 
-		const boundEvents: [boolean, HTMLElement, ENativeEvents, (e: Event) => void][] = [];
+		const boundEvents: [boolean, HTMLElement, ENativeEvents, EventListener][] = [];
 
 		const removeEvents = () => {
 			for (const boundEvent of boundEvents) {
@@ -75,18 +75,12 @@ const AdjustableLine = (editor: Editor, table: HTMLElement): IAdjustableLine => 
 		const adjustItem = bWidth ? adjustableWidth : adjustableHeight;
 		let startOffset = bWidth ? event.clientX : event.clientY;
 
-		DOM.SetAttr(adjustItem as Element, 'data-adjusting', '');
+		DOM.SetAttr(adjustItem, 'data-adjusting', '');
 
 		const fakeTable = CreateFakeTable(self, table);
 		DOM.Insert(adjustableLineGroup, fakeTable);
 
 		const fakeTableGrid = GetTableGridWithIndex(self, fakeTable);
-
-		const adjustableCells: HTMLElement[] = [];
-		const nextAdjustableCells: HTMLElement[] = [];
-
-		let minimumSize = -1;
-		let nextMinimumSize = -1;
 
 		const sizeStyleName = bWidth ? 'width' : 'height';
 		const positionStyleName = bWidth ? 'left' : 'top';
@@ -111,6 +105,12 @@ const AdjustableLine = (editor: Editor, table: HTMLElement): IAdjustableLine => 
 
 			return size;
 		};
+
+		const adjustableCells: HTMLElement[] = [];
+		const nextAdjustableCells: HTMLElement[] = [];
+
+		let minimumSize = -1;
+		let nextMinimumSize = -1;
 
 		for (let rowIndex = 0, rowLength = fakeTableGrid.TableGrid.length; rowIndex < rowLength; ++rowIndex) {
 			const row = fakeTableGrid.TableGrid[rowIndex];
@@ -150,8 +150,7 @@ const AdjustableLine = (editor: Editor, table: HTMLElement): IAdjustableLine => 
 			removeEvents();
 
 			DOM.Remove(fakeTable);
-
-			DOM.RemoveAttr(adjustItem as Element, 'data-adjusting');
+			DOM.RemoveAttr(adjustItem, 'data-adjusting');
 
 			TableTools.ChangePositions();
 
@@ -176,7 +175,6 @@ const AdjustableLine = (editor: Editor, table: HTMLElement): IAdjustableLine => 
 			DOM.SetStyles(fakeTable, newStyles);
 
 			for (const cell of cells) {
-				DOM.SetStyle(cell, sizeStyleName, '0px');
 				DOM.SetStyle(cell, sizeStyleName, `${GetClientSize(cell, sizeStyleName)}px`);
 			}
 		};
@@ -227,19 +225,19 @@ const AdjustableLine = (editor: Editor, table: HTMLElement): IAdjustableLine => 
 				}
 
 				const tableStyleValue = DOM.GetStyle(fakeTable, sizeStyleName);
-				const tableSize = (Str.IsEmpty(tableStyleValue) ? GetClientSize(fakeTable, sizeStyleName) : parseFloat(tableStyleValue)) - calculatedSize;
+				const tableSize = Str.IsEmpty(tableStyleValue) ? GetClientSize(fakeTable, sizeStyleName) : parseFloat(tableStyleValue);
 				const tablePositionStyleValue = DOM.GetStyle(fakeTable, positionStyleName);
-				const tablePosition = (Str.IsEmpty(tablePositionStyleValue) ? getPosition(fakeTable) : parseFloat(tablePositionStyleValue)) + calculatedSize;
+				const tablePosition = Str.IsEmpty(tablePositionStyleValue) ? getPosition(fakeTable) : parseFloat(tablePositionStyleValue);
 
 				const newStyle: Record<string, string> = {};
-				newStyle[sizeStyleName] = `${tableSize}px`;
-				if (bLeftTop) newStyle[positionStyleName] = `${tablePosition}px`;
+				newStyle[sizeStyleName] = `${tableSize - calculatedSize}px`;
+				if (bLeftTop) newStyle[positionStyleName] = `${tablePosition + calculatedSize}px`;
 				DOM.SetStyles(fakeTable, newStyle);
 
 				for (const cell of cells) {
 					const styleValue = DOM.GetStyle(cell, sizeStyleName);
-					const size = (Str.IsEmpty(styleValue) ? GetClientSize(cell, sizeStyleName) : parseFloat(styleValue)) - calculatedSize;
-					DOM.SetStyle(cell, sizeStyleName, `${size}px`);
+					const size = Str.IsEmpty(styleValue) ? GetClientSize(cell, sizeStyleName) : parseFloat(styleValue);
+					DOM.SetStyle(cell, sizeStyleName, `${size - calculatedSize}px`);
 				}
 				return;
 			}
@@ -316,7 +314,7 @@ const AdjustableLine = (editor: Editor, table: HTMLElement): IAdjustableLine => 
 	DOM.Insert(adjustableLineGroup, adjustableWidth, adjustableHeight);
 
 	return {
-		BoundEvents: [ENativeEvents.mousemove, mouseMoveInTable as (event: Event) => void],
+		BoundEvents: [ENativeEvents.mousemove, mouseMoveInTable as EventListener],
 		Element: adjustableLineGroup,
 	};
 };

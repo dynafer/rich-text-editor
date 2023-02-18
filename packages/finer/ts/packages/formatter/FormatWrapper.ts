@@ -78,7 +78,7 @@ const FormatWrapper = (editor: Editor): IFormatWrapper => {
 			return wrapFormat(node, Tag);
 		}
 
-		const closestStyle: Node | null = DOM.Closest(elementForCheck, DOM.Utils.CreateAttrSelector('style')) as Node | null;
+		const closestStyle = DOM.Closest(elementForCheck, DOM.Utils.CreateAttrSelector('style')) as Node | null;
 
 		const styles = createStyleMap(Styles, value);
 
