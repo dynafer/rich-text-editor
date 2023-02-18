@@ -105,7 +105,7 @@ const InlineColor = (editor: Editor): IFormatUIRegistryUnit => {
 
 		const resetButton = FormatUI.CreateOption(defaultColorHTML, defaultColorText, false, false);
 
-		FormatUI.BindClickEvent(DOM.Select('button', resetButton) as HTMLElement, () => FormatUI.RunCommand<boolean | string>(self, uiName, false, DefaultColor));
+		FormatUI.BindClickEvent(DOM.Select<HTMLElement>('button', resetButton), () => FormatUI.RunCommand<boolean | string>(self, uiName, false, DefaultColor));
 
 		return resetButton;
 	};

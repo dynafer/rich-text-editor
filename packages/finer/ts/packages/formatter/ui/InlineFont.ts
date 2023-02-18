@@ -62,7 +62,7 @@ const InlineFont = (editor: Editor, detector: IFormatDetector): IFormatUIRegistr
 		if (!Styles) return false;
 
 		const selector = FormatUtils.GetStyleSelectorMap(Styles);
-		const styleName = Object.keys(Styles as object)[0];
+		const styleName = Object.keys(Styles)[0];
 
 		const bNumber = Str.Contains(value, FONT_SIZE_REGEXP);
 
@@ -112,7 +112,7 @@ const InlineFont = (editor: Editor, detector: IFormatDetector): IFormatUIRegistr
 			FormatUI.RegisterCommand(self, uiName, command);
 			FormatUI.BindClickEvent(optionElement, () => command(!bSelected));
 
-			if (bPreview && Format.Styles) DOM.SetStyle(DOM.Select('span', optionElement) as HTMLElement, styleName, value);
+			if (bPreview && Format.Styles) DOM.SetStyle(DOM.Select<HTMLElement>('span', optionElement), styleName, value);
 
 			Arr.Push(optionElements, optionElement);
 		}

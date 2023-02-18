@@ -16,8 +16,8 @@ const Form = (): IColorPickerForm | undefined => {
 
 	const afterSelected = (bChangeBright: boolean, rgb: [number, number, number]) => {
 		const rgbaMap = RGBA.ToMap(...rgb);
-		const palette = (form.GetChildren()[0] as IPalette);
-		const navigation = (form.GetChildren()[2] as INavigation);
+		const palette = form.GetChildren()[0] as IPalette;
+		const navigation = form.GetChildren()[2] as INavigation;
 		if (bChangeBright) {
 			palette.ChangeColor(rgbaMap);
 			navigation.UpdateRGB(palette.GetColor());

@@ -1,7 +1,7 @@
 import { Arr } from '@dynafer/utils';
 import { ENativeEvents, PreventEvent } from '../../../events/EventSetupUtils';
 import Editor from '../../../Editor';
-import { CreateAdjustableEdgeSize, CreateCurrentPoint, CreateFakeTable, CreateMovableHorizontalSize, MoveToCurrentPoint } from './TableToolsUtils';
+import { CreateAdjustableEdgeSize, CreateCurrentPoint, CreateFakeTable, MoveToCurrentPoint } from './TableToolsUtils';
 
 const AdjustableEdge = (editor: Editor, table: HTMLElement): HTMLElement => {
 	const self = editor;
@@ -48,7 +48,7 @@ const AdjustableEdge = (editor: Editor, table: HTMLElement): HTMLElement => {
 			savedPoint = undefined;
 		};
 
-		const boundEvents: [boolean, HTMLElement, ENativeEvents, (e: Event) => void][] = [];
+		const boundEvents: [boolean, HTMLElement, ENativeEvents, EventListener][] = [];
 
 		const removeEvents = () => {
 			for (const boundEvent of boundEvents) {
@@ -79,6 +79,9 @@ const AdjustableEdge = (editor: Editor, table: HTMLElement): HTMLElement => {
 			width: `${table.offsetWidth}px`,
 			height: `${table.offsetHeight}px`,
 		});
+
+		const movable = DOM.Select<HTMLElement>({ attrs: ['data-movable'] }, table.parentNode);
+		DOM.Hide(movable);
 
 		const adjust = (e: MouseEvent) => {
 			PreventEvent(e);
@@ -125,7 +128,6 @@ const AdjustableEdge = (editor: Editor, table: HTMLElement): HTMLElement => {
 
 			DOM.SetStyles(fakeTable, newStyles);
 
-			DOM.Hide(DOM.Select({ attrs: ['data-movable'] }, table.parentNode) as HTMLElement);
 			setEdgePositionStyles(fakeTable, leftTopEdge, false, false);
 			setEdgePositionStyles(fakeTable, rightTopEdge, true, false);
 			setEdgePositionStyles(fakeTable, leftBottomEdge, false, true);
@@ -148,13 +150,7 @@ const AdjustableEdge = (editor: Editor, table: HTMLElement): HTMLElement => {
 
 			DOM.SetStyles(table, newStyles);
 
-			const movable = DOM.Select({ attrs: ['data-movable'] }, table.parentNode) as HTMLElement;
 			DOM.Show(movable);
-			DOM.SetStyle(movable, 'left', CreateMovableHorizontalSize(table.offsetLeft, true));
-			setEdgePositionStyles(table, leftTopEdge, false, false);
-			setEdgePositionStyles(table, rightTopEdge, true, false);
-			setEdgePositionStyles(table, leftBottomEdge, false, true);
-			setEdgePositionStyles(table, rightBottomEdge, true, true);
 
 			TableTools.ChangePositions();
 

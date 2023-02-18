@@ -55,7 +55,7 @@ const StyleFormat = (editor: Editor, detector: IFormatDetector): IFormatUIRegist
 	const createAlignmentDetector = (formats: IStyleFormat | IStyleFormat[], button: HTMLElement): TFormatDetectCallback => {
 		const detect = (format: IStyleFormat, node: Node): boolean => {
 			const { StrictFormats, Styles } = format;
-			const closest = self.DOM.ClosestByStyle(node as HTMLElement, FormatUtils.GetStyleSelectorMap(Styles));
+			const closest = self.DOM.ClosestByStyle(node as Element, FormatUtils.GetStyleSelectorMap(Styles));
 			const bDetected = !!closest && StrictFormats.has(DOM.Utils.GetNodeName(closest));
 			return bDetected;
 		};

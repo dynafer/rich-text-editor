@@ -17,7 +17,7 @@ const TableTools = (editor: Editor): ITableTools => {
 	const self = editor;
 	const DOM = self.DOM;
 
-	const boundEvents: [HTMLElement, ENativeEvents, (event: Event) => void][] = [];
+	const boundEvents: [HTMLElement, ENativeEvents, EventListener][] = [];
 
 	const Create = (table: HTMLElement): HTMLElement => {
 		const tools = DOM.Create('div', {
@@ -66,7 +66,7 @@ const TableTools = (editor: Editor): ITableTools => {
 			const figureType = DOM.GetAttr(figure, 'type');
 			if (!figure || !figureType) continue;
 
-			const figureElement = DOM.Select(figureType, figure) as HTMLElement;
+			const figureElement = DOM.Select<HTMLElement>(figureType, figure);
 			if (!figureElement) continue;
 
 			DOM.SetStyle(movable, 'left', CreateMovableHorizontalSize(figureElement.offsetLeft, true));
@@ -77,7 +77,7 @@ const TableTools = (editor: Editor): ITableTools => {
 			const figureType = DOM.GetAttr(figure, 'type');
 			if (!figure || !figureType) continue;
 
-			const figureElement = DOM.Select(figureType, figure) as HTMLElement;
+			const figureElement = DOM.Select<HTMLElement>(figureType, figure);
 			if (!figureElement) continue;
 
 			const bWidth = DOM.HasAttr(line, 'data-adjustable-line', 'width');
@@ -95,7 +95,7 @@ const TableTools = (editor: Editor): ITableTools => {
 			const figureType = DOM.GetAttr(figure, 'type');
 			if (!figure || !figureType) continue;
 
-			const figureElement = DOM.Select(figureType, figure) as HTMLElement;
+			const figureElement = DOM.Select<HTMLElement>(figureType, figure);
 			if (!figureElement) continue;
 
 			const bLeft = DOM.HasAttr(edge, 'data-horizontal', 'left');
