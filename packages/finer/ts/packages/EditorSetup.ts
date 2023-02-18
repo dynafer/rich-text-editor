@@ -24,11 +24,11 @@ const EditorSetup = (editor: Editor): Promise<void> => {
 			true
 		);
 
-		const iframeHTML = `<!DOCTYPE html>
-			<html>
-				<head>${editorDefaultCss}</head>
-				<body id="${bodyId}" contenteditable="true"></body>
-			</html>`;
+		const iframeHTML = Str.Merge('<!DOCTYPE html>',
+			'<html>',
+			`<head>${editorDefaultCss}</head>`,
+			`<body id="${bodyId}" contenteditable="true"></body>`,
+			'</html>');
 
 		(frame.Container as HTMLIFrameElement).contentDocument?.write(iframeHTML);
 		(frame.Container as HTMLIFrameElement).contentDocument?.close();

@@ -6,6 +6,7 @@ import { CreateAdjustableEdgeSize, CreateCurrentPoint, CreateFakeTable, CreateMo
 const AdjustableEdge = (editor: Editor, table: HTMLElement): HTMLElement => {
 	const self = editor;
 	const DOM = self.DOM;
+	const TableTools = self.Tools.DOM.Table;
 
 	const adjustableEdgeGroup = DOM.Create('div', {
 		attrs: {
@@ -47,6 +48,15 @@ const AdjustableEdge = (editor: Editor, table: HTMLElement): HTMLElement => {
 			savedPoint = undefined;
 		};
 
+		const boundEvents: [boolean, HTMLElement, ENativeEvents, (e: Event) => void][] = [];
+
+		const removeEvents = () => {
+			for (const boundEvent of boundEvents) {
+				const off = boundEvent[0] ? self.GetRootDOM().Off : DOM.Off;
+				off(boundEvent[1], boundEvent[2], boundEvent[3]);
+			}
+		};
+
 		let startOffsetX = event.clientX;
 		let startOffsetY = event.clientY;
 
@@ -69,15 +79,6 @@ const AdjustableEdge = (editor: Editor, table: HTMLElement): HTMLElement => {
 			width: `${table.offsetWidth}px`,
 			height: `${table.offsetHeight}px`,
 		});
-
-		const boundEvents: [boolean, HTMLElement, ENativeEvents, (e: Event) => void][] = [];
-
-		const removeEvents = () => {
-			for (const boundEvent of boundEvents) {
-				const off = boundEvent[0] ? self.GetRootDOM().Off : DOM.Off;
-				off(boundEvent[1], boundEvent[2], boundEvent[3]);
-			}
-		};
 
 		const adjust = (e: MouseEvent) => {
 			PreventEvent(e);
@@ -154,6 +155,8 @@ const AdjustableEdge = (editor: Editor, table: HTMLElement): HTMLElement => {
 			setEdgePositionStyles(table, rightTopEdge, true, false);
 			setEdgePositionStyles(table, leftBottomEdge, false, true);
 			setEdgePositionStyles(table, rightBottomEdge, true, true);
+
+			TableTools.ChangePositions();
 
 			moveToSavedPoint();
 		};
