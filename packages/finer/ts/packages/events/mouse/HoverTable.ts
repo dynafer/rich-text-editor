@@ -6,6 +6,15 @@ const HoverTable = (editor: Editor, event: MouseEvent) => {
 	const DOM = self.DOM;
 	const TableTools = self.Tools.DOM.Table;
 
+	const caret = self.Utils.Caret.Get()[0];
+	if (caret?.IsRange()) {
+		TableTools.RemoveAll();
+		self.Utils.Caret.Clean();
+		return;
+	}
+
+	self.Utils.Caret.Clean();
+
 	const figure = DOM.Closest(event.target as Element, FigureSelector);
 	if (!figure || !DOM.HasAttr(figure, 'type', 'table')) return TableTools.RemoveAll();
 
