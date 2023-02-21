@@ -5,7 +5,7 @@ import { FigureSelector } from '../../../formatter/Format';
 import AdjustableEdge from './AdjustableEdge';
 import AdjustableLine from './AdjustableLine';
 import Movable from './Movable';
-import { ADJUSTABLE_LINE_HALF_SIZE, CreateAdjustableEdgeSize, CreateMovableHorizontalSize } from './TableToolsUtils';
+import { ADJUSTABLE_LINE_HALF_SIZE, CreateAdjustableEdgeSize, CreateMovableHorizontalSize, GetTableGridWithIndex } from './TableToolsUtils';
 
 export interface ITableTools {
 	Create: (table: HTMLElement) => HTMLElement,
@@ -26,9 +26,11 @@ const TableTools = (editor: Editor): ITableTools => {
 			},
 		});
 
+		const tableGrid = GetTableGridWithIndex(self, table);
+
 		const movable = Movable(self, table);
-		const adjustableLine = AdjustableLine(self, table);
-		const adjustableEdge = AdjustableEdge(self, table);
+		const adjustableLine = AdjustableLine(self, table, tableGrid);
+		const adjustableEdge = AdjustableEdge(self, table, tableGrid);
 
 		DOM.Insert(tools, movable, adjustableLine.Element, adjustableEdge);
 

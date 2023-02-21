@@ -1,9 +1,14 @@
 import { Arr } from '@dynafer/utils';
 import { ENativeEvents, PreventEvent } from '../../../events/EventSetupUtils';
 import Editor from '../../../Editor';
-import { CreateAdjustableEdgeSize, CreateCurrentPoint, CreateFakeTable, MoveToCurrentPoint } from './TableToolsUtils';
+import { CreateAdjustableEdgeSize, CreateCurrentPoint, CreateFakeTable, ITableGrid, MoveToCurrentPoint } from './TableToolsUtils';
 
-const AdjustableEdge = (editor: Editor, table: HTMLElement): HTMLElement => {
+interface ICellStyleMap {
+	cell: HTMLElement,
+	styles: Record<string, string>,
+}
+
+const AdjustableEdge = (editor: Editor, table: HTMLElement, tableGrid: ITableGrid): HTMLElement => {
 	const self = editor;
 	const DOM = self.DOM;
 	const TableTools = self.Tools.DOM.Table;
@@ -138,15 +143,51 @@ const AdjustableEdge = (editor: Editor, table: HTMLElement): HTMLElement => {
 			PreventEvent(e);
 			removeEvents();
 
+			const oldWidth = table.offsetWidth;
+			const oldHeight = table.offsetHeight;
+
 			const newWidth = fakeTable.offsetWidth;
 			const newHeight = fakeTable.offsetHeight;
 
 			DOM.Remove(fakeTable);
 
+			const cellGridStyles: ICellStyleMap[][] = [];
+
+			const widthDifference = newWidth - oldWidth;
+			const heightDifference = newHeight - oldHeight;
+
+			for (const row of tableGrid.Grid) {
+				const cellStyles: ICellStyleMap[] = [];
+
+				for (const cell of row) {
+					const percentCellWidth = cell.offsetWidth / oldWidth;
+					const percentCellHeight = cell.offsetHeight / oldHeight;
+
+					const newCellWidth = Math.round(widthDifference * percentCellWidth * 100) * 0.01;
+					const newCellHeight = Math.round(heightDifference * percentCellHeight * 100) * 0.01;
+
+					Arr.Push(cellStyles, {
+						cell,
+						styles: {
+							width: `${cell.offsetWidth + newCellWidth}px`,
+							height: `${cell.offsetHeight + newCellHeight}px`,
+						}
+					});
+				}
+
+				Arr.Push(cellGridStyles, cellStyles);
+			}
+
+			for (const gridStyles of cellGridStyles) {
+				for (const { cell, styles } of gridStyles) {
+					DOM.SetStyles(cell, styles);
+				}
+			}
+
 			const newStyles: Record<string, string> = {};
 
-			if (newWidth !== table.offsetWidth) newStyles.width = `${newWidth}px`;
-			if (newHeight !== table.offsetHeight) newStyles.height = `${newHeight}px`;
+			if (newWidth !== oldWidth) newStyles.width = `${newWidth}px`;
+			if (newHeight !== oldHeight) newStyles.height = `${newHeight}px`;
 
 			DOM.SetStyles(table, newStyles);
 

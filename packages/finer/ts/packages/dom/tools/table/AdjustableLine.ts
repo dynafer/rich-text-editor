@@ -1,15 +1,15 @@
-import { Arr, Str } from '@dynafer/utils';
+import { Arr } from '@dynafer/utils';
 import { ENativeEvents, PreventEvent } from '../../../events/EventSetupUtils';
 import { TableCellSelector } from '../../../formatter/Format';
 import Editor from '../../../Editor';
-import { ADJUSTABLE_LINE_HALF_SIZE, CreateAdjustableLineSize, CreateCurrentPoint, CreateFakeTable, GetClientSize, GetTableGridWithIndex, MoveToCurrentPoint } from './TableToolsUtils';
+import { ADJUSTABLE_LINE_HALF_SIZE, CreateAdjustableLineSize, CreateCurrentPoint, CreateFakeTable, GetClientSize, GetTableGridWithIndex, ITableGrid, MoveToCurrentPoint } from './TableToolsUtils';
 
 interface IAdjustableLine {
 	BoundEvents: [ENativeEvents, EventListener],
 	Element: HTMLElement,
 }
 
-const AdjustableLine = (editor: Editor, table: HTMLElement): IAdjustableLine => {
+const AdjustableLine = (editor: Editor, table: HTMLElement, tableGrid: ITableGrid): IAdjustableLine => {
 	const self = editor;
 	const DOM = self.DOM;
 	const TableTools = self.Tools.DOM.Table;
@@ -46,8 +46,6 @@ const AdjustableLine = (editor: Editor, table: HTMLElement): IAdjustableLine => 
 			height: `${ADJUSTABLE_LINE_HALF_SIZE * 2 - 1}px`,
 		});
 	};
-
-	const tableGrid = GetTableGridWithIndex(self, table);
 
 	const startAdjusting = (event: MouseEvent) => {
 		PreventEvent(event);
@@ -110,10 +108,12 @@ const AdjustableLine = (editor: Editor, table: HTMLElement): IAdjustableLine => 
 		const nextAdjustableCells: HTMLElement[] = [];
 
 		let minimumSize = -1;
+		let minimumDifference = -1;
 		let nextMinimumSize = -1;
+		let nextMinimumDifference = -1;
 
-		for (let rowIndex = 0, rowLength = fakeTableGrid.TableGrid.length; rowIndex < rowLength; ++rowIndex) {
-			const row = fakeTableGrid.TableGrid[rowIndex];
+		for (let rowIndex = 0, rowLength = fakeTableGrid.Grid.length; rowIndex < rowLength; ++rowIndex) {
+			const row = fakeTableGrid.Grid[rowIndex];
 
 			for (let cellIndex = 0, cellLength = row.length; cellIndex < cellLength; ++cellIndex) {
 				const cell = row[cellIndex];
@@ -131,6 +131,7 @@ const AdjustableLine = (editor: Editor, table: HTMLElement): IAdjustableLine => 
 					if (nextMinimumSize !== -1) continue;
 
 					nextMinimumSize = getMinimumSize(cell);
+					nextMinimumDifference = GetClientSize(cell, sizeStyleName) - nextMinimumSize;
 					continue;
 				}
 
@@ -141,6 +142,7 @@ const AdjustableLine = (editor: Editor, table: HTMLElement): IAdjustableLine => 
 					if (minimumSize !== -1) continue;
 
 					minimumSize = getMinimumSize(cell);
+					minimumDifference = GetClientSize(cell, sizeStyleName) - minimumSize;
 					continue;
 				}
 			}
@@ -163,10 +165,29 @@ const AdjustableLine = (editor: Editor, table: HTMLElement): IAdjustableLine => 
 		if (!bLeftTop && !bRightBottom) return commonFinishAdjusting();
 
 		let savedAdjustPosition = -1;
+		let savedAdjustRightPosition = -1;
 		let lastAdjustPosition = -1;
 
 		let savedTableSize = -1;
 		let savedTablePosition = -1;
+
+		if (bLeftTop && !bRightBottom) {
+			savedAdjustPosition = getPosition(fakeTable) + nextMinimumDifference - ADJUSTABLE_LINE_HALF_SIZE;
+			savedTableSize = GetClientSize(fakeTable, sizeStyleName) - nextMinimumDifference;
+			savedTablePosition = getPosition(fakeTable) + nextMinimumDifference;
+		}
+
+		if (!bLeftTop && bRightBottom) {
+			savedAdjustPosition = getPosition(fakeTable) + GetClientSize(fakeTable, sizeStyleName) - minimumDifference - ADJUSTABLE_LINE_HALF_SIZE;
+			savedTableSize = GetClientSize(fakeTable, sizeStyleName) - minimumDifference;
+			savedTablePosition = getPosition(fakeTable);
+		}
+
+		if (bLeftTop && bRightBottom) {
+			savedAdjustPosition = getPosition(fakeTable) + getPosition(adjustableCells[0]) + minimumSize - ADJUSTABLE_LINE_HALF_SIZE;
+			savedAdjustRightPosition = getPosition(fakeTable) + getPosition(nextAdjustableCells[0])
+				+ GetClientSize(nextAdjustableCells[0], sizeStyleName) - nextMinimumSize - ADJUSTABLE_LINE_HALF_SIZE;
+		}
 
 		const setSavedTableSize = (cells: HTMLElement[]) => {
 			const newStyles: Record<string, string> = {};
@@ -188,62 +209,105 @@ const AdjustableLine = (editor: Editor, table: HTMLElement): IAdjustableLine => 
 			if (calculated === 0) return;
 
 			const adjustPosition = getPosition(adjustItem) + calculated;
-
 			DOM.SetStyle(adjustItem, positionStyleName, `${adjustPosition}px`);
+			const changedAdjustPosition = getPosition(adjustItem);
+			const middleAdjustItemPosition = changedAdjustPosition + ADJUSTABLE_LINE_HALF_SIZE;
+
+			const tablePosition = parseFloat(DOM.GetStyle(fakeTable, positionStyleName));
 
 			startOffset = currentOffset;
 
-			if (bLeftTop && !bRightBottom || !bLeftTop && bRightBottom) {
-				const cells = bLeftTop ? nextAdjustableCells : adjustableCells;
-				const comparableMinimumSize = bLeftTop ? nextMinimumSize : minimumSize;
-				const multiplier = bLeftTop ? 1 : -1;
-				const calculatedSize = calculated * multiplier;
+			if (bLeftTop && bRightBottom) {
+				const sizeBeforeChanging = Math.floor(GetClientSize(adjustableCells[0], sizeStyleName));
+				const nextSizeBeforeChanging = Math.floor(GetClientSize(nextAdjustableCells[0], sizeStyleName));
 
-				const calculatedComparison = bLeftTop ? calculated > 0 : calculated < 0;
+				const bCellMinimum = sizeBeforeChanging <= minimumSize;
+				const bNextCellMinimum = nextSizeBeforeChanging <= nextMinimumSize;
 
-				const sizeBeforeChanging = GetClientSize(cells[0], sizeStyleName);
+				const multiplier = bCellMinimum ? 1 : -1;
+				const multipliedCalculated = calculated * multiplier;
 
-				if (sizeBeforeChanging <= comparableMinimumSize && calculatedComparison && lastAdjustPosition === -1) {
-					if (savedAdjustPosition === -1) savedAdjustPosition = getPosition(adjustItem);
-					lastAdjustPosition = savedAdjustPosition;
-
-					if (savedTableSize !== -1 || savedTablePosition !== -1) return;
-
-					savedTableSize = GetClientSize(fakeTable, sizeStyleName);
-					savedTablePosition = getPosition(fakeTable);
-					setSavedTableSize(cells);
+				if ((bCellMinimum || bNextCellMinimum) && multipliedCalculated < 0 && lastAdjustPosition === -1) {
+					lastAdjustPosition = bCellMinimum ? savedAdjustPosition : savedAdjustRightPosition;
 					return;
 				}
 
 				if (lastAdjustPosition !== -1) {
-					if (GetClientSize(fakeTable, sizeStyleName) !== savedTableSize || getPosition(fakeTable) !== savedTablePosition)
-						setSavedTableSize(cells);
-
-					const positionComparison = (lastAdjustPosition - getPosition(adjustItem)) * multiplier;
-					if (calculatedComparison || positionComparison < 0) return;
+					const positionSizeComparison = (lastAdjustPosition - changedAdjustPosition) * multiplier;
+					if (multipliedCalculated < 0 || positionSizeComparison > 0) return;
 					lastAdjustPosition = -1;
 				}
 
-				const tableStyleValue = DOM.GetStyle(fakeTable, sizeStyleName);
-				const tableSize = Str.IsEmpty(tableStyleValue) ? GetClientSize(fakeTable, sizeStyleName) : parseFloat(tableStyleValue);
-				const tablePositionStyleValue = DOM.GetStyle(fakeTable, positionStyleName);
-				const tablePosition = Str.IsEmpty(tablePositionStyleValue) ? getPosition(fakeTable) : parseFloat(tablePositionStyleValue);
+				const adjustableSizes: string[] = [];
 
-				const newStyle: Record<string, string> = {};
-				newStyle[sizeStyleName] = `${tableSize - calculatedSize}px`;
-				if (bLeftTop) newStyle[positionStyleName] = `${tablePosition + calculatedSize}px`;
-				DOM.SetStyles(fakeTable, newStyle);
+				for (const cell of adjustableCells) {
+					const cellSize = parseFloat(DOM.GetStyle(cell, sizeStyleName));
+					const cellRightPosition = cellSize + tablePosition + getPosition(cell);
+					const positionDifference = middleAdjustItemPosition - cellRightPosition;
+					Arr.Push(adjustableSizes, `${cellSize + positionDifference}px`);
+				}
 
-				for (const cell of cells) {
-					const styleValue = DOM.GetStyle(cell, sizeStyleName);
-					const size = Str.IsEmpty(styleValue) ? GetClientSize(cell, sizeStyleName) : parseFloat(styleValue);
-					DOM.SetStyle(cell, sizeStyleName, `${size - calculatedSize}px`);
+				for (let index = 0, length = adjustableCells.length; index < length; ++index) {
+					DOM.SetStyle(adjustableCells[index], sizeStyleName, adjustableSizes[index]);
+				}
+
+				const nextAdjustableSizes: string[] = [];
+
+				for (const cell of nextAdjustableCells) {
+					const cellSize = parseFloat(DOM.GetStyle(cell, sizeStyleName));
+					const cellLeftPosition = tablePosition + getPosition(cell);
+					const positionDifference = cellLeftPosition - middleAdjustItemPosition;
+					Arr.Push(nextAdjustableSizes, `${cellSize + positionDifference}px`);
+				}
+
+				for (let index = 0, length = nextAdjustableCells.length; index < length; ++index) {
+					DOM.SetStyle(nextAdjustableCells[index], sizeStyleName, nextAdjustableSizes[index]);
 				}
 				return;
 			}
 
-			// TODO: Adjust the middle of cells
-			return;
+			const cells = bLeftTop ? nextAdjustableCells : adjustableCells;
+			const sizeBeforeChanging = Math.floor(GetClientSize(cells[0], sizeStyleName));
+			const tableSize = parseFloat(DOM.GetStyle(fakeTable, sizeStyleName));
+			const minimum = bLeftTop ? nextMinimumSize : minimumSize;
+
+			const multiplier = bLeftTop ? 1 : -1;
+			const multipliedCalculated = calculated * multiplier;
+
+			const bLastPosition = (sizeBeforeChanging <= minimum) || (bLeftTop ? false : tableSize <= savedTableSize);
+
+			if (bLastPosition && multipliedCalculated > 0 && lastAdjustPosition === -1) {
+				lastAdjustPosition = savedAdjustPosition;
+
+				setSavedTableSize(cells);
+				return;
+			}
+
+			if (lastAdjustPosition !== -1) {
+				if (GetClientSize(fakeTable, sizeStyleName) !== savedTableSize || getPosition(fakeTable) !== savedTablePosition)
+					setSavedTableSize(cells);
+
+				const positionSizeComparison = (lastAdjustPosition - changedAdjustPosition) * multiplier;
+				if (multipliedCalculated > 0 || positionSizeComparison < 0) return;
+				lastAdjustPosition = -1;
+			}
+
+			const positionDifference = (tablePosition + (bLeftTop ? 0 : tableSize) - middleAdjustItemPosition) * multiplier;
+
+			const cellSizes: number[] = [];
+			for (const cell of cells) {
+				Arr.Push(cellSizes, GetClientSize(cell, sizeStyleName));
+			}
+
+			for (let index = 0, length = cells.length; index < length; ++index) {
+				DOM.SetStyle(cells[index], sizeStyleName, `${cellSizes[index] + positionDifference}px`);
+			}
+
+			const newStyles: Record<string, string> = {};
+			newStyles[sizeStyleName] = `${tableSize + positionDifference}px`;
+			if (bLeftTop) newStyles[positionStyleName] = `${tablePosition - positionDifference}px`;
+
+			DOM.SetStyles(fakeTable, newStyles);
 		};
 
 		const finishAdjusting = (e: MouseEvent) => {
@@ -251,13 +315,13 @@ const AdjustableLine = (editor: Editor, table: HTMLElement): IAdjustableLine => 
 
 			DOM.SetStyle(table, sizeStyleName, DOM.GetStyle(fakeTable, sizeStyleName));
 
-			for (let rowIndex = 0, rowLength = fakeTableGrid.TableGrid.length; rowIndex < rowLength; ++rowIndex) {
-				const row = fakeTableGrid.TableGrid[rowIndex];
+			for (let rowIndex = 0, rowLength = fakeTableGrid.Grid.length; rowIndex < rowLength; ++rowIndex) {
+				const row = fakeTableGrid.Grid[rowIndex];
 
 				for (let cellIndex = 0, cellLength = row.length; cellIndex < cellLength; ++cellIndex) {
 					const column = row[cellIndex];
 					const size = DOM.GetStyle(column, sizeStyleName);
-					DOM.SetStyle(tableGrid.TableGrid[rowIndex][cellIndex], sizeStyleName, size);
+					DOM.SetStyle(tableGrid.Grid[rowIndex][cellIndex], sizeStyleName, size);
 				}
 			}
 

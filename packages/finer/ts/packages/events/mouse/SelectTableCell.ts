@@ -23,7 +23,7 @@ const SelectTableCell = (editor: Editor, event: MouseEvent) => {
 
 	const startRowNum = Arr.Find(rows, targetRow);
 
-	const { TableGrid, TargetCellIndex } = GetTableGridWithIndex(self, targetTable, targetCell);
+	const { Grid, TargetCellIndex } = GetTableGridWithIndex(self, targetTable, targetCell);
 
 	if (TargetCellIndex === -1) return;
 
@@ -48,7 +48,7 @@ const SelectTableCell = (editor: Editor, event: MouseEvent) => {
 
 		const currentRowNum = Arr.Find(rows, currentRow);
 		let currentCellNum = -1;
-		for (const tableRow of TableGrid) {
+		for (const tableRow of Grid) {
 			if (currentCellNum !== -1) break;
 			currentCellNum = Arr.Find(tableRow, currentCell);
 		}
@@ -60,8 +60,8 @@ const SelectTableCell = (editor: Editor, event: MouseEvent) => {
 		const minCellNum = Math.min(TargetCellIndex, currentCellNum);
 		const maxCellNum = Math.max(TargetCellIndex, currentCellNum);
 
-		for (let rowIndex = 0, rowLength = TableGrid.length; rowIndex < rowLength; ++rowIndex) {
-			const row = TableGrid[rowIndex];
+		for (let rowIndex = 0, rowLength = Grid.length; rowIndex < rowLength; ++rowIndex) {
+			const row = Grid[rowIndex];
 			const bRowInRange = rowIndex >= minRowNum && rowIndex <= maxRowNum;
 
 			for (let cellIndex = 0, cellLength = row.length; cellIndex < cellLength; ++cellIndex) {
