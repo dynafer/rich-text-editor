@@ -11,6 +11,12 @@ export const ADJUSTABLE_LINE_ADDABLE_SIZE = -2;
 
 type TCurrentPoint = ICaretData | HTMLElement[] | undefined;
 
+export interface ITableGrid {
+	Grid: HTMLElement[][],
+	Rowspans: [number, number, number][],
+	TargetCellIndex: number,
+}
+
 export const CreateMovableHorizontalSize = <T extends boolean = false>(size: number, bWithPixel: T | false = false): T extends false ? number : string =>
 	(bWithPixel
 		? `${size + MOVABLE_ADDABLE_SIZE}px`
@@ -82,11 +88,11 @@ export const MoveToCurrentPoint = (editor: Editor, table: HTMLElement, point: TC
 	CaretUtils.Clean();
 };
 
-export const GetTableGridWithIndex = (editor: Editor, table: Element, targetCell?: Element) => {
+export const GetTableGridWithIndex = (editor: Editor, table: Element, targetCell?: Element): ITableGrid => {
 	const self = editor;
 	const DOM = self.DOM;
 
-	const TableGrid: HTMLElement[][] = [];
+	const Grid: HTMLElement[][] = [];
 	const Rowspans: [number, number, number][] = [];
 
 	const rows = DOM.SelectAll(TableRowSelector, table);
@@ -125,11 +131,11 @@ export const GetTableGridWithIndex = (editor: Editor, table: Element, targetCell
 
 		if (targetCell && TargetCellIndex === -1) TargetCellIndex = Arr.Find(cells, targetCell);
 
-		Arr.Push(TableGrid, cells);
+		Arr.Push(Grid, cells);
 	}
 
 	return {
-		TableGrid,
+		Grid,
 		Rowspans,
 		TargetCellIndex,
 	};
