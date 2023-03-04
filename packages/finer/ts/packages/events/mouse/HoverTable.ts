@@ -1,5 +1,5 @@
-import { FigureSelector, TableSelector } from '../../formatter/Format';
 import Editor from '../../Editor';
+import { FigureSelector, TableSelector } from '../../formatter/Format';
 
 const HoverTable = (editor: Editor, event: MouseEvent) => {
 	const self = editor;

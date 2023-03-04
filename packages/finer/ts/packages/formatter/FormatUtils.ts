@@ -1,8 +1,8 @@
 import { Arr, Str, Type } from '@dynafer/utils';
 import Options from '../../Options';
 import DOM from '../dom/DOM';
-import { ICaretData } from '../editorUtils/caret/CaretUtils';
 import Editor from '../Editor';
+import { ICaretData } from '../editorUtils/caret/CaretUtils';
 import { TableCellSet, TableSelector } from './Format';
 
 export type TConfigOption = string | string[] | Record<string, string>;

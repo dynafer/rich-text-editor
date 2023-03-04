@@ -1,12 +1,12 @@
 import { Instance, Str } from '@dynafer/utils';
 import Options from '../Options';
-import Editor from './Editor';
 import DOM from './dom/DOM';
+import DOMTools from './dom/DOMTools';
+import Editor from './Editor';
 import EditorUtils from './editorUtils/EditorUtils';
 import EventSetup from './events/EventSetup';
-import PluginManager from './managers/PluginManager';
 import Formatter from './formatter/Formatter';
-import DOMTools from './dom/DOMTools';
+import PluginManager from './managers/PluginManager';
 
 const EditorSetup = (editor: Editor): Promise<void> => {
 	const self = editor;

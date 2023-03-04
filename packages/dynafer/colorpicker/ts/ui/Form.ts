@@ -1,5 +1,5 @@
 import { IDOMFactory, Sketcher } from '@dynafer/sketcher';
-import { RGBA, CreateName } from '../utils/Utils';
+import { CreateName, RGBA } from '../utils/Utils';
 import Hue from './Hue';
 import Navigation, { INavigation } from './Navigation';
 import Palette, { IPalette } from './Palette';

@@ -1,5 +1,5 @@
-import Editor from './Editor';
 import DOM from './dom/DOM';
+import Editor from './Editor';
 
 export interface IEditorDestroy {
 	Destroy: (editor: Editor) => void,

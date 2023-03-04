@@ -1,9 +1,9 @@
 import { Style } from '@dynafer/dom-control';
 import { IDOMFactory, Schema, Sketcher } from '@dynafer/sketcher';
 import { Arr, Str } from '@dynafer/utils';
-import { RGBA, IRGBA, CreateName } from '../utils/Utils';
-import { IPalette } from './Palette';
+import { CreateName, IRGBA, RGBA } from '../utils/Utils';
 import { IHue } from './Hue';
+import { IPalette } from './Palette';
 
 export interface INavigation extends IDOMFactory {
 	GetRGB: (bArray: boolean) => string | number[] | null,

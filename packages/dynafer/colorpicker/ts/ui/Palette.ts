@@ -1,5 +1,5 @@
 import { IDOMFactory, Sketcher } from '@dynafer/sketcher';
-import { RGBA, CreateName, IRGBA } from '../utils/Utils';
+import { CreateName, IRGBA, RGBA } from '../utils/Utils';
 
 export interface IPalette extends IDOMFactory {
 	GetColor: () => IRGBA,

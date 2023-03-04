@@ -6,18 +6,18 @@
     "packages/**/*"
   ],
   "devDependencies": {
-    "@dynafer/build-toolkit": "^1.0.3",
-    "@finer-group/eslint-plugin": "^0.0.6",
+    "@dynafer/build-toolkit": "^1.0.41",
+    "@finer-group/eslint-plugin": "^0.0.7",
     "@rollup/plugin-node-resolve": "^15.0.1",
-    "@types/node": "^18.11.18",
-    "eslint": "^8.31.0",
+    "@types/node": "^18.14.6",
+    "eslint": "^8.35.0",
     "patch-package": "^6.5.1",
-    "rollup": "^3.9.1",
-    "tslib": "^2.4.0",
-    "typescript": "^4.9.4"
+    "rollup": "^3.18.0",
+    "tslib": "^2.5.0",
+    "typescript": "^4.9.5"
   },
   "scripts": {
-    "preinstall": "node -e \"if(!process.env.npm_execpath.includes('yarn')) throw new Error('You must use yarn')\"",
+    "preinstall": "node -e \"if(!process.env.npm_execpath.includes('yarn')) throw new Error('You must use yarn.')\"",
     "postinstall": "patch-package",
     "build": "build-toolkit",
     "watch": "build-toolkit -w ./packages",

@@ -1,18 +1,18 @@
 import { Arr, Instance, Str } from '@dynafer/utils';
-import Configure, { IEditorOption, IConfiguration } from './EditorConfigure';
+import Commander, { ICommander } from './commander/Commander';
+import DOM, { IDom, TEventListener } from './dom/DOM';
+import { IDOMTools } from './dom/DOMTools';
+import Configure, { IConfiguration, IEditorOption } from './EditorConfigure';
 import EditorDestroy from './EditorDestroy';
 import EditorFrame, { IEditorFrame } from './EditorFrame';
 import EditorSetup from './EditorSetup';
-import DOM, { IDom, TEventListener } from './dom/DOM';
+import EditorToolbar, { IEditorToolbar } from './EditorToolbar';
 import { IEditorUtils } from './editorUtils/EditorUtils';
 import { IEvent } from './editorUtils/EventUtils';
 import { ENativeEvents } from './events/EventSetupUtils';
 import { IFormatter } from './formatter/Formatter';
 import { ENotificationStatus, INotificationManager, NotificationManager } from './managers/NotificationManager';
 import { IPluginManager } from './managers/PluginManager';
-import EditorToolbar, { IEditorToolbar } from './EditorToolbar';
-import Commander, { ICommander } from './commander/Commander';
-import { IDOMTools } from './dom/DOMTools';
 
 enum ELoadingStatus {
 	SHOW = 'SHOW',

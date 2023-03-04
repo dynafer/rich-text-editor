@@ -1,11 +1,11 @@
 import { Str, Type } from '@dynafer/utils';
-import Editor from '../Editor';
 import DOM from '../dom/DOM';
+import Editor from '../Editor';
 import { ENativeEvents, PreventEvent } from '../events/EventSetupUtils';
 import { EKeyCode, SetupWith } from '../events/keyboard/KeyboardUtils';
-import { IInlineFormat } from './FormatType';
-import ToggleInline from './format/ToggleInline';
 import { Formats } from './Format';
+import ToggleInline from './format/ToggleInline';
+import { IInlineFormat } from './FormatType';
 
 const ACTIVE_CLASS = 'active';
 const DISABLED_ATTRIBUTE = 'disabled';

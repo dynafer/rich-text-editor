@@ -1,4 +1,4 @@
-import { Type, Str } from '@dynafer/utils';
+import { Str, Type } from '@dynafer/utils';
 
 export const Get = (selector: Element, attr: string): string | null =>
 	selector.getAttribute(attr);

@@ -1,10 +1,10 @@
 import { Arr } from '@dynafer/utils';
-import { TableCellSelector, TableRowSelector, TableSelector } from '../../formatter/Format';
-import Editor from '../../Editor';
-import { PreventEvent } from '../EventSetupUtils';
-import FormatUtils from '../../formatter/FormatUtils';
-import { IRangeUtils } from '../../editorUtils/caret/RangeUtils';
 import { GetTableGridWithIndex, ITableGrid } from '../../dom/tools/table/TableToolsUtils';
+import Editor from '../../Editor';
+import { IRangeUtils } from '../../editorUtils/caret/RangeUtils';
+import { TableCellSelector, TableRowSelector, TableSelector } from '../../formatter/Format';
+import FormatUtils from '../../formatter/FormatUtils';
+import { PreventEvent } from '../EventSetupUtils';
 import { EKeyCode, IsTableFigure } from './KeyboardUtils';
 
 const InTable = (editor: Editor) => {

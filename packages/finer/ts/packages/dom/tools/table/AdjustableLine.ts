@@ -1,7 +1,7 @@
 import { Arr } from '@dynafer/utils';
+import Editor from '../../../Editor';
 import { ENativeEvents, PreventEvent } from '../../../events/EventSetupUtils';
 import { TableCellSelector } from '../../../formatter/Format';
-import Editor from '../../../Editor';
 import { ADJUSTABLE_LINE_HALF_SIZE, CreateAdjustableLineSize, CreateCurrentPoint, CreateFakeTable, GetClientSize, GetTableGridWithIndex, ITableGrid, MoveToCurrentPoint } from './TableToolsUtils';
 
 interface IAdjustableLine {

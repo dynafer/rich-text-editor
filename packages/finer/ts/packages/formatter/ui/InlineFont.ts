@@ -1,6 +1,6 @@
 import { Arr, Str, Type } from '@dynafer/utils';
-import Editor from '../../Editor';
 import DOM from '../../dom/DOM';
+import Editor from '../../Editor';
 import { Formats } from '../Format';
 import ToggleInline from '../format/ToggleInline';
 import { IFormatDetector } from '../FormatDetector';

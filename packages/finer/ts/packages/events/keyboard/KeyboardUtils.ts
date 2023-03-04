@@ -1,6 +1,6 @@
 import { Type } from '@dynafer/utils';
-import { FigureSelector, TableSelector } from '../../formatter/Format';
 import Editor from '../../Editor';
+import { FigureSelector, TableSelector } from '../../formatter/Format';
 import { IEventSetupCallback, PreventEvent, Setup } from '../EventSetupUtils';
 
 export enum EKeyCode {

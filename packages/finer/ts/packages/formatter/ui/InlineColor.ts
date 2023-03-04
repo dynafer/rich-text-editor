@@ -1,7 +1,7 @@
 import ColorPicker from '@dynafer/colorpicker';
 import { Arr, Str } from '@dynafer/utils';
-import Editor from '../../Editor';
 import DOM from '../../dom/DOM';
+import Editor from '../../Editor';
 import { Formats } from '../Format';
 import ToggleInline from '../format/ToggleInline';
 import { IFormatUIRegistryUnit, IInlineFormat } from '../FormatType';

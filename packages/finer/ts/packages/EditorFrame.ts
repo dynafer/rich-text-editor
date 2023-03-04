@@ -1,7 +1,7 @@
 import { Str } from '@dynafer/utils';
 import { EModeEditor } from '../Options';
-import { IConfiguration } from './EditorConfigure';
 import DOM from './dom/DOM';
+import { IConfiguration } from './EditorConfigure';
 
 export interface IEditorFrame {
 	Root: HTMLElement,

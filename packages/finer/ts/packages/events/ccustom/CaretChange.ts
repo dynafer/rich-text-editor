@@ -1,8 +1,8 @@
 import { Arr, Str } from '@dynafer/utils';
+import Editor from '../../Editor';
 import { IEvent } from '../../editorUtils/EventUtils';
 import { FigureSelector, TableCellSelector, TableSelector } from '../../formatter/Format';
 import FormatUtils from '../../formatter/FormatUtils';
-import Editor from '../../Editor';
 
 const CaretChange = (editor: Editor) => {
 	const self = editor;
