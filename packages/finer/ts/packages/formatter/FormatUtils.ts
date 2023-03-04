@@ -312,7 +312,11 @@ const FormatUtils = (): IFormatUtils => {
 		const self = editor;
 
 		const tableNode = self.DOM.Closest(GetParentIfText(root) as Element, TableSelector);
-		if (!!tableNode) return GetTableItems(self, false, tableNode);
+		if (!!tableNode) {
+			const nodes: Node[] = [];
+			Arr.Push(nodes, ...GetTableItems(self, false, tableNode), ...getNodesInRoot(node, root, bPrevious));
+			return nodes;
+		}
 
 		return getNodesInRoot(node, root, bPrevious);
 	};

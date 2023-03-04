@@ -34,6 +34,7 @@
 		th {
 			@include width($min: 2rem);
 			box-sizing: border-box;
+			white-space: nowrap;
 		}
 	}
 
@@ -106,6 +107,7 @@
 				th,
 				td {
 					border-style: dotted;
+					white-space: nowrap;
 				}
 			}
 		}

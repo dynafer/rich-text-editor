@@ -57,7 +57,7 @@ const InlineFont = (editor: Editor, detector: IFormatDetector): IFormatUIRegistr
 
 	const getFirstValue = (value: string): string => value.split(',')[0].replace(/["`';]/gi, '');
 
-	const isDetected = (format: IInlineFormat, nodes: Node[], value: string): boolean => {
+	const isDetected = (format: IInlineFormat, node: Node, value: string): boolean => {
 		const { Styles } = format;
 		if (!Styles) return false;
 
@@ -80,13 +80,10 @@ const InlineFont = (editor: Editor, detector: IFormatDetector): IFormatUIRegistr
 			return false;
 		};
 
-		for (const node of nodes) {
-			const detected = self.DOM.ClosestByStyle(node as Element, selector) as HTMLElement;
+		const detected = self.DOM.ClosestByStyle(node as Element, selector) as HTMLElement;
+		if (checkDetected(detected)) return true;
 
-			if (checkDetected(detected)) return true;
-		}
-
-		return checkDetected(self.GetBody());
+		return node === self.GetBody() && checkDetected(self.GetBody());
 	};
 
 	const createCommand = (format: IInlineFormat, label: string, value: string, setLabelText: (value: string) => void) =>
@@ -95,6 +92,8 @@ const InlineFont = (editor: Editor, detector: IFormatDetector): IFormatUIRegistr
 			toggler.ToggleFromCaret(bActive as boolean, value);
 			if (bActive) FormatUI.UnwrapSameInlineFormats(self, format);
 			setLabelText(bActive ? label : '');
+
+			self.Dispatch('caret:change', []);
 		};
 
 	const createOptionElements = (uiName: string, uiFormat: IInlineFormatFontUI, labelValue: string, setLabelText: (value: string) => void): HTMLElement[] => {
@@ -128,7 +127,7 @@ const InlineFont = (editor: Editor, detector: IFormatDetector): IFormatUIRegistr
 
 	const getCurrentStyle = (format: IInlineFormat, options: Record<string, string>, node: Node): string => {
 		for (const [label, value] of Object.entries(options)) {
-			if (!isDetected(format, [node], value)) continue;
+			if (!isDetected(format, node, value)) continue;
 
 			return label;
 		}

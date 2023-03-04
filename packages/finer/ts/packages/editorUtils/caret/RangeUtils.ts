@@ -1,5 +1,6 @@
 export interface IRangeUtils {
 	Get: () => Range,
+	GetRect: () => DOMRect,
 	Insert: (node: Node) => void,
 	Extract: () => DocumentFragment,
 	DeleteContents: () => void,
@@ -17,6 +18,7 @@ export interface IRangeUtils {
 
 const RangeUtils = (range: Range = new Range()): IRangeUtils => {
 	const Get = (): Range => range;
+	const GetRect = (): DOMRect => range.getBoundingClientRect();
 	const Insert = (node: Node) => range.insertNode(node);
 	const Extract = (): DocumentFragment => range.extractContents();
 	const DeleteContents = () => range.deleteContents();
@@ -36,6 +38,7 @@ const RangeUtils = (range: Range = new Range()): IRangeUtils => {
 
 	return {
 		Get,
+		GetRect,
 		Insert,
 		Extract,
 		DeleteContents,

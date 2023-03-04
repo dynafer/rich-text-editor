@@ -26,8 +26,8 @@ const AdjustableLine = (editor: Editor, table: HTMLElement, tableGrid: ITableGri
 				dataAdjustableLine: type,
 			},
 			styles: {
-				width: `${type === 'width' ? ADJUSTABLE_LINE_HALF_SIZE * 2 - 1 : GetClientSize(table, 'width')}px`,
-				height: `${type === 'width' ? GetClientSize(table, 'height') : ADJUSTABLE_LINE_HALF_SIZE * 2 - 1}px`,
+				width: `${type === 'width' ? ADJUSTABLE_LINE_HALF_SIZE * 2 - 1 : GetClientSize(self, table, 'width')}px`,
+				height: `${type === 'width' ? GetClientSize(self, table, 'height') : ADJUSTABLE_LINE_HALF_SIZE * 2 - 1}px`,
 				left: `${type === 'width' ? 0 : table.offsetLeft}px`,
 				top: `${type === 'width' ? table.offsetTop : 0}px`,
 			}
@@ -39,10 +39,10 @@ const AdjustableLine = (editor: Editor, table: HTMLElement, tableGrid: ITableGri
 	const setAdjustableSize = () => {
 		DOM.SetStyles(adjustableWidth, {
 			width: `${ADJUSTABLE_LINE_HALF_SIZE * 2 - 1}px`,
-			height: `${GetClientSize(table, 'height')}px`,
+			height: `${GetClientSize(self, table, 'height')}px`,
 		});
 		DOM.SetStyles(adjustableHeight, {
-			width: `${GetClientSize(table, 'width')}px`,
+			width: `${GetClientSize(self, table, 'width')}px`,
 			height: `${ADJUSTABLE_LINE_HALF_SIZE * 2 - 1}px`,
 		});
 	};
@@ -93,7 +93,7 @@ const AdjustableLine = (editor: Editor, table: HTMLElement, tableGrid: ITableGri
 
 			const currentSize = DOM.GetStyle(cell, sizeStyleName);
 			DOM.SetStyle(cell, sizeStyleName, '0px');
-			const size = GetClientSize(cell, sizeStyleName);
+			const size = GetClientSize(self, cell, sizeStyleName);
 			DOM.SetStyle(cell, sizeStyleName, currentSize);
 
 			DOM.SetStyles(fakeTable, {
@@ -124,25 +124,25 @@ const AdjustableLine = (editor: Editor, table: HTMLElement, tableGrid: ITableGri
 				const adjustableLeft = adjustablePosition - adjustableAddableSize;
 				const adjustableRight = adjustablePosition + adjustableAddableSize;
 
-				DOM.SetStyle(cell, sizeStyleName, `${GetClientSize(cell, sizeStyleName)}px`);
+				DOM.SetStyle(cell, sizeStyleName, `${GetClientSize(self, cell, sizeStyleName)}px`);
 
 				if (cellPosition >= adjustableLeft && cellPosition <= adjustableRight) {
 					Arr.Push(nextAdjustableCells, cell);
 					if (nextMinimumSize !== -1) continue;
 
 					nextMinimumSize = getMinimumSize(cell);
-					nextMinimumDifference = GetClientSize(cell, sizeStyleName) - nextMinimumSize;
+					nextMinimumDifference = GetClientSize(self, cell, sizeStyleName) - nextMinimumSize;
 					continue;
 				}
 
-				const cellRightPosition = cellPosition + GetClientSize(cell, sizeStyleName);
+				const cellRightPosition = cellPosition + GetClientSize(self, cell, sizeStyleName);
 
 				if (cellRightPosition >= adjustableLeft && cellRightPosition <= adjustableRight) {
 					Arr.Push(adjustableCells, cell);
 					if (minimumSize !== -1) continue;
 
 					minimumSize = getMinimumSize(cell);
-					minimumDifference = GetClientSize(cell, sizeStyleName) - minimumSize;
+					minimumDifference = GetClientSize(self, cell, sizeStyleName) - minimumSize;
 					continue;
 				}
 			}
@@ -173,20 +173,20 @@ const AdjustableLine = (editor: Editor, table: HTMLElement, tableGrid: ITableGri
 
 		if (bLeftTop && !bRightBottom) {
 			savedAdjustPosition = getPosition(fakeTable) + nextMinimumDifference - ADJUSTABLE_LINE_HALF_SIZE;
-			savedTableSize = GetClientSize(fakeTable, sizeStyleName) - nextMinimumDifference;
+			savedTableSize = GetClientSize(self, fakeTable, sizeStyleName) - nextMinimumDifference;
 			savedTablePosition = getPosition(fakeTable) + nextMinimumDifference;
 		}
 
 		if (!bLeftTop && bRightBottom) {
-			savedAdjustPosition = getPosition(fakeTable) + GetClientSize(fakeTable, sizeStyleName) - minimumDifference - ADJUSTABLE_LINE_HALF_SIZE;
-			savedTableSize = GetClientSize(fakeTable, sizeStyleName) - minimumDifference;
+			savedAdjustPosition = getPosition(fakeTable) + GetClientSize(self, fakeTable, sizeStyleName) - minimumDifference - ADJUSTABLE_LINE_HALF_SIZE;
+			savedTableSize = GetClientSize(self, fakeTable, sizeStyleName) - minimumDifference;
 			savedTablePosition = getPosition(fakeTable);
 		}
 
 		if (bLeftTop && bRightBottom) {
 			savedAdjustPosition = getPosition(fakeTable) + getPosition(adjustableCells[0]) + minimumSize - ADJUSTABLE_LINE_HALF_SIZE;
 			savedAdjustRightPosition = getPosition(fakeTable) + getPosition(nextAdjustableCells[0])
-				+ GetClientSize(nextAdjustableCells[0], sizeStyleName) - nextMinimumSize - ADJUSTABLE_LINE_HALF_SIZE;
+				+ GetClientSize(self, nextAdjustableCells[0], sizeStyleName) - nextMinimumSize - ADJUSTABLE_LINE_HALF_SIZE;
 		}
 
 		const setSavedTableSize = (cells: HTMLElement[]) => {
@@ -196,7 +196,7 @@ const AdjustableLine = (editor: Editor, table: HTMLElement, tableGrid: ITableGri
 			DOM.SetStyles(fakeTable, newStyles);
 
 			for (const cell of cells) {
-				DOM.SetStyle(cell, sizeStyleName, `${GetClientSize(cell, sizeStyleName)}px`);
+				DOM.SetStyle(cell, sizeStyleName, `${GetClientSize(self, cell, sizeStyleName)}px`);
 			}
 		};
 
@@ -218,8 +218,8 @@ const AdjustableLine = (editor: Editor, table: HTMLElement, tableGrid: ITableGri
 			startOffset = currentOffset;
 
 			if (bLeftTop && bRightBottom) {
-				const sizeBeforeChanging = Math.floor(GetClientSize(adjustableCells[0], sizeStyleName));
-				const nextSizeBeforeChanging = Math.floor(GetClientSize(nextAdjustableCells[0], sizeStyleName));
+				const sizeBeforeChanging = Math.floor(GetClientSize(self, adjustableCells[0], sizeStyleName));
+				const nextSizeBeforeChanging = Math.floor(GetClientSize(self, nextAdjustableCells[0], sizeStyleName));
 
 				const bCellMinimum = sizeBeforeChanging <= minimumSize;
 				const bNextCellMinimum = nextSizeBeforeChanging <= nextMinimumSize;
@@ -267,7 +267,7 @@ const AdjustableLine = (editor: Editor, table: HTMLElement, tableGrid: ITableGri
 			}
 
 			const cells = bLeftTop ? nextAdjustableCells : adjustableCells;
-			const sizeBeforeChanging = Math.floor(GetClientSize(cells[0], sizeStyleName));
+			const sizeBeforeChanging = Math.floor(GetClientSize(self, cells[0], sizeStyleName));
 			const tableSize = parseFloat(DOM.GetStyle(fakeTable, sizeStyleName));
 			const minimum = bLeftTop ? nextMinimumSize : minimumSize;
 
@@ -284,7 +284,7 @@ const AdjustableLine = (editor: Editor, table: HTMLElement, tableGrid: ITableGri
 			}
 
 			if (lastAdjustPosition !== -1) {
-				if (GetClientSize(fakeTable, sizeStyleName) !== savedTableSize || getPosition(fakeTable) !== savedTablePosition)
+				if (GetClientSize(self, fakeTable, sizeStyleName) !== savedTableSize || getPosition(fakeTable) !== savedTablePosition)
 					setSavedTableSize(cells);
 
 				const positionSizeComparison = (lastAdjustPosition - changedAdjustPosition) * multiplier;
@@ -296,7 +296,7 @@ const AdjustableLine = (editor: Editor, table: HTMLElement, tableGrid: ITableGri
 
 			const cellSizes: number[] = [];
 			for (const cell of cells) {
-				Arr.Push(cellSizes, GetClientSize(cell, sizeStyleName));
+				Arr.Push(cellSizes, GetClientSize(self, cell, sizeStyleName));
 			}
 
 			for (let index = 0, length = cells.length; index < length; ++index) {

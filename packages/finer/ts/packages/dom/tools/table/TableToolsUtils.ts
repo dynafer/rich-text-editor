@@ -13,7 +13,7 @@ type TCurrentPoint = ICaretData | HTMLElement[] | undefined;
 
 export interface ITableGrid {
 	Grid: HTMLElement[][],
-	Rowspans: [number, number, number][],
+	TargetCellRowIndex: number,
 	TargetCellIndex: number,
 }
 
@@ -93,10 +93,11 @@ export const GetTableGridWithIndex = (editor: Editor, table: Element, targetCell
 	const DOM = self.DOM;
 
 	const Grid: HTMLElement[][] = [];
-	const Rowspans: [number, number, number][] = [];
+	const rowspans: [number, number, number][] = [];
 
 	const rows = DOM.SelectAll(TableRowSelector, table);
 
+	let TargetCellRowIndex = -1;
 	let TargetCellIndex = -1;
 
 	for (let rowIndex = 0, rowLength = rows.length; rowIndex < rowLength; ++rowIndex) {
@@ -117,11 +118,11 @@ export const GetTableGridWithIndex = (editor: Editor, table: Element, targetCell
 				}
 			}
 
-			if (rowspan > 1) Arr.Push(Rowspans, [rowIndex + 1, rowIndex + rowspan - 1, cellIndex]);
+			if (rowspan > 1) Arr.Push(rowspans, [rowIndex + 1, rowIndex + rowspan - 1, cellIndex]);
 
-			if (Arr.IsEmpty(Rowspans)) continue;
+			if (Arr.IsEmpty(rowspans)) continue;
 
-			for (const rowspanIndex of Rowspans) {
+			for (const rowspanIndex of rowspans) {
 				if (rowIndex < rowspanIndex[0] || rowIndex > rowspanIndex[1] || cellIndex !== rowspanIndex[2]) continue;
 				const rowspanTarget = DOM.GetChildren(rows[rowspanIndex[0] - 1])[rowspanIndex[2]];
 				if (!rowspanTarget) continue;
@@ -129,14 +130,17 @@ export const GetTableGridWithIndex = (editor: Editor, table: Element, targetCell
 			}
 		}
 
-		if (targetCell && TargetCellIndex === -1) TargetCellIndex = Arr.Find(cells, targetCell);
+		if (targetCell && TargetCellIndex === -1) {
+			TargetCellRowIndex = rowIndex;
+			TargetCellIndex = Arr.Find(cells, targetCell);
+		}
 
 		Arr.Push(Grid, cells);
 	}
 
 	return {
 		Grid,
-		Rowspans,
+		TargetCellRowIndex,
 		TargetCellIndex,
 	};
 };
@@ -157,4 +161,4 @@ export const CreateFakeTable = (editor: Editor, table: HTMLElement): HTMLElement
 	return fakeTable;
 };
 
-export const GetClientSize = (target: HTMLElement, type: 'width' | 'height'): number => target.getClientRects()[0][type];
+export const GetClientSize = (editor: Editor, target: HTMLElement, type: 'width' | 'height'): number => editor.DOM.GetRect(target)[type];

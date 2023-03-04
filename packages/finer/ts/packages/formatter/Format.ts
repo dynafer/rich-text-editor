@@ -15,9 +15,11 @@ export const BlockFormatTags = {
 	List: new Set(['li', 'ol', 'ul']),
 	FollowingItems: new Set(['li', ...TableCellSet]),
 };
+
+export const FigureElementFormats = new Set([...BlockFormatTags.Figures, ...BlockFormatTags.Table]);
 export const UnswitchableFormats = new Set([...BlockFormatTags.TableItems, ...BlockFormatTags.List]);
 export const AllStrictFormats = new Set([...BlockFormatTags.Block, ...UnswitchableFormats]);
-export const AllBlockFormats = new Set([...BlockFormatTags.Figures, ...BlockFormatTags.Table, ...BlockFormatTags.TableItems, ...BlockFormatTags.Block, ...BlockFormatTags.List]);
+export const AllBlockFormats = new Set([FigureSelector, ...FigureElementFormats, ...BlockFormatTags.TableItems, ...BlockFormatTags.Block, ...BlockFormatTags.List]);
 
 export const Formats: Record<string, TFormat | TFormat[]> = {
 	Bold: [

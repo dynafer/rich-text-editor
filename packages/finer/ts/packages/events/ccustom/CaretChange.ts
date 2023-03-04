@@ -1,6 +1,7 @@
 import { Arr, Str } from '@dynafer/utils';
 import { IEvent } from '../../editorUtils/EventUtils';
 import { FigureSelector, TableCellSelector, TableSelector } from '../../formatter/Format';
+import FormatUtils from '../../formatter/FormatUtils';
 import Editor from '../../Editor';
 
 const CaretChange = (editor: Editor) => {
@@ -53,7 +54,7 @@ const CaretChange = (editor: Editor) => {
 
 	const setFocusTable = () => {
 		const carets = CaretUtils.Get();
-		const sameRoot = DOM.Utils.IsText(carets[0]?.SameRoot) ? carets[0]?.SameRoot.parentNode : carets[0]?.SameRoot;
+		const sameRoot = FormatUtils.GetParentIfText(carets[0]?.SameRoot) ? carets[0]?.SameRoot.parentNode : carets[0]?.SameRoot;
 
 		const figure = DOM.Closest(sameRoot as Element, FigureSelector);
 		for (const focused of DOM.SelectAll({ attrs: ['data-focused'] })) {

@@ -148,12 +148,13 @@ const DOMUtils = (): IDOMUtils => {
 		return selector;
 	};
 
-	const getDeepestChild = (node: Node, bFirst: boolean): Node | null => {
+	const getDeepestChild = (node: Node, bFirst: boolean): Node => {
 		let child: Node | null = node;
 
 		while (child) {
-			if (IsText(child) || IsBr(child)) break;
-			child = bFirst ? child.firstChild : child.lastChild;
+			const nextChild: Node | null = bFirst ? child.firstChild : child.lastChild;
+			if (!nextChild) break;
+			child = nextChild;
 		}
 
 		return child;

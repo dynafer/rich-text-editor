@@ -8,11 +8,13 @@ import { EKeyCode, SetupWith, SetupKeyboard } from './KeyboardUtils';
 const Keyboard = (editor: Editor) => {
 	const self = editor;
 
+	const inTable = InTable(self);
+
 	Setup(self, ENativeEvents.keyup, DefaultEvent);
 	Setup(self, ENativeEvents.keypress, DefaultEvent);
 	Setup(self, ENativeEvents.keydown, DefaultEvent);
 
-	Setup(self, ENativeEvents.keydown, InTable);
+	Setup(self, ENativeEvents.keydown, inTable.KeyDownEvent);
 
 	SetupKeyboard(self, ENativeEvents.keyup, EKeyCode.ArrowUp, CaretChangeEvent);
 	SetupKeyboard(self, ENativeEvents.keyup, EKeyCode.ArrowDown, CaretChangeEvent);
