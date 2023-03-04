@@ -13,7 +13,7 @@
     "lint": "eslint -c ../../../.eslintrc.json ts/*.ts"
   },
   "peerDependencies": {
-    "@dynafer/build-toolkit": ">=1.0.2"
+    "@dynafer/build-toolkit": ">=1.0.41"
   },
   "license": "MIT"
 }

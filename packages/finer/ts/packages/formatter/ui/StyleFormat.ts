@@ -1,12 +1,12 @@
 import { Str, Type } from '@dynafer/utils';
-import Editor from '../../Editor';
 import DOM from '../../dom/DOM';
+import Editor from '../../Editor';
 import { FigureSelector, Formats } from '../Format';
+import ToggleStyleFormat from '../format/ToggleStyleFormat';
 import { IFormatDetector } from '../FormatDetector';
 import { IFormatUIRegistryUnit, IStyleFormat, TFormatDetectCallback } from '../FormatType';
 import FormatUI from '../FormatUI';
 import FormatUtils from '../FormatUtils';
-import ToggleStyleFormat from '../format/ToggleStyleFormat';
 
 interface IStyleFormatUIItem {
 	Format: IStyleFormat | IStyleFormat[],

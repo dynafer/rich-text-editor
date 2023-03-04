@@ -1,5 +1,5 @@
 import { Attribute, Style } from '@dynafer/dom-control';
-import { Str, Type, Instance, Arr } from '@dynafer/utils';
+import { Arr, Instance, Str, Type } from '@dynafer/utils';
 import Options from '../../Options';
 import DOMUtils, { ESCAPE_EMPTY_TEXT_REGEX, ICreateSelectorOption, IDOMUtils } from './DOMUtils';
 

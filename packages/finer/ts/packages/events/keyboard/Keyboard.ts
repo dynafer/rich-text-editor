@@ -3,7 +3,7 @@ import { CaretChangeEvent, ENativeEvents, Setup } from '../EventSetupUtils';
 import Backspace from './Backspace';
 import DefaultEvent from './Default';
 import InTable from './InTable';
-import { EKeyCode, SetupWith, SetupKeyboard } from './KeyboardUtils';
+import { EKeyCode, SetupKeyboard, SetupWith } from './KeyboardUtils';
 
 const Keyboard = (editor: Editor) => {
 	const self = editor;

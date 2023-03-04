@@ -1,8 +1,8 @@
 import { Arr } from '@dynafer/utils';
 import Options from '../../../Options';
 import { GetTableGridWithIndex } from '../../dom/tools/table/TableToolsUtils';
-import { TableCellSelector, TableCellSet, TableRowSelector, TableSelector } from '../../formatter/Format';
 import Editor from '../../Editor';
+import { TableCellSelector, TableCellSet, TableRowSelector, TableSelector } from '../../formatter/Format';
 import { ENativeEvents } from '../EventSetupUtils';
 
 const SelectTableCell = (editor: Editor, event: MouseEvent) => {

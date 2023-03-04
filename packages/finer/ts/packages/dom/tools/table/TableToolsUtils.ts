@@ -1,8 +1,8 @@
 import { Arr, Type } from '@dynafer/utils';
 import Options from '../../../../Options';
+import Editor from '../../../Editor';
 import { ICaretData } from '../../../editorUtils/caret/CaretUtils';
 import { TableCellSelector, TableCellSet, TableRowSelector } from '../../../formatter/Format';
-import Editor from '../../../Editor';
 
 export const MOVABLE_ADDABLE_SIZE = 16;
 export const ADJUSTABLE_EDGE_ADDABLE_SIZE = -6;

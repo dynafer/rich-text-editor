@@ -1,6 +1,6 @@
 import { Arr } from '@dynafer/utils';
-import { ENativeEvents, PreventEvent } from '../../../events/EventSetupUtils';
 import Editor from '../../../Editor';
+import { ENativeEvents, PreventEvent } from '../../../events/EventSetupUtils';
 import { CreateAdjustableEdgeSize, CreateCurrentPoint, CreateFakeTable, ITableGrid, MoveToCurrentPoint } from './TableToolsUtils';
 
 interface ICellStyleMap {

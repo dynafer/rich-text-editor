@@ -1,6 +1,6 @@
 import { Arr } from '@dynafer/utils';
-import { ENativeEvents } from '../../../events/EventSetupUtils';
 import Editor from '../../../Editor';
+import { ENativeEvents } from '../../../events/EventSetupUtils';
 import { FigureSelector } from '../../../formatter/Format';
 import AdjustableEdge from './AdjustableEdge';
 import AdjustableLine from './AdjustableLine';

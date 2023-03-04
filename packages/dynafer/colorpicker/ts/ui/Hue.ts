@@ -1,5 +1,5 @@
-import { Sketcher, IDOMFactory } from '@dynafer/sketcher';
-import { RGBA, CreateName, IRGBA } from '../utils/Utils';
+import { IDOMFactory, Sketcher } from '@dynafer/sketcher';
+import { CreateName, IRGBA, RGBA } from '../utils/Utils';
 
 export interface IHue extends IDOMFactory {
 	UpdateGuide: (rgb: IRGBA) => void,

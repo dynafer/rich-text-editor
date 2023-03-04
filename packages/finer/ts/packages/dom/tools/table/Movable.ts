@@ -1,9 +1,9 @@
 import { Str } from '@dynafer/utils';
 import Options from '../../../../Options';
+import Editor from '../../../Editor';
 import { ENativeEvents, PreventEvent } from '../../../events/EventSetupUtils';
 import { TableCellSelector, TableSelector } from '../../../formatter/Format';
 import FormatUtils from '../../../formatter/FormatUtils';
-import Editor from '../../../Editor';
 import { CreateCurrentPoint, CreateMovableHorizontalSize, MoveToCurrentPoint } from './TableToolsUtils';
 
 const Movable = (editor: Editor, table: HTMLElement): HTMLElement => {

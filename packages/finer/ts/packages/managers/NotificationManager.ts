@@ -1,6 +1,6 @@
 import { Arr } from '@dynafer/utils';
-import Editor from '../Editor';
 import DOM from '../dom/DOM';
+import Editor from '../Editor';
 import { ENativeEvents } from '../events/EventSetupUtils';
 
 export enum ENotificationStatus {

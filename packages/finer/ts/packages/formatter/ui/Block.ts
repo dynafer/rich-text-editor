@@ -1,8 +1,8 @@
 import { Arr, Str, Type } from '@dynafer/utils';
-import Editor from '../../Editor';
 import DOM from '../../dom/DOM';
-import ToggleBlock from '../format/ToggleBlock';
+import Editor from '../../Editor';
 import { Formats } from '../Format';
+import ToggleBlock from '../format/ToggleBlock';
 import { IFormatDetector } from '../FormatDetector';
 import { IBlockFormat, IFormatUIRegistryUnit } from '../FormatType';
 import FormatUI, { IFormatUISelection } from '../FormatUI';
