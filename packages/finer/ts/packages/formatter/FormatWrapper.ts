@@ -27,8 +27,7 @@ const FormatWrapper = (editor: Editor): IFormatWrapper => {
 		if (!!styles) DOM.SetStyles(newNode, styles);
 		const insertions = DOM.Utils.IsText(oldNode) || DOM.Utils.IsBr(oldNode) ? [oldNode] : DOM.GetChildNodes(oldNode, false);
 		DOM.CloneAndInsert(newNode, true, ...insertions);
-		const parent = oldNode.parentElement as Element;
-		parent.replaceChild(newNode, oldNode);
+		oldNode.parentElement?.replaceChild(newNode, oldNode);
 	};
 
 	const mergeStyle = (node: Node, styles: Record<string, string>) => {
@@ -54,15 +53,11 @@ const FormatWrapper = (editor: Editor): IFormatWrapper => {
 				continue;
 			}
 
-			if (Switchable.has(nodeName)) {
-				const oldNode = parent;
-				return wrapFormat(oldNode, Tag);
-			}
+			if (Switchable.has(nodeName)) return wrapFormat(parent, Tag);
 
 			if (!AddInside.has(nodeName)) continue;
 
-			const oldNode = current;
-			return wrapFormat(oldNode, Tag);
+			return wrapFormat(current, Tag);
 		}
 	};
 

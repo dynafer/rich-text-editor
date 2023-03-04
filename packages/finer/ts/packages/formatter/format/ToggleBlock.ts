@@ -1,7 +1,7 @@
 import { Arr, Str } from '@dynafer/utils';
 import Editor from '../../Editor';
 import { ICaretData } from '../../editorUtils/caret/CaretUtils';
-import { BlockFormatTags } from '../Format';
+import { TableSelector } from '../Format';
 import { IBlockFormat } from '../FormatType';
 import FormatUtils from '../FormatUtils';
 
@@ -39,13 +39,13 @@ const ToggleBlock = (editor: Editor, format: IBlockFormat): IToggleBlock => {
 		return true;
 	};
 
-	const smaeLineProcessor = (bWrap: boolean, caret: ICaretData): boolean => {
+	const sameLineProcessor = (bWrap: boolean, caret: ICaretData): boolean => {
 		if (caret.Start.Line !== caret.End.Line) return false;
 
 		const startElement = FormatUtils.GetParentIfText(caret.Start.Node) as Element;
 
 		if (
-			(!DOM.Closest(startElement, Array.from(BlockFormatTags.Table).join(',')) && !DOM.Closest(startElement, addInsideSelector))
+			(!DOM.Closest(startElement, TableSelector) && !DOM.Closest(startElement, addInsideSelector))
 			|| caret.Start.Node === caret.End.Node
 		) {
 			Toggler.Toggle(bWrap, format, DOM.GetChildNodes(caret.Start.Node, false)[0] ?? caret.Start.Node);
@@ -89,7 +89,7 @@ const ToggleBlock = (editor: Editor, format: IBlockFormat): IToggleBlock => {
 			bWrap,
 			tableProcessor,
 			processors: [
-				{ processor: smaeLineProcessor },
+				{ processor: sameLineProcessor },
 				{ processor: rangeProcessor },
 			]
 		});

@@ -76,6 +76,8 @@ const Block = (editor: Editor, detector: IFormatDetector): IFormatUIRegistryUnit
 			const toggler = ToggleBlock(self, format);
 			toggler.ToggleFromCaret(bActive as boolean);
 			setLabelText(bActive ? title : '');
+
+			self.Dispatch('caret:change', []);
 		};
 
 	const createOptionsList = (selection: IFormatUISelection, uiName: string, uiFormat: IBlockFormatUI) => {

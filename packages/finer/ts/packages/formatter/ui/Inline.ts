@@ -59,6 +59,8 @@ const Inline = (editor: Editor, detector: IFormatDetector): IFormatUIRegistryUni
 			toggler.ToggleFromCaret(bActive as boolean);
 			if (bActive) FormatUI.UnwrapSameInlineFormats(self, format);
 			FormatUI.ToggleActivateClass(button, bActive as boolean);
+
+			self.Dispatch('caret:change', []);
 		};
 
 	const createIconButton = (uiName: string, uiFormat: IInlineFormatUI): HTMLElement => {

@@ -36,7 +36,7 @@ const ToggleStyleFormat = (editor: Editor, formats: IStyleFormat | IStyleFormat[
 		return true;
 	};
 
-	const smaeLineProcessor = (bWrap: boolean, caret: ICaretData, value?: string): boolean => {
+	const sameLineProcessor = (bWrap: boolean, caret: ICaretData, value?: string): boolean => {
 		if (caret.Start.Line !== caret.End.Line) return false;
 
 		if (caret.Start.Node === caret.End.Node) {
@@ -102,7 +102,7 @@ const ToggleStyleFormat = (editor: Editor, formats: IStyleFormat | IStyleFormat[
 			value,
 			tableProcessor,
 			processors: [
-				{ processor: smaeLineProcessor },
+				{ processor: sameLineProcessor },
 				{ processor: rangeProcessor },
 			]
 		});

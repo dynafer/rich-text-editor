@@ -44,6 +44,11 @@ export interface IDom {
 	},
 	RemoveStyle: (selector: HTMLElement | null, name: string) => void,
 	HasStyle: (selector: HTMLElement | null, name: string, compareValue?: string) => boolean,
+	GetRect: {
+		(selector: null): null;
+		(selector: HTMLElement): DOMRect;
+		(selector: HTMLElement | null): DOMRect | null;
+	},
 	GetText: (selector: HTMLElement) => string,
 	GetHTML: (selector: HTMLElement) => string,
 	SetText: (selector: HTMLElement, text: string) => void,
@@ -199,6 +204,9 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 
 	const HasStyle = (selector: HTMLElement | null, name: string, compareValue?: string): boolean =>
 		!Instance.Is(selector, elementType) || !Type.IsString(name) ? false : Style.Has(selector, name, compareValue);
+
+	const GetRect = ((selector: HTMLElement | null): DOMRect | null =>
+		!Instance.Is(selector, elementType) ? null : selector.getBoundingClientRect()) as IDom['GetRect'];
 
 	const GetText = (selector: HTMLElement): string =>
 		!Instance.Is(selector, elementType) ? '' : decodeURI(encodeURI(selector.innerText).replace(ESCAPE_EMPTY_TEXT_REGEX, ''));
@@ -457,6 +465,7 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 		SetStyles,
 		RemoveStyle,
 		HasStyle,
+		GetRect,
 		GetText,
 		GetHTML,
 		SetText,

@@ -59,6 +59,8 @@ const InlineColor = (editor: Editor): IFormatUIRegistryUnit => {
 			toggler.ToggleFromCaret(bActive as boolean, bActive ? rgb as string : undefined);
 			DOM.SetStyle(navigation, 'background-color', rgb as string);
 			DOM.Dispatch(navigation, 'color:change');
+
+			self.Dispatch('caret:change', []);
 		};
 
 	const createPaletteGradients = (uiName: string, colors: TRGBArray[][], bVertical: boolean = true): HTMLElement[] => {

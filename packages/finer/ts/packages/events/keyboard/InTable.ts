@@ -1,39 +1,18 @@
 import { Arr } from '@dynafer/utils';
-import { TableCellSelector, TableRowSelector } from '../../formatter/Format';
+import { TableCellSelector, TableRowSelector, TableSelector } from '../../formatter/Format';
 import Editor from '../../Editor';
 import { PreventEvent } from '../EventSetupUtils';
+import FormatUtils from '../../formatter/FormatUtils';
+import { IRangeUtils } from '../../editorUtils/caret/RangeUtils';
+import { GetTableGridWithIndex, ITableGrid } from '../../dom/tools/table/TableToolsUtils';
 import { EKeyCode, IsTableFigure } from './KeyboardUtils';
 
-const InTable = (editor: Editor, event: KeyboardEvent) => {
-	const bTab = event.key === EKeyCode.Tab || event.code === EKeyCode.Tab;
-	const bShift = event.shiftKey;
-	const bUp = event.key === EKeyCode.ArrowUp || event.code === EKeyCode.ArrowUp;
-	const bDown = event.key === EKeyCode.ArrowDown || event.code === EKeyCode.ArrowDown;
-	const bLeft = (bShift && bTab) || event.key === EKeyCode.ArrowLeft || event.code === EKeyCode.ArrowLeft;
-	const bRight = (!bShift && bTab) || event.key === EKeyCode.ArrowRight || event.code === EKeyCode.ArrowRight;
-
-	if (!bUp && !bDown && !bLeft && !bRight) return;
-
+const InTable = (editor: Editor) => {
 	const self = editor;
 	const DOM = self.DOM;
 	const CaretUtils = self.Utils.Caret;
 
-	const caret = CaretUtils.Get()[0];
-	const line = bUp || bLeft ? caret.Start.Path[0] : caret.End.Path[0];
-	if (!IsTableFigure(self, line)) return CaretUtils.Clean();
-
-	const from = bUp || bLeft ? caret.Start.Node : caret.End.Node;
-	const fromElement = (DOM.Utils.IsText(from) ? from.parentNode : from) as Element;
-	const row = DOM.Closest(fromElement, TableRowSelector);
-	const cell = DOM.Closest(fromElement, TableCellSelector);
-	if (!row || !cell) return CaretUtils.Clean();
-
-	const cellIndex = Arr.Find(DOM.GetChildNodes(row, false), cell);
-	if (cellIndex === -1) return CaretUtils.Clean();
-
-	const newRange = self.Utils.Range();
-
-	const findAndUpdate = (bPrevious: boolean, node: Node) => {
+	const findAndUpdate = (range: IRangeUtils, node: Node, bPrevious: boolean) => {
 		const getChild = !bPrevious ? DOM.Utils.GetFirstChild : DOM.Utils.GetLastChild;
 		let findNode: Node | null = getChild(node, true);
 		if (DOM.Utils.IsBr(findNode)) findNode = findNode.parentNode;
@@ -43,24 +22,73 @@ const InTable = (editor: Editor, event: KeyboardEvent) => {
 			? (bPrevious ? findNode.length : 0)
 			: 0;
 
-		newRange.SetStartToEnd(findNode, position, position);
-		CaretUtils.UpdateRanges([newRange.Get()]);
+		range.SetStartToEnd(findNode, position, position);
+		CaretUtils.UpdateRanges([range.Get()]);
 		self.Dispatch('caret:change', []);
 	};
 
-	const insertOrMove = (bPrevious: boolean) => {
+	const insertOrMove = (range: IRangeUtils, line: Node, bPrevious: boolean) => {
 		const moveTo = bPrevious ? line.previousSibling : line.nextSibling;
-		if (moveTo) return findAndUpdate(bPrevious, moveTo);
+		if (moveTo) return findAndUpdate(range, moveTo, bPrevious);
 
 		const paragraph = self.CreateEmptyParagraph();
 		const insert = bPrevious ? DOM.InsertBefore : DOM.InsertAfter;
 		insert(line, paragraph);
-		newRange.SetStartToEnd(paragraph, 0, 0);
-		CaretUtils.UpdateRanges([newRange.Get()]);
+		range.SetStartToEnd(paragraph, 0, 0);
+		CaretUtils.UpdateRanges([range.Get()]);
 		return self.Dispatch('caret:change', []);
 	};
 
-	if (bLeft || bRight) {
+	const upDownEvent = (event: KeyboardEvent, line: Node, tableGrid: ITableGrid) => {
+		const bUp = event.key === EKeyCode.ArrowUp || event.code === EKeyCode.ArrowUp;
+
+		const { Grid, TargetCellRowIndex, TargetCellIndex } = tableGrid;
+
+		const caret = CaretUtils.Get()[0];
+		const rect = caret.Range.GetRect();
+
+		if (rect.height !== 0) {
+			const firstChild = DOM.Utils.GetFirstChild(Grid[TargetCellRowIndex][TargetCellIndex], true);
+			const lastChild = DOM.Utils.GetLastChild(Grid[TargetCellRowIndex][TargetCellIndex], true);
+
+			const newRange = self.Utils.Range(caret.Range.Clone());
+
+			if (firstChild && lastChild) {
+				newRange.SetStart(firstChild, 0);
+				newRange.SetEnd(lastChild, DOM.Utils.IsText(lastChild) ? (lastChild.textContent?.length ?? 0) : 0);
+				CaretUtils.UpdateRanges([newRange.Get()]);
+			}
+
+			const finderRect = newRange.GetRect();
+
+			newRange.SetStart(caret.Start.Node, caret.Start.Offset);
+			newRange.SetEnd(caret.End.Node, caret.End.Offset);
+
+			const keyName = bUp ? 'top' : 'bottom';
+			if (Math.floor(rect[keyName]) !== Math.floor(finderRect[keyName])) return;
+		}
+
+		PreventEvent(event);
+
+		const newRange = self.Utils.Range();
+
+		const siblingRowIndex = TargetCellRowIndex + (bUp ? -1 : 1);
+		if (siblingRowIndex < 0 || siblingRowIndex >= Grid.length) return insertOrMove(newRange, line, bUp);
+
+		const targetCell = Grid[siblingRowIndex][TargetCellIndex];
+
+		if (!targetCell) return CaretUtils.Clean();
+
+		return findAndUpdate(newRange, targetCell, bUp);
+	};
+
+	const leftRightEvent = (event: KeyboardEvent, line: Node, row: Element, cell: Element) => {
+		const bTab = event.key === EKeyCode.Tab || event.code === EKeyCode.Tab;
+		const bShift = event.shiftKey;
+		const bLeft = (bShift && bTab) || event.key === EKeyCode.ArrowLeft || event.code === EKeyCode.ArrowLeft;
+
+		const newRange = self.Utils.Range();
+
 		const rows = DOM.SelectAll(TableRowSelector, line);
 		const cells = DOM.SelectAll(TableCellSelector, line);
 
@@ -72,49 +100,46 @@ const InTable = (editor: Editor, event: KeyboardEvent) => {
 
 			PreventEvent(event);
 			const nextCellIndex = Arr.Find(cells, cell);
-			return findAndUpdate(bLeft, cells[nextCellIndex + (bShift ? -1 : 1)]);
+			return findAndUpdate(newRange, cells[nextCellIndex + (bShift ? -1 : 1)], bLeft);
 		}
 
 		PreventEvent(event);
 
-		return insertOrMove(bLeft);
-	}
+		return insertOrMove(newRange, line, bLeft);
+	};
 
-	PreventEvent(event);
-	const sibling = bUp ? row.previousSibling : row.nextSibling;
-	let targetRow = sibling;
-	if (!targetRow) {
-		if (!row.parentNode) return CaretUtils.Clean();
+	const KeyDownEvent = (e: Editor, event: KeyboardEvent) => {
+		const bTab = event.key === EKeyCode.Tab || event.code === EKeyCode.Tab;
+		const bShift = event.shiftKey;
+		const bUp = event.key === EKeyCode.ArrowUp || event.code === EKeyCode.ArrowUp;
+		const bDown = event.key === EKeyCode.ArrowDown || event.code === EKeyCode.ArrowDown;
+		const bLeft = (bShift && bTab) || event.key === EKeyCode.ArrowLeft || event.code === EKeyCode.ArrowLeft;
+		const bRight = (!bShift && bTab) || event.key === EKeyCode.ArrowRight || event.code === EKeyCode.ArrowRight;
 
-		const bGroup = Arr.Contains(['thead', 'tbody', 'tfoot'], DOM.Utils.GetNodeName(row.parentNode));
-		const parentSibling = bUp ? row.parentNode.previousSibling : row.parentNode.nextSibling;
-		if (!bGroup || !parentSibling) return insertOrMove(bUp);
+		if (!bUp && !bDown && !bLeft && !bRight) return;
 
-		const toRows = DOM.SelectAll(TableRowSelector, parentSibling);
-		const toRow = toRows[bUp ? toRows.length - 1 : 0];
-		if (!toRow) return CaretUtils.Clean();
+		const caret = CaretUtils.Get()[0];
+		const line = bLeft ? caret.Start.Path[0] : caret.End.Path[0];
+		if (!IsTableFigure(self, line)) return CaretUtils.Clean();
 
-		targetRow = toRow;
-	}
+		const from = bLeft ? caret.Start.Node : caret.End.Node;
+		const fromElement = FormatUtils.GetParentIfText(from) as Element;
+		const table = DOM.Closest(fromElement, TableSelector);
+		const row = DOM.Closest(fromElement, TableRowSelector);
+		const cell = DOM.Closest(fromElement, TableCellSelector);
+		if (!row || !cell || !table) return CaretUtils.Clean();
 
-	const cells: Node[] = [];
-	for (const eachCell of DOM.GetChildNodes(targetRow)) {
-		const colspan = parseInt(DOM.GetAttr(eachCell, 'colspan') ?? '0');
+		const tableGrid = GetTableGridWithIndex(self, table, cell);
+		if (tableGrid.TargetCellRowIndex === -1 || tableGrid.TargetCellIndex === -1) return CaretUtils.Clean();
 
-		if (!colspan || colspan <= 1) {
-			Arr.Push(cells, eachCell);
-			continue;
-		}
+		const nextEvent = bUp || bDown ? upDownEvent : leftRightEvent;
+		const lastArg = (bUp || bDown ? tableGrid : row) as ITableGrid & Element;
+		nextEvent(event, line, lastArg, cell);
+	};
 
-		for (let index = 0; index < colspan; ++index) {
-			Arr.Push(cells, eachCell);
-		}
-	}
-
-	const targetCell = cells[cellIndex];
-	if (!targetCell) return CaretUtils.Clean();
-
-	return findAndUpdate(false, targetCell);
+	return {
+		KeyDownEvent,
+	};
 };
 
 export default InTable;
