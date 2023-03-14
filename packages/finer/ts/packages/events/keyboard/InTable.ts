@@ -39,34 +39,33 @@ const InTable = (editor: Editor) => {
 		return self.Dispatch('caret:change', []);
 	};
 
+	const getLineInCell = (cell: HTMLElement, node: Node): Node => {
+		let current: Node | null = node;
+		while (current) {
+			const parent: Node | null = current.parentNode;
+			if (!parent || parent === cell) return current;
+
+			current = parent;
+		}
+
+		return current;
+	};
+
+	const isNextCell = (startNode: Node, endNode: Node, cell: HTMLElement, bPrevious: boolean): boolean => {
+		const startLine = getLineInCell(cell, startNode);
+		const endLine = getLineInCell(cell, endNode);
+
+		return bPrevious ? !!startLine.previousSibling : !!endLine.nextSibling;
+	};
+
 	const upDownEvent = (event: KeyboardEvent, line: Node, tableGrid: ITableGrid) => {
 		const bUp = event.key === EKeyCode.ArrowUp || event.code === EKeyCode.ArrowUp;
 
 		const { Grid, TargetCellRowIndex, TargetCellIndex } = tableGrid;
 
 		const caret = CaretUtils.Get()[0];
-		const rect = caret.Range.GetRect();
 
-		if (rect.height !== 0) {
-			const firstChild = DOM.Utils.GetFirstChild(Grid[TargetCellRowIndex][TargetCellIndex], true);
-			const lastChild = DOM.Utils.GetLastChild(Grid[TargetCellRowIndex][TargetCellIndex], true);
-
-			const newRange = self.Utils.Range(caret.Range.Clone());
-
-			if (firstChild && lastChild) {
-				newRange.SetStart(firstChild, 0);
-				newRange.SetEnd(lastChild, DOM.Utils.IsText(lastChild) ? (lastChild.textContent?.length ?? 0) : 0);
-				CaretUtils.UpdateRanges([newRange.Get()]);
-			}
-
-			const finderRect = newRange.GetRect();
-
-			newRange.SetStart(caret.Start.Node, caret.Start.Offset);
-			newRange.SetEnd(caret.End.Node, caret.End.Offset);
-
-			const keyName = bUp ? 'top' : 'bottom';
-			if (Math.floor(rect[keyName]) !== Math.floor(finderRect[keyName])) return;
-		}
+		if (isNextCell(caret.Start.Node, caret.End.Node, Grid[TargetCellRowIndex][TargetCellIndex], bUp)) return;
 
 		PreventEvent(event);
 
@@ -87,7 +86,9 @@ const InTable = (editor: Editor) => {
 		const bShift = event.shiftKey;
 		const bLeft = (bShift && bTab) || event.key === EKeyCode.ArrowLeft || event.code === EKeyCode.ArrowLeft;
 
-		const newRange = self.Utils.Range();
+		const caret = CaretUtils.Get()[0];
+
+		if (isNextCell(caret.Start.Node, caret.End.Node, cell as HTMLElement, bLeft)) return;
 
 		const rows = DOM.SelectAll(TableRowSelector, line);
 		const cells = DOM.SelectAll(TableCellSelector, line);
@@ -100,12 +101,12 @@ const InTable = (editor: Editor) => {
 
 			PreventEvent(event);
 			const nextCellIndex = Arr.Find(cells, cell);
-			return findAndUpdate(newRange, cells[nextCellIndex + (bShift ? -1 : 1)], bLeft);
+			return findAndUpdate(self.Utils.Range(), cells[nextCellIndex + (bShift ? -1 : 1)], bLeft);
 		}
 
 		PreventEvent(event);
 
-		return insertOrMove(newRange, line, bLeft);
+		return insertOrMove(self.Utils.Range(), line, bLeft);
 	};
 
 	const KeyDownEvent = (e: Editor, event: KeyboardEvent) => {

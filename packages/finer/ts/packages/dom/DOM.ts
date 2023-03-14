@@ -206,7 +206,7 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 		!Instance.Is(selector, elementType) || !Type.IsString(name) ? false : Style.Has(selector, name, compareValue);
 
 	const GetRect = ((selector: HTMLElement | null): DOMRect | null =>
-		!Instance.Is(selector, elementType) ? null : selector.getBoundingClientRect()) as IDom['GetRect'];
+		!Instance.Is(selector, elementType) ? null : selector.getClientRects()[0]) as IDom['GetRect'];
 
 	const GetText = (selector: HTMLElement): string =>
 		!Instance.Is(selector, elementType) ? '' : decodeURI(encodeURI(selector.innerText).replace(ESCAPE_EMPTY_TEXT_REGEX, ''));

@@ -56,11 +56,9 @@ const Inline = (editor: Editor, detector: IFormatDetector): IFormatUIRegistryUni
 	const createCommand = (format: IInlineFormat | IInlineFormat[], button: HTMLElement) =>
 		<T = boolean>(bActive: T) => {
 			const toggler = ToggleInline(self, format);
-			toggler.ToggleFromCaret(bActive as boolean);
 			if (bActive) FormatUI.UnwrapSameInlineFormats(self, format);
+			toggler.ToggleFromCaret(bActive as boolean);
 			FormatUI.ToggleActivateClass(button, bActive as boolean);
-
-			self.Dispatch('caret:change', []);
 		};
 
 	const createIconButton = (uiName: string, uiFormat: IInlineFormatUI): HTMLElement => {
@@ -74,11 +72,10 @@ const Inline = (editor: Editor, detector: IFormatDetector): IFormatUIRegistryUni
 		if (Type.IsString(Keys)) FormatUI.RegisterKeyboardEvent(self, Keys, eventCallback);
 
 		Detector.Register((paths: Node[]) => {
-			const node = FormatUtils.GetParentIfText(paths[0]);
-			if (!Type.IsArray(Format)) return FormatUI.ToggleActivateClass(button, isDetected(Format, [node]));
+			if (!Type.IsArray(Format)) return FormatUI.ToggleActivateClass(button, isDetected(Format, paths));
 
 			for (const formatSetting of Format) {
-				if (!isDetected(formatSetting, [node])) continue;
+				if (!isDetected(formatSetting, paths)) continue;
 				return FormatUI.ToggleActivateClass(button, true);
 			}
 
