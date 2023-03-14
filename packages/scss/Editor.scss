@@ -7,7 +7,7 @@
 
 @mixin firefox {
 	@supports not (-moz-appearance: none) {
-		* {
+		body > * {
 			@include margin(rem, 0.75, $bottom: 0.75);
 			@include height($line: 1.4);
 			word-wrap: break-word;
@@ -35,6 +35,10 @@
 			@include width($min: 2rem);
 			box-sizing: border-box;
 			white-space: nowrap;
+
+			p {
+				@include all-margin(0);
+			}
 		}
 	}
 

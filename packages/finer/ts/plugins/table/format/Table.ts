@@ -37,7 +37,7 @@ const TableFormat = (editor: Editor) => {
 
 			for (let cellIndex = 0; cellIndex <= cellNum; ++cellIndex) {
 				const cell = DOM.Create('td', {
-					html: '<br>'
+					html: '<p><br></p>'
 				});
 				if (rowIndex === 0 && cellIndex === 0) firstCell = cell;
 				DOM.Insert(tr, cell);

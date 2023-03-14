@@ -91,10 +91,28 @@ const AdjustableLine = (editor: Editor, table: HTMLElement, tableGrid: ITableGri
 				height: '0px',
 			});
 
+			if (!bWidth) {
+				let sibling: HTMLElement | null = cell.nextElementSibling as HTMLElement;
+				while (sibling) {
+					DOM.SetAttr(sibling, 'dump-height', DOM.GetStyle(sibling, 'height'));
+					DOM.RemoveStyle(sibling, 'height');
+					sibling = sibling.nextElementSibling as HTMLElement;
+				}
+			}
+
 			const currentSize = DOM.GetStyle(cell, sizeStyleName);
 			DOM.SetStyle(cell, sizeStyleName, '0px');
 			const size = GetClientSize(self, cell, sizeStyleName);
 			DOM.SetStyle(cell, sizeStyleName, currentSize);
+
+			if (!bWidth) {
+				let sibling: HTMLElement | null = cell.nextElementSibling as HTMLElement;
+				while (sibling) {
+					DOM.SetStyle(sibling, 'height', DOM.GetAttr(sibling, 'dump-height') ?? '');
+					DOM.RemoveAttr(sibling, 'dump-height');
+					sibling = sibling.nextElementSibling as HTMLElement;
+				}
+			}
 
 			DOM.SetStyles(fakeTable, {
 				width: `${table.offsetWidth}px`,
@@ -239,6 +257,7 @@ const AdjustableLine = (editor: Editor, table: HTMLElement, tableGrid: ITableGri
 				}
 
 				const adjustableSizes: string[] = [];
+				const nextAdjustableSizes: string[] = [];
 
 				for (const cell of adjustableCells) {
 					const cellSize = parseFloat(DOM.GetStyle(cell, sizeStyleName));
@@ -247,17 +266,15 @@ const AdjustableLine = (editor: Editor, table: HTMLElement, tableGrid: ITableGri
 					Arr.Push(adjustableSizes, `${cellSize + positionDifference}px`);
 				}
 
-				for (let index = 0, length = adjustableCells.length; index < length; ++index) {
-					DOM.SetStyle(adjustableCells[index], sizeStyleName, adjustableSizes[index]);
-				}
-
-				const nextAdjustableSizes: string[] = [];
-
 				for (const cell of nextAdjustableCells) {
 					const cellSize = parseFloat(DOM.GetStyle(cell, sizeStyleName));
 					const cellLeftPosition = tablePosition + getPosition(cell);
 					const positionDifference = cellLeftPosition - middleAdjustItemPosition;
 					Arr.Push(nextAdjustableSizes, `${cellSize + positionDifference}px`);
+				}
+
+				for (let index = 0, length = adjustableCells.length; index < length; ++index) {
+					DOM.SetStyle(adjustableCells[index], sizeStyleName, adjustableSizes[index]);
 				}
 
 				for (let index = 0, length = nextAdjustableCells.length; index < length; ++index) {
@@ -312,8 +329,6 @@ const AdjustableLine = (editor: Editor, table: HTMLElement, tableGrid: ITableGri
 
 		const finishAdjusting = (e: MouseEvent) => {
 			PreventEvent(e);
-
-			DOM.SetStyle(table, sizeStyleName, DOM.GetStyle(fakeTable, sizeStyleName));
 
 			for (let rowIndex = 0, rowLength = fakeTableGrid.Grid.length; rowIndex < rowLength; ++rowIndex) {
 				const row = fakeTableGrid.Grid[rowIndex];

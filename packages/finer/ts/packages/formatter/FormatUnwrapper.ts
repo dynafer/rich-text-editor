@@ -1,6 +1,6 @@
 import { Arr, Str, Type } from '@dynafer/utils';
 import Editor from '../Editor';
-import { AllStrictFormats } from './Format';
+import { AllStrictFormats, TableCellSelector } from './Format';
 import { EFormatType, IBlockFormat, IInlineFormat, IStyleFormat, TFormat } from './FormatType';
 import FormatUtils from './FormatUtils';
 
@@ -25,10 +25,8 @@ const FormatUnwrapper = (editor: Editor): IFormatUnwrapper => {
 		(oldNode.parentElement as Element).replaceChild(newTag, oldNode);
 	};
 
-	const getClosestByStyles = (node: Node, styles: Record<string, string>): Node | null => {
-		const closest = DOM.ClosestByStyle(FormatUtils.GetParentIfText(node) as HTMLElement, FormatUtils.GetStyleSelectorMap(styles));
-		return closest;
-	};
+	const getClosestByStyles = (node: Node, styles: Record<string, string>): Node | null =>
+		DOM.ClosestByStyle(FormatUtils.GetParentIfText(node) as HTMLElement, FormatUtils.GetStyleSelectorMap(styles));
 
 	const unwrapBlock = (format: IBlockFormat, node: Node): boolean => {
 		const { Tag, Switchable, AddInside, UnsetSwitcher } = format;
@@ -36,8 +34,11 @@ const FormatUnwrapper = (editor: Editor): IFormatUnwrapper => {
 		const addInsideSelector = Str.Join(',', ...AddInside);
 		const oldElement: Element | null = FormatUtils.GetParentIfText(node) as Element;
 
-		if (!DOM.Closest(oldElement, addInsideSelector)) {
-			switchFormat(UnsetSwitcher ?? Tag, oldElement);
+		if (!DOM.Closest(oldElement, addInsideSelector) || DOM.Closest(oldElement, TableCellSelector)) {
+			const blockElement = DOM.Closest(oldElement, Tag);
+			if (!blockElement) return true;
+
+			switchFormat(UnsetSwitcher ?? Tag, blockElement);
 			return true;
 		}
 

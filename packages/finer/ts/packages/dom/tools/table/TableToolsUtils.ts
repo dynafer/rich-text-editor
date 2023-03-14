@@ -161,4 +161,4 @@ export const CreateFakeTable = (editor: Editor, table: HTMLElement): HTMLElement
 	return fakeTable;
 };
 
-export const GetClientSize = (editor: Editor, target: HTMLElement, type: 'width' | 'height'): number => editor.DOM.GetRect(target)[type];
+export const GetClientSize = (editor: Editor, target: HTMLElement, type: 'width' | 'height'): number => editor.DOM.GetRect(target)?.[type] ?? 0;

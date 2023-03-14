@@ -3,7 +3,7 @@ import Options from '../../Options';
 import DOM from '../dom/DOM';
 import Editor from '../Editor';
 import { ICaretData } from '../editorUtils/caret/CaretUtils';
-import { TableCellSet, TableSelector } from './Format';
+import { BlockFormatTags, TableCellSet, TableSelector } from './Format';
 
 export type TConfigOption = string | string[] | Record<string, string>;
 
@@ -120,9 +120,36 @@ const FormatUtils = (): IFormatUtils => {
 		};
 
 		for (const caret of carets) {
+			let startNode = caret.Start.Node;
+			let endNode = caret.End.Node;
+			const startNodeName = self.DOM.Utils.GetNodeName(startNode);
+			const endNodeName = self.DOM.Utils.GetNodeName(endNode);
+
+			if (BlockFormatTags.Block.has(startNodeName)) {
+				const firstChild = self.DOM.Utils.GetFirstChild(startNode, true);
+				if (!firstChild) {
+					const brElement = self.DOM.Create('br');
+					self.DOM.Insert(startNode, brElement);
+					startNode = brElement;
+				} else {
+					startNode = firstChild;
+				}
+			}
+
+			if (BlockFormatTags.Block.has(endNodeName)) {
+				const lastChild = self.DOM.Utils.GetLastChild(endNode, true);
+				if (!lastChild) {
+					const brElement = self.DOM.Create('br');
+					self.DOM.Insert(endNode, brElement);
+					endNode = brElement;
+				} else {
+					endNode = lastChild;
+				}
+			}
+
 			if (!caret.IsRange()) {
 				const newMarker = createMarker();
-				self.DOM.InsertBefore(caret.Start.Node, newMarker[1]);
+				self.DOM.InsertBefore(startNode, newMarker[1]);
 				Arr.Push(markers, {
 					bRange: false,
 					Marker: newMarker[0],
@@ -134,8 +161,8 @@ const FormatUtils = (): IFormatUtils => {
 			const startMarker = createMarker();
 			const endMarker = createMarker();
 
-			self.DOM.InsertBefore(caret.Start.Node, startMarker[1]);
-			self.DOM.InsertAfter(caret.End.Node, endMarker[1]);
+			self.DOM.InsertBefore(startNode, startMarker[1]);
+			self.DOM.InsertAfter(endNode, endMarker[1]);
 
 			Arr.Push(markers, {
 				bRange: true,
