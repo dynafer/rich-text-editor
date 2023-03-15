@@ -19,7 +19,7 @@ export const Merge = <T>(...arrays: T[][]): T[] => {
 	return newArray;
 };
 
-export const Reverse = <T>(array: T[]) => {
+export const Reverse = <T>(array: T[]): T[] => {
 	const reversed: T[] = [];
 	for (const item of array) {
 		reversed.unshift(item);
@@ -45,7 +45,7 @@ export const CompareAndGetEndIndex = <T>(bigArray: T[], smallArray: T[]): number
 		? bigArray.indexOf(smallArray[smallArray.length - 1])
 		: -1;
 
-export const Clean = <T>(array: T[]) => array.splice(0, array.length);
+export const Clean = <T>(array: T[]): T[] => array.splice(0, array.length);
 
 export const Find = <T>(array: unknown, target: T): number => {
 	if (IsArray(array)) return array.indexOf(target);

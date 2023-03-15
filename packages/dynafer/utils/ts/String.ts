@@ -6,14 +6,14 @@ export const IsEmpty: (value: unknown) => boolean = (value) => IsString(value) &
 
 export const LowerCase = (value: string): string => value.toLowerCase();
 export const UpperCase = (value: string): string => value.toUpperCase();
-export const Contains = (value: string, expect: string | RegExp) =>
+export const Contains = (value: string, expect: string | RegExp): boolean =>
 	IsString(expect) ? value.includes(expect) : expect.test(value);
 
-export const Padding = (value: number | string, length: number = 2, pad: number | string = '0') =>
+export const Padding = (value: number | string, length: number = 2, pad: number | string = '0'): string =>
 	value.toString().padStart(length, pad.toString());
 
-export const Join = (attacher: string, ...args: string[]) => args.join(attacher);
-export const Merge = (...args: string[]) => Join('', ...args);
+export const Join = (attacher: string, ...args: string[]): string => args.join(attacher);
+export const Merge = (...args: string[]): string => Join('', ...args);
 
 export const CapitaliseFirst = (value: string): string =>
 	!IsString(value) || IsEmpty(value) ? '' : Merge(UpperCase(value.slice(0, 1)), value.slice(1, value.length));
@@ -22,7 +22,7 @@ const capitalTo = (to: string, value: string): string =>
 	value.trim().split('').reduce((prev: string, cur: string): string => Merge(prev, regCapital.test(cur) ? Merge(to, LowerCase(cur)) : cur));
 
 const toCapital = (from: string, value: string): string =>
-	value.trim().split(from).reduce((prev: string, cur: string) => Merge(prev, CapitaliseFirst(cur)));
+	value.trim().split(from).reduce((prev: string, cur: string): string => Merge(prev, CapitaliseFirst(cur)));
 
 export const CapitalToDash = (value: string): string =>
 	!IsString(value) || IsEmpty(value) || !regCapital.test(value) ? value : capitalTo('-', value);

@@ -91,7 +91,7 @@ const ToggleStyleFormat = (editor: Editor, formats: IStyleFormat | IStyleFormat[
 			return;
 		}
 
-		const figure = DOM.Closest(cells[0] as Element, FigureSelector) as HTMLElement | null;
+		const figure = DOM.Closest(cells[0], FigureSelector) as HTMLElement | null;
 		if (!figure) return;
 		toggleStyle(figure);
 	};

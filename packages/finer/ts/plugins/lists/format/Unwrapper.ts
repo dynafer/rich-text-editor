@@ -88,16 +88,16 @@ const Unwrapper = (editor: Editor, format: IPluginListFormat) => {
 		if (!node) return;
 		const target = formatUtils.GetParentIfText(node);
 
-		const table = DOM.Closest(target as Element, tableSelector);
+		const table = DOM.Closest(target, tableSelector);
 		if (!!table) return;
 
-		const oldList = DOM.Closest(target as Element, Tag);
+		const oldList = DOM.Closest(target, Tag);
 		if (!oldList) return;
 
 		const children = DOM.GetChildNodes(oldList);
 		const startChild = !bFromFirst ? node : children[0];
 		const endChild = !bFromFirst ? children[children.length - 1] : node;
-		unwrap(oldList, startChild, endChild, !!DOM.Closest(target as Element, tableSelector));
+		unwrap(oldList, startChild, endChild, !!DOM.Closest(target, tableSelector));
 	};
 
 	const processSameLine = (caret: ICaretData) => {
@@ -105,8 +105,8 @@ const Unwrapper = (editor: Editor, format: IPluginListFormat) => {
 
 		const target = formatUtils.GetParentIfText(caret.Start.Node);
 
-		const oldList = DOM.Closest(target as Element, Tag);
-		const table = DOM.Closest(target as Element, tableSelector);
+		const oldList = DOM.Closest(target, Tag);
+		const table = DOM.Closest(target, tableSelector);
 		if (!oldList && !table) return;
 
 		if (table) {
@@ -114,7 +114,7 @@ const Unwrapper = (editor: Editor, format: IPluginListFormat) => {
 			if (!Arr.IsEmpty(selectedTableItems)) return unwrapNodesInTable(selectedTableItems);
 		}
 
-		const tableCell = DOM.Closest(target as Element, tableItemsSelector);
+		const tableCell = DOM.Closest(target, tableItemsSelector);
 		if (DOM.Utils.GetNodeName(tableCell) === tableRowSelector) return;
 
 		if (!tableCell && oldList) return unwrap(oldList, caret.Start.Node, caret.End.Node);

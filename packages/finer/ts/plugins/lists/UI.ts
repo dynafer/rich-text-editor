@@ -11,12 +11,11 @@ export interface IPluginListUI {
 const UI = (editor: Editor): IPluginListUI => {
 	const self = editor;
 	const formatUI = self.Formatter.UI;
-	const formatUtils = self.Formatter.Utils;
 	const Detector = self.Formatter.Detector;
 
 	const IsDetected = (tagName: string, nodes: Node[]): boolean => {
 		for (const node of nodes) {
-			if (!self.DOM.Closest(node as Element, tagName)) continue;
+			if (!self.DOM.Closest(node, tagName)) continue;
 
 			return true;
 		}
@@ -45,8 +44,7 @@ const UI = (editor: Editor): IPluginListUI => {
 
 	const RegisterDetector = (button: HTMLElement, format: IPluginListFormat) => {
 		Detector.Register((paths: Node[]) => {
-			const node = formatUtils.GetParentIfText(paths[0]);
-			formatUI.ToggleActivateClass(button, IsDetected(format.Tag, [node]));
+			formatUI.ToggleActivateClass(button, IsDetected(format.Tag, paths));
 		});
 	};
 

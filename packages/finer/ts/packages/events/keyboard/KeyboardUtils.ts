@@ -15,6 +15,7 @@ export enum EKeyCode {
 	PageUp = 'PageUp',
 	PageDown = 'PageDown',
 	Tab = 'Tab',
+	Enter = 'Enter',
 
 	Digit0 = 'Digit0',
 	Digit1 = 'Digit1',

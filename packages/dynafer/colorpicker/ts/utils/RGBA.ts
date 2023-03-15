@@ -4,8 +4,8 @@ import HSV from './HSV';
 import { IHSV, IRGBA } from './Type';
 
 export interface IRGBAUtils {
-	ToRGB: (...rgba: number[]) => string,
 	ToMap: (...rgba: number[]) => IRGBA,
+	ToRGB: (...rgba: number[]) => string,
 	ToString: (rgba: IRGBA) => string,
 	ArrayToString: (...rgba: number[]) => string,
 	ToHex: (rgb: IRGBA, bWithSharp?: boolean) => string,
@@ -27,9 +27,6 @@ const RGBA = (): IRGBAUtils => {
 	const ToString = (rgba: IRGBA): string => `rgba(${rgba.Red}, ${rgba.Green}, ${rgba.Blue}, ${rgba.Alpha})`;
 
 	const ArrayToString = (...rgba: number[]): string => `rgba(${rgba[0]}, ${rgba[1]}, ${rgba[2]}, ${rgba[3] ?? 1})`;
-
-	const MapToArray = (rgba: IRGBA): number[] =>
-		[rgba.Red, rgba.Green, rgba.Blue, rgba.Alpha ?? 1];
 
 	const ToHex = (rgb: IRGBA, bWithSharp: boolean = true): string =>
 		Str.Merge(
@@ -86,6 +83,8 @@ const RGBA = (): IRGBAUtils => {
 		};
 	};
 
+	const mapToArray = (rgba: IRGBA): number[] => [rgba.Red, rgba.Green, rgba.Blue, rgba.Alpha ?? 1];
+
 	const FromString = (str: string): number[] => {
 		let type: string;
 		if (str.includes('#')) {
@@ -100,7 +99,7 @@ const RGBA = (): IRGBAUtils => {
 			case 'hex':
 				const converted = FromHexToMap(str);
 				if (!converted) return [];
-				return MapToArray(converted);
+				return mapToArray(converted);
 			case 'rgba':
 				const array = str.replace(/[^\d,]/gi, '').split(',');
 				const result: number[] = [];

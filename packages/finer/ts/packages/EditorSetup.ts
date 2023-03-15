@@ -17,7 +17,7 @@ const EditorSetup = (editor: Editor): Promise<void> => {
 	const editorDefaultId = DOM.Utils.CreateUEID('editor-default', false);
 	const editorDefaultCss = `<link id="${editorDefaultId}" rel="stylesheet" href="${Options.JoinUrl('css', 'skins/Editor')}">`;
 
-	const createIframe = () => {
+	const createIframe = (): HTMLElement => {
 		self.DOM = DOM.New(
 			(frame.Container as HTMLIFrameElement).contentWindow as Window & typeof globalThis,
 			(frame.Container as HTMLIFrameElement).contentDocument ?? document,
@@ -36,7 +36,7 @@ const EditorSetup = (editor: Editor): Promise<void> => {
 		return self.DOM.Doc.body;
 	};
 
-	const createDiv = () => {
+	const createDiv = (): HTMLElement => {
 		const containerBody = DOM.Create('div', {
 			attrs: {
 				id: bodyId,

@@ -60,8 +60,8 @@ export interface IDom {
 	InsertAfter: (selector: TElement, ...insertions: (string | TElement)[]) => void,
 	Clone: (selector: NonNullable<TElement>, bDeep?: boolean) => Node,
 	CloneAndInsert: (selector: NonNullable<TElement>, bDeep: boolean, ...insertions: (string | TElement)[]) => void,
-	Closest: (selector: Element | null, find: string) => Element | null,
-	ClosestByStyle: (selector: Element | null, styles: string | (string | Record<string, string>)[] | Record<string, string>) => Element | null,
+	Closest: (selector: TElement, find: string) => Element | null,
+	ClosestByStyle: (selector: TElement, styles: string | (string | Record<string, string>)[] | Record<string, string>) => Element | null,
 	IsEditable: (selector: Node) => boolean,
 	GetParents: (selector: Node | null, bReverse?: boolean) => Node[],
 	GetChildNodes: <T extends boolean = true>(selector: Node | null, bArray?: T | true) => T extends true ? Node[] : NodeListOf<Node>,
@@ -288,12 +288,12 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 		}
 	};
 
-	const Closest = (selector: Element | null, find: string): Element | null => {
+	const Closest = (selector: TElement, find: string): Element | null => {
 		if (!Instance.Is(selector, elementType) || !Type.IsString(find) || Str.IsEmpty(find)) return null;
 		return selector.closest(find);
 	};
 
-	const ClosestByStyle = (selector: Element | null, styles: string | (string | Record<string, string>)[] | Record<string, string>): Element | null => {
+	const ClosestByStyle = (selector: TElement, styles: string | (string | Record<string, string>)[] | Record<string, string>): Element | null => {
 		if (!Instance.Is(selector, elementType)) return null;
 
 		if (!Type.IsString(styles) && !Type.IsArray(styles) && !Type.IsObject(styles)) return null;

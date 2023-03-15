@@ -41,12 +41,12 @@ const Inline = (editor: Editor, detector: IFormatDetector): IFormatUIRegistryUni
 
 		for (const node of nodes) {
 			if (!!Styles) {
-				if (!self.DOM.ClosestByStyle(node as Element, selector)) continue;
+				if (!self.DOM.ClosestByStyle(node, selector)) continue;
 
 				return true;
 			}
 
-			if (!self.DOM.Closest(node as Element, selector as string)) continue;
+			if (!self.DOM.Closest(node, selector as string)) continue;
 
 			return true;
 		}

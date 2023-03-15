@@ -24,6 +24,7 @@ const Keyboard = (editor: Editor) => {
 	SetupKeyboard(self, ENativeEvents.keyup, EKeyCode.End, CaretChangeEvent);
 	SetupKeyboard(self, ENativeEvents.keyup, EKeyCode.PageDown, CaretChangeEvent);
 	SetupKeyboard(self, ENativeEvents.keyup, EKeyCode.PageUp, CaretChangeEvent);
+	SetupKeyboard(self, ENativeEvents.keyup, EKeyCode.Enter, CaretChangeEvent);
 
 	SetupKeyboard(self, ENativeEvents.keyup, EKeyCode.Backspace, Backspace);
 
