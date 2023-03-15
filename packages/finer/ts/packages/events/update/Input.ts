@@ -3,13 +3,16 @@ import Options from '../../../Options';
 import Editor from '../../Editor';
 import { ICaretData } from '../../editorUtils/caret/CaretUtils';
 import { BlockFormatTags } from '../../formatter/Format';
+import FormatUtils from '../../formatter/FormatUtils';
 import { EInputEventType, PreventEvent } from '../EventSetupUtils';
+import InputUtils from './InputUtils';
 
 const Input = (editor: Editor) => {
 	const self = editor;
 	const DOM = self.DOM;
 	const CaretUtils = self.Utils.Caret;
 	const TableTools = self.Tools.DOM.Table;
+	const inputUtils = InputUtils(self);
 
 	let fakeFragment: DocumentFragment | null = null;
 	let lastChildName: string | null = null;
@@ -19,6 +22,7 @@ const Input = (editor: Editor) => {
 			tagName: 'br',
 			class: 'Apple-interchange-newline'
 		}, fragment);
+
 		for (const brElement of brElements) {
 			brElement.remove();
 		}
@@ -57,11 +61,13 @@ const Input = (editor: Editor) => {
 
 	const runWithCaret = (callback: (caret: ICaretData) => void) => {
 		const caret = CaretUtils.Get()[0];
-		callback(caret);
-		if (!fakeFragment) return;
+		callback(CaretUtils.Get()[0]);
+		if (!fakeFragment) return CaretUtils.Clean();
+
 		const newRange = self.Utils.Range();
 		const lastChild = DOM.Utils.GetLastChild(fakeFragment, true);
-		caret.Range.Insert(fakeFragment);
+
+		inputUtils.InsertFragment(caret, fakeFragment);
 
 		if (lastChild) {
 			const offset = DOM.Utils.IsText(lastChild) ? lastChild.length : 0;
@@ -70,6 +76,8 @@ const Input = (editor: Editor) => {
 		CaretUtils.UpdateRanges([newRange.Get()]);
 		CaretUtils.Clean();
 		fakeFragment = null;
+
+		TableTools.ChangePositions();
 	};
 
 	const getAsStringCallback = (html: string) =>
@@ -80,6 +88,7 @@ const Input = (editor: Editor) => {
 			fakeFragment = DOM.CreateFragment();
 			DOM.Insert(fakeFragment, ...DOM.GetChildNodes(fragment, false));
 
+			inputUtils.EditFigures(fakeFragment);
 			cleanUnusable(fakeFragment);
 		};
 
@@ -96,12 +105,13 @@ const Input = (editor: Editor) => {
 			PreventEvent(event);
 			if (!fakeFragment) return;
 
+			inputUtils.EditFigures(fakeFragment);
 			cleanUnusable(fakeFragment);
 		};
 
 	const setLastChildName = () => {
 		const root: Node = CaretUtils.Get()[0].SameRoot;
-		let current: Node | null = DOM.Utils.IsText(root) ? root.parentNode : root;
+		let current: Node | null = FormatUtils.GetParentIfText(root);
 		while (current && current !== self.GetBody()) {
 			if (current.parentNode && current.parentNode === self.GetBody()) break;
 			current = current.parentNode;
