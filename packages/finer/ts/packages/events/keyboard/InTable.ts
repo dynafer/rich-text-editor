@@ -128,7 +128,7 @@ const InTable = (editor: Editor) => {
 		if (!IsTableFigure(self, line)) return CaretUtils.Clean();
 
 		const from = bLeft ? caret.Start.Node : caret.End.Node;
-		const fromElement = FormatUtils.GetParentIfText(from) as Element;
+		const fromElement = FormatUtils.GetParentIfText(from);
 		const table = DOM.Closest(fromElement, TableSelector);
 		const row = DOM.Closest(fromElement, TableRowSelector);
 		const cell = DOM.Closest(fromElement, TableCellSelector);
