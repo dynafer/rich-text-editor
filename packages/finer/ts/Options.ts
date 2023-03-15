@@ -19,6 +19,7 @@ interface IOptions {
 	readonly PROJECT_NAME: string,
 	readonly SHORT_NAME: string,
 	readonly ATTRIBUTE_EDITOR_STYLE: string,
+	readonly ATTRIBUTE_FOCUSED: string,
 	readonly ATTRIBUTE_SELECTED: string,
 	readonly URLS: Record<string, string>,
 	JoinUrl: (type: string, name: string) => string,
@@ -28,6 +29,7 @@ const Options = (): IOptions => {
 	const PROJECT_NAME = 'finer-editor';
 	const SHORT_NAME = 'finer';
 	const ATTRIBUTE_EDITOR_STYLE = 'finer-style';
+	const ATTRIBUTE_FOCUSED = 'data-focused';
 	const ATTRIBUTE_SELECTED = 'data-selected';
 	const URL_PREFIX: string = new URL(projectUrl).pathname;
 	const URLS: Record<string, string> = {
@@ -57,6 +59,7 @@ const Options = (): IOptions => {
 		PROJECT_NAME,
 		SHORT_NAME,
 		ATTRIBUTE_EDITOR_STYLE,
+		ATTRIBUTE_FOCUSED,
 		ATTRIBUTE_SELECTED,
 		URLS,
 		JoinUrl,

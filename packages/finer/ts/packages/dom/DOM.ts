@@ -3,7 +3,7 @@ import { Arr, Instance, Str, Type } from '@dynafer/utils';
 import Options from '../../Options';
 import DOMUtils, { ESCAPE_EMPTY_TEXT_REGEX, ICreateSelectorOption, IDOMUtils } from './DOMUtils';
 
-type TElement = Node | Element | null;
+export type TElement = Node | Element | null;
 type TBoundEvent = [(Window & typeof globalThis) | Document | Element, string, EventListener];
 
 export type TCreateOption = Record<string, string> | string[] | string | TElement[] | (string | TElement)[];

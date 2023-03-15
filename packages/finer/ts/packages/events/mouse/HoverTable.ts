@@ -15,19 +15,28 @@ const HoverTable = (editor: Editor, event: MouseEvent) => {
 
 	self.Utils.Caret.Clean();
 
-	const figure = DOM.Closest(event.target as Element, FigureSelector);
+	const figure = DOM.Closest((event.composedPath()[0] ?? event.target) as Element, FigureSelector);
 	if (!figure || !DOM.HasAttr(figure, 'type', 'table')) return TableTools.RemoveAll();
 
 	const table = DOM.SelectAll(TableSelector, figure)[0];
 	if (!table) return TableTools.RemoveAll();
 
-	const bHasTools = !!DOM.Select({
+	const tools = DOM.SelectAll({
 		attrs: {
 			dataType: 'table-tool'
 		}
 	}, figure);
 
-	if (bHasTools) return;
+	if (tools.length >= 1) {
+		let target: HTMLElement | undefined;
+		for (const tool of tools) {
+			if (DOM.Closest(tool, FigureSelector) !== figure) continue;
+			target = tool;
+		}
+		if (target) DOM.RemoveAttr(target, 'data-type');
+		TableTools.RemoveAll();
+		if (target) return DOM.SetAttr(target, 'data-type', 'table-tool');
+	}
 
 	DOM.Insert(figure, TableTools.Create(table));
 };

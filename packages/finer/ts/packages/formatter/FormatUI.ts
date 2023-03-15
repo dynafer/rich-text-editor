@@ -3,7 +3,7 @@ import DOM from '../dom/DOM';
 import Editor from '../Editor';
 import { ENativeEvents, PreventEvent } from '../events/EventSetupUtils';
 import { EKeyCode, SetupWith } from '../events/keyboard/KeyboardUtils';
-import { Formats } from './Format';
+import { Formats, ListItemSelector } from './Format';
 import ToggleInline from './format/ToggleInline';
 import { IInlineFormat } from './FormatType';
 
@@ -84,7 +84,7 @@ const FormatUI = (): IFormatUI => {
 
 	const CreateOption = (html: string, title?: string, bSelected: boolean = false, bAddIcon: boolean = true): HTMLElement => {
 		const option = Create({
-			tagName: 'li',
+			tagName: ListItemSelector,
 			title: title ?? html,
 			type: 'option-item',
 			html: Str.Merge(bAddIcon ? Finer.Icons.Get('Check') : '', html)

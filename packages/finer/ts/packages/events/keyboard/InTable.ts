@@ -27,6 +27,10 @@ const InTable = (editor: Editor) => {
 		self.Dispatch('caret:change', []);
 	};
 
+	const isInTableCell = () => {
+		// if moving in a table that is in a table.
+	};
+
 	const insertOrMove = (range: IRangeUtils, line: Node, bPrevious: boolean) => {
 		const moveTo = bPrevious ? line.previousSibling : line.nextSibling;
 		if (moveTo) return findAndUpdate(range, moveTo, bPrevious);

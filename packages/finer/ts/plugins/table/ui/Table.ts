@@ -65,7 +65,7 @@ const Table = (editor: Editor, ui: IPluginTableUI) => {
 
 			for (let cell = 0; cell < numCells; ++cell) {
 				const cellItem = formatUI.Create({
-					tagName: 'li',
+					tagName: formatterFormats.ListItemSelector,
 					type: 'option-item',
 				});
 
@@ -92,7 +92,7 @@ const Table = (editor: Editor, ui: IPluginTableUI) => {
 	const createOptionList = (wrapper: HTMLElement) =>
 		() => {
 			const navigationWrapper = formatUI.Create({
-				tagName: 'li',
+				tagName: formatterFormats.ListItemSelector,
 				type: 'option-item',
 			});
 
