@@ -338,7 +338,7 @@ const FormatUtils = (): IFormatUtils => {
 	const ExceptNodes = (editor: Editor, node: Node, root: Node, bPrevious: boolean = false): Node[] => {
 		const self = editor;
 
-		const tableNode = self.DOM.Closest(GetParentIfText(root) as Element, TableSelector);
+		const tableNode = self.DOM.Closest(GetParentIfText(root), TableSelector);
 		if (!!tableNode) {
 			const nodes: Node[] = [];
 			Arr.Push(nodes, ...GetTableItems(self, false, tableNode), ...getNodesInRoot(node, root, bPrevious));

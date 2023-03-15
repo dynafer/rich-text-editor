@@ -6,7 +6,7 @@ import { IHSV, IRGBA } from './Type';
 
 export const NAME = 'colorpicker';
 
-export const CreateName = (...args: string[]) => Str.Join('-', NAME, ...args);
+export const CreateName = (...args: string[]): string => Str.Join('-', NAME, ...args);
 
 export {
 	IRGBA,

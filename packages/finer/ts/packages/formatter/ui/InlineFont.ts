@@ -81,7 +81,7 @@ const InlineFont = (editor: Editor, detector: IFormatDetector): IFormatUIRegistr
 		};
 
 		for (const node of nodes) {
-			const detected = self.DOM.ClosestByStyle(FormatUtils.GetParentIfText(node) as Element, selector) as HTMLElement;
+			const detected = self.DOM.ClosestByStyle(FormatUtils.GetParentIfText(node), selector) as HTMLElement;
 			if (checkDetected(detected)) return true;
 
 			if (node === self.GetBody()) {

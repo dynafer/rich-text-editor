@@ -11,7 +11,7 @@ export interface IScriptLoader {
 const ScriptLoader = (loaderName: string): IScriptLoader => {
 	const loaded: string[] = [];
 
-	const Has = (name: string) => Arr.Contains(loaded, name);
+	const Has = (name: string): boolean => Arr.Contains(loaded, name);
 
 	const Load = (name: string): Promise<void> =>
 		new Promise((resolve, reject) => {

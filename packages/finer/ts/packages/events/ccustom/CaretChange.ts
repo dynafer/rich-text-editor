@@ -57,14 +57,14 @@ const CaretChange = (editor: Editor) => {
 		const carets = CaretUtils.Get();
 		const sameRoot = FormatUtils.GetParentIfText(carets[0]?.SameRoot) ? carets[0]?.SameRoot.parentNode : carets[0]?.SameRoot;
 
-		const figure = DOM.Closest(sameRoot as Element, FigureSelector);
+		const figure = DOM.Closest(sameRoot, FigureSelector);
 		for (const focused of DOM.SelectAll({ attrs: [Options.ATTRIBUTE_FOCUSED] })) {
 			if (focused === figure) continue;
 			DOM.RemoveAttr(focused, Options.ATTRIBUTE_FOCUSED);
 			TableTools.RemoveAll();
 		}
 
-		const bNotSameRootFigure = !!figure && !!carets[0]?.IsRange() && DOM.Closest(sameRoot as Element, FigureSelector) !== figure;
+		const bNotSameRootFigure = !!figure && !!carets[0]?.IsRange() && DOM.Closest(sameRoot, FigureSelector) !== figure;
 		if (!figure || !DOM.HasAttr(figure, 'type', TableSelector) || bNotSameRootFigure) return CaretUtils.Clean();
 
 		for (const caret of carets) {

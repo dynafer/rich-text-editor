@@ -14,13 +14,13 @@ const ToggleInline = (editor: Editor, formats: IInlineFormat | IInlineFormat[]):
 	const DOM = self.DOM;
 	const Toggler = self.Formatter.Toggler;
 
-	const isNodeEmpty = (node: Node) =>
+	const isNodeEmpty = (node: Node): boolean =>
 		(DOM.Utils.IsText(node) && Str.IsEmpty(node.textContent)) || (!DOM.Utils.IsText(node) && Str.IsEmpty(DOM.GetText(node as HTMLElement)));
 
 	const cleanDirty = (caret: ICaretData) => {
 		const followingItemsSelector = Str.Join(',', ...BlockFormatTags.FollowingItems);
-		const startBlock = DOM.Closest(FormatUtils.GetParentIfText(caret.Start.Node) as Element, followingItemsSelector) ?? caret.Start.Path[0];
-		const endBlock = DOM.Closest(FormatUtils.GetParentIfText(caret.End.Node) as Element, followingItemsSelector) ?? caret.End.Path[0];
+		const startBlock = DOM.Closest(FormatUtils.GetParentIfText(caret.Start.Node), followingItemsSelector) ?? caret.Start.Path[0];
+		const endBlock = DOM.Closest(FormatUtils.GetParentIfText(caret.End.Node), followingItemsSelector) ?? caret.End.Path[0];
 		const children: Node[] = [];
 
 		const startBlockName = DOM.Utils.GetNodeName(startBlock);
@@ -59,10 +59,10 @@ const ToggleInline = (editor: Editor, formats: IInlineFormat | IInlineFormat[]):
 	const hasFormat = (node: Node, value?: string): boolean => {
 		const checkFormat = (format: IInlineFormat): boolean => {
 			const { Tag, Styles } = format;
-			if (!Styles && DOM.Closest(node as Element, Tag)) return true;
+			if (!Styles && DOM.Closest(node, Tag)) return true;
 			if (!!Styles) {
 				const selector = FormatUtils.GetStyleSelectorMap(Styles, value);
-				if (DOM.ClosestByStyle(node as Element, selector)) return true;
+				if (DOM.ClosestByStyle(node, selector)) return true;
 			}
 			return false;
 		};
@@ -150,7 +150,7 @@ const ToggleInline = (editor: Editor, formats: IInlineFormat | IInlineFormat[]):
 	const cleanExistedCaret = (caret: ICaretData) => {
 		const node = caret.Start.Node;
 		const offset = caret.Start.Offset;
-		const existedCaret = DOM.Closest(FormatUtils.GetParentIfText(node) as Element, DOM.Utils.CreateAttrSelector('caret'));
+		const existedCaret = DOM.Closest(FormatUtils.GetParentIfText(node), DOM.Utils.CreateAttrSelector('caret'));
 
 		if (!existedCaret) return;
 

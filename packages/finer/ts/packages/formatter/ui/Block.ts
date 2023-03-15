@@ -53,14 +53,14 @@ const Block = (editor: Editor, detector: IFormatDetector): IFormatUIRegistryUnit
 
 	const isDetected = (tagName: string, nodes: Node[]): boolean => {
 		for (const node of nodes) {
-			if (!self.DOM.Closest(node as Element, tagName)) continue;
+			if (!self.DOM.Closest(node, tagName)) continue;
 
 			return true;
 		}
 		return false;
 	};
 
-	const isDetectedByCaret = (tagName: string, nodes?: Node[]) => {
+	const isDetectedByCaret = (tagName: string, nodes?: Node[]): boolean => {
 		const caretNodes: Node[] = Type.IsArray(nodes) ? nodes : [];
 		if (Arr.IsEmpty(caretNodes)) {
 			for (const caret of self.Utils.Caret.Get()) {

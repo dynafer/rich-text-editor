@@ -32,7 +32,7 @@ const FormatUnwrapper = (editor: Editor): IFormatUnwrapper => {
 		const { Tag, Switchable, AddInside, UnsetSwitcher } = format;
 		const switchableSelector = Str.Join(',', ...Switchable);
 		const addInsideSelector = Str.Join(',', ...AddInside);
-		const oldElement: Element | null = FormatUtils.GetParentIfText(node) as Element;
+		const oldElement = FormatUtils.GetParentIfText(node);
 
 		if (!DOM.Closest(oldElement, addInsideSelector) || DOM.Closest(oldElement, TableCellSelector)) {
 			const blockElement = DOM.Closest(oldElement, Tag);
@@ -42,7 +42,7 @@ const FormatUnwrapper = (editor: Editor): IFormatUnwrapper => {
 			return true;
 		}
 
-		let current: Element | null = DOM.Closest(oldElement, switchableSelector);
+		let current = DOM.Closest(oldElement, switchableSelector);
 		while (current) {
 			if (DOM.Utils.GetNodeName(current) !== Tag) {
 				current = DOM.Closest(current.parentElement, switchableSelector);
@@ -67,11 +67,11 @@ const FormatUnwrapper = (editor: Editor): IFormatUnwrapper => {
 		const { Tag, Styles } = format;
 
 		const closest = !Styles
-			? DOM.Closest(FormatUtils.GetParentIfText(node) as Element, Tag)
-			: DOM.ClosestByStyle(FormatUtils.GetParentIfText(node) as Element, FormatUtils.GetStyleSelectorMap(Styles));
+			? DOM.Closest(FormatUtils.GetParentIfText(node), Tag)
+			: DOM.ClosestByStyle(FormatUtils.GetParentIfText(node), FormatUtils.GetStyleSelectorMap(Styles));
 		if (!closest) return false;
 
-		const isUnwrappable = (selector: Node) => {
+		const isUnwrappable = (selector: Node): boolean => {
 			if (!Styles) return DOM.Utils.GetNodeName(selector) === Tag;
 
 			for (const [styleName, value] of Object.entries(Styles)) {

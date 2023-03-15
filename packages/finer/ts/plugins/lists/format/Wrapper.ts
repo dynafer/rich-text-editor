@@ -50,14 +50,14 @@ const Wrapper = (editor: Editor, format: IPluginListFormat) => {
 		}
 	};
 
-	const mergeList = (node: Node, insertion?: Node): boolean => {
+	const mergeList = (node: Node, insertion?: Node) => {
 		if (!!node.previousSibling && DOM.Utils.GetNodeName(node.previousSibling) === Tag) {
 			DOM.Insert(node.previousSibling, ...(!!insertion ? [insertion] : DOM.GetChildNodes(node, false)));
 			DOM.Remove(node as Element, true);
-			return true;
+			return;
 		}
 
-		if (!node.nextSibling || DOM.Utils.GetNodeName(node.nextSibling) !== Tag) return false;
+		if (!node.nextSibling || DOM.Utils.GetNodeName(node.nextSibling) !== Tag) return;
 
 		const firstChild = DOM.Utils.GetFirstChild(node.nextSibling);
 		const bFirstChild = !!firstChild;
@@ -65,7 +65,7 @@ const Wrapper = (editor: Editor, format: IPluginListFormat) => {
 		const selector = bFirstChild ? firstChild : node.nextSibling;
 		insert(selector, ...(!!insertion ? [insertion] : DOM.GetChildNodes(node, false)));
 		DOM.Remove(node as Element, true);
-		return true;
+		return;
 	};
 
 	const switchFormat = (node: Node) => {
@@ -134,7 +134,7 @@ const Wrapper = (editor: Editor, format: IPluginListFormat) => {
 		oldList.parentNode?.replaceChild(bStartFromMiddle ? middleList : startList, oldList);
 		if (!bStartFromMiddle) DOM.InsertAfter(startList, middleList);
 		if (DOM.Utils.HasChildNodes(endList)) DOM.InsertAfter(middleList, endList);
-		return mergeList(middleList);
+		mergeList(middleList);
 	};
 
 	const getBlock = (node: Node): Node | null => {
@@ -150,23 +150,23 @@ const Wrapper = (editor: Editor, format: IPluginListFormat) => {
 		if (!node) return;
 		const target = formatUtils.GetParentIfText(node);
 
-		if (!DOM.Closest(target as Element, tableAndListSelector)) {
+		if (!DOM.Closest(target, tableAndListSelector)) {
 			const blockNode = getBlock(target);
 			if (!blockNode) return;
 			return wrapBlock(blockNode);
 		}
 
-		const table = DOM.Closest(target as Element, tableSelector);
+		const table = DOM.Closest(target, tableSelector);
 		if (!!table) return;
 
-		const follower = DOM.Closest(target as Element, Following);
-		if (follower?.parentNode) {
-			const oldList = follower.parentNode;
-			const children = DOM.GetChildNodes(oldList);
-			const startItem = !bFromFirst ? follower : children[0];
-			const endItem = !bFromFirst ? children[children.length - 1] : follower;
-			return wrapNodesInList(oldList, startItem, endItem);
-		}
+		const follower = DOM.Closest(target, Following);
+		if (!follower?.parentNode) return;
+
+		const oldList = follower.parentNode;
+		const children = DOM.GetChildNodes(oldList);
+		const startItem = !bFromFirst ? follower : children[0];
+		const endItem = !bFromFirst ? children[children.length - 1] : follower;
+		wrapNodesInList(oldList, startItem, endItem);
 	};
 
 	const wrapNodesInSameLine = (root: Node, node?: Node, bFromFirst: boolean = false) => {
@@ -239,20 +239,20 @@ const Wrapper = (editor: Editor, format: IPluginListFormat) => {
 		const startNode = formatUtils.GetParentIfText(caret.Start.Node);
 		const endNode = formatUtils.GetParentIfText(caret.End.Node);
 
-		if (!DOM.Closest(startNode as Element, tableAndListSelector)) {
+		if (!DOM.Closest(startNode, tableAndListSelector)) {
 			const blockNode = getBlock(startNode);
 			if (!blockNode) return;
 			return wrapBlock(blockNode);
 		}
 
-		const table = DOM.Closest(startNode as Element, tableSelector);
+		const table = DOM.Closest(startNode, tableSelector);
 		if (!!table) {
 			const selectedTableItems = formatUtils.GetTableItems(self, true, table);
 			if (!Arr.IsEmpty(selectedTableItems)) return wrapNodesInTable(selectedTableItems);
 		}
 
-		const startListItem = DOM.Closest(startNode as Element, Following);
-		const endListItem = DOM.Closest(endNode as Element, Following);
+		const startListItem = DOM.Closest(startNode, Following);
+		const endListItem = DOM.Closest(endNode, Following);
 
 		if (startListItem?.parentNode && endListItem?.parentNode && startListItem.parentNode === endListItem.parentNode)
 			return wrapNodesInList(startListItem.parentNode, startListItem, endListItem);
@@ -279,7 +279,7 @@ const Wrapper = (editor: Editor, format: IPluginListFormat) => {
 			if (bStart) return;
 		}
 
-		const bRootTableCell = DOM.Closest(startNode as Element, tableCellSelector) === DOM.Closest(endNode as Element, tableCellSelector);
+		const bRootTableCell = DOM.Closest(startNode, tableCellSelector) === DOM.Closest(endNode, tableCellSelector);
 		if (!bRootTableCell) return;
 
 		wrapNodesInTableCell(caret.SameRoot, caret.Start.Node, caret.End.Node);

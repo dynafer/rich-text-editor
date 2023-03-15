@@ -42,7 +42,7 @@ const ToggleBlock = (editor: Editor, format: IBlockFormat): IToggleBlock => {
 	const sameLineProcessor = (bWrap: boolean, caret: ICaretData): boolean => {
 		if (caret.Start.Line !== caret.End.Line) return false;
 
-		const startElement = FormatUtils.GetParentIfText(caret.Start.Node) as Element;
+		const startElement = FormatUtils.GetParentIfText(caret.Start.Node);
 
 		if (
 			(!DOM.Closest(startElement, TableSelector) && !DOM.Closest(startElement, addInsideSelector))

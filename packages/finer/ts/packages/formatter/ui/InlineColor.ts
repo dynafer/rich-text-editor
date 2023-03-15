@@ -149,7 +149,7 @@ const InlineColor = (editor: Editor): IFormatUIRegistryUnit => {
 		FormatUI.SetOptionListCoordinate(self, uiName, wrapper, palette);
 	};
 
-	const createHelper = (uiName: string, uiFormat: IInlineFormatColorPickerUI, wrapper: HTMLElement) => {
+	const createHelper = (uiName: string, uiFormat: IInlineFormatColorPickerUI, wrapper: HTMLElement): HTMLElement => {
 		const { Title } = uiFormat;
 
 		const helper = FormatUI.CreateHelper(Title);

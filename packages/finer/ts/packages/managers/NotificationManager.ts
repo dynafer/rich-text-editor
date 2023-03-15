@@ -21,13 +21,9 @@ const NotificationManager = (editor: Editor): INotificationManager => {
 	const stacks: Element[] = [];
 	let status = ENotificationStatus.DEFAULT;
 
-	const Show = () => {
-		DOM.Show(notification);
-	};
+	const Show = () => DOM.Show(notification);
 
-	const Hide = () => {
-		DOM.Hide(notification);
-	};
+	const Hide = () => DOM.Hide(notification);
 
 	const Dispatch = (type: ENotificationStatus, text: string) => {
 		if (self.IsDestroyed()) return;

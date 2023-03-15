@@ -22,8 +22,8 @@ const Input = (setting: IUISettingMap['Input']): IUISchemaMap['Input'] => {
 
 	const input = schema.GetChildren()[1] as IDOMFactory<HTMLInputElement>;
 
-	const GetValue = () => input.Self.value;
-	const SetValue = (val: string) => input.Self.value = val;
+	const GetValue = (): string => input.Self.value;
+	const SetValue = (val: string): string => input.Self.value = val;
 
 	if (Placeholder && !Str.IsEmpty(Label)) input.Self.placeholder = Placeholder;
 	if (Value && !Str.IsEmpty(Value)) SetValue(Value);
