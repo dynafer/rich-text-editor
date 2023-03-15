@@ -1,4 +1,5 @@
 import { Arr } from '@dynafer/utils';
+import Options from '../../../../Options';
 import Editor from '../../../Editor';
 import { ENativeEvents } from '../../../events/EventSetupUtils';
 import { FigureSelector } from '../../../formatter/Format';
@@ -47,13 +48,11 @@ const TableTools = (editor: Editor): ITableTools => {
 		});
 
 		const focused = DOM.Select({
-			attrs: {
-				dataFocused: ''
-			}
+			attrs: [Options.ATTRIBUTE_FOCUSED]
 		});
 
 		for (const tools of toolList) {
-			if (!!focused && DOM.Utils.IsChildOf(tools, focused)) continue;
+			if (!!focused && DOM.Utils.IsChildOf(tools, focused) && DOM.Closest(tools, FigureSelector) === focused) continue;
 			for (const [targetTools, eventName, event] of boundEvents) {
 				if (tools !== targetTools) continue;
 				DOM.Off(self.GetBody(), eventName, event);

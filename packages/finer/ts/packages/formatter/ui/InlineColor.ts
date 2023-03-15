@@ -2,7 +2,7 @@ import ColorPicker from '@dynafer/colorpicker';
 import { Arr, Str } from '@dynafer/utils';
 import DOM from '../../dom/DOM';
 import Editor from '../../Editor';
-import { Formats } from '../Format';
+import { Formats, ListItemSelector } from '../Format';
 import ToggleInline from '../format/ToggleInline';
 import { IFormatUIRegistryUnit, IInlineFormat } from '../FormatType';
 import FormatUI from '../FormatUI';
@@ -71,7 +71,7 @@ const InlineColor = (editor: Editor): IFormatUIRegistryUnit => {
 				const rgba = ColorPicker.Utils.RGBA.ToMap(...color);
 				const rgbaString = ColorPicker.Utils.RGBA.ToRGB(...color);
 				const colorElement = FormatUI.Create({
-					tagName: 'li',
+					tagName: ListItemSelector,
 					title: ColorPicker.Utils.RGBA.ToHex(rgba),
 					type: 'option-item'
 				});

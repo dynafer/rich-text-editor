@@ -1,4 +1,5 @@
 import { Arr, Str } from '@dynafer/utils';
+import Options from '../../../Options';
 import Editor from '../../Editor';
 import { IEvent } from '../../editorUtils/EventUtils';
 import { FigureSelector, TableCellSelector, TableSelector } from '../../formatter/Format';
@@ -57,9 +58,9 @@ const CaretChange = (editor: Editor) => {
 		const sameRoot = FormatUtils.GetParentIfText(carets[0]?.SameRoot) ? carets[0]?.SameRoot.parentNode : carets[0]?.SameRoot;
 
 		const figure = DOM.Closest(sameRoot as Element, FigureSelector);
-		for (const focused of DOM.SelectAll({ attrs: ['data-focused'] })) {
+		for (const focused of DOM.SelectAll({ attrs: [Options.ATTRIBUTE_FOCUSED] })) {
 			if (focused === figure) continue;
-			DOM.RemoveAttr(focused, 'data-focused');
+			DOM.RemoveAttr(focused, Options.ATTRIBUTE_FOCUSED);
 			TableTools.RemoveAll();
 		}
 
@@ -81,11 +82,11 @@ const CaretChange = (editor: Editor) => {
 			CaretUtils.UpdateRanges([caret.Range.Clone()]);
 		}
 
-		if (DOM.HasAttr(figure, 'data-focused')) return CaretUtils.Clean();
+		if (DOM.HasAttr(figure, Options.ATTRIBUTE_FOCUSED)) return CaretUtils.Clean();
 
 		addTableTools(figure);
 
-		DOM.SetAttr(figure, 'data-focused', '');
+		DOM.SetAttr(figure, Options.ATTRIBUTE_FOCUSED, '');
 	};
 
 	const listener = (): IEvent<Node[]> =>

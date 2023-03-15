@@ -4,6 +4,7 @@ import { EFormatType, TFormat } from './FormatType';
 export const FigureSelector = 'figure';
 export const TableSelector = 'table';
 export const TableRowSelector = 'tr';
+export const ListItemSelector = 'li';
 export const TableCellSet = new Set(['th', 'td']);
 export const TableCellSelector = Str.Join(',', ...TableCellSet);
 
@@ -12,8 +13,8 @@ export const BlockFormatTags = {
 	Table: new Set([TableSelector]),
 	TableItems: new Set([...TableCellSet, TableRowSelector]),
 	Block: new Set(['p', 'div', 'blockquote', 'pre', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6']),
-	List: new Set(['li', 'ol', 'ul']),
-	FollowingItems: new Set(['li', ...TableCellSet]),
+	List: new Set([ListItemSelector, 'ol', 'ul']),
+	FollowingItems: new Set([ListItemSelector, ...TableCellSet]),
 };
 
 export const FigureElementFormats = new Set([...BlockFormatTags.Figures, ...BlockFormatTags.Table]);

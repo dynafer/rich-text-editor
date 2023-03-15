@@ -47,7 +47,13 @@ const TableFormat = (editor: Editor) => {
 		}
 
 		DOM.Insert(figure, table);
-		DOM.InsertAfter(caret.Start.Path[0], figure);
+		const parentIfText = self.Formatter.Utils.GetParentIfText(caret.Start.Node);
+		const nearTable = DOM.Closest(parentIfText as Element, formatterFormats.TableSelector);
+		if (!nearTable) {
+			DOM.InsertAfter(caret.Start.Path[0], figure);
+		} else {
+			caret.Range.Insert(figure);
+		}
 
 		caret.Range.SetStartToEnd(firstCell, 0, 0);
 		self.Focus();
