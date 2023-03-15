@@ -131,7 +131,6 @@ const InlineFont = (editor: Editor, detector: IFormatDetector): IFormatUIRegistr
 
 	const getCurrentStyle = (format: IInlineFormat, options: Record<string, string>, nodes: Node[]): string => {
 		for (const [label, value] of Object.entries(options)) {
-			console.log();
 			if (!isDetected(format, nodes, value)) continue;
 
 			return label;
