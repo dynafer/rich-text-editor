@@ -1,4 +1,4 @@
-import { Arr, Str, Type } from '@dynafer/utils';
+import { Arr, Obj, Str, Type } from '@dynafer/utils';
 import Editor from '../Editor';
 import { AllStrictFormats, TableCellSelector } from './Format';
 import { EFormatType, IBlockFormat, IInlineFormat, IStyleFormat, TFormat } from './FormatType';
@@ -74,7 +74,9 @@ const FormatUnwrapper = (editor: Editor): IFormatUnwrapper => {
 		const isUnwrappable = (selector: Node): boolean => {
 			if (!Styles) return DOM.Utils.GetNodeName(selector) === Tag;
 
-			for (const [styleName, value] of Object.entries(Styles)) {
+			const styles = Obj.Entries(Styles);
+			for (let index = 0, length = styles.length; index < length; ++index) {
+				const [styleName, value] = styles[index];
 				const styleValue = value === '{{value}}' ? undefined : value;
 				if (DOM.HasStyle(selector as HTMLElement, styleName, styleValue)) return true;
 			}
@@ -99,7 +101,8 @@ const FormatUnwrapper = (editor: Editor): IFormatUnwrapper => {
 				return wrapped;
 			};
 
-			for (const child of children) {
+			for (let index = 0, length = children.length; index < length; ++index) {
+				const child = children[index];
 				if (DOM.HasAttr(child, 'marker')) {
 					Arr.Push(replacedNodes, child);
 					continue;
@@ -120,9 +123,7 @@ const FormatUnwrapper = (editor: Editor): IFormatUnwrapper => {
 				}
 
 				const tempWrapped = wrapNeedless(child);
-				for (const styleName of Object.keys(Styles)) {
-					DOM.RemoveStyle(tempWrapped as HTMLElement, styleName);
-				}
+				Obj.Keys(Styles, styleName => DOM.RemoveStyle(tempWrapped as HTMLElement, styleName));
 
 				if (Str.IsEmpty(DOM.GetAttr(tempWrapped, 'style'))) {
 					Arr.Push(replacedNodes, child);
@@ -149,9 +150,7 @@ const FormatUnwrapper = (editor: Editor): IFormatUnwrapper => {
 		const closest = getClosestByStyles(node, Styles);
 		if (!closest || !StrictFormats.has(DOM.Utils.GetNodeName(closest))) return false;
 
-		for (const styleName of Object.keys(Styles)) {
-			DOM.RemoveStyle(closest as HTMLElement, styleName);
-		}
+		Obj.Keys(Styles, styleName => DOM.RemoveStyle(closest as HTMLElement, styleName));
 
 		return true;
 	};
@@ -170,9 +169,9 @@ const FormatUnwrapper = (editor: Editor): IFormatUnwrapper => {
 	const Unwrap = (formats: TFormat | TFormat[], node: Node) => {
 		if (!Type.IsArray(formats)) return processUnwrap(formats, node);
 
-		for (const format of formats) {
-			if (processUnwrap(format, node)) return;
-		}
+		Arr.Each(formats, (format, exit) => {
+			if (processUnwrap(format, node)) return exit();
+		});
 	};
 
 	return {

@@ -47,9 +47,7 @@ const Table = (editor: Editor, ui: IPluginTableUI) => {
 
 	const removeAllHovered = (navigation: HTMLElement, parent: Node) =>
 		() => {
-			for (const hovered of DOM.SelectAll('.hover', parent)) {
-				DOM.RemoveClass(hovered, 'hover');
-			}
+			Arr.Each(DOM.SelectAll('.hover', parent), hovered => DOM.RemoveClass(hovered, 'hover'));
 
 			setNavigationText(navigation, 1, 1, 0);
 		};

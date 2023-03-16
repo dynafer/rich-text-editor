@@ -1,4 +1,4 @@
-import { Type } from '@dynafer/utils';
+import { Arr, Type } from '@dynafer/utils';
 import { IDOMFactory } from '../dom/DOMFactory';
 import { IUISchemaMap } from '../types/UISchema';
 import { IUISettingMap } from '../types/UISetting';
@@ -30,10 +30,10 @@ const Palette = (setting: IUISettingMap['Palette']): IUISchemaMap['Palette'] | u
 
 	const ColorStop = (gradient: CanvasGradient, stops: [number, string][]) => {
 		if (!Type.IsArray(stops)) return;
-		for (const stop of stops) {
-			if (!Type.IsArray(stop) || stop.length !== 2) continue;
+		Arr.Each(stops, stop => {
+			if (!Type.IsArray(stop) || stop.length !== 2) return;
 			gradient.addColorStop(stop[0], stop[1]);
-		}
+		});
 	};
 
 	const Fill = (style: string | CanvasGradient | CanvasPattern) => {

@@ -2,7 +2,7 @@ import { Arr, Instance, Str } from '@dynafer/utils';
 import Commander, { ICommander } from './commander/Commander';
 import DOM, { IDom, TEventListener } from './dom/DOM';
 import { IDOMTools } from './dom/DOMTools';
-import Configure, { IConfiguration, IEditorOption } from './EditorConfigure';
+import Configure, { IConfiguration, IEditorConfiguration } from './EditorConfigure';
 import EditorDestroy from './EditorDestroy';
 import EditorFrame, { IEditorFrame } from './EditorFrame';
 import EditorSetup from './EditorSetup';
@@ -24,7 +24,7 @@ interface IEditorTools {
 }
 
 export interface IEditorConstructor {
-	new(config: IEditorOption): Editor;
+	new(config: IEditorConfiguration): Editor;
 }
 
 class Editor {
@@ -43,7 +43,7 @@ class Editor {
 	private mBody!: HTMLElement;
 	private mbDestroyed: boolean = false;
 
-	public constructor(config: IEditorOption) {
+	public constructor(config: IEditorConfiguration) {
 		const configuration: IConfiguration = Configure(config);
 
 		this.Id = configuration.Id;
@@ -101,9 +101,7 @@ class Editor {
 	public Focus() {
 		const carets = this.Utils.Caret.Get();
 		const copiedRanges: Range[] = [];
-		for (const caret of carets) {
-			Arr.Push(copiedRanges, caret.Range.Clone());
-		}
+		Arr.Each(carets, caret => Arr.Push(copiedRanges, caret.Range.Clone()));
 
 		if (Arr.IsEmpty(copiedRanges)) {
 			const newRange = this.Utils.Range();

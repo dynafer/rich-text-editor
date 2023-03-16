@@ -1,3 +1,4 @@
+import { Arr } from '@dynafer/utils';
 import Editor from '../../packages/Editor';
 import { IPluginsTableFormatUI } from './Type';
 
@@ -33,11 +34,8 @@ const UI = (editor: Editor): IPluginTableUI => {
 		};
 	};
 
-	const BindCliCkEvent = (event: () => void, ...uiList: HTMLElement[]) => {
-		for (const ui of uiList) {
-			formatUI.BindClickEvent(ui, event);
-		}
-	};
+	const BindCliCkEvent = (event: () => void, ...uiList: HTMLElement[]) =>
+		Arr.Each(uiList, ui => formatUI.BindClickEvent(ui, event));
 
 	return {
 		CreateIconWrap,

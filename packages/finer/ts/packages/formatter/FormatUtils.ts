@@ -1,4 +1,4 @@
-import { Arr, Str, Type } from '@dynafer/utils';
+import { Arr, Obj, Str, Type } from '@dynafer/utils';
 import Options from '../../Options';
 import DOM from '../dom/DOM';
 import Editor from '../Editor';
@@ -65,7 +65,8 @@ const FormatUtils = (): IFormatUtils => {
 
 	const GetFormatName = (finder: string, names: string[]): string => {
 		const lowerCase = Str.LowerCase(finder);
-		for (const name of names) {
+		for (let index = 0, length = names.length; index < length; ++index) {
+			const name = names[index];
 			if (lowerCase === Str.LowerCase(Str.CapitalToUnderline(name)) || lowerCase === Str.LowerCase(name)) return name;
 		}
 		return '';
@@ -73,7 +74,8 @@ const FormatUtils = (): IFormatUtils => {
 
 	const HasFormatName = (finder: string, names: string[]): boolean => {
 		const lowerCase = Str.LowerCase(finder);
-		for (const name of names) {
+		for (let index = 0, length = names.length; index < length; ++index) {
+			const name = names[index];
 			if (lowerCase === Str.LowerCase(Str.CapitalToUnderline(name)) || lowerCase === Str.LowerCase(name)) return true;
 		}
 		return false;
@@ -89,9 +91,9 @@ const FormatUtils = (): IFormatUtils => {
 
 	const LabelConfigArray = (config: string[]): Record<string, string> => {
 		const newMap: Record<string, string> = {};
-		for (const item of config) {
+		Arr.Each(config, item => {
 			newMap[item] = item;
-		}
+		});
 
 		return newMap;
 	};
@@ -120,7 +122,7 @@ const FormatUtils = (): IFormatUtils => {
 			return [id, marker];
 		};
 
-		for (const caret of carets) {
+		Arr.Each(carets, caret => {
 			let startNode = caret.Start.Node;
 			let endNode = caret.End.Node;
 			const startNodeName = self.DOM.Utils.GetNodeName(startNode);
@@ -151,12 +153,11 @@ const FormatUtils = (): IFormatUtils => {
 			if (!caret.IsRange()) {
 				const newMarker = createMarker();
 				self.DOM.InsertBefore(startNode, newMarker[1]);
-				Arr.Push(markers, {
+				return Arr.Push(markers, {
 					bRange: false,
 					Marker: newMarker[0],
 					Offset: caret.Start.Offset,
 				});
-				continue;
 			}
 
 			const startMarker = createMarker();
@@ -172,7 +173,7 @@ const FormatUtils = (): IFormatUtils => {
 				EndMarker: endMarker[0],
 				EndOffset: caret.End.Offset,
 			});
-		}
+		});
 
 		CaretUtils.Clean();
 
@@ -216,14 +217,13 @@ const FormatUtils = (): IFormatUtils => {
 			return getTextOrBrNode(!current ? marker : current);
 		};
 
-		for (const marker of markers) {
+		Arr.Each(markers, marker => {
 			const newRange = self.Utils.Range();
 
 			if (!marker.bRange) {
 				const markerNode = getMarkerSibling(marker.Marker);
 				newRange.SetStartToEnd(markerNode, marker.Offset, marker.Offset);
-				Arr.Push(newRanges, newRange.Get());
-				continue;
+				return Arr.Push(newRanges, newRange.Get());
 			}
 
 			const startMarker = getMarkerSibling(marker.StartMarker);
@@ -231,7 +231,7 @@ const FormatUtils = (): IFormatUtils => {
 			newRange.SetStart(startMarker, marker.StartOffset);
 			newRange.SetEnd(endMarker, marker.EndOffset);
 			Arr.Push(newRanges, newRange.Get());
-		}
+		});
 
 		self.Utils.Caret.UpdateRanges(newRanges);
 
@@ -241,7 +241,7 @@ const FormatUtils = (): IFormatUtils => {
 			}
 		});
 
-		for (const marker of markerNodes) {
+		Arr.Each(markerNodes, marker => {
 			let emptyMarker: Element | null = marker;
 			while (emptyMarker?.parentElement && emptyMarker !== self.GetBody()) {
 				if (DOM.GetChildNodes(emptyMarker.parentElement, false).length !== 1) break;
@@ -250,7 +250,7 @@ const FormatUtils = (): IFormatUtils => {
 			}
 
 			self.DOM.Remove(emptyMarker ?? marker);
-		}
+		});
 	};
 
 	const RunFormatting = (editor: Editor, toggle: () => void) => {
@@ -292,15 +292,15 @@ const FormatUtils = (): IFormatUtils => {
 	const GetStyleSelectorMap = (styles: Record<string, string>, value?: string): (string | Record<string, string>)[] => {
 		const createdSelector: (string | Record<string, string>)[] = [];
 		const selectorMap: Record<string, string> = {};
-		for (const [styleName, styleValue] of Object.entries(styles)) {
+		Obj.Entries(styles, (styleName, styleValue) => {
 			if (styleValue === '{{value}}') {
 				if (!!value) selectorMap[styleName] = value;
 				else Arr.Push(createdSelector, styleName);
-				continue;
+				return;
 			}
 
 			selectorMap[styleName] = styleValue;
-		}
+		});
 		Arr.Push(createdSelector, selectorMap);
 
 		return createdSelector;
@@ -356,16 +356,15 @@ const FormatUtils = (): IFormatUtils => {
 
 		if (tableProcessor(bWrap, value)) return;
 
-		for (const caret of CaretUtils.Get()) {
-			for (const option of processors) {
-				if (option.processor(bWrap, caret, value)) {
-					if (!option.bSkipFocus) self.Focus();
-					break;
-				}
-			}
+		Arr.Each(CaretUtils.Get(), caret => {
+			Arr.Each(processors, (option, exit) => {
+				if (!option.processor(bWrap, caret, value)) return;
+				if (!option.bSkipFocus) self.Focus();
+				exit();
+			});
 
 			if (Type.IsFunction(afterProcessors)) afterProcessors(caret);
-		}
+		});
 
 		CaretUtils.Clean();
 	};
@@ -392,26 +391,26 @@ const FormatUtils = (): IFormatUtils => {
 		const isNodeEmpty = (target: Node): boolean =>
 			(self.DOM.Utils.IsText(target) && Str.IsEmpty(target.textContent)) || (!self.DOM.Utils.IsText(target) && Str.IsEmpty(self.DOM.GetText(target as HTMLElement)));
 
-		for (const child of children) {
+		Arr.Each(children, child => {
 			if (!child
 				|| !isNodeEmpty(child)
 				|| self.DOM.HasAttr(child, 'caret')
 				|| self.DOM.HasAttr(child, 'marker')
-			) continue;
+			) return;
 
 			let bSkip = false;
 
-			for (const caretNode of caretNodes) {
-				if (!self.DOM.Utils.IsChildOf(caretNode, child)) continue;
+			Arr.Each(caretNodes, (caretNode, exit) => {
+				if (!self.DOM.Utils.IsChildOf(caretNode, child)) return;
 				bSkip = true;
-				break;
-			}
+				exit();
+			});
 
-			if (bSkip) continue;
+			if (bSkip) return;
 
-			if (self.DOM.Utils.IsText(child)) child.remove();
-			else self.DOM.Remove(child as Element, false);
-		}
+			if (self.DOM.Utils.IsText(child)) return child.remove();
+			self.DOM.Remove(child as Element, false);
+		});
 	};
 
 	return {

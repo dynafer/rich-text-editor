@@ -1,11 +1,13 @@
-import { Arr, Instance, Str, Type } from '@dynafer/utils';
+import { Arr, Instance, Obj, Str, Type } from '@dynafer/utils';
 import { EModeEditor } from '../Options';
 import DOM from './dom/DOM';
 import { EToolbarStyle } from './EditorToolbar';
 
-type TOptionKey = string | string[] | Record<string, string> | Record<string, string[]> | HTMLElement | undefined;
+export type TConfigurationCallback<A, R> = ((...args: A[]) => R);
+export type TConfigurationCommon<A, R> = string | string[] | TConfigurationCallback<A, R> | undefined;
+type TConfigurationKey<A = unknown, R = unknown> = TConfigurationCommon<A, R> | Record<string, TConfigurationCommon<A, R>> | HTMLElement;
 
-export interface IEditorOption {
+export interface IEditorConfiguration {
 	selector?: HTMLElement,
 	mode?: string,
 	width?: string,
@@ -15,7 +17,7 @@ export interface IEditorOption {
 	toolbarGroup?: Record<string, string[]>,
 	toolbarStyle?: string,
 	skin?: string,
-	[key: string]: TOptionKey,
+	[key: string]: TConfigurationKey,
 }
 
 export interface IConfiguration {
@@ -29,10 +31,10 @@ export interface IConfiguration {
 	ToolbarStyle: string,
 	Plugins: string[],
 	Skin: string,
-	[key: string]: TOptionKey,
+	[key: string]: TConfigurationKey,
 }
 
-const Configure = (config: IEditorOption): IConfiguration => {
+const Configure = (config: IEditorConfiguration): IConfiguration => {
 	const defaultConfigs: string[] = ['selector', 'mode', 'width', 'height', 'plugins', 'toolbar', 'toolbarGroup', 'toolbarStyle', 'skin'];
 
 	if (!config.selector || !Instance.IsElement(config.selector)) {
@@ -86,11 +88,11 @@ const Configure = (config: IEditorOption): IConfiguration => {
 	let ToolbarStyle: string = Str.UpperCase(Type.IsString(config.toolbarStyle) ? config.toolbarStyle : EToolbarStyle.SCROLL);
 	if (!EToolbarStyle[ToolbarStyle as EToolbarStyle]) ToolbarStyle = EToolbarStyle.SCROLL;
 
-	const excludedDefaultOption: Record<string, TOptionKey> = {};
-	for (const [key, value] of Object.entries(config)) {
-		if (Arr.Contains(defaultConfigs, key)) continue;
-		excludedDefaultOption[Str.CapitaliseFirst(Str.UnderlineToCapital(key))] = value;
-	}
+	const excludedDefaultConfiguration: Record<string, TConfigurationKey> = {};
+	Obj.Entries(config, (key, value) => {
+		if (Arr.Contains(defaultConfigs, key)) return;
+		excludedDefaultConfiguration[Str.CapitaliseFirst(Str.UnderlineToCapital(key))] = value;
+	});
 
 	const skin = config.skin;
 	const Skin = skin && Type.IsString(skin) && !Str.IsEmpty(skin) ? skin : 'simple';
@@ -106,7 +108,7 @@ const Configure = (config: IEditorOption): IConfiguration => {
 		ToolbarGroup,
 		ToolbarStyle,
 		Skin,
-		...excludedDefaultOption
+		...excludedDefaultConfiguration
 	};
 
 	Object.freeze(configuration);

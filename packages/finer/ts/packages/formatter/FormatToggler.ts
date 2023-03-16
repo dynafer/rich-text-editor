@@ -33,7 +33,9 @@ const FormatToggler = (editor: Editor): IFormatToggler => {
 	const processRecursive = (bWrap: boolean, formats: TFormat | TFormat[], node: Node, toggleOption: IToggleRecursiveOption = {}) => {
 		const { except, endNode, value, bInline } = toggleOption;
 		const children = DOM.GetChildNodes(node, bInline);
-		for (const child of children) {
+		const length = children.length;
+		for (let index = 0; index < length; ++index) {
+			const child = children[index];
 			if (Arr.Contains(except ?? [], child)) continue;
 
 			let childNextSibling = child.nextSibling;

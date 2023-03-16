@@ -1,4 +1,4 @@
-import { Str } from '@dynafer/utils';
+import { Arr, Str } from '@dynafer/utils';
 import Options from '../../../../Options';
 import Editor from '../../../Editor';
 import { ENativeEvents, PreventEvent } from '../../../events/EventSetupUtils';
@@ -25,9 +25,7 @@ const Movable = (editor: Editor, table: HTMLElement): HTMLElement => {
 
 	DOM.On(movable, ENativeEvents.click, () => {
 		const cells = DOM.SelectAll(TableCellSelector, table);
-		for (const cell of cells) {
-			DOM.SetAttr(cell, Options.ATTRIBUTE_SELECTED, '');
-		}
+		Arr.Each(cells, cell => DOM.SetAttr(cell, Options.ATTRIBUTE_SELECTED, ''));
 
 		self.Dispatch('caret:change', []);
 	});
@@ -44,9 +42,7 @@ const Movable = (editor: Editor, table: HTMLElement): HTMLElement => {
 		};
 
 		const cells = DOM.SelectAll(TableCellSelector, table);
-		for (const cell of cells) {
-			DOM.SetAttr(cell, Options.ATTRIBUTE_SELECTED, '');
-		}
+		Arr.Each(cells, cell => DOM.SetAttr(cell, Options.ATTRIBUTE_SELECTED, ''));
 
 		const stopDragEvent = (e: InputEvent) => {
 			PreventEvent(e);

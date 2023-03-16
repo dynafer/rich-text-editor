@@ -39,7 +39,8 @@ const Inline = (editor: Editor, detector: IFormatDetector): IFormatUIRegistryUni
 
 		const selector = !!Styles ? FormatUtils.GetStyleSelectorMap(Styles) : Tag;
 
-		for (const node of nodes) {
+		for (let index = 0, length = nodes.length; index < length; ++index) {
+			const node = nodes[index];
 			if (!!Styles) {
 				if (!self.DOM.ClosestByStyle(node, selector)) continue;
 
@@ -74,7 +75,8 @@ const Inline = (editor: Editor, detector: IFormatDetector): IFormatUIRegistryUni
 		Detector.Register((paths: Node[]) => {
 			if (!Type.IsArray(Format)) return FormatUI.ToggleActivateClass(button, isDetected(Format, paths));
 
-			for (const formatSetting of Format) {
+			for (let index = 0, length = Format.length; index < length; ++index) {
+				const formatSetting = Format[index];
 				if (!isDetected(formatSetting, paths)) continue;
 				return FormatUI.ToggleActivateClass(button, true);
 			}

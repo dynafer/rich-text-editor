@@ -98,9 +98,7 @@ const InputUtils = (editor: Editor) => {
 				}
 			}, figure);
 
-			for (const tableTool of tableTools) {
-				DOM.Remove(tableTool, true);
-			}
+			Arr.Each(tableTools, tableTool => DOM.Remove(tableTool, true));
 
 			currentElement.parentNode?.replaceChild(figure, currentElement);
 		}
@@ -137,10 +135,10 @@ const InputUtils = (editor: Editor) => {
 			}
 
 			previousNode = previous;
-			for (const child of DOM.GetChildNodes(insertion)) {
+			Arr.Each(DOM.GetChildNodes(insertion), child => {
 				DOM.InsertAfter(previousNode, child);
 				previousNode = child;
-			}
+			});
 		};
 
 		while (!Arr.IsEmpty(nodes)) {
@@ -186,7 +184,8 @@ const InputUtils = (editor: Editor) => {
 
 			const children = DOM.GetChildNodes(node);
 			if (Arr.IsEmpty(children)) continue;
-			for (const child of children) {
+			for (let index = 0, length = children.length; index < length; ++index) {
+				const child = children[index];
 				if (!previousNode) caret.Range.Insert(child);
 				else DOM.InsertAfter(previousNode, child);
 
@@ -212,13 +211,14 @@ const InputUtils = (editor: Editor) => {
 			return DOM.InsertAfter(previousList, endList);
 
 		const listItems: Node[] = [];
-		for (const child of DOM.GetChildNodes(endList)) {
-			if (DOM.Utils.IsText(child)) continue;
+		Arr.Each(DOM.GetChildNodes(endList), child => {
+			if (
+				DOM.Utils.IsText(child)
+				|| (!DOM.Select('br', child) && Str.IsEmpty(DOM.GetText(child as HTMLElement)))
+			) return;
 
-			if (!DOM.Select('br', child) && Str.IsEmpty(DOM.GetText(child as HTMLElement))) continue;
 			Arr.Push(listItems, child);
-			continue;
-		}
+		});
 
 		DOM.InsertAfter(DOM.Utils.GetLastChild(previousList), ...listItems);
 	};

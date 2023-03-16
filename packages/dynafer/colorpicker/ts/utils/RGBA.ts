@@ -103,9 +103,7 @@ const RGBA = (): IRGBAUtils => {
 			case 'rgba':
 				const array = str.replace(/[^\d,]/gi, '').split(',');
 				const result: number[] = [];
-				for (const part of array) {
-					Arr.Push(result, parseInt(part));
-				}
+				Arr.Each(array, part => Arr.Push(result, parseInt(part)));
 
 				if (result.length <= 3) Arr.Push(result, 1);
 				return result;

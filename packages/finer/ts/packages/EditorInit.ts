@@ -1,11 +1,11 @@
 import Editor from './Editor';
-import { IEditorOption } from './EditorConfigure';
+import { IEditorConfiguration } from './EditorConfigure';
 
 export interface IEditorInit {
-	(config: IEditorOption): Promise<Editor>;
+	(config: IEditorConfiguration): Promise<Editor>;
 }
 
-const EditorInit = (config: IEditorOption): Promise<Editor> =>
+const EditorInit = (config: IEditorConfiguration): Promise<Editor> =>
 	new Promise((resolve, reject) => {
 		Finer.Loaders.Icon.Load('default')
 			.then(() => resolve(new Editor(config)))

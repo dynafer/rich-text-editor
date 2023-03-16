@@ -1,3 +1,4 @@
+import { Arr } from '@dynafer/utils';
 import Editor from '../../packages/Editor';
 import UI from './UI';
 import BulletList from './ui/BulletList';
@@ -25,9 +26,7 @@ const Setup = (editor: Editor) => {
 		}
 	};
 
-	for (const name of formatNames) {
-		pluginManager.Add(name, createUi);
-	}
+	Arr.Each(formatNames, name => pluginManager.Add(name, createUi));
 };
 
 export default Setup;

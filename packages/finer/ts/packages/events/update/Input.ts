@@ -23,40 +23,30 @@ const Input = (editor: Editor) => {
 			class: 'Apple-interchange-newline'
 		}, fragment);
 
-		for (const brElement of brElements) {
-			brElement.remove();
-		}
+		Arr.Each(brElements, brElement => brElement.remove());
 
 		const styleElements = DOM.SelectAll({
 			attrs: ['style']
 		}, fragment);
 
-		for (const styleElement of styleElements) {
+		Arr.Each(styleElements, styleElement => {
 			const editorStyle = DOM.GetAttr(styleElement, Options.ATTRIBUTE_EDITOR_STYLE) ?? '';
-			if (!Str.IsEmpty(editorStyle)) {
-				DOM.SetStyleText(styleElement, editorStyle);
-				continue;
-			}
+			if (!Str.IsEmpty(editorStyle)) return DOM.SetStyleText(styleElement, editorStyle);
 
-			if (DOM.Utils.GetNodeName(styleElement) !== 'span') {
-				DOM.RemoveAttr(styleElement, 'style');
-				continue;
-			}
+			if (DOM.Utils.GetNodeName(styleElement) !== 'span') return DOM.RemoveAttr(styleElement, 'style');
 
-			if (!styleElement.parentNode) continue;
+			if (!styleElement.parentNode) return;
 
 			const children = DOM.GetChildNodes(styleElement);
 
 			if (Arr.IsEmpty(children)) {
-				if (!styleElement.parentElement) continue;
-
-				DOM.Remove(Str.IsEmpty(DOM.GetText(styleElement.parentElement)) ? styleElement.parentElement : styleElement);
-				continue;
+				if (!styleElement.parentElement) return;
+				return DOM.Remove(Str.IsEmpty(DOM.GetText(styleElement.parentElement)) ? styleElement.parentElement : styleElement);
 			}
 
 			styleElement.parentNode.replaceChild(children[0], styleElement);
 			DOM.InsertAfter(children[0], ...children.slice(1, children.length));
-		}
+		});
 	};
 
 	const runWithCaret = (callback: (caret: ICaretData) => void) => {
@@ -129,12 +119,12 @@ const Input = (editor: Editor) => {
 			return event.dataTransfer.items[0].getAsString((html: string) => runWithCaret(getAsStringCallback(html)));
 		}
 
-		for (const data of event.dataTransfer.items) {
-			if (!Str.Contains(data.type, 'html')) continue;
+		Arr.Each(event.dataTransfer.items, data => {
+			if (!Str.Contains(data.type, 'html')) return;
 			PreventEvent(event);
 
 			data.getAsString((html: string) => runWithCaret(getAsStringCallback(html)));
-		}
+		});
 	};
 
 	const processBeforeInput = (event: InputEvent) => {

@@ -1,4 +1,4 @@
-import { Arr, Str } from '@dynafer/utils';
+import { Arr, Obj, Str } from '@dynafer/utils';
 import Editor from '../Editor';
 import { ENativeEvents } from '../events/EventSetupUtils';
 import { ENotificationStatus } from './NotificationManager';
@@ -26,14 +26,12 @@ const PluginManager = (editor: Editor): IPluginManager => {
 	const AttachPlugin = (): Promise<void> =>
 		new Promise((resolve, reject) => {
 			const attachPlugins: Promise<void>[] = [];
-			for (const name of self.Config.Plugins) {
-				if (!Finer.Loaders.Plugin.Has(name)) {
-					self.Notify(ENotificationStatus.WARNING, `Plugin '${name}' hasn't loaded.`);
-					continue;
-				}
+			Arr.Each(self.Config.Plugins, name => {
+				if (!Finer.Loaders.Plugin.Has(name))
+					return self.Notify(ENotificationStatus.WARNING, `Plugin '${name}' hasn't loaded.`);
 
 				Arr.Push(attachPlugins, Finer.Loaders.Plugin.Attach(self, name));
-			}
+			});
 
 			Promise.all(attachPlugins)
 				.catch(error => {
@@ -42,14 +40,12 @@ const PluginManager = (editor: Editor): IPluginManager => {
 				})
 				.finally(() => {
 					const events = self.Utils.Event.Get();
-					for (const [key, eventList] of Object.entries(events)) {
-						if (!ENativeEvents[key as ENativeEvents]) continue;
-						DOM.On(self.IsIFrame() ? DOM.GetRoot() : self.GetBody(), key, (evt) => {
-							for (const event of eventList) {
-								event(evt);
-							}
-						});
-					}
+					Obj.Entries(events, (key, eventList) => {
+						if (!ENativeEvents[key as ENativeEvents]) return;
+						DOM.On(self.IsIFrame() ? DOM.GetRoot() : self.GetBody(), key, (evt) =>
+							Arr.Each(eventList, event => event(evt))
+						);
+					});
 
 					resolve();
 				});

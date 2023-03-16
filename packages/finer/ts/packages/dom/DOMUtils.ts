@@ -1,4 +1,4 @@
-import { Arr, Str, Type, Utils } from '@dynafer/utils';
+import { Arr, Obj, Str, Type, Utils } from '@dynafer/utils';
 import Options, { EModeEditor } from '../../Options';
 
 export const ESCAPE_EMPTY_TEXT_REGEX = /(%EF%BB%BF|%0A)/gi;
@@ -80,18 +80,18 @@ const DOMUtils = (): IDOMUtils => {
 	const CreateAttrSelector = (attr: string): string => `[${attr}]`;
 	const CreateAttrSelectorFromMap = (attrs: Record<string, string>): string => {
 		let selector = '';
-		for (const [key, value] of Object.entries(attrs)) {
+		Obj.Entries(attrs, (key, value) => {
 			selector += CreateAttrSelector(Str.Merge(Str.CapitalToDash(key), '="', value, '"'));
-		}
+		});
 		return selector;
 	};
 
 	const CreateStyleSelector = (style: string): string => `[style*="${Str.CapitalToDash(style)}"]`;
 	const CreateStyleSelectorFromMap = (styles: Record<string, string>): string => {
 		let selector = '';
-		for (const [name, value] of Object.entries(styles)) {
+		Obj.Entries(styles, (name, value) => {
 			selector += CreateStyleSelector(Str.Merge(Str.CapitalToDash(name), Str.IsEmpty(value) ? '' : `: ${value}`));
-		}
+		});
 		return selector;
 	};
 
@@ -99,9 +99,9 @@ const DOMUtils = (): IDOMUtils => {
 		if (Type.IsString(target)) return stringCallback(target);
 		if (Type.IsArray(target)) {
 			let newValue = '';
-			for (const attr of target) {
+			Arr.Each(target, attr => {
 				newValue += Type.IsString(attr) ? stringCallback(attr) : mapCallback(attr);
-			}
+			});
 			return newValue;
 		}
 
@@ -125,10 +125,10 @@ const DOMUtils = (): IDOMUtils => {
 		}
 
 		if (Type.IsArray(opts.class)) {
-			for (const className of opts.class) {
-				if (!Type.IsString(className)) continue;
+			Arr.Each(opts.class, className => {
+				if (!Type.IsString(className)) return;
 				selector += Str.Merge('.', className);
-			}
+			});
 		}
 
 		selector += createSelectorBy(styles, CreateStyleSelector, CreateStyleSelectorFromMap);
@@ -137,9 +137,7 @@ const DOMUtils = (): IDOMUtils => {
 
 		if (Type.IsArray(tagName)) {
 			const newSelector: string[] = [];
-			for (const name of tagName) {
-				Arr.Push(newSelector, `${name}${selector}`);
-			}
+			Arr.Each(tagName, name => Arr.Push(newSelector, `${name}${selector}`));
 			selector = Str.Join(',', ...newSelector);
 		}
 

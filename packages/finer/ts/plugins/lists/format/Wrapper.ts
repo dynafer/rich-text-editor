@@ -25,30 +25,27 @@ const Wrapper = (editor: Editor, format: IPluginListFormat) => {
 	const wrapNoesInTableItem = (item: Node): HTMLElement => {
 		const newList = DOM.Create(Tag);
 
-		for (const child of DOM.GetChildNodes(item, false)) {
-			if (DOM.Utils.IsBr(child)) continue;
+		Arr.Each(DOM.GetChildNodes(item, false), child => {
+			if (DOM.Utils.IsBr(child)) return;
 
-			if (Switchable.has(DOM.Utils.GetNodeName(child))) {
-				DOM.CloneAndInsert(newList, true, ...DOM.GetChildNodes(child, false));
-				continue;
-			}
+			if (Switchable.has(DOM.Utils.GetNodeName(child)))
+				return DOM.CloneAndInsert(newList, true, ...DOM.GetChildNodes(child, false));
 
 			const newListItem = createListItem(child);
 			DOM.Insert(newList, newListItem);
-		}
+		});
 
 		return newList;
 	};
 
-	const wrapNodesInTable = (selectedList: Node[]) => {
-		for (const selected of selectedList) {
+	const wrapNodesInTable = (selectedList: Node[]) =>
+		Arr.Each(selectedList, selected => {
 			const newList = wrapNoesInTableItem(selected);
 
 			if (!DOM.Utils.HasChildNodes(newList)) DOM.Insert(newList, DOM.Utils.WrapTagHTML(Following, '<br>'));
 
 			(selected as Element).replaceChildren(newList);
-		}
-	};
+		});
 
 	const mergeList = (node: Node, insertion?: Node) => {
 		if (!!node.previousSibling && DOM.Utils.GetNodeName(node.previousSibling) === Tag) {
@@ -116,14 +113,14 @@ const Wrapper = (editor: Editor, format: IPluginListFormat) => {
 		let bMiddle = false;
 		let bEnd = false;
 
-		for (const child of children) {
+		Arr.Each(children, child => {
 			if (child === startItem) bMiddle = true;
 
 			const addable = bEnd ? endList : (bMiddle ? middleList : startList);
 			DOM.CloneAndInsert(addable, true, child);
 
 			if (child === endItem) bEnd = true;
-		}
+		});
 
 		const bStartFromMiddle = !DOM.Utils.HasChildNodes(startList);
 
@@ -175,10 +172,10 @@ const Wrapper = (editor: Editor, format: IPluginListFormat) => {
 		if (!node) return wrapNodesInList(root, children[0], children[children.length - 1]);
 
 		let item;
-		for (const child of children) {
-			if (!DOM.Utils.IsChildOf(node, child)) continue;
+		Arr.Each(children, child => {
+			if (!DOM.Utils.IsChildOf(node, child)) return;
 			item = child;
-		}
+		});
 
 		if (!item) return;
 
@@ -208,22 +205,21 @@ const Wrapper = (editor: Editor, format: IPluginListFormat) => {
 			wrapNodesInSameLine(node);
 		};
 
-		for (const child of rootChildren) {
+		Arr.Each(rootChildren, (child, exit) => {
 			if (DOM.Utils.IsChildOf(startNode, child)) {
 				bStart = true;
 				const marker = DOM.HasAttr(child.previousSibling, 'marker') ? child.previousSibling : null;
-				wrapNodeInTableCell(child, marker, true);
-				continue;
+				return wrapNodeInTableCell(child, marker, true);
 			}
 
 			if (DOM.Utils.IsChildOf(endNode, child)) {
 				const marker = DOM.HasAttr(child.nextSibling, 'marker') ? child.nextSibling : null;
 				wrapNodeInTableCell(child, marker);
-				break;
+				return exit();
 			}
 
 			if (bStart) wrapNodeInTableCell(child);
-		}
+		});
 	};
 
 	const processSameLine = (caret: ICaretData) => {
@@ -254,20 +250,19 @@ const Wrapper = (editor: Editor, format: IPluginListFormat) => {
 			const rootChildren = DOM.GetChildNodes(caret.SameRoot);
 			let bStart = false;
 
-			for (const child of rootChildren) {
+			Arr.Each(rootChildren, (child, exit) => {
 				if (DOM.Utils.IsChildOf(caret.Start.Node, child)) {
 					bStart = true;
-					wrapNodesInSameLine(child, caret.Start.Node);
-					continue;
+					return wrapNodesInSameLine(child, caret.Start.Node);
 				}
 
 				if (DOM.Utils.IsChildOf(caret.End.Node, child)) {
 					wrapNodesInSameLine(child, caret.End.Node, true);
-					break;
+					return exit();
 				}
 
 				if (bStart) wrapNodesInSameLine(child);
-			}
+			});
 
 			if (bStart) return;
 		}

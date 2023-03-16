@@ -14,21 +14,13 @@ const Sketcher = (): ISketcher => {
 		const sketch = DOMFactory(TagName);
 
 		if (Type.IsArray(Elements)) {
-			for (const element of Elements) {
-				if (Type.IsString(element)) {
-					sketch.InsertHtml(element);
-					continue;
-				}
-
+			Arr.Each(Elements, element => {
+				if (Type.IsString(element)) return sketch.InsertHtml(element);
 				sketch.Insert(!!(element as IDOMFactory).Doc ? element as IDOMFactory : SketchOne(element as ISketcherSetting));
-			}
+			});
 		}
 
-		if (Type.IsArray(Events)) {
-			for (const event of Events) {
-				sketch.Bind(event[0], event[1]);
-			}
-		}
+		if (Type.IsArray(Events)) Arr.Each(Events, event => sketch.Bind(event[0], event[1]));
 
 		if (Type.IsObject(Attributes)) Attribute.SetMultiple(sketch.Self, Attributes);
 
@@ -38,9 +30,7 @@ const Sketcher = (): ISketcher => {
 	const Sketch = (settings: ISketcherSetting[]): IDOMFactory[] => {
 		const sketches: IDOMFactory[] = [];
 
-		for (const setting of settings) {
-			Arr.Push(sketches, SketchOne(setting));
-		}
+		Arr.Each(settings, setting => Arr.Push(sketches, SketchOne(setting)));
 
 		return sketches;
 	};

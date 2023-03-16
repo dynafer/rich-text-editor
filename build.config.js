@@ -28,23 +28,23 @@ module.exports = async (runner, config) => {
 		});
 	};
 
-	for (const dir of fs.readdirSync(PACKAGE_PATH)) {
-		if (dir.includes(PROJECT_NAME)) continue;
+	fs.readdirSync(PACKAGE_PATH).forEach(dir => {
+		if (dir.includes(PROJECT_NAME)) return;
 
 		const dirPath = path.join(PACKAGE_PATH, `./${dir}`);
 
 		if (fs.existsSync(path.join(dirPath, './package.json'))) {
 			commandRegister(dirPath);
-			continue;
+			return;
 		}
 
-		for (const subDir of fs.readdirSync(dirPath)) {
+		fs.readdirSync(dirPath).forEach(subDir => {
 			const subDirPath = path.join(dirPath, `./${subDir}`);
-			if (!fs.existsSync(path.join(subDirPath, './package.json'))) continue;
+			if (!fs.existsSync(path.join(subDirPath, './package.json'))) return;
 
 			commandRegister(subDirPath);
-		}
-	}
+		});
+	});
 
 	await Command.Run(commandSettings);
 	await Command.Run({
@@ -53,11 +53,11 @@ module.exports = async (runner, config) => {
 	});
 
 	const sassList = [];
-	for (const dir of fs.readdirSync(SCSS_PATH)) {
-		if (dir.includes('.scss') || dir.includes('ui')) continue;
+	fs.readdirSync(SCSS_PATH).forEach(dir => {
+		if (dir.includes('.scss') || dir.includes('ui')) return;
 
 		const dirPath = path.join(SCSS_PATH, `./${dir}`);
-		for (const subDir of fs.readdirSync(dirPath)) {
+		fs.readdirSync(dirPath).forEach(subDir => {
 			const subDirPath = path.join(dirPath, `./${subDir}`);
 
 			const outputPath = path.join(OUTPUT_PATH, `./skins/${subDir}`);
@@ -68,8 +68,8 @@ module.exports = async (runner, config) => {
 				output: path.join(outputPath, './skin.min.css'),
 				compressed: true
 			});
-		}
-	}
+		});
+	});
 
 	sassList.push({
 		input: path.join(SCSS_PATH, `./${INPUT_NAME}.scss`),
@@ -120,8 +120,8 @@ module.exports = async (runner, config) => {
 		}
 	];
 
-	for (const name of PLUGIN_NAMES) {
-		if (name.includes('template')) continue;
+	PLUGIN_NAMES.forEach(name => {
+		if (name.includes('template')) return;
 		rollups.push({
 			input: path.resolve(inputPath, `./plugins/${name}/Index.js`),
 			output: [
@@ -136,7 +136,7 @@ module.exports = async (runner, config) => {
 				nodeResolve()
 			]
 		});
-	}
+	});
 
 	Rollup.Register(rollups);
 

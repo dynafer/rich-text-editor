@@ -64,7 +64,7 @@
 			& > .#{getClassName(option-item)}:first-child {
 				@include flex(center, center);
 				@include border($bottom: getVar(toolbar-item-select-border));
-				@include margin(rem, $bottom: 0.3);
+				@include margin(rem, $bottom: 0.5);
 
 				div {
 					@include square(1.2rem);
@@ -80,7 +80,7 @@
 			& > .#{getClassName(option-item)}:last-child {
 				@include flex(space-between, center);
 				@include border(getVar(toolbar-item-select-border));
-				@include margin(rem, 0.3);
+				@include margin(rem, 0.5);
 			}
 
 			& > .#{getClassName(option-item)} {
@@ -119,27 +119,32 @@
 			.#{getClassName(item-group)} {
 				&[vertical='true'] {
 					@include width(1.4rem);
-					@include margin(rem, $left: 0.3);
+					@include margin(rem, $left: 0.1);
+				}
+
+				&:nth-child(2) {
+					@include margin(rem, $left: 0.6);
+				}
+
+				&:nth-last-child(2) {
+					@include margin(rem, $right: 0.6);
 				}
 
 				&:not([vertical='true']) {
 					.#{getClassName(option-item)} {
 						@include width(1.4rem);
-						@include margin(rem, $right: 0.3);
+						@include margin(rem, $right: 0.1);
 					}
-				}
-
-				&:last-child {
-					@include margin(rem, $right: 0.3);
 				}
 
 				.#{getClassName(option-item)} {
 					@include height(1.4rem);
-					@include margin(rem, $bottom: 0.3);
+					@include margin(rem, $bottom: 0.1);
 					cursor: pointer;
 
 					&:hover {
-						@include all-border(getVar(toolbar-color-hover-border), 3px);
+						@include all-border(getVar(toolbar-color-hover-border), 1px);
+						scale: 1.3;
 					}
 				}
 			}

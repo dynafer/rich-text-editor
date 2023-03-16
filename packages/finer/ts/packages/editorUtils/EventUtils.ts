@@ -1,4 +1,4 @@
-import { Arr } from '@dynafer/utils';
+import { Arr, Obj } from '@dynafer/utils';
 
 export interface IEvent<T = unknown> {
 	(...params: T[]): void;
@@ -36,23 +36,22 @@ const EventUtils = (): IEventUtils => {
 		}
 	};
 
-	const OffAll = () => {
-		for (const [eventName, eventList] of Object.entries(events)) {
+	const OffAll = () =>
+		Obj.Entries(events, (eventName, eventList) => {
 			Arr.Clean(eventList);
 			delete events?.[eventName];
-		}
-	};
+		});
 
 	const Dispatch = (eventName: string, ...params: unknown[]) => {
 		if (!Has(eventName)) return;
 
 		const eventList: Promise<void>[] = [];
-		for (const event of events[eventName]) {
+		Arr.Each(events[eventName], event =>
 			Arr.Push(eventList, new Promise((resolve) => {
 				event(...params);
 				resolve();
-			}));
-		}
+			}))
+		);
 
 		Promise.all(eventList)
 			.catch(() => { });

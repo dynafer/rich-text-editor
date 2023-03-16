@@ -1,4 +1,4 @@
-import { Type } from '@dynafer/utils';
+import { Arr, Obj, Type } from '@dynafer/utils';
 import Editor from '../Editor';
 import { AllBlockFormats } from './Format';
 import { EFormatType, IBlockFormat, IInlineFormat, IStyleFormat, TFormat } from './FormatType';
@@ -14,9 +14,9 @@ const FormatWrapper = (editor: Editor): IFormatWrapper => {
 
 	const createStyleMap = (styles: Record<string, string>, value?: string): Record<string, string> => {
 		const styleMap: Record<string, string> = {};
-		for (const [styleName, styleValue] of Object.entries(styles)) {
+		Obj.Entries(styles, (styleName, styleValue) => {
 			styleMap[styleName] = value ? styleValue.replace('{{value}}', value) : styleValue;
-		}
+		});
 
 		return styleMap;
 	};
@@ -30,13 +30,12 @@ const FormatWrapper = (editor: Editor): IFormatWrapper => {
 		oldNode.parentElement?.replaceChild(newNode, oldNode);
 	};
 
-	const mergeStyle = (node: Node, styles: Record<string, string>) => {
-		for (const [styleName, styleValue] of Object.entries(styles)) {
-			if (DOM.HasStyle(node as HTMLElement, styleName, styleValue)) continue;
+	const mergeStyle = (node: Node, styles: Record<string, string>) =>
+		Obj.Entries(styles, (styleName, styleValue) => {
+			if (DOM.HasStyle(node as HTMLElement, styleName, styleValue)) return;
 
 			DOM.SetStyle(node as HTMLElement, styleName, styleValue);
-		}
-	};
+		});
 
 	const wrapBlock = (format: IBlockFormat, node: Node) => {
 		const { Tag, Switchable, AddInside } = format;
@@ -119,10 +118,9 @@ const FormatWrapper = (editor: Editor): IFormatWrapper => {
 					return;
 				}
 
-				for (const styleFormat of formats) {
-					if (wrapStyleFormat(styleFormat as IStyleFormat, node, value)) break;
-				}
-				return;
+				return Arr.Each(formats, (styleFormat, exit) => {
+					if (wrapStyleFormat(styleFormat as IStyleFormat, node, value)) exit();
+				});
 		}
 	};
 

@@ -1,14 +1,13 @@
-import { Str } from '@dynafer/utils';
+import { Arr, Str } from '@dynafer/utils';
 
 let projectUrl: string;
-for (const loadedScript of document.head.querySelectorAll('script')) {
-	if (Str.Contains(loadedScript.src, 'finer.')) {
-		const tempSrc: string[] = loadedScript.src.split('/');
-		projectUrl = tempSrc.slice(0, tempSrc.length - 1).join('/');
-		if (Str.IsEmpty(projectUrl)) projectUrl = '.';
-		break;
-	}
-}
+Arr.Each(document.head.querySelectorAll('script'), (loadedScript, exit) => {
+	if (!Str.Contains(loadedScript.src, 'finer.')) return;
+	const tempSrc: string[] = loadedScript.src.split('/');
+	projectUrl = tempSrc.slice(0, tempSrc.length - 1).join('/');
+	if (Str.IsEmpty(projectUrl)) projectUrl = '.';
+	exit();
+});
 
 export enum EModeEditor {
 	classic = 'classic',
