@@ -47,10 +47,7 @@ export const SetAsMap = (selector: HTMLElement, styles: Record<string, string>) 
 };
 
 export const SetText = (selector: HTMLElement, styleText: string) => {
-	if (Str.IsEmpty(styleText)) {
-		Attribute.Remove(selector, 'style');
-		return;
-	}
+	if (Str.IsEmpty(styleText)) return Attribute.Remove(selector, 'style');
 
 	selector.style.cssText = styleText;
 };

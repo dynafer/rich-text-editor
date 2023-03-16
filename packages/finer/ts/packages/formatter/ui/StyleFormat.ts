@@ -62,17 +62,13 @@ const StyleFormat = (editor: Editor, detector: IFormatDetector): IFormatUIRegist
 
 		return (paths: Node[]) => {
 			const node = FormatUtils.GetParentIfText(paths[0]);
-			if (!Type.IsArray(formats)) {
-				FormatUI.ToggleActivateClass(button, detect(formats, node));
-				return;
-			}
+			if (!Type.IsArray(formats)) return FormatUI.ToggleActivateClass(button, detect(formats, node));
 
 			for (const format of formats) {
 				const bActivate = detect(format, node);
 				if (!bActivate) continue;
 
-				FormatUI.ToggleActivateClass(button, bActivate);
-				return;
+				return FormatUI.ToggleActivateClass(button, bActivate);
 			}
 
 			FormatUI.ToggleActivateClass(button, false);

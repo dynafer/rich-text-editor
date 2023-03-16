@@ -9,8 +9,7 @@ const HoverTable = (editor: Editor, event: MouseEvent) => {
 	const caret = self.Utils.Caret.Get()[0];
 	if (caret?.IsRange()) {
 		TableTools.RemoveAll();
-		self.Utils.Caret.Clean();
-		return;
+		return self.Utils.Caret.Clean();
 	}
 
 	self.Utils.Caret.Clean();

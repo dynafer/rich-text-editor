@@ -60,10 +60,10 @@ const Input = (editor: Editor) => {
 	};
 
 	const runWithCaret = (callback: (caret: ICaretData) => void) => {
-		const caret = CaretUtils.Get()[0];
 		callback(CaretUtils.Get()[0]);
 		if (!fakeFragment) return CaretUtils.Clean();
 
+		const caret = CaretUtils.Get()[0];
 		const newRange = self.Utils.Range();
 		const lastChild = DOM.Utils.GetLastChild(fakeFragment, true);
 
@@ -73,6 +73,7 @@ const Input = (editor: Editor) => {
 			const offset = DOM.Utils.IsText(lastChild) ? lastChild.length : 0;
 			newRange.SetStartToEnd(lastChild, offset, offset);
 		}
+		FormatUtils.CleanDirty(self, caret);
 		CaretUtils.UpdateRanges([newRange.Get()]);
 		CaretUtils.Clean();
 		fakeFragment = null;
@@ -96,8 +97,7 @@ const Input = (editor: Editor) => {
 		PreventEvent(event);
 		const caret = CaretUtils.Get()[0];
 		fakeFragment = caret.Range.Extract();
-		CaretUtils.Clean();
-		return;
+		return CaretUtils.Clean();
 	};
 
 	const insertFromDropEvent = (event: InputEvent) =>
@@ -126,8 +126,7 @@ const Input = (editor: Editor) => {
 		if (event.dataTransfer.items.length === 1) {
 			PreventEvent(event);
 
-			event.dataTransfer.items[0].getAsString((html: string) => runWithCaret(getAsStringCallback(html)));
-			return;
+			return event.dataTransfer.items[0].getAsString((html: string) => runWithCaret(getAsStringCallback(html)));
 		}
 
 		for (const data of event.dataTransfer.items) {
@@ -141,22 +140,18 @@ const Input = (editor: Editor) => {
 	const processBeforeInput = (event: InputEvent) => {
 		switch (event.inputType) {
 			case EInputEventType.deleteByDrag:
-				deleteByDragEvent(event);
-				return;
+				return deleteByDragEvent(event);
 			case EInputEventType.insertFromDrop:
 				if (!fakeFragment) return processWithDataTransfer(event);
 
-				runWithCaret(insertFromDropEvent(event));
-				return;
+				return runWithCaret(insertFromDropEvent(event));
 			case EInputEventType.insertParagraph:
-				setLastChildName();
-				return;
+				return setLastChildName();
 			default:
 				const inputType = Str.LowerCase(event.inputType);
 				if (Str.Contains(inputType, 'delete') || Str.Contains(inputType, 'text') || !event.dataTransfer) return;
 
-				processWithDataTransfer(event);
-				return;
+				return processWithDataTransfer(event);
 		}
 	};
 

@@ -20,8 +20,7 @@ const Form = (): IColorPickerForm | undefined => {
 		const navigation = form.GetChildren()[2] as INavigation;
 		if (bChangeBright) {
 			palette.ChangeColor(rgbaMap);
-			navigation.UpdateRGB(palette.GetColor());
-			return;
+			return navigation.UpdateRGB(palette.GetColor());
 		}
 
 		navigation.UpdateRGB(rgbaMap);

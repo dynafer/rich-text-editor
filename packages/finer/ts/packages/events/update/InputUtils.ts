@@ -121,11 +121,9 @@ const InputUtils = (editor: Editor) => {
 			const previous = previousNode;
 			previousNode = insertion;
 
-			if (!bInList) {
-				if (!previous) caret.Range.Insert(insertion);
-				else DOM.InsertAfter(previous, insertion);
-				return;
-			}
+			if (!bInList) return !previous
+				? caret.Range.Insert(insertion)
+				: DOM.InsertAfter(previous, insertion);
 
 			if (!bStopInlineNodes) return;
 
@@ -135,8 +133,7 @@ const InputUtils = (editor: Editor) => {
 
 			if (previousListName !== listName) {
 				bInList = false;
-				DOM.InsertAfter(previousList, insertion);
-				return;
+				return DOM.InsertAfter(previousList, insertion);
 			}
 
 			previousNode = previous;
@@ -154,6 +151,25 @@ const InputUtils = (editor: Editor) => {
 
 			if (bStopInlineNodes || !AllBlockFormats.has(nodeName)) {
 				insert(node);
+				continue;
+			}
+
+			if (nodeName === ListItemSelector) {
+				const listFromCaret = DOM.Closest(FormatUtils.GetParentIfText(caret.Start.Node), ListSelector);
+				if (!previousNode && !!listFromCaret)
+					previousNode = listFromCaret;
+
+				if (previousNode && !!DOM.Closest(previousNode, ListSelector)) {
+					const previousList = DOM.Closest(previousNode, ListSelector);
+					DOM.Insert(previousList, node);
+					bInList = true;
+					continue;
+				}
+
+				const newNode = DOM.Create('p');
+				DOM.Insert(newNode, ...DOM.GetChildNodes(node));
+				node.parentNode?.replaceChild(newNode, node);
+				insert(newNode);
 				continue;
 			}
 

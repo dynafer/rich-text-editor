@@ -53,8 +53,7 @@ const Wrapper = (editor: Editor, format: IPluginListFormat) => {
 	const mergeList = (node: Node, insertion?: Node) => {
 		if (!!node.previousSibling && DOM.Utils.GetNodeName(node.previousSibling) === Tag) {
 			DOM.Insert(node.previousSibling, ...(!!insertion ? [insertion] : DOM.GetChildNodes(node, false)));
-			DOM.Remove(node as Element, true);
-			return;
+			return DOM.Remove(node as Element, true);
 		}
 
 		if (!node.nextSibling || DOM.Utils.GetNodeName(node.nextSibling) !== Tag) return;
@@ -65,7 +64,6 @@ const Wrapper = (editor: Editor, format: IPluginListFormat) => {
 		const selector = bFirstChild ? firstChild : node.nextSibling;
 		insert(selector, ...(!!insertion ? [insertion] : DOM.GetChildNodes(node, false)));
 		DOM.Remove(node as Element, true);
-		return;
 	};
 
 	const switchFormat = (node: Node) => {
@@ -85,8 +83,7 @@ const Wrapper = (editor: Editor, format: IPluginListFormat) => {
 
 		if (node.previousSibling && DOM.Utils.GetNodeName(node.previousSibling) === Tag) {
 			DOM.Insert(node.previousSibling, ...[newListItem]);
-			DOM.Remove(node as Element, true);
-			return;
+			return DOM.Remove(node as Element, true);
 		}
 
 		if (node.nextSibling && DOM.Utils.GetNodeName(node.nextSibling) === Tag) {
@@ -95,8 +92,7 @@ const Wrapper = (editor: Editor, format: IPluginListFormat) => {
 			const insert = bFirstChild ? DOM.InsertBefore : DOM.Insert;
 			const selector = bFirstChild ? firstChild : node.nextSibling;
 			insert(selector, ...[newListItem]);
-			DOM.Remove(node as Element, true);
-			return;
+			return DOM.Remove(node as Element, true);
 		}
 
 		const newList = DOM.Create(Tag);
@@ -172,10 +168,7 @@ const Wrapper = (editor: Editor, format: IPluginListFormat) => {
 	const wrapNodesInSameLine = (root: Node, node?: Node, bFromFirst: boolean = false) => {
 		if (!root) return;
 
-		if (!Switchable.has(DOM.Utils.GetNodeName(root))) {
-			wrapBlock(root);
-			return;
-		}
+		if (!Switchable.has(DOM.Utils.GetNodeName(root))) return wrapBlock(root);
 
 		const children = DOM.GetChildNodes(root, false);
 
