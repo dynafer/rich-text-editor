@@ -26,7 +26,7 @@ export interface IDom {
 	SetAttrs: (selector: TElement, attrs: Record<string, string>) => void,
 	HasAttr: (selector: TElement, attr: string, value?: string) => boolean,
 	RemoveAttr: (selector: TElement, attr: string) => void,
-	RemoveAttrs: (selector: TElement, attrs: string[]) => void,
+	RemoveAttrs: (selector: TElement, ...attrs: string[]) => void,
 	AddClass: (selector: TElement, ...classes: string[]) => void,
 	HasClass: (selector: TElement, className: string) => boolean,
 	RemoveClass: (selector: TElement, ...classes: string[]) => void,
@@ -144,7 +144,7 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 		Attribute.Remove(selector, attr);
 	};
 
-	const RemoveAttrs = (selector: TElement, attrs: string[]) => {
+	const RemoveAttrs = (selector: TElement, ...attrs: string[]) => {
 		if (!Instance.Is(selector, elementType)) return;
 		for (const attr of attrs) {
 			RemoveAttr(selector, attr);
@@ -196,10 +196,10 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 	const RemoveStyle = (selector: HTMLElement | null, name: string) => {
 		if (!Instance.Is(selector, elementType) || !Type.IsString(name)) return;
 		Style.Remove(selector, name);
-		if (bFromEditor) {
-			if (Str.IsEmpty(GetStyleText(selector))) return RemoveAttr(selector, Options.ATTRIBUTE_EDITOR_STYLE);
-			SetAttr(selector, Options.ATTRIBUTE_EDITOR_STYLE, GetStyleText(selector));
-		}
+		if (!bFromEditor) return;
+
+		if (Str.IsEmpty(GetStyleText(selector))) return RemoveAttr(selector, Options.ATTRIBUTE_EDITOR_STYLE);
+		SetAttr(selector, Options.ATTRIBUTE_EDITOR_STYLE, GetStyleText(selector));
 	};
 
 	const HasStyle = (selector: HTMLElement | null, name: string, compareValue?: string): boolean =>

@@ -84,16 +84,15 @@ const ToggleStyleFormat = (editor: Editor, formats: IStyleFormat | IStyleFormat[
 		};
 
 		const cells = FormatUtils.GetTableItems(self, true);
-		if (cells.length === 0) {
-			for (let index = caret.Start.Line; index <= caret.End.Line; ++index) {
-				toggleStyle(lines[index] as HTMLElement);
-			}
-			return;
+		if (!Arr.IsEmpty(cells)) {
+			const figure = DOM.Closest(cells[0], FigureSelector) as HTMLElement | null;
+			if (!figure) return;
+			return toggleStyle(figure);
 		}
 
-		const figure = DOM.Closest(cells[0], FigureSelector) as HTMLElement | null;
-		if (!figure) return;
-		toggleStyle(figure);
+		for (let index = caret.Start.Line; index <= caret.End.Line; ++index) {
+			toggleStyle(lines[index] as HTMLElement);
+		}
 	};
 
 	const ToggleFromCaret = (bWrap: boolean, value?: string) =>

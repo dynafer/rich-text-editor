@@ -296,8 +296,7 @@ const AdjustableLine = (editor: Editor, table: HTMLElement, tableGrid: ITableGri
 			if (bLastPosition && multipliedCalculated > 0 && lastAdjustPosition === -1) {
 				lastAdjustPosition = savedAdjustPosition;
 
-				setSavedTableSize(cells);
-				return;
+				return setSavedTableSize(cells);
 			}
 
 			if (lastAdjustPosition !== -1) {

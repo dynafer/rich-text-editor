@@ -195,10 +195,7 @@ const FormatUI = (): IFormatUI => {
 	};
 
 	const ToggleDisable = (selector: HTMLElement, bDisable: boolean) => {
-		if (bDisable) {
-			DOM.SetAttr(selector, DISABLED_ATTRIBUTE, DISABLED_ATTRIBUTE);
-			return;
-		}
+		if (bDisable) return DOM.SetAttr(selector, DISABLED_ATTRIBUTE, DISABLED_ATTRIBUTE);
 
 		DOM.RemoveAttr(selector, DISABLED_ATTRIBUTE);
 	};

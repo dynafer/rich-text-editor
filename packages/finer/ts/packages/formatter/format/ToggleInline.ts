@@ -1,7 +1,6 @@
 import { Arr, Str, Type } from '@dynafer/utils';
 import Editor from '../../Editor';
 import { ICaretData } from '../../editorUtils/caret/CaretUtils';
-import { BlockFormatTags, FigureSelector } from '../Format';
 import { IInlineFormat } from '../FormatType';
 import FormatUtils from '../FormatUtils';
 
@@ -14,47 +13,7 @@ const ToggleInline = (editor: Editor, formats: IInlineFormat | IInlineFormat[]):
 	const DOM = self.DOM;
 	const Toggler = self.Formatter.Toggler;
 
-	const isNodeEmpty = (node: Node): boolean =>
-		(DOM.Utils.IsText(node) && Str.IsEmpty(node.textContent)) || (!DOM.Utils.IsText(node) && Str.IsEmpty(DOM.GetText(node as HTMLElement)));
-
-	const cleanDirty = (caret: ICaretData) => {
-		const followingItemsSelector = Str.Join(',', ...BlockFormatTags.FollowingItems);
-		const startBlock = DOM.Closest(FormatUtils.GetParentIfText(caret.Start.Node), followingItemsSelector) ?? caret.Start.Path[0];
-		const endBlock = DOM.Closest(FormatUtils.GetParentIfText(caret.End.Node), followingItemsSelector) ?? caret.End.Path[0];
-		const children: Node[] = [];
-
-		const startBlockName = DOM.Utils.GetNodeName(startBlock);
-		const endBlockName = DOM.Utils.GetNodeName(endBlock);
-
-		const caretNodes = [
-			...DOM.SelectAll({ attrs: 'caret' }, startBlock),
-			...DOM.SelectAll({ attrs: 'caret' }, endBlock)
-		];
-
-		if (startBlockName !== FigureSelector) Arr.Push(children, ...DOM.GetChildNodes(startBlock));
-		if (endBlockName !== FigureSelector) Arr.Push(children, ...DOM.GetChildNodes(endBlock));
-
-		for (const child of children) {
-			if (!child
-				|| !isNodeEmpty(child)
-				|| DOM.HasAttr(child, 'caret')
-				|| DOM.HasAttr(child, 'marker')
-			) continue;
-
-			let bSkip = false;
-
-			for (const caretNode of caretNodes) {
-				if (!DOM.Utils.IsChildOf(caretNode, child)) continue;
-				bSkip = true;
-				break;
-			}
-
-			if (bSkip) continue;
-
-			if (DOM.Utils.IsText(child)) child.remove();
-			else DOM.Remove(child as Element, false);
-		}
-	};
+	const cleanDirty = (caret: ICaretData) => FormatUtils.CleanDirty(self, caret);
 
 	const hasFormat = (node: Node, value?: string): boolean => {
 		const checkFormat = (format: IInlineFormat): boolean => {
@@ -164,8 +123,7 @@ const ToggleInline = (editor: Editor, formats: IInlineFormat | IInlineFormat[]):
 
 		if (Arr.IsEmpty(DOM.GetChildNodes(fragment))) {
 			caret.Range.SetEndAfter(existedCaret);
-			existedCaret.remove();
-			return;
+			return existedCaret.remove();
 		}
 
 		existedCaret.parentNode?.replaceChild(fragment, existedCaret);

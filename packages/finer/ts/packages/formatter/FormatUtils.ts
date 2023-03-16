@@ -3,7 +3,7 @@ import Options from '../../Options';
 import DOM from '../dom/DOM';
 import Editor from '../Editor';
 import { ICaretData } from '../editorUtils/caret/CaretUtils';
-import { BlockFormatTags, TableCellSet, TableSelector } from './Format';
+import { BlockFormatTags, FigureSelector, TableCellSet, TableSelector } from './Format';
 
 export type TConfigOption = string | string[] | Record<string, string>;
 
@@ -49,6 +49,7 @@ export interface IFormatUtils {
 	GetTableItems: (editor: Editor, bSelected: boolean, table?: Node) => Node[],
 	ExceptNodes: (editor: Editor, node: Node, root: Node, bPrevious?: boolean) => Node[],
 	SerialiseWithProcessors: (editor: Editor, options: IProcessorOption) => void,
+	CleanDirty: (editor: Editor, caret: ICaretData) => void,
 }
 
 const FormatUtils = (): IFormatUtils => {
@@ -369,6 +370,50 @@ const FormatUtils = (): IFormatUtils => {
 		CaretUtils.Clean();
 	};
 
+	const CleanDirty = (editor: Editor, caret: ICaretData) => {
+		const self = editor;
+
+		const followingItemsSelector = Str.Join(',', ...BlockFormatTags.FollowingItems);
+		const startBlock = self.DOM.Closest(GetParentIfText(caret.Start.Node), followingItemsSelector) ?? caret.Start.Path[0];
+		const endBlock = self.DOM.Closest(GetParentIfText(caret.End.Node), followingItemsSelector) ?? caret.End.Path[0];
+		const children: Node[] = [];
+
+		const startBlockName = self.DOM.Utils.GetNodeName(startBlock);
+		const endBlockName = self.DOM.Utils.GetNodeName(endBlock);
+
+		const caretNodes = [
+			...self.DOM.SelectAll({ attrs: 'caret' }, startBlock),
+			...self.DOM.SelectAll({ attrs: 'caret' }, endBlock)
+		];
+
+		if (startBlockName !== FigureSelector) Arr.Push(children, ...self.DOM.GetChildNodes(startBlock));
+		if (endBlockName !== FigureSelector) Arr.Push(children, ...self.DOM.GetChildNodes(endBlock));
+
+		const isNodeEmpty = (target: Node): boolean =>
+			(self.DOM.Utils.IsText(target) && Str.IsEmpty(target.textContent)) || (!self.DOM.Utils.IsText(target) && Str.IsEmpty(self.DOM.GetText(target as HTMLElement)));
+
+		for (const child of children) {
+			if (!child
+				|| !isNodeEmpty(child)
+				|| self.DOM.HasAttr(child, 'caret')
+				|| self.DOM.HasAttr(child, 'marker')
+			) continue;
+
+			let bSkip = false;
+
+			for (const caretNode of caretNodes) {
+				if (!self.DOM.Utils.IsChildOf(caretNode, child)) continue;
+				bSkip = true;
+				break;
+			}
+
+			if (bSkip) continue;
+
+			if (self.DOM.Utils.IsText(child)) child.remove();
+			else self.DOM.Remove(child as Element, false);
+		}
+	};
+
 	return {
 		GetPixelString,
 		GetPixcelFromRoot,
@@ -386,6 +431,7 @@ const FormatUtils = (): IFormatUtils => {
 		GetTableItems,
 		ExceptNodes,
 		SerialiseWithProcessors,
+		CleanDirty,
 	};
 };
 

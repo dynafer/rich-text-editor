@@ -67,8 +67,7 @@ const FormatWrapper = (editor: Editor): IFormatWrapper => {
 		const elementForCheck = FormatUtils.GetParentIfText(node) as Element;
 
 		if (!Styles) {
-			if (DOM.Closest(elementForCheck, Tag)) return;
-			if (AllBlockFormats.has(DOM.Utils.GetNodeName(node))) return;
+			if (DOM.Closest(elementForCheck, Tag) || AllBlockFormats.has(DOM.Utils.GetNodeName(node))) return;
 
 			return wrapFormat(node, Tag);
 		}

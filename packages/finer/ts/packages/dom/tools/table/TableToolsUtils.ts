@@ -68,8 +68,7 @@ export const MoveToCurrentPoint = (editor: Editor, table: HTMLElement, point: TC
 
 		const newRange = self.Utils.Range();
 		newRange.SetStartToEnd(firstChild, 0, 0);
-		CaretUtils.UpdateRanges([newRange.Get()]);
-		return;
+		return CaretUtils.UpdateRanges([newRange.Get()]);
 	}
 
 	if (Type.IsArray(point)) {
