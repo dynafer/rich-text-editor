@@ -53,9 +53,8 @@ export const MoveToCurrentPoint = (editor: Editor, table: HTMLElement, point: TC
 	const DOM = self.DOM;
 	const CaretUtils = self.Utils.Caret;
 
-	for (const cell of DOM.SelectAll({ tagName: [...TableCellSet], attrs: [Options.ATTRIBUTE_SELECTED] }, table)) {
-		DOM.RemoveAttr(cell, Options.ATTRIBUTE_SELECTED);
-	}
+	const selected = DOM.SelectAll({ tagName: [...TableCellSet], attrs: [Options.ATTRIBUTE_SELECTED] }, table);
+	Arr.Each(selected, cell => DOM.RemoveAttr(cell, Options.ATTRIBUTE_SELECTED));
 
 	if (!point) {
 		const firstCell = DOM.SelectAll(TableCellSelector, table)[0];
@@ -72,10 +71,7 @@ export const MoveToCurrentPoint = (editor: Editor, table: HTMLElement, point: TC
 	}
 
 	if (Type.IsArray(point)) {
-		for (const cell of point) {
-			DOM.SetAttr(cell, Options.ATTRIBUTE_SELECTED, '');
-		}
-
+		Arr.Each(point, cell => DOM.SetAttr(cell, Options.ATTRIBUTE_SELECTED, ''));
 		point = undefined;
 		return;
 	}
@@ -121,12 +117,12 @@ export const GetTableGridWithIndex = (editor: Editor, table: Element, targetCell
 
 			if (Arr.IsEmpty(rowspans)) continue;
 
-			for (const rowspanIndex of rowspans) {
-				if (rowIndex < rowspanIndex[0] || rowIndex > rowspanIndex[1] || cellIndex !== rowspanIndex[2]) continue;
+			Arr.Each(rowspans, rowspanIndex => {
+				if (rowIndex < rowspanIndex[0] || rowIndex > rowspanIndex[1] || cellIndex !== rowspanIndex[2]) return;
 				const rowspanTarget = DOM.GetChildren(rows[rowspanIndex[0] - 1])[rowspanIndex[2]];
-				if (!rowspanTarget) continue;
+				if (!rowspanTarget) return;
 				Arr.Unshift(cells, rowspanTarget);
-			}
+			});
 		}
 
 		if (targetCell && TargetCellIndex === -1) {

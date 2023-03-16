@@ -74,9 +74,7 @@ const CaretUtils = (editor: Editor): ICaretUtils => {
 		CleanRanges();
 		Arr.Clean(ranges);
 
-		for (const range of newRanges) {
-			selection?.addRange(range);
-		}
+		Arr.Each(newRanges, range => selection?.addRange(range));
 	};
 
 	const Get = (): ICaretData[] => {
@@ -85,7 +83,7 @@ const CaretUtils = (editor: Editor): ICaretUtils => {
 
 		const CaretData: ICaretData[] = [];
 
-		for (const range of ranges) {
+		Arr.Each(ranges, range => {
 			const IsRange = (): boolean => !range.collapsed;
 			const Start = getLine(range.startContainer, range.startOffset, true);
 			const End = getLine(range.endContainer, range.endOffset, false);
@@ -99,7 +97,7 @@ const CaretUtils = (editor: Editor): ICaretUtils => {
 				SameRoot,
 				Range,
 			});
-		}
+		});
 
 		return CaretData;
 	};

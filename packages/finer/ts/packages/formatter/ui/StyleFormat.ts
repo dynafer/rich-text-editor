@@ -1,4 +1,4 @@
-import { Str, Type } from '@dynafer/utils';
+import { Arr, Str, Type } from '@dynafer/utils';
 import DOM from '../../dom/DOM';
 import Editor from '../../Editor';
 import { FigureSelector, Formats } from '../Format';
@@ -64,7 +64,8 @@ const StyleFormat = (editor: Editor, detector: IFormatDetector): IFormatUIRegist
 			const node = FormatUtils.GetParentIfText(paths[0]);
 			if (!Type.IsArray(formats)) return FormatUI.ToggleActivateClass(button, detect(formats, node));
 
-			for (const format of formats) {
+			for (let index = 0, length = formats.length; index < length; ++index) {
+				const format = formats[index];
 				const bActivate = detect(format, node);
 				if (!bActivate) continue;
 
@@ -114,7 +115,7 @@ const StyleFormat = (editor: Editor, detector: IFormatDetector): IFormatUIRegist
 		const group = FormatUI.CreateIconGroup();
 		const createdDetector = bIndentation ? createIndentationDetector : createAlignmentDetector;
 
-		for (const item of Items) {
+		Arr.Each(Items, item => {
 			const { Title, Icon, bDetector, bSubtract, Keys } = item;
 			const button = FormatUI.CreateIconButton(Title, Icon);
 			const command = createCommand(button, uiFormat, item);
@@ -134,10 +135,10 @@ const StyleFormat = (editor: Editor, detector: IFormatDetector): IFormatUIRegist
 
 			DOM.Insert(group, button);
 
-			if (!bDetector) continue;
+			if (!bDetector) return;
 
 			Detector.Register(createdDetector(item.Format as IStyleFormat, button));
-		}
+		});
 
 		return group;
 	};

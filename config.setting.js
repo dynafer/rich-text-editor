@@ -22,7 +22,8 @@ const DeleteMapFile = (extenstion, name = '') => {
 };
 
 const DeleteMapFiles = () => {
-	for (const name of PLUGIN_NAMES) {
+	for (let index = 0, length = PLUGIN_NAMES.length; index < length; ++index) {
+		const name = PLUGIN_NAMES[index];
 		DeleteMapFile('js', name);
 		DeleteMapFile('min.js', name);
 	}

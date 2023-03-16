@@ -1,4 +1,4 @@
-import { Arr, Str, Type } from '@dynafer/utils';
+import { Arr, Obj, Str, Type } from '@dynafer/utils';
 import Editor from '../../Editor';
 import { ICaretData } from '../../editorUtils/caret/CaretUtils';
 import { IInlineFormat } from '../FormatType';
@@ -28,7 +28,8 @@ const ToggleInline = (editor: Editor, formats: IInlineFormat | IInlineFormat[]):
 
 		if (!Type.IsArray(formats)) return checkFormat(formats);
 
-		for (const format of formats) {
+		for (let index = 0, length = formats.length; index < length; ++index) {
+			const format = formats[index];
 			if (checkFormat(format)) return true;
 		}
 
@@ -39,9 +40,7 @@ const ToggleInline = (editor: Editor, formats: IInlineFormat | IInlineFormat[]):
 		const cells = FormatUtils.GetTableItems(self, true);
 		if (cells.length === 0) return false;
 
-		for (const cell of cells) {
-			Toggler.ToggleRecursive(bWrap, formats, cell, { value });
-		}
+		Arr.Each(cells, cell => Toggler.ToggleRecursive(bWrap, formats, cell, { value }));
 
 		return true;
 	};
@@ -114,12 +113,12 @@ const ToggleInline = (editor: Editor, formats: IInlineFormat | IInlineFormat[]):
 		if (!existedCaret) return;
 
 		const fragment = DOM.CreateFragment();
-		for (const child of DOM.GetChildNodes(existedCaret, false)) {
+		Arr.Each(DOM.GetChildNodes(existedCaret, false), child => {
 			const bEmpty = DOM.Utils.IsText(child) ? DOM.Utils.IsTextEmpty(child) : Str.IsEmpty(DOM.GetText(child as HTMLElement));
 			const bMakrer = !DOM.Utils.IsText(child) && DOM.HasAttr(child, 'marker');
-			if (bEmpty && !DOM.Utils.IsBr(child) && !bMakrer) continue;
+			if (bEmpty && !DOM.Utils.IsBr(child) && !bMakrer) return;
 			DOM.Insert(fragment, child);
-		}
+		});
 
 		if (Arr.IsEmpty(DOM.GetChildNodes(fragment))) {
 			caret.Range.SetEndAfter(existedCaret);
@@ -159,7 +158,9 @@ const ToggleInline = (editor: Editor, formats: IInlineFormat | IInlineFormat[]):
 
 		if (!!Styles) {
 			createOption.styles = {};
-			for (const [styleName, styleValue] of Object.entries(Styles)) {
+			const styles = Obj.Entries(Styles);
+			for (let index = 0, length = styles.length; index < length; ++index) {
+				const [styleName, styleValue] = styles[index];
 				if (!value && styleValue === '{{value}}') continue;
 				createOption.styles[styleName] = styleValue.replace('{{value}}', value ?? '');
 			}

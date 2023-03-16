@@ -63,11 +63,11 @@ const InlineColor = (editor: Editor): IFormatUIRegistryUnit => {
 
 	const createPaletteGradients = (uiName: string, colors: TRGBArray[][], bVertical: boolean = true): HTMLElement[] => {
 		const paletteGradients: HTMLElement[] = [];
-		for (const standardColor of colors) {
+		Arr.Each(colors, standardColor => {
 			const gradient = FormatUI.CreateItemGroup();
 			DOM.SetAttr(gradient, 'vertical', bVertical ? 'true' : 'false');
 
-			for (const color of standardColor) {
+			Arr.Each(standardColor, color => {
 				const rgba = ColorPicker.Utils.RGBA.ToMap(...color);
 				const rgbaString = ColorPicker.Utils.RGBA.ToRGB(...color);
 				const colorElement = FormatUI.Create({
@@ -87,9 +87,9 @@ const InlineColor = (editor: Editor): IFormatUIRegistryUnit => {
 				DOM.SetStyle(colorElement, 'background-color', rgbaString);
 
 				DOM.Insert(gradient, colorElement);
-			}
+			});
 			Arr.Push(paletteGradients, gradient);
-		}
+		});
 
 		return paletteGradients;
 	};

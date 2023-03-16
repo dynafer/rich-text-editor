@@ -25,21 +25,21 @@ const Unwrapper = (editor: Editor, format: IPluginListFormat) => {
 		let bMiddle = false;
 		let bEnd = false;
 
-		for (const child of children) {
+		Arr.Each(children, child => {
 			if (DOM.Utils.IsChildOf(start, child)) bMiddle = true;
 
 			if (bMiddle && !bEnd) {
-				for (const node of DOM.GetChildNodes(child)) {
-					if (DOM.Utils.IsBr(node)) continue;
+				Arr.Each(DOM.GetChildNodes(child), node => {
+					if (DOM.Utils.IsBr(node)) return;
 					Arr.Push(middleNodes, DOM.Clone(node, true));
-				}
+				});
 			} else {
 				const addable = bEnd ? endList : startList;
 				DOM.CloneAndInsert(addable, true, child);
 			}
 
 			if (DOM.Utils.IsChildOf(end, child)) bEnd = true;
-		}
+		});
 
 		const bStartFromMiddle = !DOM.Utils.HasChildNodes(startList);
 
@@ -69,20 +69,19 @@ const Unwrapper = (editor: Editor, format: IPluginListFormat) => {
 		if (DOM.Utils.HasChildNodes(endList)) DOM.InsertAfter(lastChildInMiddleNodes, endList);
 	};
 
-	const unwrapNodesInTable = (selectedList: Node[]) => {
-		for (const selected of selectedList) {
+	const unwrapNodesInTable = (selectedList: Node[]) =>
+		Arr.Each(selectedList, selected => {
 			const lists = DOM.SelectAll(Tag, selected);
-			if (Arr.IsEmpty(lists)) continue;
+			if (Arr.IsEmpty(lists)) return;
 
-			for (const list of lists) {
+			Arr.Each(lists, list => {
 				const firstChild = DOM.Utils.GetFirstChild(list);
 				const lastChild = DOM.Utils.GetLastChild(list);
-				if (!firstChild || !lastChild) continue;
+				if (!firstChild || !lastChild) return;
 
 				unwrap(list, firstChild, lastChild, true);
-			}
-		}
-	};
+			});
+		});
 
 	const unwrapRange = (node: Node, bFromFirst: boolean = false) => {
 		if (!node) return;
@@ -124,11 +123,11 @@ const Unwrapper = (editor: Editor, format: IPluginListFormat) => {
 		const children = DOM.GetChildNodes(tableCell);
 		let bStart = false;
 
-		for (const child of children) {
+		Arr.Each(children, (child, exit) => {
 			const bHasStart = !!DOM.Utils.IsChildOf(caret.Start.Node, child);
 			const bHasEnd = !!DOM.Utils.IsChildOf(caret.End.Node, child);
 			if (bHasStart) bStart = true;
-			if (!bStart) continue;
+			if (!bStart) return;
 
 			const firstChild = DOM.Utils.GetFirstChild(child);
 			const lastChild = DOM.Utils.GetLastChild(child);
@@ -140,8 +139,8 @@ const Unwrapper = (editor: Editor, format: IPluginListFormat) => {
 				unwrap(child, startNode, endNode, true);
 			}
 
-			if (bHasEnd) break;
-		}
+			if (bHasEnd) exit();
+		});
 	};
 
 	const processRange = (caret: ICaretData) => {

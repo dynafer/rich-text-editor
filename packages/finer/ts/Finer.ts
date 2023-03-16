@@ -1,4 +1,5 @@
 import EditorInit, { IEditorInit } from './packages/EditorInit';
+import { ENativeEvents } from './packages/events/EventSetupUtils';
 import PluginLoader, { IPluginLoader } from './packages/loaders/PluginLoader';
 import ScriptLoader, { IScriptLoader } from './packages/loaders/ScriptLoader';
 import IconManager, { IIconManager } from './packages/managers/IconManager';
@@ -12,8 +13,9 @@ interface IFiner {
 		Icon: IScriptLoader,
 		Plugin: IPluginLoader,
 	},
-	Init: IEditorInit,
 	Icons: IIconManager,
+	NativeEventMap: Record<ENativeEvents, ENativeEvents>,
+	Init: IEditorInit,
 }
 
 const Finer: IFiner = {
@@ -22,6 +24,7 @@ const Finer: IFiner = {
 		Plugin: PluginLoader,
 	},
 	Icons: IconManager,
+	NativeEventMap: ENativeEvents,
 	Init: EditorInit,
 };
 

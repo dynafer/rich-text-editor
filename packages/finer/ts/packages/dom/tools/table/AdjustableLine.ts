@@ -59,12 +59,11 @@ const AdjustableLine = (editor: Editor, table: HTMLElement, tableGrid: ITableGri
 
 		const boundEvents: [boolean, HTMLElement, ENativeEvents, EventListener][] = [];
 
-		const removeEvents = () => {
-			for (const boundEvent of boundEvents) {
+		const removeEvents = () =>
+			Arr.Each(boundEvents, boundEvent => {
 				const off = boundEvent[0] ? self.GetRootDOM().Off : DOM.Off;
 				off(boundEvent[1], boundEvent[2], boundEvent[3]);
-			}
-		};
+			});
 
 		setAdjustableSize();
 
@@ -213,9 +212,7 @@ const AdjustableLine = (editor: Editor, table: HTMLElement, tableGrid: ITableGri
 			newStyles[positionStyleName] = `${savedTablePosition}px`;
 			DOM.SetStyles(fakeTable, newStyles);
 
-			for (const cell of cells) {
-				DOM.SetStyle(cell, sizeStyleName, `${GetClientSize(self, cell, sizeStyleName)}px`);
-			}
+			Arr.Each(cells, cell => DOM.SetStyle(cell, sizeStyleName, `${GetClientSize(self, cell, sizeStyleName)}px`));
 		};
 
 		const adjust = (e: MouseEvent) => {
@@ -259,19 +256,19 @@ const AdjustableLine = (editor: Editor, table: HTMLElement, tableGrid: ITableGri
 				const adjustableSizes: string[] = [];
 				const nextAdjustableSizes: string[] = [];
 
-				for (const cell of adjustableCells) {
+				Arr.Each(adjustableCells, cell => {
 					const cellSize = parseFloat(DOM.GetStyle(cell, sizeStyleName));
 					const cellRightPosition = cellSize + tablePosition + getPosition(cell);
 					const positionDifference = middleAdjustItemPosition - cellRightPosition;
 					Arr.Push(adjustableSizes, `${cellSize + positionDifference}px`);
-				}
+				});
 
-				for (const cell of nextAdjustableCells) {
+				Arr.Each(nextAdjustableCells, cell => {
 					const cellSize = parseFloat(DOM.GetStyle(cell, sizeStyleName));
 					const cellLeftPosition = tablePosition + getPosition(cell);
 					const positionDifference = cellLeftPosition - middleAdjustItemPosition;
 					Arr.Push(nextAdjustableSizes, `${cellSize + positionDifference}px`);
-				}
+				});
 
 				for (let index = 0, length = adjustableCells.length; index < length; ++index) {
 					DOM.SetStyle(adjustableCells[index], sizeStyleName, adjustableSizes[index]);
@@ -311,9 +308,7 @@ const AdjustableLine = (editor: Editor, table: HTMLElement, tableGrid: ITableGri
 			const positionDifference = (tablePosition + (bLeftTop ? 0 : tableSize) - middleAdjustItemPosition) * multiplier;
 
 			const cellSizes: number[] = [];
-			for (const cell of cells) {
-				Arr.Push(cellSizes, GetClientSize(self, cell, sizeStyleName));
-			}
+			Arr.Each(cells, cell => Arr.Push(cellSizes, GetClientSize(self, cell, sizeStyleName)));
 
 			for (let index = 0, length = cells.length; index < length; ++index) {
 				DOM.SetStyle(cells[index], sizeStyleName, `${cellSizes[index] + positionDifference}px`);
@@ -348,10 +343,10 @@ const AdjustableLine = (editor: Editor, table: HTMLElement, tableGrid: ITableGri
 			[true, self.GetRootDOM().GetRoot(), ENativeEvents.mousemove, finishAdjusting],
 		);
 
-		for (const boundEvent of boundEvents) {
+		Arr.Each(boundEvents, boundEvent => {
 			const on = boundEvent[0] ? self.GetRootDOM().On : DOM.On;
 			on(boundEvent[1], boundEvent[2], boundEvent[3]);
-		}
+		});
 	};
 
 	DOM.On(adjustableWidth, ENativeEvents.mousedown, startAdjusting);

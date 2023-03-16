@@ -14,7 +14,8 @@ const UI = (editor: Editor): IPluginListUI => {
 	const Detector = self.Formatter.Detector;
 
 	const IsDetected = (tagName: string, nodes: Node[]): boolean => {
-		for (const node of nodes) {
+		for (let index = 0, length = nodes.length; index < length; ++index) {
+			const node = nodes[index];
 			if (!self.DOM.Closest(node, tagName)) continue;
 
 			return true;

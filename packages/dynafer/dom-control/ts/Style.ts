@@ -1,4 +1,4 @@
-import { Arr, Str, Type } from '@dynafer/utils';
+import { Arr, Obj, Str, Type } from '@dynafer/utils';
 import * as Attribute from './Attribute';
 
 const win = window;
@@ -6,11 +6,11 @@ const win = window;
 export const GetAsMap = (selector: HTMLElement): Record<string, string> => {
 	const styleList = selector.style.cssText.split(';');
 	const styleDict: Record<string, string> = {};
-	for (const style of styleList) {
+	Arr.Each(styleList, style => {
 		const keyValue = style.split(':');
-		if (keyValue.length !== 2) continue;
+		if (keyValue.length !== 2) return;
 		styleDict[Str.DashToCapital(keyValue[0])] = keyValue[1].trim();
-	}
+	});
 
 	return styleDict;
 };
@@ -40,11 +40,8 @@ export const Set = (selector: HTMLElement, name: string, value: string) => {
 	selector.style.cssText = Str.Join(';', ...styleList);
 };
 
-export const SetAsMap = (selector: HTMLElement, styles: Record<string, string>) => {
-	for (const [name, value] of Object.entries(styles)) {
-		Set(selector, name, value);
-	}
-};
+export const SetAsMap = (selector: HTMLElement, styles: Record<string, string>) =>
+	Obj.Entries(styles, (name, value) => Set(selector, name, value));
 
 export const SetText = (selector: HTMLElement, styleText: string) => {
 	if (Str.IsEmpty(styleText)) return Attribute.Remove(selector, 'style');
@@ -64,10 +61,10 @@ export const Remove = (selector: HTMLElement, name: string) => {
 	if (!styles[dashedName]) return;
 
 	selector.style.cssText = '';
-	for (const [styleName, styleValue] of Object.entries(styles)) {
-		if (styleName === dashedName) continue;
+	Obj.Entries(styles, (styleName, styleValue) => {
+		if (styleName === dashedName) return;
 		selector.style.cssText += `${styleName}: ${styleValue};`;
-	}
+	});
 
 	if (Str.IsEmpty(selector.style.cssText)) Attribute.Remove(selector, 'style');
 };

@@ -24,9 +24,7 @@ const FormatDetector = (editor: Editor): IFormatDetector => {
 		}
 
 		const promises: Promise<void>[] = [];
-		for (const detection of detections) {
-			Arr.Push(promises, detection(caretPaths));
-		}
+		Arr.Each(detections, detection => Arr.Push(promises, detection(caretPaths)));
 
 		Promise.all(promises)
 			.finally(() => CaretUtils.Clean());

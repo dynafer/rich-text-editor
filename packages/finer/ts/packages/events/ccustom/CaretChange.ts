@@ -18,25 +18,25 @@ const CaretChange = (editor: Editor) => {
 		if (Arr.IsEmpty(caretPointers)) return;
 
 		const currentCarets: Node[] = [];
-		for (const path of paths) {
+		Arr.Each(paths, path => {
 			if (DOM.HasAttr(path, 'caret')) Arr.Push(currentCarets, path);
-		}
+		});
 
-		for (const caretPointer of caretPointers) {
-			if (Arr.Contains(currentCarets, caretPointer)) continue;
+		Arr.Each(caretPointers, caretPointer => {
+			if (Arr.Contains(currentCarets, caretPointer)) return;
 
 			if (!Str.IsEmpty(DOM.GetText(caretPointer))) {
 				DOM.SetOuterHTML(caretPointer, DOM.GetHTML(caretPointer));
-				continue;
+				return;
 			}
 
 			const parents = DOM.GetParents(caretPointer, true);
-			for (const parent of parents) {
-				if (!Str.IsEmpty(DOM.GetText(parent as HTMLElement))) break;
+			Arr.Each(parents, (parent, exit) => {
+				if (!Str.IsEmpty(DOM.GetText(parent as HTMLElement))) return exit();
 
 				DOM.Remove(parent as Element, true);
-			}
-		}
+			});
+		});
 	};
 
 	const addTableTools = (figure: Element) => {
@@ -58,29 +58,29 @@ const CaretChange = (editor: Editor) => {
 		const sameRoot = FormatUtils.GetParentIfText(carets[0]?.SameRoot) ? carets[0]?.SameRoot.parentNode : carets[0]?.SameRoot;
 
 		const figure = DOM.Closest(sameRoot, FigureSelector);
-		for (const focused of DOM.SelectAll({ attrs: [Options.ATTRIBUTE_FOCUSED] })) {
-			if (focused === figure) continue;
+		Arr.Each(DOM.SelectAll({ attrs: [Options.ATTRIBUTE_FOCUSED] }), focused => {
+			if (focused === figure) return;
 			DOM.RemoveAttr(focused, Options.ATTRIBUTE_FOCUSED);
 			TableTools.RemoveAll();
-		}
+		});
 
 		const bNotSameRootFigure = !!figure && !!carets[0]?.IsRange() && DOM.Closest(sameRoot, FigureSelector) !== figure;
 		if (!figure || !DOM.HasAttr(figure, 'type', TableSelector) || bNotSameRootFigure) return CaretUtils.Clean();
 
-		for (const caret of carets) {
-			if (caret.Start.Node !== figure || caret.End.Node !== figure) continue;
+		Arr.Each(carets, caret => {
+			if (caret.Start.Node !== figure || caret.End.Node !== figure) return;
 
 			const firstCell = DOM.SelectAll(TableCellSelector, figure)[0];
-			if (!firstCell) continue;
+			if (!firstCell) return;
 
 			let firstChild: Node | null = DOM.Utils.GetFirstChild(firstCell, true);
 			if (DOM.Utils.IsBr(firstChild)) firstChild = firstChild.parentNode;
 
-			if (!firstChild) continue;
+			if (!firstChild) return;
 
 			caret.Range.SetStartToEnd(firstChild, 1, 1);
 			CaretUtils.UpdateRanges([caret.Range.Clone()]);
-		}
+		});
 
 		if (DOM.HasAttr(figure, Options.ATTRIBUTE_FOCUSED)) return CaretUtils.Clean();
 

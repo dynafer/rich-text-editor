@@ -52,7 +52,8 @@ const Block = (editor: Editor, detector: IFormatDetector): IFormatUIRegistryUnit
 	const createCommandName = (uiName: string, title: string): string => Str.Merge(uiName, ':', title);
 
 	const isDetected = (tagName: string, nodes: Node[]): boolean => {
-		for (const node of nodes) {
+		for (let index = 0, length = nodes.length; index < length; ++index) {
+			const node = nodes[index];
 			if (!self.DOM.Closest(node, tagName)) continue;
 
 			return true;
@@ -63,9 +64,9 @@ const Block = (editor: Editor, detector: IFormatDetector): IFormatUIRegistryUnit
 	const isDetectedByCaret = (tagName: string, nodes?: Node[]): boolean => {
 		const caretNodes: Node[] = Type.IsArray(nodes) ? nodes : [];
 		if (Arr.IsEmpty(caretNodes)) {
-			for (const caret of self.Utils.Caret.Get()) {
-				Arr.Push(caretNodes, FormatUtils.GetParentIfText(caret.Start.Node), FormatUtils.GetParentIfText(caret.End.Node));
-			}
+			Arr.Each(self.Utils.Caret.Get(), caret =>
+				Arr.Push(caretNodes, FormatUtils.GetParentIfText(caret.Start.Node), FormatUtils.GetParentIfText(caret.End.Node))
+			);
 		}
 
 		return isDetected(tagName, caretNodes);
@@ -83,12 +84,12 @@ const Block = (editor: Editor, detector: IFormatDetector): IFormatUIRegistryUnit
 	const createOptionsList = (selection: IFormatUISelection, uiName: string, uiFormat: IBlockFormatUI) => {
 		const optionElements: HTMLElement[] = [];
 		const caretNodes: Node[] = [];
-		for (const caret of self.Utils.Caret.Get()) {
-			Arr.Push(caretNodes, FormatUtils.GetParentIfText(caret.Start.Node), FormatUtils.GetParentIfText(caret.End.Node));
-		}
+		Arr.Each(self.Utils.Caret.Get(), caret =>
+			Arr.Push(caretNodes, FormatUtils.GetParentIfText(caret.Start.Node), FormatUtils.GetParentIfText(caret.End.Node))
+		);
 		self.Utils.Caret.Clean();
 
-		for (const format of uiFormat.Items) {
+		Arr.Each(uiFormat.Items, format => {
 			const { Format, Title } = format;
 			const html = uiFormat.bPreview ? DOM.Utils.WrapTagHTML(Format.Tag, Title) : Title;
 			const bSelected = isDetected(Format.Tag, caretNodes);
@@ -97,7 +98,7 @@ const Block = (editor: Editor, detector: IFormatDetector): IFormatUIRegistryUnit
 			FormatUI.BindClickEvent(optionElement, () => FormatUI.RunCommand(self, createCommandName(uiName, Title), !bSelected));
 
 			Arr.Push(optionElements, optionElement);
-		}
+		});
 
 		const optionList = FormatUI.CreateOptionList(uiName, optionElements);
 		DOM.Insert(self.Frame.Root, optionList);
@@ -115,20 +116,21 @@ const Block = (editor: Editor, detector: IFormatDetector): IFormatUIRegistryUnit
 		};
 		setLabelText();
 
-		for (const format of uiFormat.Items) {
+		Arr.Each(uiFormat.Items, format => {
 			const { Format, Title, Keys } = format;
 			const command = createCommand(Format, Title, setLabelText);
 			const commandName = createCommandName(uiName, Title);
 			FormatUI.RegisterCommand(self, commandName, command);
 
-			if (!Type.IsString(Keys)) continue;
+			if (!Type.IsString(Keys)) return;
 			FormatUI.RegisterKeyboardEvent(self, Keys, () => FormatUI.RunCommand(self, commandName, isDetectedByCaret(Format.Tag)));
-		}
+		});
 
 		FormatUI.BindOptionListEvent(self, uiName, selection.Selection, () => createOptionsList(selection, uiName, uiFormat));
 
 		Detector.Register((paths: Node[]) => {
-			for (const { Format, Title } of uiFormat.Items) {
+			for (let index = 0, length = uiFormat.Items.length; index < length; ++index) {
+				const { Format, Title } = uiFormat.Items[index];
 				if (!isDetected(Format.Tag, paths)) continue;
 
 				return setLabelText(Title);

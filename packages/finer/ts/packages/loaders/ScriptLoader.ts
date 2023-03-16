@@ -39,9 +39,7 @@ const ScriptLoader = (loaderName: string): IScriptLoader => {
 	const LoadParallel = (names: string[]): Promise<void> =>
 		new Promise((resolve, reject) => {
 			const load: Promise<void>[] = [];
-			for (const name of names) {
-				Arr.Push(load, Load(name));
-			}
+			Arr.Each(names, name => Arr.Push(load, Load(name)));
 
 			Promise.all(load)
 				.catch(error => reject(error))

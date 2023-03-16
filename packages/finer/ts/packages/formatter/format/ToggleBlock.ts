@@ -32,9 +32,7 @@ const ToggleBlock = (editor: Editor, format: IBlockFormat): IToggleBlock => {
 		const cells = FormatUtils.GetTableItems(self, true);
 		if (cells.length === 0) return false;
 
-		for (const cell of cells) {
-			Toggler.ToggleRecursive(bWrap, format, cell);
-		}
+		Arr.Each(cells, cell => Toggler.ToggleRecursive(bWrap, format, cell));
 
 		return true;
 	};

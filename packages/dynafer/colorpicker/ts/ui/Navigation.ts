@@ -1,6 +1,6 @@
 import { Style } from '@dynafer/dom-control';
 import { IDOMFactory, Schema, Sketcher } from '@dynafer/sketcher';
-import { Arr, Str } from '@dynafer/utils';
+import { Arr, Obj, Str } from '@dynafer/utils';
 import { CreateName, IRGBA, RGBA } from '../utils/Utils';
 import { IHue } from './Hue';
 import { IPalette } from './Palette';
@@ -13,11 +13,11 @@ export interface INavigation extends IDOMFactory {
 const Navigation = (palette: IPalette, hue: IHue): INavigation => {
 	const inputs: Schema.IInputSchema[] = [];
 	const elements: IDOMFactory[] = [];
-	for (const Label of ['R', 'G', 'B', '#']) {
+	Arr.Each(['R', 'G', 'B', '#'], Label => {
 		const input = Sketcher.Input({ Label });
 		Arr.Push(inputs, input);
 		Arr.Push(elements, input.Schema);
-	}
+	});
 
 	const schema = Sketcher.SketchOne({
 		TagName: CreateName('navigation'),
@@ -40,9 +40,7 @@ const Navigation = (palette: IPalette, hue: IHue): INavigation => {
 	const presentation = schema.GetChildren()[4];
 
 	const UpdateRGB = (rgb: IRGBA) => {
-		for (const [key, inputSchema] of Object.entries(rgbElements)) {
-			inputSchema.SetValue(rgb[key as 'Red'].toString());
-		}
+		Obj.Entries(rgbElements, (key, inputSchema) => inputSchema.SetValue(rgb[key as 'Red'].toString()));
 
 		hex.SetValue(RGBA.ToHex(rgb, false));
 		Style.Set(presentation.Self, 'background-color', RGBA.ToString(rgb));
@@ -55,7 +53,7 @@ const Navigation = (palette: IPalette, hue: IHue): INavigation => {
 
 	const GetRGB = (bArray: boolean): string | number[] | null => {
 		const rgb: number[] = [];
-		for (const inputSchema of Object.values(rgbElements)) {
+		Obj.Values(rgbElements, inputSchema => {
 			if (Str.IsEmpty(inputSchema.GetValue())) {
 				toggleError(inputSchema, true);
 				return null;
@@ -67,7 +65,7 @@ const Navigation = (palette: IPalette, hue: IHue): INavigation => {
 			}
 			Arr.Push(rgb, value);
 			toggleError(inputSchema, false);
-		}
+		});
 
 		return bArray ? rgb : RGBA.ToRGB(...rgb);
 	};
@@ -94,10 +92,10 @@ const Navigation = (palette: IPalette, hue: IHue): INavigation => {
 		toggleError(hex, false);
 	};
 
-	for (const inputSchema of Object.values(rgbElements)) {
+	Obj.Values(rgbElements, inputSchema => {
 		inputSchema.Self.Bind('keydown', rgbKeyEvent);
 		inputSchema.Self.Bind('keyup', rgbKeyEvent);
-	}
+	});
 
 	hex.Self.Bind('keydown', hexKeyEvent);
 	hex.Self.Bind('keyup', hexKeyEvent);

@@ -63,18 +63,18 @@ const PaletteGuide = (setting: IUISettingMap['PaletteGuide']): IUISchemaMap['Pal
 		SetGuidance(eventItem.clientX - guide.parentElement.offsetLeft, eventItem.clientY - guide.parentElement.offsetTop);
 	};
 
-	for (const eventName of Arr.MergeUnique(startEvents, moveEvents, endEvents)) {
+	Arr.Each(Arr.MergeUnique(startEvents, moveEvents, endEvents), eventName => {
 		Palette.Bind(eventName, guideEvent as EventListener);
 		schema.Bind(eventName, guideEvent as EventListener);
-	}
+	});
 
-	for (const dragEvent of ['drag', 'dragstart', 'dragend', 'dragenter', 'dragleave', 'dragover']) {
+	Arr.Each(['drag', 'dragstart', 'dragend', 'dragenter', 'dragleave', 'dragover'], dragEvent =>
 		schema.Bind(dragEvent, (event: Event) => {
 			event.stopImmediatePropagation();
 			event.stopPropagation();
 			event.preventDefault();
-		});
-	}
+		})
+	);
 
 	return {
 		Schema: schema,

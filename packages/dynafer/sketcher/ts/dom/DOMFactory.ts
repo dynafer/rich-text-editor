@@ -1,5 +1,5 @@
 import { Insert } from '@dynafer/dom-control';
-import { Arr } from '@dynafer/utils';
+import { Arr, Obj } from '@dynafer/utils';
 
 export type TEventListener<K extends keyof GlobalEventHandlersEventMap> = (event: GlobalEventHandlersEventMap[K]) => void;
 
@@ -39,12 +39,11 @@ const DOMFactory: IDOMFactoryConstructor = (creation: string): IDOMFactory => {
 	const GetBody = () => Doc.body;
 
 	const InsertFactory = (...factories: IDOMFactory[]): IDOMFactory[] => {
-		for (const child of factories) {
-			if (!child) continue;
-
+		Arr.Each(factories, child => {
+			if (!child) return;
 			Insert.AfterInner(Self, child.Self);
 			Arr.Push(children, child);
-		}
+		});
 
 		return children;
 	};
@@ -76,19 +75,13 @@ const DOMFactory: IDOMFactoryConstructor = (creation: string): IDOMFactory => {
 	const GetChildren = (): IDOMFactory[] => children;
 
 	const Destroy = () => {
-		for (const child of children) {
-			child.Destroy();
-		}
+		Arr.Each(children, child => child.Destroy());
 
 		children.splice(0, children.length);
 
 		Dispatch('destroyed');
 
-		for (const [eventName, events] of Object.entries(boundEvents)) {
-			for (const event of events) {
-				Unbind(eventName, event);
-			}
-		}
+		Obj.Entries(boundEvents, (eventName, events) => Arr.Each(events, event => Unbind(eventName, event)));
 
 		Self.remove();
 	};

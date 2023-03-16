@@ -1,4 +1,4 @@
-import { Str } from '@dynafer/utils';
+import { Arr, Obj, Str } from '@dynafer/utils';
 import DOM from './dom/DOM';
 import Editor from './Editor';
 
@@ -35,50 +35,32 @@ const EditorToolbar = (editor: Editor): IEditorToolbar => {
 			class: DOM.Utils.CreateUEID('toolbar-group', false)
 		});
 
-		for (const groupItem of ToolbarGroup[name]) {
-			if (!Has(groupItem)) continue;
+		Arr.Each(ToolbarGroup[name], groupItem => {
+			if (!Has(groupItem)) return;
 			DOM.Insert(group, Get(groupItem));
-		}
+		});
 
 		return group;
 	};
 
-	const addAll = () => {
-		for (const toolbar of ToolbarSet) {
-			if (Has(toolbar)) {
-				DOM.Insert(self.Frame.Toolbar, Get(toolbar));
-				continue;
-			}
-
-			if (!ToolbarGroup[toolbar]) continue;
-
+	const addAll = () =>
+		Arr.Each(ToolbarSet, toolbar => {
+			if (Has(toolbar)) return DOM.Insert(self.Frame.Toolbar, Get(toolbar));
+			if (!ToolbarGroup[toolbar]) return;
 			DOM.Insert(self.Frame.Toolbar, createGroup(toolbar));
-		}
-	};
+		});
 
 	const LoadAll = () => {
-		for (const toolbar of ToolbarSet) {
-			if (self.Formatter.Registry.IsAvailable(toolbar)) {
-				self.Formatter.Register(toolbar);
-				continue;
-			}
+		Arr.Each(ToolbarSet, toolbar => {
+			if (self.Formatter.Registry.IsAvailable(toolbar)) return self.Formatter.Register(toolbar);
+			if (!ToolbarGroup[toolbar]) return self.Plugin.Get(toolbar)(toolbar);
 
-			if (!ToolbarGroup[toolbar]) {
-				if (self.Plugin.Has(toolbar)) self.Plugin.Get(toolbar)(toolbar);
-				continue;
-			}
-
-			for (const groupItem of ToolbarGroup[toolbar]) {
-				if (self.Formatter.Registry.IsAvailable(groupItem)) {
-					self.Formatter.Register(groupItem);
-					continue;
-				}
-
-				if (!self.Plugin.Has(groupItem)) continue;
-
+			Arr.Each(ToolbarGroup[toolbar], groupItem => {
+				if (self.Formatter.Registry.IsAvailable(groupItem)) return self.Formatter.Register(groupItem);
+				if (!self.Plugin.Has(groupItem)) return;
 				self.Plugin.Get(groupItem)(groupItem);
-			}
-		}
+			});
+		});
 
 		addAll();
 	};
@@ -95,11 +77,8 @@ const EditorToolbar = (editor: Editor): IEditorToolbar => {
 		DOM.Remove(items[Str.LowerCase(name)], true);
 	};
 
-	const RemoveAll = () => {
-		for (const name of Object.keys(items)) {
-			Remove(name);
-		}
-	};
+	const RemoveAll = () =>
+		Obj.Keys(items, name => Remove(name));
 
 	return {
 		Has,

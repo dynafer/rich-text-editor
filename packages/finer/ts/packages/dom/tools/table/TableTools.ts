@@ -51,35 +51,35 @@ const TableTools = (editor: Editor): ITableTools => {
 			attrs: [Options.ATTRIBUTE_FOCUSED]
 		});
 
-		for (const tools of toolList) {
-			if (!!focused && DOM.Utils.IsChildOf(tools, focused) && DOM.Closest(tools, FigureSelector) === focused) continue;
-			for (const [targetTools, eventName, event] of boundEvents) {
-				if (tools !== targetTools) continue;
+		Arr.Each(toolList, tools => {
+			if (!!focused && DOM.Utils.IsChildOf(tools, focused) && DOM.Closest(tools, FigureSelector) === focused) return;
+			Arr.Each(boundEvents, ([targetTools, eventName, event]) => {
+				if (tools !== targetTools) return;
 				DOM.Off(self.GetBody(), eventName, event);
-			}
+			});
 			DOM.Remove(tools, true);
-		}
+		});
 	};
 
 	const ChangePositions = () => {
-		for (const movable of DOM.SelectAll({ attrs: ['data-movable'] })) {
+		Arr.Each(DOM.SelectAll({ attrs: ['data-movable'] }), movable => {
 			const figure = DOM.Closest(movable, FigureSelector);
 			const figureType = DOM.GetAttr(figure, 'type');
-			if (!figure || !figureType) continue;
+			if (!figure || !figureType) return;
 
 			const figureElement = DOM.Select<HTMLElement>(figureType, figure);
-			if (!figureElement) continue;
+			if (!figureElement) return;
 
 			DOM.SetStyle(movable, 'left', CreateMovableHorizontalSize(figureElement.offsetLeft, true));
-		}
+		});
 
-		for (const line of DOM.SelectAll({ attrs: ['data-adjustable-line'] })) {
+		Arr.Each(DOM.SelectAll({ attrs: ['data-adjustable-line'] }), line => {
 			const figure = DOM.Closest(line, FigureSelector);
 			const figureType = DOM.GetAttr(figure, 'type');
-			if (!figure || !figureType) continue;
+			if (!figure || !figureType) return;
 
 			const figureElement = DOM.Select<HTMLElement>(figureType, figure);
-			if (!figureElement) continue;
+			if (!figureElement) return;
 
 			const bWidth = DOM.HasAttr(line, 'data-adjustable-line', 'width');
 
@@ -89,15 +89,15 @@ const TableTools = (editor: Editor): ITableTools => {
 				left: `${bWidth ? 0 : figureElement.offsetLeft}px`,
 				top: `${bWidth ? figureElement.offsetTop : 0}px`,
 			});
-		}
+		});
 
-		for (const edge of DOM.SelectAll({ attrs: ['data-adjustable-edge'] })) {
+		Arr.Each(DOM.SelectAll({ attrs: ['data-adjustable-edge'] }), edge => {
 			const figure = DOM.Closest(edge, FigureSelector);
 			const figureType = DOM.GetAttr(figure, 'type');
-			if (!figure || !figureType) continue;
+			if (!figure || !figureType) return;
 
 			const figureElement = DOM.Select<HTMLElement>(figureType, figure);
-			if (!figureElement) continue;
+			if (!figureElement) return;
 
 			const bLeft = DOM.HasAttr(edge, 'data-horizontal', 'left');
 			const bTop = DOM.HasAttr(edge, 'data-vertical', 'top');
@@ -106,7 +106,7 @@ const TableTools = (editor: Editor): ITableTools => {
 				left: CreateAdjustableEdgeSize(figureElement.offsetLeft + (bLeft ? 0 : figureElement.offsetWidth), true),
 				top: CreateAdjustableEdgeSize(figureElement.offsetTop + (bTop ? 0 : figureElement.offsetHeight), true),
 			});
-		}
+		});
 	};
 
 	return {

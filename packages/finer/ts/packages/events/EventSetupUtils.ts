@@ -170,10 +170,10 @@ export const Setup = <K extends keyof GlobalEventHandlersEventMap>(editor: Edito
 export const CaretChangeEvent = <K extends keyof GlobalEventHandlersEventMap>(editor: Editor, event: GlobalEventHandlersEventMap[K]) => {
 	const self = editor;
 	const paths: Node[] = [];
-	for (const path of event.composedPath()) {
-		if (self.GetBody() === path || self.DOM.GetRoot() === path) break;
+	Arr.Each(event.composedPath(), (path, exit) => {
+		if (self.GetBody() === path || self.DOM.GetRoot() === path) return exit();
 		Arr.Unshift(paths, path as Node);
-	}
+	});
 
 	const caret = self.Utils.Caret.Get()[0];
 

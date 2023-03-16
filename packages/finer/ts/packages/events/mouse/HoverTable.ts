@@ -1,3 +1,4 @@
+import { Arr } from '@dynafer/utils';
 import Editor from '../../Editor';
 import { FigureSelector, TableSelector } from '../../formatter/Format';
 
@@ -28,10 +29,10 @@ const HoverTable = (editor: Editor, event: MouseEvent) => {
 
 	if (tools.length >= 1) {
 		let target: HTMLElement | undefined;
-		for (const tool of tools) {
-			if (DOM.Closest(tool, FigureSelector) !== figure) continue;
+		Arr.Each(tools, tool => {
+			if (DOM.Closest(tool, FigureSelector) !== figure) return;
 			target = tool;
-		}
+		});
 		if (target) DOM.RemoveAttr(target, 'data-type');
 		TableTools.RemoveAll();
 		if (target) return DOM.SetAttr(target, 'data-type', 'table-tool');

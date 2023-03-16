@@ -1,4 +1,4 @@
-import { Str, Type } from '@dynafer/utils';
+import { Obj, Str, Type } from '@dynafer/utils';
 
 export interface IIconManager {
 	Has: (icon: string) => boolean,
@@ -20,9 +20,9 @@ const IconManager = () => {
 			return;
 		}
 
-		for (const [key, icon] of Object.entries(keyOrMap)) {
+		Obj.Entries(keyOrMap, (key, icon) => {
 			icons[key] = icon;
-		}
+		});
 	};
 
 	return {

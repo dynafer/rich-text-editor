@@ -1,5 +1,5 @@
 import { Attribute, Style } from '@dynafer/dom-control';
-import { Arr, Instance, Str, Type } from '@dynafer/utils';
+import { Arr, Instance, Obj, Str, Type } from '@dynafer/utils';
 import Options from '../../Options';
 import DOMUtils, { ESCAPE_EMPTY_TEXT_REGEX, ICreateSelectorOption, IDOMUtils } from './DOMUtils';
 
@@ -131,9 +131,7 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 
 	const SetAttrs = (selector: TElement, attrs: Record<string, string>) => {
 		if (!Instance.Is(selector, elementType)) return;
-		for (const [attr, value] of Object.entries(attrs)) {
-			SetAttr(selector, attr, value);
-		}
+		Obj.Entries(attrs, (attr, value) => SetAttr(selector, attr, value));
 	};
 
 	const HasAttr = (selector: TElement, attr: string, value?: string): boolean =>
@@ -146,17 +144,15 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 
 	const RemoveAttrs = (selector: TElement, ...attrs: string[]) => {
 		if (!Instance.Is(selector, elementType)) return;
-		for (const attr of attrs) {
-			RemoveAttr(selector, attr);
-		}
+		Arr.Each(attrs, attr => RemoveAttr(selector, attr));
 	};
 
 	const AddClass = (selector: TElement, ...classes: string[]) => {
 		if (!Instance.Is(selector, elementType)) return;
-		for (const className of classes) {
-			if (!className || Str.IsEmpty(className)) continue;
+		Arr.Each(classes, className => {
+			if (!className || Str.IsEmpty(className)) return;
 			selector.classList.add(className);
-		}
+		});
 	};
 
 	const HasClass = (selector: TElement, className: string): boolean =>
@@ -235,46 +231,40 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 	const InsertBefore = (selector: TElement, ...insertions: (string | TElement)[]) => {
 		if (!Instance.Is(selector, elementType) && !Instance.Is(selector, nodeType)) return;
 
-		for (const insertion of insertions) {
-			if (!insertion) continue;
+		Arr.Each(insertions, insertion => {
+			if (!insertion) return;
 
-			if (Instance.Is(selector, elementType) && Type.IsString(insertion)) {
-				selector.insertAdjacentHTML('beforebegin', insertion);
-				continue;
-			}
+			if (Instance.Is(selector, elementType) && Type.IsString(insertion))
+				return selector.insertAdjacentHTML('beforebegin', insertion);
 
 			(selector as ChildNode).before(insertion);
-		}
+		});
 	};
 
 	const Insert = (selector: TElement, ...insertions: (string | TElement)[]) => {
 		if ((!Instance.Is(selector, elementType) && !Instance.Is(selector, nodeType))) return;
 
-		for (const insertion of insertions) {
-			if (!insertion) continue;
+		Arr.Each(insertions, insertion => {
+			if (!insertion) return;
 
-			if (Instance.Is(selector, elementType) && Type.IsString(insertion)) {
-				selector.insertAdjacentHTML('beforeend', insertion);
-				continue;
-			}
+			if (Instance.Is(selector, elementType) && Type.IsString(insertion))
+				return selector.insertAdjacentHTML('beforeend', insertion);
 
 			selector.appendChild(Type.IsString(insertion) ? CreateTextNode(insertion) : insertion);
-		}
+		});
 	};
 
 	const InsertAfter = (selector: TElement, ...insertions: (string | TElement)[]) => {
 		if (!Instance.Is(selector, elementType) && !Instance.Is(selector, nodeType)) return;
 
-		for (const insertion of insertions) {
-			if (!insertion) continue;
+		Arr.Each(insertions, insertion => {
+			if (!insertion) return;
 
-			if (Instance.Is(selector, elementType) && Type.IsString(insertion)) {
-				selector.insertAdjacentHTML('afterend', insertion);
-				continue;
-			}
+			if (Instance.Is(selector, elementType) && Type.IsString(insertion))
+				return selector.insertAdjacentHTML('afterend', insertion);
 
 			(selector as ChildNode).after(insertion);
-		}
+		});
 	};
 
 	const Clone = (selector: NonNullable<TElement>, bDeep?: boolean): Node => selector.cloneNode(bDeep);
@@ -282,10 +272,10 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 	const CloneAndInsert = (selector: TElement, bDeep: boolean, ...insertions: (string | TElement)[]) => {
 		if ((!Instance.Is(selector, elementType) && !Instance.Is(selector, nodeType))) return;
 
-		for (const insertion of insertions) {
-			if (!insertion) continue;
+		Arr.Each(insertions, insertion => {
+			if (!insertion) return;
 			Insert(selector, Type.IsString(insertion) ? insertion : Clone(insertion, bDeep));
-		}
+		});
 	};
 
 	const Closest = (selector: TElement, find: string): Element | null => {
@@ -407,10 +397,10 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 
 		if (option.html && Type.IsString(option.html)) SetHTML(newElement, option.html);
 		if (option.children && Type.IsArray(option.children)) {
-			for (const child of option.children) {
-				if (!Instance.Is(child, elementType) && !Instance.Is(child, nodeType) && !Type.IsString(child)) continue;
+			Arr.Each(option.children, child => {
+				if (!Instance.Is(child, elementType) && !Instance.Is(child, nodeType) && !Type.IsString(child)) return;
 				Insert(newElement, child);
-			}
+			});
 		}
 
 		return newElement;
@@ -420,16 +410,14 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 		if (!Instance.Is(selector, elementType)) return;
 		const children = GetChildren(selector);
 		if (Arr.IsEmpty(children)) return;
-		for (const child of children) {
-			OffAll(child);
-		}
+		Arr.Each(children, child => OffAll(child));
 
 		if (!bBubble) return;
 
-		for (const child of children) {
+		Arr.Each(children, child => {
 			RemoveChildren(child, bBubble);
 			child.remove();
-		}
+		});
 	};
 
 	const Remove = (selector: Element | null, bBubble: boolean = false) => {

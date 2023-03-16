@@ -1,4 +1,4 @@
-import { Str, Type } from '@dynafer/utils';
+import { Arr, Str, Type } from '@dynafer/utils';
 import DOM from '../dom/DOM';
 import Editor from '../Editor';
 import { ENativeEvents, PreventEvent } from '../events/EventSetupUtils';
@@ -206,17 +206,15 @@ const FormatUI = (): IFormatUI => {
 		const unwrap = (format: IInlineFormat) => {
 			const { SameFormats } = format;
 			if (!SameFormats) return;
-			for (const sameFormat of SameFormats) {
+			Arr.Each(SameFormats, sameFormat => {
 				const toggler = ToggleInline(editor, Formats[sameFormat] as IInlineFormat);
 				toggler.ToggleFromCaret(false);
-			}
+			});
 		};
 
 		if (!Type.IsArray(formats)) return unwrap(formats);
 
-		for (const format of formats) {
-			unwrap(format);
-		}
+		Arr.Each(formats, format => unwrap(format));
 	};
 
 	const RegisterCommand = (editor: Editor, name: string, command: <T>(...args: T[]) => void) =>
@@ -238,7 +236,7 @@ const FormatUI = (): IFormatUI => {
 		};
 		let keyCode;
 
-		for (const key of keys) {
+		Arr.Each(keys, key => {
 			const lowercase = Str.LowerCase(key);
 			switch (lowercase) {
 				case 'ctrl':
@@ -257,7 +255,7 @@ const FormatUI = (): IFormatUI => {
 					keyCode = EKeyCode[keyName];
 					break;
 			}
-		}
+		});
 
 		if (keyCode) SetupWith(self, ENativeEvents.keydown, keyCode, keyOptions, callback);
 	};

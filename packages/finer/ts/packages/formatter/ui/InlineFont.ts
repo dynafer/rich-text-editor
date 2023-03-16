@@ -1,4 +1,4 @@
-import { Arr, Str, Type } from '@dynafer/utils';
+import { Arr, Obj, Str, Type } from '@dynafer/utils';
 import DOM from '../../dom/DOM';
 import Editor from '../../Editor';
 import { Formats } from '../Format';
@@ -80,7 +80,8 @@ const InlineFont = (editor: Editor, detector: IFormatDetector): IFormatUIRegistr
 			return false;
 		};
 
-		for (const node of nodes) {
+		for (let index = 0, length = nodes.length; index < length; ++index) {
+			const node = nodes[index];
 			const detected = self.DOM.ClosestByStyle(FormatUtils.GetParentIfText(node), selector) as HTMLElement;
 			if (checkDetected(detected)) return true;
 
@@ -106,7 +107,7 @@ const InlineFont = (editor: Editor, detector: IFormatDetector): IFormatUIRegistr
 
 		const styleName = !Format.Styles ? '' : Object.keys(Format.Styles)[0];
 
-		for (const [label, value] of Object.entries(Options)) {
+		Obj.Entries(Options, (label, value) => {
 			const html = bPreview ? DOM.Utils.WrapTagHTML('span', label) : label;
 			const bSelected = label === labelValue;
 			const optionElement = FormatUI.CreateOption(html, label, bSelected);
@@ -118,7 +119,7 @@ const InlineFont = (editor: Editor, detector: IFormatDetector): IFormatUIRegistr
 			if (bPreview && Format.Styles) DOM.SetStyle(DOM.Select<HTMLElement>('span', optionElement), styleName, value);
 
 			Arr.Push(optionElements, optionElement);
-		}
+		});
 
 		return optionElements;
 	};
@@ -130,7 +131,9 @@ const InlineFont = (editor: Editor, detector: IFormatDetector): IFormatUIRegistr
 	};
 
 	const getCurrentStyle = (format: IInlineFormat, options: Record<string, string>, nodes: Node[]): string => {
-		for (const [label, value] of Object.entries(options)) {
+		const optionEntries = Obj.Entries(options);
+		for (let index = 0, length = optionEntries.length; index < length; ++index) {
+			const [label, value] = optionEntries[index];
 			if (!isDetected(format, nodes, value)) continue;
 
 			return label;

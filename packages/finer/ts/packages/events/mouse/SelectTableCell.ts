@@ -10,9 +10,8 @@ const SelectTableCell = (editor: Editor, event: MouseEvent) => {
 	const DOM = self.DOM;
 	let bDragged = false;
 
-	for (const selected of DOM.SelectAll({ tagName: [...TableCellSet], attrs: [Options.ATTRIBUTE_SELECTED] })) {
-		DOM.RemoveAttr(selected, Options.ATTRIBUTE_SELECTED);
-	}
+	const selected = DOM.SelectAll({ tagName: [...TableCellSet], attrs: [Options.ATTRIBUTE_SELECTED] });
+	Arr.Each(selected, cell => DOM.RemoveAttr(cell, Options.ATTRIBUTE_SELECTED));
 
 	const targetCell = DOM.Closest(event.composedPath()[0] as Element, TableCellSelector);
 	const targetRow = targetCell?.parentElement;
@@ -35,11 +34,11 @@ const SelectTableCell = (editor: Editor, event: MouseEvent) => {
 
 			self.Utils.Caret.CleanRanges();
 			DOM.SetAttr(targetCell, Options.ATTRIBUTE_SELECTED, '');
-			for (const selected of DOM.SelectAll({ attrs: [Options.ATTRIBUTE_SELECTED] }, targetTable)) {
-				if (selected === targetCell) continue;
+			Arr.Each(DOM.SelectAll({ attrs: [Options.ATTRIBUTE_SELECTED] }, targetTable), cell => {
+				if (cell === targetCell) return;
 
-				DOM.RemoveAttr(selected, Options.ATTRIBUTE_SELECTED);
-			}
+				DOM.RemoveAttr(cell, Options.ATTRIBUTE_SELECTED);
+			});
 			return;
 		}
 
@@ -48,10 +47,10 @@ const SelectTableCell = (editor: Editor, event: MouseEvent) => {
 
 		const currentRowNum = Arr.Find(rows, currentRow);
 		let currentCellNum = -1;
-		for (const tableRow of Grid) {
-			if (currentCellNum !== -1) break;
+		Arr.Each(Grid, (tableRow, exit) => {
+			if (currentCellNum !== -1) return exit();
 			currentCellNum = Arr.Find(tableRow, currentCell);
-		}
+		});
 
 		if (currentCellNum === -1) return;
 

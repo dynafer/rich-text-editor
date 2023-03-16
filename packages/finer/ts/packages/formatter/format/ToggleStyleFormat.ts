@@ -29,9 +29,7 @@ const ToggleStyleFormat = (editor: Editor, formats: IStyleFormat | IStyleFormat[
 		const cells = FormatUtils.GetTableItems(self, true);
 		if (cells.length === 0) return false;
 
-		for (const cell of cells) {
-			Toggler.ToggleRecursive(bWrap, formats, cell, { value });
-		}
+		Arr.Each(cells, cell => Toggler.ToggleRecursive(bWrap, formats, cell, { value }));
 
 		return true;
 	};
@@ -112,9 +110,7 @@ const ToggleStyleFormat = (editor: Editor, formats: IStyleFormat | IStyleFormat[
 		const styleName = Object.keys(Styles)[0];
 		const calculateValue = bSubtract ? -1 * parseFloat(value) : parseFloat(value);
 
-		for (const caret of CaretUtils.Get()) {
-			calculateRange(caret, styleName, calculateValue);
-		}
+		Arr.Each(CaretUtils.Get(), caret => calculateRange(caret, styleName, calculateValue));
 
 		CaretUtils.Clean();
 	};
