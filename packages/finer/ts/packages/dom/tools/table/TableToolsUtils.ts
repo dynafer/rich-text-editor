@@ -4,11 +4,6 @@ import Editor from '../../../Editor';
 import { ICaretData } from '../../../editorUtils/caret/CaretUtils';
 import { TableCellSelector, TableCellSet, TableRowSelector } from '../../../formatter/Format';
 
-export const MOVABLE_ADDABLE_SIZE = 16;
-export const ADJUSTABLE_EDGE_ADDABLE_SIZE = -6;
-export const ADJUSTABLE_LINE_HALF_SIZE = 3;
-export const ADJUSTABLE_LINE_ADDABLE_SIZE = -2;
-
 type TCurrentPoint = ICaretData | HTMLElement[] | undefined;
 
 export interface ITableGrid {
@@ -16,24 +11,6 @@ export interface ITableGrid {
 	TargetCellRowIndex: number,
 	TargetCellIndex: number,
 }
-
-export const CreateMovableHorizontalSize = <T extends boolean = false>(size: number, bWithPixel: T | false = false): T extends false ? number : string =>
-	(bWithPixel
-		? `${size + MOVABLE_ADDABLE_SIZE}px`
-		: size + MOVABLE_ADDABLE_SIZE
-	) as T extends false ? number : string;
-
-export const CreateAdjustableEdgeSize = <T extends boolean = false>(size: number, bWithPixel: T | false = false): T extends false ? number : string =>
-	(bWithPixel
-		? `${size + ADJUSTABLE_EDGE_ADDABLE_SIZE}px`
-		: size + ADJUSTABLE_EDGE_ADDABLE_SIZE
-	) as T extends false ? number : string;
-
-export const CreateAdjustableLineSize = <T extends boolean = false>(size: number, bWithPixel: T | false = false): T extends false ? number : string =>
-	(bWithPixel
-		? `${size + ADJUSTABLE_LINE_ADDABLE_SIZE}px`
-		: size + ADJUSTABLE_LINE_ADDABLE_SIZE
-	) as T extends false ? number : string;
 
 export const CreateCurrentPoint = (editor: Editor, table: HTMLElement): TCurrentPoint => {
 	const self = editor;
@@ -67,7 +44,7 @@ export const MoveToCurrentPoint = (editor: Editor, table: HTMLElement, point: TC
 
 		const newRange = self.Utils.Range();
 		newRange.SetStartToEnd(firstChild, 0, 0);
-		return CaretUtils.UpdateRanges([newRange.Get()]);
+		return CaretUtils.UpdateRanges(newRange);
 	}
 
 	if (Type.IsArray(point)) {
@@ -79,8 +56,7 @@ export const MoveToCurrentPoint = (editor: Editor, table: HTMLElement, point: TC
 	const newRange = self.Utils.Range();
 	newRange.SetStart(point.Start.Node, point.Start.Offset);
 	newRange.SetEnd(point.End.Node, point.End.Offset);
-	CaretUtils.UpdateRanges([newRange.Get()]);
-	CaretUtils.Clean();
+	CaretUtils.UpdateRanges(newRange);
 };
 
 export const GetTableGridWithIndex = (editor: Editor, table: Element, targetCell?: Element): ITableGrid => {
@@ -155,5 +131,3 @@ export const CreateFakeTable = (editor: Editor, table: HTMLElement): HTMLElement
 
 	return fakeTable;
 };
-
-export const GetClientSize = (editor: Editor, target: HTMLElement, type: 'width' | 'height'): number => editor.DOM.GetRect(target)?.[type] ?? 0;

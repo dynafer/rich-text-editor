@@ -2,6 +2,7 @@ import Editor from '../../Editor';
 import { CaretChangeEvent, ENativeEvents, Setup } from '../EventSetupUtils';
 import Backspace from './Backspace';
 import DefaultEvent from './Default';
+import Delete from './Delete';
 import InTable from './InTable';
 import { EKeyCode, SetupKeyboard, SetupWith } from './KeyboardUtils';
 
@@ -27,6 +28,9 @@ const Keyboard = (editor: Editor) => {
 	SetupKeyboard(self, ENativeEvents.keyup, EKeyCode.Enter, CaretChangeEvent);
 
 	SetupKeyboard(self, ENativeEvents.keyup, EKeyCode.Backspace, Backspace);
+
+	SetupKeyboard(self, ENativeEvents.keydown, EKeyCode.Backspace, Delete);
+	SetupKeyboard(self, ENativeEvents.keydown, EKeyCode.Delete, Delete);
 
 	SetupWith(self, ENativeEvents.keyup, EKeyCode.KeyA, { bCtrl: true }, CaretChangeEvent);
 };

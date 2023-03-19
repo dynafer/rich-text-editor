@@ -1,6 +1,5 @@
 import { Arr } from '@dynafer/utils';
 import Editor from '../Editor';
-import { TableSelector } from '../formatter/Format';
 
 export enum ENativeEvents {
 	abort = 'abort',
@@ -172,17 +171,10 @@ export const CaretChangeEvent = <K extends keyof GlobalEventHandlersEventMap>(ed
 	const paths: Node[] = [];
 	Arr.Each(event.composedPath(), (path, exit) => {
 		if (self.GetBody() === path || self.DOM.GetRoot() === path) return exit();
-		Arr.Unshift(paths, path as Node);
+		Arr.Push(paths, path as Node);
 	});
 
-	const caret = self.Utils.Caret.Get()[0];
-
-	if ((paths.length === 1 || !!self.DOM.Select(TableSelector, paths[0])) && caret) {
-		Arr.Clean(paths);
-		Arr.Push(paths, ...Arr.MergeUnique(caret.Start.Path, caret.End.Path));
-	}
-
-	self.Dispatch('caret:change', paths);
+	self.Utils.Shared.DispatchCaretChange(paths);
 };
 
 export const PreventEvent = (event: Event) => {

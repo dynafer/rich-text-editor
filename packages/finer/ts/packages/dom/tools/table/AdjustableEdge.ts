@@ -1,7 +1,8 @@
 import { Arr, Type } from '@dynafer/utils';
 import Editor from '../../../Editor';
 import { ENativeEvents, PreventEvent } from '../../../events/EventSetupUtils';
-import { CreateAdjustableEdgeSize, CreateCurrentPoint, CreateFakeTable, GetClientSize, GetTableGridWithIndex, ITableGrid, MoveToCurrentPoint } from './TableToolsUtils';
+import { CreateAdjustableEdgeSize, GetClientSize, RegisterAdjustingEvents } from '../Utils';
+import { CreateCurrentPoint, CreateFakeTable, GetTableGridWithIndex, ITableGrid, MoveToCurrentPoint } from './TableToolsUtils';
 
 interface ICellStyleMap {
 	cell: HTMLElement,
@@ -11,7 +12,6 @@ interface ICellStyleMap {
 const AdjustableEdge = (editor: Editor, table: HTMLElement, tableGrid: ITableGrid): HTMLElement => {
 	const self = editor;
 	const DOM = self.DOM;
-	const TableTools = self.Tools.DOM.Table;
 
 	const adjustableEdgeGroup = DOM.Create('div', {
 		attrs: {
@@ -62,14 +62,6 @@ const AdjustableEdge = (editor: Editor, table: HTMLElement, tableGrid: ITableGri
 			savedPoint = undefined;
 		};
 
-		const boundEvents: [boolean, HTMLElement, ENativeEvents, EventListener][] = [];
-
-		const removeEvents = () =>
-			Arr.Each(boundEvents, boundEvent => {
-				const off = boundEvent[0] ? self.GetRootDOM().Off : DOM.Off;
-				off(boundEvent[1], boundEvent[2], boundEvent[3]);
-			});
-
 		let startOffsetX = event.clientX;
 		let startOffsetY = event.clientY;
 
@@ -78,6 +70,8 @@ const AdjustableEdge = (editor: Editor, table: HTMLElement, tableGrid: ITableGri
 
 		const oldWidth = table.offsetWidth;
 		const oldHeight = table.offsetHeight;
+
+		self.SaveScrollPosition();
 
 		const fakeTable = CreateFakeTable(self, table);
 		DOM.Insert(adjustableEdgeGroup, fakeTable);
@@ -98,7 +92,7 @@ const AdjustableEdge = (editor: Editor, table: HTMLElement, tableGrid: ITableGri
 			Arr.Push(cellSizePercents, cellSizePercent);
 		});
 
-		Arr.Each(fakeTableGrid.Grid, row => {
+		Arr.Each(fakeTableGrid.Grid, row =>
 			Arr.Each(row, cell => {
 				if (!DOM.HasAttr(cell, 'dump-width') && DOM.HasStyle(cell, 'width')) {
 					DOM.SetAttr(cell, 'dump-width', DOM.GetStyle(cell, 'width'));
@@ -108,8 +102,8 @@ const AdjustableEdge = (editor: Editor, table: HTMLElement, tableGrid: ITableGri
 					DOM.SetAttr(cell, 'dump-height', DOM.GetStyle(cell, 'height'));
 					DOM.RemoveStyle(cell, 'height');
 				}
-			});
-		});
+			})
+		);
 
 		const minWidth = fakeTable.offsetWidth;
 		const minHeight = fakeTable.offsetHeight;
@@ -120,7 +114,7 @@ const AdjustableEdge = (editor: Editor, table: HTMLElement, tableGrid: ITableGri
 		const savedAdjustItemLeft = adjustItem.offsetLeft + (bLeft ? Math.max(0, oldWidth - minWidth) : 0);
 		const savedAdjustItemTop = adjustItem.offsetTop + (bTop ? Math.max(0, oldHeight - minHeight) : 0);
 
-		Arr.Each(fakeTableGrid.Grid, row => {
+		Arr.Each(fakeTableGrid.Grid, row =>
 			Arr.Each(row, cell => {
 				if (DOM.HasAttr(cell, 'dump-width')) {
 					DOM.SetStyle(cell, 'width', DOM.GetAttr(cell, 'dump-width') ?? '');
@@ -130,10 +124,12 @@ const AdjustableEdge = (editor: Editor, table: HTMLElement, tableGrid: ITableGri
 					DOM.SetStyle(cell, 'height', DOM.GetAttr(cell, 'dump-height') ?? '');
 					DOM.RemoveAttr(cell, 'dump-height');
 				}
-			});
-		});
+			})
+		);
 
 		setEdgePositionStyles(fakeTable, adjustItem, bLeft, bTop);
+
+		self.ScrollSavedPosition();
 
 		const movable = DOM.Select<HTMLElement>({ attrs: ['data-movable'] }, table.parentNode);
 		DOM.Hide(movable);
@@ -231,12 +227,8 @@ const AdjustableEdge = (editor: Editor, table: HTMLElement, tableGrid: ITableGri
 
 			const newStyle: Record<string, string> = {};
 
-			if (!Type.IsBoolean(calculatedX) && bLeft) {
-				newStyle.left = `${minLeft + minWidth - fakeTable.offsetWidth}px`;
-			}
-			if (!Type.IsBoolean(calculatedY) && bTop) {
-				newStyle.top = `${minTop + minHeight - fakeTable.offsetHeight}px`;
-			}
+			if (!Type.IsBoolean(calculatedX) && bLeft) newStyle.left = `${minLeft + minWidth - fakeTable.offsetWidth}px`;
+			if (!Type.IsBoolean(calculatedY) && bTop) newStyle.top = `${minTop + minHeight - fakeTable.offsetHeight}px`;
 
 			DOM.SetStyles(fakeTable, newStyle);
 
@@ -245,7 +237,6 @@ const AdjustableEdge = (editor: Editor, table: HTMLElement, tableGrid: ITableGri
 
 		const finishAdjusting = (e: MouseEvent) => {
 			PreventEvent(e);
-			removeEvents();
 
 			const newWidth = fakeTable.offsetWidth;
 			const newHeight = fakeTable.offsetHeight;
@@ -283,24 +274,12 @@ const AdjustableEdge = (editor: Editor, table: HTMLElement, tableGrid: ITableGri
 				Arr.Each(gridStyles, ({ cell, styles }) => DOM.SetStyles(cell, styles))
 			);
 
-
 			DOM.Show(movable);
-
-			TableTools.ChangePositions();
 
 			moveToSavedPoint();
 		};
 
-		Arr.Push(boundEvents,
-			[false, self.GetBody(), ENativeEvents.mousemove, adjust],
-			[false, self.GetBody(), ENativeEvents.mouseup, finishAdjusting],
-			[true, self.GetRootDOM().GetRoot(), ENativeEvents.mousemove, finishAdjusting],
-		);
-
-		Arr.Each(boundEvents, boundEvent => {
-			const on = boundEvent[0] ? self.GetRootDOM().On : DOM.On;
-			on(boundEvent[1], boundEvent[2], boundEvent[3]);
-		});
+		RegisterAdjustingEvents(self, adjust, finishAdjusting);
 	};
 
 	const edges = [leftTopEdge, rightTopEdge, leftBottomEdge, rightBottomEdge];

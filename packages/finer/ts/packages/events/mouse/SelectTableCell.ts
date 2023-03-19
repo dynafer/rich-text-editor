@@ -10,7 +10,7 @@ const SelectTableCell = (editor: Editor, event: MouseEvent) => {
 	const DOM = self.DOM;
 	let bDragged = false;
 
-	const selected = DOM.SelectAll({ tagName: [...TableCellSet], attrs: [Options.ATTRIBUTE_SELECTED] });
+	const selected = DOM.SelectAll({ tagName: [...TableCellSet], attrs: [Options.ATTRIBUTE_SELECTED] }, self.GetBody());
 	Arr.Each(selected, cell => DOM.RemoveAttr(cell, Options.ATTRIBUTE_SELECTED));
 
 	const targetCell = DOM.Closest(event.composedPath()[0] as Element, TableCellSelector);

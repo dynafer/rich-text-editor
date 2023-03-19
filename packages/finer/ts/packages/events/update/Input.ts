@@ -2,7 +2,7 @@ import { Arr, Str } from '@dynafer/utils';
 import Options from '../../../Options';
 import Editor from '../../Editor';
 import { ICaretData } from '../../editorUtils/caret/CaretUtils';
-import { BlockFormatTags } from '../../formatter/Format';
+import { BlockFormatTags, FigureSelector } from '../../formatter/Format';
 import FormatUtils from '../../formatter/FormatUtils';
 import { EInputEventType, PreventEvent } from '../EventSetupUtils';
 import InputUtils from './InputUtils';
@@ -11,7 +11,6 @@ const Input = (editor: Editor) => {
 	const self = editor;
 	const DOM = self.DOM;
 	const CaretUtils = self.Utils.Caret;
-	const TableTools = self.Tools.DOM.Table;
 	const inputUtils = InputUtils(self);
 
 	let fakeFragment: DocumentFragment | null = null;
@@ -60,15 +59,21 @@ const Input = (editor: Editor) => {
 		inputUtils.InsertFragment(caret, fakeFragment);
 
 		if (lastChild) {
-			const offset = DOM.Utils.IsText(lastChild) ? lastChild.length : 0;
-			newRange.SetStartToEnd(lastChild, offset, offset);
+			const childName = DOM.Utils.GetNodeName(lastChild);
+			if (BlockFormatTags.Figures.has(childName)) {
+				const child = childName === FigureSelector ? lastChild : lastChild.parentElement as Node;
+				newRange.SetStartToEnd(child, 0, 0);
+			} else {
+				const offset = DOM.Utils.IsText(lastChild) ? lastChild.length : 0;
+				newRange.SetStartToEnd(lastChild, offset, offset);
+			}
 		}
 		FormatUtils.CleanDirty(self, caret);
-		CaretUtils.UpdateRanges([newRange.Get()]);
-		CaretUtils.Clean();
+		CaretUtils.UpdateRanges(newRange);
 		fakeFragment = null;
 
-		TableTools.ChangePositions();
+		self.Tools.DOM.ChangePositions();
+		self.Utils.Shared.DispatchCaretChange();
 	};
 
 	const getAsStringCallback = (html: string) =>
@@ -147,7 +152,7 @@ const Input = (editor: Editor) => {
 
 	const processInput = (event: InputEvent) => {
 		const clean = () => {
-			TableTools.ChangePositions();
+			self.Tools.DOM.ChangePositions();
 			lastChildName = null;
 			CaretUtils.Clean();
 		};
@@ -166,7 +171,7 @@ const Input = (editor: Editor) => {
 		const newRange = self.Utils.Range();
 		newRange.SetStartToEnd(paragraph, 0, 0);
 
-		CaretUtils.UpdateRanges([newRange.Get()]);
+		CaretUtils.UpdateRanges(newRange);
 		clean();
 	};
 

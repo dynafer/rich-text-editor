@@ -23,12 +23,12 @@ const InTable = (editor: Editor) => {
 			: 0;
 
 		range.SetStartToEnd(findNode, position, position);
-		CaretUtils.UpdateRanges([range.Get()]);
-		self.Dispatch('caret:change', []);
+		CaretUtils.UpdateRanges(range);
+		self.Utils.Shared.DispatchCaretChange();
 	};
 
 	const isInTableCell = () => {
-		// if moving in a table that is in a table.
+		// TODO: move caret if moving in a table which is in a table.
 	};
 
 	const insertOrMove = (range: IRangeUtils, line: Node, bPrevious: boolean) => {
@@ -39,15 +39,15 @@ const InTable = (editor: Editor) => {
 		const insert = bPrevious ? DOM.InsertBefore : DOM.InsertAfter;
 		insert(line, paragraph);
 		range.SetStartToEnd(paragraph, 0, 0);
-		CaretUtils.UpdateRanges([range.Get()]);
-		return self.Dispatch('caret:change', []);
+		CaretUtils.UpdateRanges(range);
+		self.Utils.Shared.DispatchCaretChange();
 	};
 
 	const getLineInCell = (cell: HTMLElement, node: Node): Node => {
 		let current: Node | null = node;
 		while (current) {
 			const parent: Node | null = current.parentNode;
-			if (!parent || parent === cell) return current;
+			if (!parent || parent === cell || parent === self.GetBody()) return current;
 
 			current = parent;
 		}

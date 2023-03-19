@@ -7,6 +7,7 @@ export interface IEditorFrame {
 	Root: HTMLElement,
 	Toolbar: HTMLElement,
 	Notification: HTMLElement,
+	Wrapper: HTMLElement,
 	Container: HTMLElement | HTMLIFrameElement,
 	Loading: HTMLElement,
 }
@@ -32,7 +33,7 @@ const EditorFrame = (config: IConfiguration): IEditorFrame => {
 	});
 
 	const wrapperId: string = DOM.Utils.CreateUEID('wrapper', false);
-	const wrapper = DOM.Create('div', {
+	const Wrapper = DOM.Create('div', {
 		attrs: {
 			id: wrapperId
 		},
@@ -69,14 +70,15 @@ const EditorFrame = (config: IConfiguration): IEditorFrame => {
 
 	DOM.Hide(Notification);
 
-	DOM.Insert(wrapper, Notification, Container);
-	DOM.Insert(Root, Toolbar, wrapper, Loading);
+	DOM.Insert(Wrapper, Notification, Container);
+	DOM.Insert(Root, Toolbar, Wrapper, Loading);
 	DOM.InsertAfter(config.Selector, Root);
 
 	return {
 		Root,
 		Toolbar,
 		Notification,
+		Wrapper,
 		Container,
 		Loading,
 	};

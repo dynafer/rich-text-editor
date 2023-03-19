@@ -1,6 +1,6 @@
 import { Arr, Obj, Str, Type } from '@dynafer/utils';
 import Editor from '../Editor';
-import { AllStrictFormats, TableCellSelector } from './Format';
+import { AllStrictFormats, FigureSelector, TableCellSelector } from './Format';
 import { EFormatType, IBlockFormat, IInlineFormat, IStyleFormat, TFormat } from './FormatType';
 import FormatUtils from './FormatUtils';
 
@@ -91,7 +91,7 @@ const FormatUnwrapper = (editor: Editor): IFormatUnwrapper => {
 			const bUnwrappable = isUnwrappable(currentNode);
 			const children = DOM.GetChildNodes(currentNode);
 			current = current.parentNode;
-			if (!current) break;
+			if (!current || current === self.GetBody()) break;
 
 			const replacedNodes: Node[] = [];
 
@@ -103,7 +103,7 @@ const FormatUnwrapper = (editor: Editor): IFormatUnwrapper => {
 
 			for (let index = 0, length = children.length; index < length; ++index) {
 				const child = children[index];
-				if (DOM.HasAttr(child, 'marker')) {
+				if (DOM.HasAttr(child, 'marker') || DOM.Utils.GetNodeName(child) === FigureSelector) {
 					Arr.Push(replacedNodes, child);
 					continue;
 				}
@@ -156,7 +156,7 @@ const FormatUnwrapper = (editor: Editor): IFormatUnwrapper => {
 	};
 
 	const processUnwrap = (format: TFormat, node: Node): boolean => {
-		switch (format.FormatType) {
+		switch (format.Type) {
 			case EFormatType.BLOCK:
 				return unwrapBlock(format, node);
 			case EFormatType.INLINE:

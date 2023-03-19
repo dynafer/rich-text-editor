@@ -4,6 +4,7 @@ import DOM from '../../dom/DOM';
 import Editor from '../../Editor';
 import { Formats, ListItemSelector } from '../Format';
 import ToggleInline from '../format/ToggleInline';
+import { IFormatDetector } from '../FormatDetector';
 import { IFormatUIRegistryUnit, IInlineFormat } from '../FormatType';
 import FormatUI from '../FormatUI';
 import FormatUtils from '../FormatUtils';
@@ -18,8 +19,9 @@ interface IInlineFormatColorPickerUI {
 	DefaultColor: string,
 }
 
-const InlineColor = (editor: Editor): IFormatUIRegistryUnit => {
+const InlineColor = (editor: Editor, detector: IFormatDetector): IFormatUIRegistryUnit => {
 	const self = editor;
+	const Detector = detector;
 
 	const ColorFormats: Record<string, IInlineFormatColorPickerUI> = {
 		ForeColor: {
@@ -132,7 +134,6 @@ const InlineColor = (editor: Editor): IFormatUIRegistryUnit => {
 				Pick: (rgb: string) => FormatUI.RunCommand<boolean | string>(self, uiName, true, rgb),
 			}));
 
-
 		DOM.Insert(lastPickedList, ...createPaletteGradients(uiName, [LastPicked], false));
 
 		return footer;
@@ -178,7 +179,7 @@ const InlineColor = (editor: Editor): IFormatUIRegistryUnit => {
 		const wrapper = FormatUI.CreateIconWrap(uiFormat.Title);
 
 		const button = FormatUI.Create({
-			tagName: 'div',
+			tagName: 'button',
 			title: uiFormat.Title,
 			type: 'color-icon',
 		});
@@ -188,6 +189,11 @@ const InlineColor = (editor: Editor): IFormatUIRegistryUnit => {
 		const helper = createHelper(uiName, uiFormat, wrapper);
 		DOM.Insert(button, colorNavigation);
 		DOM.Insert(wrapper, button, helper);
+
+		Detector.Register((paths: Node[]) => {
+			const node = FormatUtils.GetParentIfText(paths[0]);
+			FormatUI.IsNearDisableList(self, uiFormat.Format.DisableList, wrapper, node);
+		});
 
 		return wrapper;
 	};

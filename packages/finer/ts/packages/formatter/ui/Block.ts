@@ -1,7 +1,7 @@
 import { Arr, Str, Type } from '@dynafer/utils';
 import DOM from '../../dom/DOM';
 import Editor from '../../Editor';
-import { Formats } from '../Format';
+import { AllDisableList, Formats } from '../Format';
 import ToggleBlock from '../format/ToggleBlock';
 import { IFormatDetector } from '../FormatDetector';
 import { IBlockFormat, IFormatUIRegistryUnit } from '../FormatType';
@@ -9,14 +9,15 @@ import FormatUI, { IFormatUISelection } from '../FormatUI';
 import FormatUtils from '../FormatUtils';
 
 interface IBlockFormatItem {
-	Format: IBlockFormat,
-	Title: string,
-	Keys?: string,
+	readonly Format: IBlockFormat,
+	readonly Title: string,
+	readonly Keys?: string,
 }
 
 interface IBlockFormatUI {
-	bPreview: boolean,
-	Items: IBlockFormatItem[],
+	readonly bPreview: boolean,
+	readonly Items: IBlockFormatItem[],
+	readonly DisableList: Set<string>,
 }
 
 const Block = (editor: Editor, detector: IFormatDetector): IFormatUIRegistryUnit => {
@@ -34,7 +35,8 @@ const Block = (editor: Editor, detector: IFormatDetector): IFormatUIRegistryUnit
 				{ Format: Formats.Heading4 as IBlockFormat, Title: 'Heading4', Keys: 'Alt+Shift+4' },
 				{ Format: Formats.Heading5 as IBlockFormat, Title: 'Heading5', Keys: 'Alt+Shift+5' },
 				{ Format: Formats.Heading6 as IBlockFormat, Title: 'Heading6', Keys: 'Alt+Shift+6' },
-			]
+			],
+			DisableList: AllDisableList
 		},
 		BlockStyle: {
 			bPreview: false,
@@ -43,7 +45,8 @@ const Block = (editor: Editor, detector: IFormatDetector): IFormatUIRegistryUnit
 				{ Format: Formats.Div as IBlockFormat, Title: 'Div' },
 				{ Format: Formats.Blockquote as IBlockFormat, Title: 'Blockquote' },
 				{ Format: Formats.Pre as IBlockFormat, Title: 'Pre' },
-			]
+			],
+			DisableList: AllDisableList
 		},
 	};
 
@@ -78,7 +81,7 @@ const Block = (editor: Editor, detector: IFormatDetector): IFormatUIRegistryUnit
 			toggler.ToggleFromCaret(bActive as boolean);
 			setLabelText(bActive ? title : '');
 
-			self.Dispatch('caret:change', []);
+			self.Utils.Shared.DispatchCaretChange();
 		};
 
 	const createOptionsList = (selection: IFormatUISelection, uiName: string, uiFormat: IBlockFormatUI) => {
@@ -123,14 +126,22 @@ const Block = (editor: Editor, detector: IFormatDetector): IFormatUIRegistryUnit
 			FormatUI.RegisterCommand(self, commandName, command);
 
 			if (!Type.IsString(Keys)) return;
-			FormatUI.RegisterKeyboardEvent(self, Keys, () => FormatUI.RunCommand(self, commandName, isDetectedByCaret(Format.Tag)));
+			FormatUI.RegisterKeyboardEvent(self, Keys, () => {
+				if (FormatUI.IsDisabled(selection.Selection)) return;
+				FormatUI.RunCommand(self, commandName, isDetectedByCaret(Format.Tag));
+			});
 		});
 
 		FormatUI.BindOptionListEvent(self, uiName, selection.Selection, () => createOptionsList(selection, uiName, uiFormat));
 
 		Detector.Register((paths: Node[]) => {
+			const node = FormatUtils.GetParentIfText(paths[0]);
+			const bNearDisableList = FormatUI.IsNearDisableList(self, uiFormat.DisableList, selection.Selection, node);
+			if (bNearDisableList) return;
+
 			for (let index = 0, length = uiFormat.Items.length; index < length; ++index) {
 				const { Format, Title } = uiFormat.Items[index];
+
 				if (!isDetected(Format.Tag, paths)) continue;
 
 				return setLabelText(Title);

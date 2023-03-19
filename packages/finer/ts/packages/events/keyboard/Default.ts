@@ -15,10 +15,9 @@ const DefaultEvent = (editor: Editor, event: KeyboardEvent) => {
 	const firstLine = DOM.Utils.GetFirstChild(self.GetBody());
 	if (!firstLine) return CaretUtils.Clean();
 
-	const newCaret = self.Utils.Range();
-	newCaret.SetStartToEnd(firstLine, 0, 0);
-	CaretUtils.UpdateRanges([newCaret.Get()]);
-	return CaretUtils.Clean();
+	const newRange = self.Utils.Range();
+	newRange.SetStartToEnd(firstLine, 0, 0);
+	CaretUtils.UpdateRanges(newRange);
 };
 
 export default DefaultEvent;

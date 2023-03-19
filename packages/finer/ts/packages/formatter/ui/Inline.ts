@@ -19,7 +19,7 @@ interface IInlineFormatUI {
 const Inline = (editor: Editor, detector: IFormatDetector): IFormatUIRegistryUnit => {
 	const self = editor;
 	const Detector = detector;
-	const inlineColor = InlineColor(self);
+	const inlineColor = InlineColor(self, detector);
 	const inlineFont = InlineFont(self, detector);
 
 	const InlineFormats: Record<string, IInlineFormatUI> = {
@@ -56,10 +56,10 @@ const Inline = (editor: Editor, detector: IFormatDetector): IFormatUIRegistryUni
 
 	const createCommand = (format: IInlineFormat | IInlineFormat[], button: HTMLElement) =>
 		<T = boolean>(bActive: T) => {
+			FormatUI.ToggleActivateClass(button, bActive as boolean);
 			const toggler = ToggleInline(self, format);
 			if (bActive) FormatUI.UnwrapSameInlineFormats(self, format);
 			toggler.ToggleFromCaret(bActive as boolean);
-			FormatUI.ToggleActivateClass(button, bActive as boolean);
 		};
 
 	const createIconButton = (uiName: string, uiFormat: IInlineFormatUI): HTMLElement => {
@@ -68,11 +68,29 @@ const Inline = (editor: Editor, detector: IFormatDetector): IFormatUIRegistryUni
 		const command = createCommand(Format, button);
 
 		FormatUI.RegisterCommand(self, uiName, command);
-		const eventCallback = () => FormatUI.RunCommand(self, uiName, !FormatUI.HasActiveClass(button));
+		const eventCallback = () => {
+			if (FormatUI.IsDisabled(button)) return;
+			FormatUI.RunCommand(self, uiName, !FormatUI.HasActiveClass(button));
+		};
 		FormatUI.BindClickEvent(button, eventCallback);
 		if (Type.IsString(Keys)) FormatUI.RegisterKeyboardEvent(self, Keys, eventCallback);
 
+		const isNearDisableList = (node: Node): boolean => {
+			if (!Type.IsArray(Format)) return FormatUI.IsNearDisableList(self, Format.DisableList, button, node);
+
+			let bNearDisableList = false;
+			Arr.Each(Format, (format, exit) => {
+				bNearDisableList = FormatUI.IsNearDisableList(self, format.DisableList, button, node);
+				if (bNearDisableList) exit();
+			});
+			return bNearDisableList;
+		};
+
 		Detector.Register((paths: Node[]) => {
+			const node = FormatUtils.GetParentIfText(paths[0]);
+			const bNearDisableList = isNearDisableList(node);
+			if (bNearDisableList) return;
+
 			if (!Type.IsArray(Format)) return FormatUI.ToggleActivateClass(button, isDetected(Format, paths));
 
 			for (let index = 0, length = Format.length; index < length; ++index) {

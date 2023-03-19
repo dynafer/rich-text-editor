@@ -1,4 +1,4 @@
-import { Arr, Obj, Type } from '@dynafer/utils';
+import { Arr, Obj, Str, Type } from '@dynafer/utils';
 import Editor from '../Editor';
 import { AllBlockFormats } from './Format';
 import { EFormatType, IBlockFormat, IInlineFormat, IStyleFormat, TFormat } from './FormatType';
@@ -88,26 +88,26 @@ const FormatWrapper = (editor: Editor): IFormatWrapper => {
 	};
 
 	const wrapStyleFormat = (format: IStyleFormat, node: Node, value?: string): boolean => {
-		const { StrictFormats, Styles } = format;
+		const { StrictFormats, Styles, SameStyles } = format;
+
+		const parent = DOM.Closest(FormatUtils.GetParentIfText(node), Str.Join(',', ...StrictFormats));
+		if (!parent) return false;
 
 		const styles = createStyleMap(Styles, value);
 
-		let currentParent: Node | null = node;
-		while (currentParent) {
-			if (StrictFormats.has(DOM.Utils.GetNodeName(currentParent))) {
-				mergeStyle(currentParent, styles);
-				return true;
-			}
+		const removeStyles = () => {
+			if (!Type.IsArray(SameStyles)) return;
+			Arr.Each(SameStyles, styleName => DOM.RemoveStyle(parent as HTMLElement, styleName));
+		};
 
-			currentParent = currentParent.parentNode;
-		}
-
-		return false;
+		removeStyles();
+		mergeStyle(parent, styles);
+		return true;
 	};
 
 	const Wrap = (formats: TFormat | TFormat[], node: Node, value?: string) => {
 		const format = Type.IsArray(formats) ? formats[0] : formats;
-		switch (format.FormatType) {
+		switch (format.Type) {
 			case EFormatType.BLOCK:
 				return wrapBlock(format, node);
 			case EFormatType.INLINE:

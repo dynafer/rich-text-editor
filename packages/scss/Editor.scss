@@ -5,9 +5,9 @@
 	word-wrap: break-word;
 }
 
-@mixin firefox {
+@mixin firefox($item) {
 	@supports not (-moz-appearance: none) {
-		body > * {
+		#{$item} > * {
 			@include margin(rem, 0.75, $bottom: 0.75);
 			@include height($line: 1.4);
 			word-wrap: break-word;
@@ -43,16 +43,64 @@
 	}
 
 	figure {
-		@include margin($left: 0, $right: 0);
 		@include position(relative);
 
-		&[data-focused] {
-			table {
+		&[type='img'] {
+			@include margin($left: 0, $right: 0);
+
+			img {
 				@include position(relative);
+				@include width($min: 1.25rem);
+				@include height($min: 1.25rem);
+			}
+
+			&[style*='float: left'] {
+				@include margin(rem, 0.5, 0.5, 0.5, 0);
+			}
+
+			&[style*='float: right'] {
+				@include margin(rem, 0.5, 0, 0.5, 0.5);
+			}
+
+			&[style*='margin-left: 0'][style*='margin-right: auto'],
+			&[style*='margin-left: 0px'][style*='margin-right: auto'] {
+				img,
+				div[data-fake] {
+					@include margin(null, $left: 0, $right: auto);
+					display: block;
+				}
+			}
+
+			&[style*='margin-left: auto'][style*='margin-right: auto'],
+			&[style*='margin: auto auto'] {
+				img,
+				div[data-fake] {
+					@include all-margin(auto auto);
+					display: block;
+				}
+			}
+
+			&[style*='margin-left: auto'][style*='margin-right: 0'],
+			&[style*='margin-left: auto'][style*='margin-right: 0px'] {
+				img,
+				div[data-fake] {
+					@include margin(null, $left: auto, $right: 0);
+					display: block;
+				}
 			}
 		}
 
-		[data-type='table-tool'] {
+		&[type='table'] {
+			@include margin($left: 0, $right: 0);
+
+			&[data-focused] {
+				table {
+					@include position(relative);
+				}
+			}
+		}
+
+		[data-fixed='dom-tool'] {
 			[data-movable] {
 				@include position(absolute, calc(0px - 1rem), 0);
 				@include all-border(rgba(116, 195, 255, 0.7) !important, 3px);
@@ -85,22 +133,44 @@
 				}
 			}
 
-			[data-adjustable-line-group] {
-				[data-adjustable-line] {
-					@include position(absolute);
-					@include all-margin(0px);
+			&[data-type='table-tool'] {
+				[data-adjustable-line-group] {
+					[data-adjustable-line] {
+						@include position(absolute);
+						@include all-margin(0px);
 
-					&[data-adjusting] {
-						background-color: rgba(116, 195, 255, 0.7);
+						&[data-adjusting] {
+							background-color: rgba(116, 195, 255, 0.7);
+						}
+					}
+
+					[data-adjustable-line='width'] {
+						cursor: col-resize;
+					}
+
+					[data-adjustable-line='height'] {
+						cursor: row-resize;
 					}
 				}
+			}
 
-				[data-adjustable-line='width'] {
-					cursor: col-resize;
-				}
+			&[data-type='image-tool'] {
+				[data-adjustable-line-group] {
+					[data-adjustable-line] {
+						@include position(absolute);
+						@include all-margin(0px);
+						background-color: rgba(116, 195, 255, 0.7);
+					}
 
-				[data-adjustable-line='height'] {
-					cursor: row-resize;
+					[data-adjustable-line='left'],
+					[data-adjustable-line='right'] {
+						cursor: col-resize;
+					}
+
+					[data-adjustable-line='top'],
+					[data-adjustable-line='bottom'] {
+						cursor: row-resize;
+					}
 				}
 			}
 
@@ -123,7 +193,7 @@
 }
 
 ##{getClassName(editor-body)} {
-	@include firefox;
+	@include firefox(body);
 	@include all-margin(1rem);
 	@include word-break;
 	@include tag-styles;
@@ -134,10 +204,17 @@
 	background-color: getVar(editor-bg);
 
 	##{getClassName(editor-body)} {
-		@include firefox;
+		@include firefox('##{getClassName(editor-body)}');
 		@include all-margin(0.75rem);
-		@include height($line: 1.4);
 		@include word-break;
 		@include tag-styles;
+		outline: none;
 	}
+}
+
+.#{getClassName(image-size-navigation)} {
+	@include position(absolute, 0, 0);
+	@include font($color: getVar(image-size-navigation-font));
+	@include all-padding(0.25rem);
+	background-color: getVar(image-size-navigation-bg);
 }

@@ -4,11 +4,8 @@ import { ENativeEvents } from '../EventSetupUtils';
 
 const Resize = (editor: Editor) => {
 	const self = editor;
-	const TableTools = self.Tools.DOM.Table;
 
-	DOM.On(DOM.Win, ENativeEvents.resize, () => {
-		TableTools.ChangePositions();
-	});
+	DOM.On(DOM.Win, ENativeEvents.resize, self.Tools.DOM.ChangePositions);
 };
 
 export default Resize;
