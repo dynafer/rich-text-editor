@@ -2,6 +2,8 @@ import { Str } from '@dynafer/utils';
 import { EFormatType, TFormat } from './FormatType';
 
 export const FigureSelector = 'figure';
+export const FigureAsTextSelector = 'figure[data-as-text]';
+export const FigureNotTableSelector = 'figure:not([type="table"])';
 export const TableSelector = 'table';
 export const TableRowSelector = 'tr';
 export const TableCellSet = new Set(['th', 'td']);
@@ -11,6 +13,7 @@ export const ListSelector = Str.Join(',', ...ListSet);
 export const ListItemSelector = 'li';
 
 export const BlockFormatTags = {
+	FigureAsText: new Set([FigureAsTextSelector]),
 	Figures: new Set([FigureSelector, 'img', 'audio', 'video']),
 	Table: new Set([TableSelector]),
 	TableItems: new Set([...TableCellSet, TableRowSelector]),
@@ -19,78 +22,88 @@ export const BlockFormatTags = {
 	FollowingItems: new Set([ListItemSelector, ...TableCellSet]),
 };
 
+export const AllDisableList = new Set([FigureNotTableSelector, ...BlockFormatTags.Figures]);
 export const FigureElementFormats = new Set([...BlockFormatTags.Figures, ...BlockFormatTags.Table]);
 export const UnswitchableFormats = new Set([...BlockFormatTags.TableItems, ...BlockFormatTags.List]);
 export const AllStrictFormats = new Set([...BlockFormatTags.Block, ...UnswitchableFormats]);
-export const AllBlockFormats = new Set([FigureSelector, ...FigureElementFormats, ...BlockFormatTags.TableItems, ...BlockFormatTags.Block, ...BlockFormatTags.List]);
+export const AllBlockFormats = new Set([FigureSelector, ...BlockFormatTags.Table, ...BlockFormatTags.TableItems, ...BlockFormatTags.Block, ...BlockFormatTags.List]);
+
+export const TagDisableForamtList = ['img', 'audio', 'video'];
 
 export const Formats: Record<string, TFormat | TFormat[]> = {
 	Bold: [
-		{ FormatType: EFormatType.INLINE, Tag: 'strong' },
-		{ FormatType: EFormatType.INLINE, Tag: 'span', Styles: { fontWeight: 'bold' } },
-		{ FormatType: EFormatType.INLINE, Tag: 'b' },
+		{ Type: EFormatType.INLINE, Tag: 'strong', DisableList: AllDisableList },
+		{ Type: EFormatType.INLINE, Tag: 'span', Styles: { fontWeight: 'bold' } },
+		{ Type: EFormatType.INLINE, Tag: 'b' },
 	],
 	Italic: [
-		{ FormatType: EFormatType.INLINE, Tag: 'em' },
-		{ FormatType: EFormatType.INLINE, Tag: 'span', Styles: { fontStyle: 'italic' } },
-		{ FormatType: EFormatType.INLINE, Tag: 'i' },
+		{ Type: EFormatType.INLINE, Tag: 'em', DisableList: AllDisableList },
+		{ Type: EFormatType.INLINE, Tag: 'span', Styles: { fontStyle: 'italic' } },
+		{ Type: EFormatType.INLINE, Tag: 'i' },
 	],
 	Strikethrough: [
-		{ FormatType: EFormatType.INLINE, Tag: 's' },
-		{ FormatType: EFormatType.INLINE, Tag: 'span', Styles: { fontStyle: 'italic' } },
-		{ FormatType: EFormatType.INLINE, Tag: 'strike' },
+		{ Type: EFormatType.INLINE, Tag: 's', DisableList: AllDisableList },
+		{ Type: EFormatType.INLINE, Tag: 'span', Styles: { fontStyle: 'italic' } },
+		{ Type: EFormatType.INLINE, Tag: 'strike' },
 	],
-	Subscript: { FormatType: EFormatType.INLINE, Tag: 'sub', SameFormats: ['Superscript', 'FontSize'] },
-	Superscript: { FormatType: EFormatType.INLINE, Tag: 'sup', SameFormats: ['Subscript', 'FontSize'] },
+	Subscript: { Type: EFormatType.INLINE, Tag: 'sub', SameFormats: ['Superscript', 'FontSize'], DisableList: AllDisableList },
+	Superscript: { Type: EFormatType.INLINE, Tag: 'sup', SameFormats: ['Subscript', 'FontSize'], DisableList: AllDisableList },
 	Underline: [
-		{ FormatType: EFormatType.INLINE, Tag: 'span', Styles: { textDecoration: 'underline' } },
-		{ FormatType: EFormatType.INLINE, Tag: 'u' },
+		{ Type: EFormatType.INLINE, Tag: 'span', Styles: { textDecoration: 'underline' }, DisableList: AllDisableList },
+		{ Type: EFormatType.INLINE, Tag: 'u' },
 	],
-	Code: { FormatType: EFormatType.INLINE, Tag: 'code' },
-	FontSize: { FormatType: EFormatType.INLINE, Tag: 'span', Styles: { fontSize: '{{value}}' }, SameFormats: ['Superscript', 'Subscript'] },
-	FontFamily: { FormatType: EFormatType.INLINE, Tag: 'span', Styles: { fontFamily: '{{value}}' } },
-	ForeColor: { FormatType: EFormatType.INLINE, Tag: 'span', Styles: { color: '{{value}}' } },
-	BackColor: { FormatType: EFormatType.INLINE, Tag: 'span', Styles: { backgroundColor: '{{value}}' } },
+	Code: { Type: EFormatType.INLINE, Tag: 'code', DisableList: AllDisableList },
+	FontSize: { Type: EFormatType.INLINE, Tag: 'span', Styles: { fontSize: '{{value}}' }, SameFormats: ['Superscript', 'Subscript'], DisableList: AllDisableList },
+	FontFamily: { Type: EFormatType.INLINE, Tag: 'span', Styles: { fontFamily: '{{value}}' }, DisableList: AllDisableList },
+	ForeColor: { Type: EFormatType.INLINE, Tag: 'span', Styles: { color: '{{value}}' }, DisableList: AllDisableList },
+	BackColor: { Type: EFormatType.INLINE, Tag: 'span', Styles: { backgroundColor: '{{value}}' }, DisableList: AllDisableList },
 
 	Outdent: {
-		FormatType: EFormatType.STYLE,
+		Type: EFormatType.STYLE,
 		StrictFormats: new Set([FigureSelector, ...AllStrictFormats]),
-		Styles: { marginLeft: '{{value}}' }
+		Styles: { marginLeft: '{{value}}' },
+		DisableList: AllDisableList
 	},
 	Indent: {
-		FormatType: EFormatType.STYLE,
+		Type: EFormatType.STYLE,
 		StrictFormats: new Set([FigureSelector, ...AllStrictFormats]),
-		Styles: { marginLeft: '{{value}}' }
+		Styles: { marginLeft: '{{value}}' },
+		DisableList: AllDisableList
 	},
 	Justify: {
-		FormatType: EFormatType.STYLE,
-		StrictFormats: new Set([...BlockFormatTags.Figures, ...AllStrictFormats]),
-		Styles: { textAlign: 'justify' }
+		Type: EFormatType.STYLE,
+		StrictFormats: new Set([...AllStrictFormats]),
+		Styles: { textAlign: 'justify' },
+		SameStyles: ['margin-left', 'margin-right', 'float'],
+		DisableList: AllDisableList
 	},
 	AlignLeft: [
-		{ FormatType: EFormatType.STYLE, StrictFormats: AllStrictFormats, Styles: { textAlign: 'left' } },
-		{ FormatType: EFormatType.STYLE, StrictFormats: BlockFormatTags.Table, Styles: { marginLeft: '0px', marginRight: 'auto' } },
-		{ FormatType: EFormatType.STYLE, StrictFormats: BlockFormatTags.Figures, Styles: { float: 'left' } }
+		{ Type: EFormatType.STYLE, StrictFormats: AllStrictFormats, Styles: { textAlign: 'left' }, SameStyles: ['margin-left', 'margin-right', 'float'] },
+		{ Type: EFormatType.STYLE, StrictFormats: BlockFormatTags.Table, Styles: { marginLeft: '0px', marginRight: 'auto' }, SameStyles: ['text-align', 'float'] },
+		{ Type: EFormatType.STYLE, StrictFormats: BlockFormatTags.FigureAsText, Styles: { float: 'left' }, SameStyles: ['text-align', 'margin-left', 'margin-right'] },
+		{ Type: EFormatType.STYLE, StrictFormats: BlockFormatTags.Figures, Styles: { marginLeft: '0px', marginRight: 'auto' }, SameStyles: ['text-align', 'float'] }
 	],
 	AlignCenter: [
-		{ FormatType: EFormatType.STYLE, StrictFormats: AllStrictFormats, Styles: { textAlign: 'center' } },
-		{ FormatType: EFormatType.STYLE, StrictFormats: BlockFormatTags.Table, Styles: { marginLeft: 'auto', marginRight: 'auto' } },
-		{ FormatType: EFormatType.STYLE, StrictFormats: BlockFormatTags.Figures, Styles: { float: 'center' } }
+		{ Type: EFormatType.STYLE, StrictFormats: new Set<string>(), Styles: {}, DisableList: BlockFormatTags.FigureAsText },
+		{ Type: EFormatType.STYLE, StrictFormats: AllStrictFormats, Styles: { textAlign: 'center' }, SameStyles: ['margin-left', 'margin-right', 'float'] },
+		{ Type: EFormatType.STYLE, StrictFormats: BlockFormatTags.Table, Styles: { marginLeft: 'auto', marginRight: 'auto' }, SameStyles: ['text-align', 'float'] },
+		{ Type: EFormatType.STYLE, StrictFormats: BlockFormatTags.Figures, Styles: { marginLeft: 'auto', marginRight: 'auto' }, SameStyles: ['text-align', 'float'] }
 	],
 	AlignRight: [
-		{ FormatType: EFormatType.STYLE, StrictFormats: AllStrictFormats, Styles: { textAlign: 'right' } },
-		{ FormatType: EFormatType.STYLE, StrictFormats: BlockFormatTags.Table, Styles: { marginLeft: 'auto', marginRight: '0px' } },
-		{ FormatType: EFormatType.STYLE, StrictFormats: BlockFormatTags.Figures, Styles: { float: 'right' } }
+		{ Type: EFormatType.STYLE, StrictFormats: AllStrictFormats, Styles: { textAlign: 'right' }, SameStyles: ['margin-left', 'margin-right', 'float'] },
+		{ Type: EFormatType.STYLE, StrictFormats: BlockFormatTags.Table, Styles: { marginLeft: 'auto', marginRight: '0px' }, SameStyles: ['text-align', 'float'] },
+		{ Type: EFormatType.STYLE, StrictFormats: BlockFormatTags.FigureAsText, Styles: { float: 'right' }, SameStyles: ['text-align', 'margin-left', 'margin-right'] },
+		{ Type: EFormatType.STYLE, StrictFormats: BlockFormatTags.Figures, Styles: { marginLeft: 'auto', marginRight: '0px' }, SameStyles: ['text-align', 'float'] }
 	],
 
-	Paragraph: { FormatType: EFormatType.BLOCK, Tag: 'p', Switchable: BlockFormatTags.Block, AddInside: UnswitchableFormats },
-	Heading1: { FormatType: EFormatType.BLOCK, Tag: 'h1', Switchable: BlockFormatTags.Block, AddInside: UnswitchableFormats, UnsetSwitcher: 'p' },
-	Heading2: { FormatType: EFormatType.BLOCK, Tag: 'h2', Switchable: BlockFormatTags.Block, AddInside: UnswitchableFormats, UnsetSwitcher: 'p' },
-	Heading3: { FormatType: EFormatType.BLOCK, Tag: 'h3', Switchable: BlockFormatTags.Block, AddInside: UnswitchableFormats, UnsetSwitcher: 'p' },
-	Heading4: { FormatType: EFormatType.BLOCK, Tag: 'h4', Switchable: BlockFormatTags.Block, AddInside: UnswitchableFormats, UnsetSwitcher: 'p' },
-	Heading5: { FormatType: EFormatType.BLOCK, Tag: 'h5', Switchable: BlockFormatTags.Block, AddInside: UnswitchableFormats, UnsetSwitcher: 'p' },
-	Heading6: { FormatType: EFormatType.BLOCK, Tag: 'h6', Switchable: BlockFormatTags.Block, AddInside: UnswitchableFormats, UnsetSwitcher: 'p' },
-	Div: { FormatType: EFormatType.BLOCK, Tag: 'div', Switchable: BlockFormatTags.Block, AddInside: UnswitchableFormats, UnsetSwitcher: 'p' },
-	Blockquote: { FormatType: EFormatType.BLOCK, Tag: 'blockquote', Switchable: BlockFormatTags.Block, AddInside: UnswitchableFormats, UnsetSwitcher: 'p' },
-	Pre: { FormatType: EFormatType.BLOCK, Tag: 'pre', Switchable: BlockFormatTags.Block, AddInside: UnswitchableFormats, UnsetSwitcher: 'p' },
+	Paragraph: { Type: EFormatType.BLOCK, Tag: 'p', Switchable: BlockFormatTags.Block, AddInside: UnswitchableFormats },
+	Heading1: { Type: EFormatType.BLOCK, Tag: 'h1', Switchable: BlockFormatTags.Block, AddInside: UnswitchableFormats, UnsetSwitcher: 'p' },
+	Heading2: { Type: EFormatType.BLOCK, Tag: 'h2', Switchable: BlockFormatTags.Block, AddInside: UnswitchableFormats, UnsetSwitcher: 'p' },
+	Heading3: { Type: EFormatType.BLOCK, Tag: 'h3', Switchable: BlockFormatTags.Block, AddInside: UnswitchableFormats, UnsetSwitcher: 'p' },
+	Heading4: { Type: EFormatType.BLOCK, Tag: 'h4', Switchable: BlockFormatTags.Block, AddInside: UnswitchableFormats, UnsetSwitcher: 'p' },
+	Heading5: { Type: EFormatType.BLOCK, Tag: 'h5', Switchable: BlockFormatTags.Block, AddInside: UnswitchableFormats, UnsetSwitcher: 'p' },
+	Heading6: { Type: EFormatType.BLOCK, Tag: 'h6', Switchable: BlockFormatTags.Block, AddInside: UnswitchableFormats, UnsetSwitcher: 'p' },
+	Div: { Type: EFormatType.BLOCK, Tag: 'div', Switchable: BlockFormatTags.Block, AddInside: UnswitchableFormats, UnsetSwitcher: 'p' },
+	Blockquote: { Type: EFormatType.BLOCK, Tag: 'blockquote', Switchable: BlockFormatTags.Block, AddInside: UnswitchableFormats, UnsetSwitcher: 'p' },
+	Pre: { Type: EFormatType.BLOCK, Tag: 'pre', Switchable: BlockFormatTags.Block, AddInside: UnswitchableFormats, UnsetSwitcher: 'p' },
 };

@@ -26,6 +26,7 @@ export interface IFormatUI {
 	CreateIconGroup: () => HTMLElement,
 	CreateIconWrap: (title: string) => HTMLElement,
 	CreateHelper: (title: string) => HTMLElement,
+	IsDisabled: (selector: HTMLElement) => boolean,
 	BindOptionListEvent: (editor: Editor, type: string, clickable: HTMLElement, create: () => void) => void,
 	SetOptionListCoordinate: (editor: Editor, name: string, selection: HTMLElement, optionList: HTMLElement) => void,
 	BindClickEvent: (selector: HTMLElement, callback: () => void) => void,
@@ -36,6 +37,7 @@ export interface IFormatUI {
 	RegisterCommand: (editor: Editor, name: string, command: <T>(...args: T[]) => void) => void,
 	RunCommand: <T>(editor: Editor, name: string, ...args: T[]) => void,
 	RegisterKeyboardEvent: (editor: Editor, combinedKeys: string, callback: (editor: Editor, event: Event) => void) => void,
+	IsNearDisableList: (editor: Editor, disableList: Set<string> | undefined, selector: HTMLElement, path: Node) => boolean,
 }
 
 const FormatUI = (): IFormatUI => {
@@ -120,11 +122,14 @@ const FormatUI = (): IFormatUI => {
 	});
 
 	const CreateHelper = (title: string): HTMLElement => Create({
-		tagName: 'div',
+		tagName: 'button',
 		title,
 		type: 'helper',
 		html: Finer.Icons.Get('AngleDown')
 	});
+
+	const IsDisabled = (selector: HTMLElement): boolean =>
+		DOM.HasAttr(selector, DISABLED_ATTRIBUTE) || DOM.HasAttr(selector.parentElement, DISABLED_ATTRIBUTE);
 
 	const BindOptionListEvent = (editor: Editor, type: string, clickable: HTMLElement, create: () => void) => {
 		const self = editor;
@@ -137,8 +142,8 @@ const FormatUI = (): IFormatUI => {
 			const toggleRoot = bOn ? DOM.On : DOM.Off;
 			const toggleEditor = bOn ? self.DOM.On : self.DOM.Off;
 			toggleRoot(self.Frame.Toolbar, ENativeEvents.scroll, event);
-			toggleRoot(DOM.Doc.body, ENativeEvents.click, event);
-			toggleEditor(self.DOM.GetRoot(), ENativeEvents.click, event);
+			toggleRoot(DOM.Win, ENativeEvents.click, event);
+			toggleEditor(self.DOM.Win, ENativeEvents.click, event);
 			toggleRoot(DOM.Win, ENativeEvents.scroll, event);
 			toggleRoot(DOM.Win, ENativeEvents.resize, event);
 		};
@@ -153,7 +158,7 @@ const FormatUI = (): IFormatUI => {
 			PreventEvent(event);
 
 			destroyOptionList();
-			create();
+			if (!IsDisabled(clickable)) create();
 			toggleEvents(true, destroyOptionList);
 		});
 	};
@@ -187,7 +192,10 @@ const FormatUI = (): IFormatUI => {
 	};
 
 	const BindClickEvent = (selector: HTMLElement, callback: () => void) =>
-		DOM.On(selector, ENativeEvents.click, callback);
+		DOM.On(selector, ENativeEvents.click, () => {
+			if (IsDisabled(selector)) return;
+			callback();
+		});
 
 	const ToggleActivateClass = (selector: HTMLElement, bActive: boolean) => {
 		const toggle = bActive ? DOM.AddClass : DOM.RemoveClass;
@@ -260,6 +268,25 @@ const FormatUI = (): IFormatUI => {
 		if (keyCode) SetupWith(self, ENativeEvents.keydown, keyCode, keyOptions, callback);
 	};
 
+	const IsNearDisableList = (editor: Editor, disableList: Set<string> | undefined, selector: HTMLElement, path: Node): boolean => {
+		const self = editor;
+
+		if (!disableList) {
+			ToggleDisable(selector, false);
+			return false;
+		}
+		const disableListSelector = Str.Join(',', ...disableList);
+		const figure = self.DOM.Closest(path, disableListSelector);
+		if (!figure) {
+			ToggleDisable(selector, false);
+			return false;
+		}
+
+		ToggleActivateClass(selector, false);
+		ToggleDisable(selector, true);
+		return true;
+	};
+
 	return {
 		Create,
 		GetSystemStyle,
@@ -271,6 +298,7 @@ const FormatUI = (): IFormatUI => {
 		CreateIconGroup,
 		CreateIconWrap,
 		CreateHelper,
+		IsDisabled,
 		BindOptionListEvent,
 		SetOptionListCoordinate,
 		BindClickEvent,
@@ -281,6 +309,7 @@ const FormatUI = (): IFormatUI => {
 		RegisterCommand,
 		RunCommand,
 		RegisterKeyboardEvent,
+		IsNearDisableList,
 	};
 };
 

@@ -1,6 +1,7 @@
 import { Arr, Str } from '@dynafer/utils';
 import Options from '../../../Options';
 import Editor from '../../Editor';
+import { IRangeUtils } from '../../editorUtils/caret/RangeUtils';
 import { IEvent } from '../../editorUtils/EventUtils';
 import { FigureSelector, TableCellSelector, TableSelector } from '../../formatter/Format';
 import FormatUtils from '../../formatter/FormatUtils';
@@ -9,12 +10,12 @@ const CaretChange = (editor: Editor) => {
 	const self = editor;
 	const DOM = self.DOM;
 	const CaretUtils = self.Utils.Caret;
-	const TableTools = self.Tools.DOM.Table;
+	const DOMTools = self.Tools.DOM;
 
 	const removeCaretPointers = (paths: Node[]) => {
 		const caretPointers = DOM.SelectAll({
 			attrs: 'caret'
-		});
+		}, self.GetBody());
 		if (Arr.IsEmpty(caretPointers)) return;
 
 		const currentCarets: Node[] = [];
@@ -39,36 +40,47 @@ const CaretChange = (editor: Editor) => {
 		});
 	};
 
-	const addTableTools = (figure: Element) => {
+	const addDOMTools = (figure: Element, figureType: string) => {
 		const bHasTool = !!DOM.Select({
 			attrs: {
-				dataType: 'table-tool'
+				dataFixed: 'dom-tool'
 			}
 		}, figure);
 		if (bHasTool) return;
 
-		const table = DOM.SelectAll(TableSelector, figure)[0];
-		if (!table) return;
+		const figureElement = DOM.SelectAll(figureType, figure)[0];
+		if (!figureElement) return;
 
-		DOM.Insert(figure, TableTools.Create(table));
+		DOM.Insert(figure, DOMTools.Create(figureType, figureElement));
 	};
 
-	const setFocusTable = () => {
-		const carets = CaretUtils.Get();
-		const sameRoot = FormatUtils.GetParentIfText(carets[0]?.SameRoot) ? carets[0]?.SameRoot.parentNode : carets[0]?.SameRoot;
+	const setFocusFigure = () => {
+		if (DOM.HasAttr(self.GetBody(), Options.ATTRIBUTE_ADJUSTING)) return;
 
-		const figure = DOM.Closest(sameRoot, FigureSelector);
-		Arr.Each(DOM.SelectAll({ attrs: [Options.ATTRIBUTE_FOCUSED] }), focused => {
+		const carets = CaretUtils.Get();
+		const node = FormatUtils.GetParentIfText(carets[0]?.Start.Node);
+
+		const figure = DOM.Closest(node, FigureSelector);
+		Arr.Each(DOM.SelectAll({ attrs: [Options.ATTRIBUTE_FOCUSED] }, self.GetBody()), (focused, exit) => {
 			if (focused === figure) return;
 			DOM.RemoveAttr(focused, Options.ATTRIBUTE_FOCUSED);
-			TableTools.RemoveAll();
+			DOMTools.RemoveAll(figure);
+			exit();
 		});
 
-		const bNotSameRootFigure = !!figure && !!carets[0]?.IsRange() && DOM.Closest(sameRoot, FigureSelector) !== figure;
-		if (!figure || !DOM.HasAttr(figure, 'type', TableSelector) || bNotSameRootFigure) return CaretUtils.Clean();
+		const bNotNodeFigure = !!figure && !!carets[0]?.IsRange() && DOM.Closest(node, FigureSelector) !== figure;
+		const figureType = DOM.GetAttr(figure, 'type');
+		if (!figure || !figureType || bNotNodeFigure) return CaretUtils.Clean();
+
+		const newRanges: IRangeUtils[] = [];
 
 		Arr.Each(carets, caret => {
 			if (caret.Start.Node !== figure || caret.End.Node !== figure) return;
+
+			if (figureType !== TableSelector) {
+				caret.Range.SetStartToEnd(figure, 1, 1);
+				return Arr.Push(newRanges, caret.Range.Clone());
+			}
 
 			const firstCell = DOM.SelectAll(TableCellSelector, figure)[0];
 			if (!firstCell) return;
@@ -79,21 +91,21 @@ const CaretChange = (editor: Editor) => {
 			if (!firstChild) return;
 
 			caret.Range.SetStartToEnd(firstChild, 1, 1);
-			CaretUtils.UpdateRanges([caret.Range.Clone()]);
+			return Arr.Push(newRanges, caret.Range.Clone());
 		});
 
-		if (DOM.HasAttr(figure, Options.ATTRIBUTE_FOCUSED)) return CaretUtils.Clean();
+		if (!Arr.IsEmpty(newRanges)) CaretUtils.UpdateRanges(newRanges);
 
-		addTableTools(figure);
+		addDOMTools(figure, figureType);
 
-		DOM.SetAttr(figure, Options.ATTRIBUTE_FOCUSED, '');
+		if (!DOM.HasAttr(figure, Options.ATTRIBUTE_FOCUSED)) DOM.SetAttr(figure, Options.ATTRIBUTE_FOCUSED, '');
 	};
 
 	const listener = (): IEvent<Node[]> =>
 		(paths: Node[]) => {
-			TableTools.ChangePositions();
+			self.Tools.DOM.ChangePositions();
 			removeCaretPointers(paths);
-			setFocusTable();
+			setFocusFigure();
 		};
 
 	self.On('caret:change', listener());

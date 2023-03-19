@@ -1,4 +1,4 @@
-import { Arr } from '@dynafer/utils';
+import { Arr, Type } from '@dynafer/utils';
 import Editor from '../../Editor';
 import RangeUtils, { IRangeUtils } from './RangeUtils';
 
@@ -20,7 +20,7 @@ export interface ICaretData {
 export interface ICaretUtils {
 	Clean: () => void,
 	CleanRanges: () => void,
-	UpdateRanges: (newRanges: Range[]) => void,
+	UpdateRanges: (rangeUtils: IRangeUtils | IRangeUtils[]) => void,
 	Get: () => ICaretData[],
 }
 
@@ -70,11 +70,13 @@ const CaretUtils = (editor: Editor): ICaretUtils => {
 		selection?.removeAllRanges();
 	};
 
-	const UpdateRanges = (newRanges: Range[]) => {
+	const UpdateRanges = (rangeUtils: IRangeUtils | IRangeUtils[]) => {
 		CleanRanges();
 		Arr.Clean(ranges);
 
-		Arr.Each(newRanges, range => selection?.addRange(range));
+		const newRanges = Type.IsArray(rangeUtils) ? rangeUtils : [rangeUtils];
+
+		Arr.Each(newRanges, range => selection?.addRange(range.Get()));
 	};
 
 	const Get = (): ICaretData[] => {

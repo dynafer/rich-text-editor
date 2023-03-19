@@ -4,7 +4,7 @@ export interface IRangeUtils {
 	Insert: (node: Node) => void,
 	Extract: () => DocumentFragment,
 	DeleteContents: () => void,
-	Clone: () => Range,
+	Clone: () => IRangeUtils,
 	SetStart: (node: Node, offset: number) => void,
 	SetStartBefore: (node: Node) => void,
 	SetStartAfter: (node: Node) => void,
@@ -22,7 +22,7 @@ const RangeUtils = (range: Range = new Range()): IRangeUtils => {
 	const Insert = (node: Node) => range.insertNode(node);
 	const Extract = (): DocumentFragment => range.extractContents();
 	const DeleteContents = () => range.deleteContents();
-	const Clone = (): Range => range.cloneRange();
+	const Clone = (): IRangeUtils => RangeUtils(range.cloneRange());
 	const SetStart = (node: Node, offset: number) => range.setStart(node, offset);
 	const SetStartBefore = (node: Node) => range.setStartBefore(node);
 	const SetStartAfter = (node: Node) => range.setStartAfter(node);

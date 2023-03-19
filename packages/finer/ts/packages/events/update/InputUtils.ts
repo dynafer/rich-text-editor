@@ -2,53 +2,12 @@ import { Arr, Str } from '@dynafer/utils';
 import { TElement } from '../../dom/DOM';
 import Editor from '../../Editor';
 import { ICaretData } from '../../editorUtils/caret/CaretUtils';
-import { AllBlockFormats, BlockFormatTags, FigureElementFormats, FigureSelector, ListItemSelector, ListSelector, TableCellSelector } from '../../formatter/Format';
+import { AllBlockFormats, BlockFormatTags, FigureElementFormats, FigureSelector, ListItemSelector, ListSelector } from '../../formatter/Format';
 import FormatUtils from '../../formatter/FormatUtils';
 
 const InputUtils = (editor: Editor) => {
 	const self = editor;
 	const DOM = self.DOM;
-
-	const getBlockAfterSplitTextNode = (node: Node, offset: number): Node | null => {
-		if (!DOM.Utils.IsText(node)) return null;
-
-		const until = DOM.Closest(FormatUtils.GetParentIfText(node), TableCellSelector) ?? self.GetBody();
-		const nextText = node.splitText(offset);
-		const nextTextParent = nextText.parentNode;
-
-		let endBlock: Node | null = null;
-
-		let currentParent: Node | null = nextTextParent;
-		let currentNode: Node | null = nextText;
-		while (currentParent && currentParent !== until) {
-			const parentBlock = DOM.Clone(currentParent);
-			if (endBlock) DOM.Insert(parentBlock, endBlock);
-
-			while (currentNode) {
-				DOM.CloneAndInsert(parentBlock, true, currentNode);
-				const savedNode = currentNode;
-				currentNode = currentNode.nextSibling;
-
-				if (!DOM.Utils.IsText(savedNode)) {
-					DOM.Remove(savedNode as Element);
-					continue;
-				}
-
-				currentParent.removeChild(savedNode);
-			}
-
-			if (DOM.GetChildNodes(parentBlock).length >= 1) {
-				if (currentParent !== nextTextParent
-					|| (currentParent === nextTextParent && nextText.length !== 0)
-				) endBlock = parentBlock;
-			}
-
-			currentNode = currentParent.nextSibling;
-			currentParent = currentParent.parentNode;
-		}
-
-		return endBlock;
-	};
 
 	const EditFigures = (fragment: DocumentFragment) => {
 		const figures = DOM.SelectAll({
@@ -61,10 +20,7 @@ const InputUtils = (editor: Editor) => {
 			if (!currentFigure) continue;
 
 			const figureType = DOM.GetAttr(currentFigure, 'type');
-			if (!figureType || !FigureElementFormats.has(figureType)) {
-				currentFigure.remove();
-				continue;
-			}
+			if (!figureType || !FigureElementFormats.has(figureType)) currentFigure.remove();
 		}
 		currentFigure = undefined;
 
@@ -92,13 +48,13 @@ const InputUtils = (editor: Editor) => {
 
 			DOM.CloneAndInsert(figure, true, currentElement);
 
-			const tableTools = DOM.SelectAll({
+			const tools = DOM.SelectAll({
 				attrs: {
-					dataType: 'table-tool'
+					dataFixed: 'dom-tool'
 				}
 			}, figure);
 
-			Arr.Each(tableTools, tableTool => DOM.Remove(tableTool, true));
+			Arr.Each(tools, tableTool => DOM.Remove(tableTool, true));
 
 			currentElement.parentNode?.replaceChild(figure, currentElement);
 		}
@@ -108,7 +64,7 @@ const InputUtils = (editor: Editor) => {
 	const insertBlocks = (caret: ICaretData, fragment: DocumentFragment) => {
 		const nodes = DOM.GetChildNodes(fragment);
 
-		const endBlock = getBlockAfterSplitTextNode(caret.Start.Node, caret.Start.Offset);
+		const endBlock = self.Utils.Shared.SplitLines(caret.Start.Node, caret.Start.Offset).endBlock;
 
 		let bStopInlineNodes = false;
 		let bInList = false;

@@ -16,6 +16,8 @@ const TableFormat = (editor: Editor) => {
 
 		const caret = bRange ? self.Utils.Caret.Get()[0] : caretForDeletion;
 
+		const { startBlock, endBlock } = self.Utils.Shared.SplitLines(caret.Start.Node, caret.Start.Offset);
+
 		const figure = DOM.Create(formatterFormats.FigureSelector, {
 			attrs: {
 				type: formatterFormats.TableSelector,
@@ -47,6 +49,14 @@ const TableFormat = (editor: Editor) => {
 		}
 
 		DOM.Insert(figure, table);
+
+		if (startBlock && endBlock) {
+			DOM.InsertAfter(startBlock, endBlock, figure);
+			caret.Range.SetStartToEnd(firstCell, 0, 0);
+			self.Focus();
+			return self.Utils.Shared.DispatchCaretChange([firstCell]);
+		}
+
 		const parentIfText = self.Formatter.Utils.GetParentIfText(caret.Start.Node);
 		const nearTable = DOM.Closest(parentIfText, formatterFormats.TableSelector);
 		if (!nearTable) {
@@ -58,7 +68,7 @@ const TableFormat = (editor: Editor) => {
 		caret.Range.SetStartToEnd(firstCell, 0, 0);
 		self.Focus();
 
-		self.Dispatch('caret:change', [firstCell]);
+		self.Utils.Shared.DispatchCaretChange([firstCell]);
 	};
 
 	return {

@@ -55,7 +55,7 @@ const FormatToggler = (editor: Editor): IFormatToggler => {
 			}
 
 			if (DOM.Utils.IsBr(child) && !bInline) {
-				child.remove();
+				if (length !== 1) child.remove();
 			} else {
 				processRecursive(bWrap, formats, child, toggleOption);
 			}

@@ -76,3 +76,5 @@ export const Compare = <T>(array: T[], compare: T[]): boolean => {
 
 	return true;
 };
+
+export const Part = <T>(array: T[], start: number, end: number): T[] => array.slice(start, end);

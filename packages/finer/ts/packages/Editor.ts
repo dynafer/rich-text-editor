@@ -7,6 +7,7 @@ import EditorDestroy from './EditorDestroy';
 import EditorFrame, { IEditorFrame } from './EditorFrame';
 import EditorSetup from './EditorSetup';
 import EditorToolbar, { IEditorToolbar } from './EditorToolbar';
+import { IRangeUtils } from './editorUtils/caret/RangeUtils';
 import { IEditorUtils } from './editorUtils/EditorUtils';
 import { IEvent } from './editorUtils/EventUtils';
 import { ENativeEvents } from './events/EventSetupUtils';
@@ -42,6 +43,8 @@ class Editor {
 
 	private mBody!: HTMLElement;
 	private mbDestroyed: boolean = false;
+	private mScrollX: number = -1;
+	private mScrollY: number = -1;
 
 	public constructor(config: IEditorConfiguration) {
 		const configuration: IConfiguration = Configure(config);
@@ -98,9 +101,23 @@ class Editor {
 		return DOM;
 	}
 
+	public SaveScrollPosition() {
+		this.mScrollX = this.DOM.GetRoot().scrollLeft;
+		this.mScrollY = this.DOM.GetRoot().scrollTop;
+	}
+
+	public ScrollSavedPosition() {
+		if (this.mScrollX !== -1) this.DOM.GetRoot().scroll({ left: this.mScrollX });
+		if (this.mScrollY !== -1) this.DOM.GetRoot().scroll({ top: this.mScrollY });
+
+		this.mScrollX = -1;
+		this.mScrollY = -1;
+	}
+
 	public Focus() {
+		this.SaveScrollPosition();
 		const carets = this.Utils.Caret.Get();
-		const copiedRanges: Range[] = [];
+		const copiedRanges: IRangeUtils[] = [];
 		Arr.Each(carets, caret => Arr.Push(copiedRanges, caret.Range.Clone()));
 
 		if (Arr.IsEmpty(copiedRanges)) {
@@ -109,12 +126,12 @@ class Editor {
 			let firstNode = DOM.Utils.GetFirstChild(firstLine, true);
 			if (DOM.Utils.IsBr(firstNode)) firstNode = firstNode.parentNode;
 			newRange.SetStartToEnd(firstNode ?? this.GetBody(), 0, 0);
-			Arr.Push(copiedRanges, newRange.Get());
+			Arr.Push(copiedRanges, newRange);
 		}
 
 		this.GetBody().focus();
 		this.Utils.Caret.UpdateRanges(copiedRanges);
-		this.Utils.Caret.Clean();
+		this.ScrollSavedPosition();
 	}
 
 	public CreateEmptyParagraph(): HTMLElement {
@@ -134,14 +151,12 @@ class Editor {
 
 	public SetContent(html: string) {
 		if (Str.IsEmpty(html)) this.InitContent();
-		if (!Str.IsEmpty(html) && this.IsIFrame()) this.InitContent(html);
+		if (!Str.IsEmpty(html)) this.InitContent(html);
 	}
 
 	private setLoading(status: ELoadingStatus) {
-		if (status === ELoadingStatus.HIDE)
-			DOM.Hide(this.Frame.Loading);
-		else
-			DOM.Show(this.Frame.Loading);
+		const toggle = status === ELoadingStatus.HIDE ? DOM.Hide : DOM.Show;
+		toggle(this.Frame.Loading);
 	}
 }
 

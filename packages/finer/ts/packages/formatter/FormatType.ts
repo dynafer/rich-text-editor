@@ -10,24 +10,28 @@ export type TFormat = IBlockFormat | IInlineFormat | IStyleFormat;
 export type TFormatDetectCallback = (paths: Node[]) => void;
 
 export interface IBlockFormat {
-	FormatType: EFormatType.BLOCK,
-	Tag: string,
-	Switchable: Set<string>,
-	AddInside: Set<string>,
-	UnsetSwitcher?: string,
+	readonly Type: EFormatType.BLOCK,
+	readonly Tag: string,
+	readonly Switchable: Set<string>,
+	readonly AddInside: Set<string>,
+	readonly UnsetSwitcher?: string,
+	readonly DisableList?: Set<string>,
 }
 
 export interface IInlineFormat {
-	FormatType: EFormatType.INLINE,
-	Tag: string,
-	Styles?: Record<string, string>,
-	SameFormats?: string[],
+	readonly Type: EFormatType.INLINE,
+	readonly Tag: string,
+	readonly Styles?: Record<string, string>,
+	readonly SameFormats?: string[],
+	readonly DisableList?: Set<string>,
 }
 
 export interface IStyleFormat {
-	FormatType: EFormatType.STYLE,
-	StrictFormats: Set<string>,
-	Styles: Record<string, string>,
+	readonly Type: EFormatType.STYLE,
+	readonly StrictFormats: Set<string>,
+	readonly Styles: Record<string, string>,
+	readonly SameStyles?: string[],
+	readonly DisableList?: Set<string>,
 }
 
 export interface IFormatUIRegistryUnit {

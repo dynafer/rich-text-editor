@@ -169,6 +169,9 @@ const InlineFont = (editor: Editor, detector: IFormatDetector): IFormatUIRegistr
 
 		Detector.Register((paths: Node[]) => {
 			setLabelText(getCurrentStyle(uiFormat.Format, uiFormat.Options, paths));
+
+			const node = FormatUtils.GetParentIfText(paths[0]);
+			FormatUI.IsNearDisableList(self, uiFormat.Format.DisableList, selection.Selection, node);
 		});
 
 		return selection.Selection;

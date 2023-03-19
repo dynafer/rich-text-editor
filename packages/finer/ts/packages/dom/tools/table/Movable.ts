@@ -4,7 +4,8 @@ import Editor from '../../../Editor';
 import { ENativeEvents, PreventEvent } from '../../../events/EventSetupUtils';
 import { TableCellSelector, TableSelector } from '../../../formatter/Format';
 import FormatUtils from '../../../formatter/FormatUtils';
-import { CreateCurrentPoint, CreateMovableHorizontalSize, MoveToCurrentPoint } from './TableToolsUtils';
+import { CreateMovableHorizontalSize } from '../Utils';
+import { CreateCurrentPoint, MoveToCurrentPoint } from './TableToolsUtils';
 
 const Movable = (editor: Editor, table: HTMLElement): HTMLElement => {
 	const self = editor;
@@ -18,7 +19,7 @@ const Movable = (editor: Editor, table: HTMLElement): HTMLElement => {
 			title: 'Move a table',
 		},
 		styles: {
-			left: CreateMovableHorizontalSize(table.offsetLeft, true),
+			left: CreateMovableHorizontalSize(table.offsetLeft + table.offsetWidth / 2, true),
 		},
 		html: Finer.Icons.Get('Move'),
 	});
@@ -27,7 +28,7 @@ const Movable = (editor: Editor, table: HTMLElement): HTMLElement => {
 		const cells = DOM.SelectAll(TableCellSelector, table);
 		Arr.Each(cells, cell => DOM.SetAttr(cell, Options.ATTRIBUTE_SELECTED, ''));
 
-		self.Dispatch('caret:change', []);
+		self.Utils.Shared.DispatchCaretChange();
 	});
 
 	DOM.On(movable, ENativeEvents.dragstart, (event: DragEvent) => {

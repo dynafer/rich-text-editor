@@ -10,6 +10,7 @@ export interface IPluginListUI {
 
 const UI = (editor: Editor): IPluginListUI => {
 	const self = editor;
+	const formats = self.Formatter.Formats;
 	const formatUI = self.Formatter.UI;
 	const Detector = self.Formatter.Detector;
 
@@ -29,7 +30,7 @@ const UI = (editor: Editor): IPluginListUI => {
 			toggler.ToggleFromCaret(bActive as boolean);
 			formatUI.ToggleActivateClass(button, bActive as boolean);
 
-			self.Dispatch('caret:change', []);
+			self.Utils.Shared.DispatchCaretChange();
 		};
 
 	const CreateIconButton = (uiName: string, uiFormat: IPluginListFormatUI): HTMLElement => {
@@ -46,6 +47,10 @@ const UI = (editor: Editor): IPluginListUI => {
 	const RegisterDetector = (button: HTMLElement, format: IPluginListFormat) => {
 		Detector.Register((paths: Node[]) => {
 			formatUI.ToggleActivateClass(button, IsDetected(format.Tag, paths));
+
+			const figure = self.DOM.Closest(paths[0], formats.FigureSelector);
+			const bDisable = !!figure && formats.BlockFormatTags.Figures.has(self.DOM.GetAttr(figure, 'type') ?? '');
+			formatUI.ToggleDisable(button, bDisable);
 		});
 	};
 

@@ -1,8 +1,10 @@
 import { Arr } from '@dynafer/utils';
+import Options from '../../../../Options';
 import Editor from '../../../Editor';
 import { ENativeEvents, PreventEvent } from '../../../events/EventSetupUtils';
 import { TableCellSelector } from '../../../formatter/Format';
-import { ADJUSTABLE_LINE_HALF_SIZE, CreateAdjustableLineSize, CreateCurrentPoint, CreateFakeTable, GetClientSize, GetTableGridWithIndex, ITableGrid, MoveToCurrentPoint } from './TableToolsUtils';
+import { ADJUSTABLE_LINE_HALF_SIZE, CreateAdjustableLineSize, GetClientSize, RegisterAdjustingEvents } from '../Utils';
+import { CreateCurrentPoint, CreateFakeTable, GetTableGridWithIndex, ITableGrid, MoveToCurrentPoint } from './TableToolsUtils';
 
 interface IAdjustableLine {
 	BoundEvents: [ENativeEvents, EventListener],
@@ -12,7 +14,6 @@ interface IAdjustableLine {
 const AdjustableLine = (editor: Editor, table: HTMLElement, tableGrid: ITableGrid): IAdjustableLine => {
 	const self = editor;
 	const DOM = self.DOM;
-	const TableTools = self.Tools.DOM.Table;
 
 	const adjustableLineGroup = DOM.Create('div', {
 		attrs: {
@@ -57,14 +58,6 @@ const AdjustableLine = (editor: Editor, table: HTMLElement, tableGrid: ITableGri
 			savedPoint = undefined;
 		};
 
-		const boundEvents: [boolean, HTMLElement, ENativeEvents, EventListener][] = [];
-
-		const removeEvents = () =>
-			Arr.Each(boundEvents, boundEvent => {
-				const off = boundEvent[0] ? self.GetRootDOM().Off : DOM.Off;
-				off(boundEvent[1], boundEvent[2], boundEvent[3]);
-			});
-
 		setAdjustableSize();
 
 		const bWidth = event.target === adjustableWidth;
@@ -85,6 +78,8 @@ const AdjustableLine = (editor: Editor, table: HTMLElement, tableGrid: ITableGri
 		const getPosition = (element: HTMLElement): number => bWidth ? element.offsetLeft : element.offsetTop;
 
 		const getMinimumSize = (cell: HTMLElement): number => {
+			self.SaveScrollPosition();
+
 			DOM.SetStyles(fakeTable, {
 				width: '0px',
 				height: '0px',
@@ -117,6 +112,8 @@ const AdjustableLine = (editor: Editor, table: HTMLElement, tableGrid: ITableGri
 				width: `${table.offsetWidth}px`,
 				height: `${table.offsetHeight}px`,
 			});
+
+			self.ScrollSavedPosition();
 
 			return size;
 		};
@@ -166,12 +163,8 @@ const AdjustableLine = (editor: Editor, table: HTMLElement, tableGrid: ITableGri
 		}
 
 		const commonFinishAdjusting = () => {
-			removeEvents();
-
 			DOM.Remove(fakeTable);
 			DOM.RemoveAttr(adjustItem, 'data-adjusting');
-
-			TableTools.ChangePositions();
 
 			moveToSavedPoint();
 		};
@@ -337,23 +330,14 @@ const AdjustableLine = (editor: Editor, table: HTMLElement, tableGrid: ITableGri
 			commonFinishAdjusting();
 		};
 
-		Arr.Push(boundEvents,
-			[false, self.GetBody(), ENativeEvents.mousemove, adjust],
-			[false, self.GetBody(), ENativeEvents.mouseup, finishAdjusting],
-			[true, self.GetRootDOM().GetRoot(), ENativeEvents.mousemove, finishAdjusting],
-		);
-
-		Arr.Each(boundEvents, boundEvent => {
-			const on = boundEvent[0] ? self.GetRootDOM().On : DOM.On;
-			on(boundEvent[1], boundEvent[2], boundEvent[3]);
-		});
+		RegisterAdjustingEvents(self, adjust, finishAdjusting);
 	};
 
 	DOM.On(adjustableWidth, ENativeEvents.mousedown, startAdjusting);
 	DOM.On(adjustableHeight, ENativeEvents.mousedown, startAdjusting);
 
 	const mouseMoveInTable = (event: MouseEvent) => {
-		if (DOM.HasAttr(adjustableWidth, 'data-adjusting') || DOM.HasAttr(adjustableHeight, 'data-adjusting')) return;
+		if (DOM.HasAttr(self.GetBody(), Options.ATTRIBUTE_ADJUSTING)) return;
 
 		setAdjustableSize();
 

@@ -1,5 +1,5 @@
 import Editor from '../Editor';
-import { BlockFormatTags, FigureSelector, ListItemSelector, ListSelector, ListSet, TableCellSelector, TableCellSet, TableRowSelector, TableSelector } from './Format';
+import * as Format from './Format';
 import FormatDetector, { IFormatDetector } from './FormatDetector';
 import FormatToggler, { IFormatToggler } from './FormatToggler';
 import FormatUI, { IFormatUI } from './FormatUI';
@@ -41,15 +41,15 @@ const Formatter = (editor: Editor): IFormatter => {
 
 	return {
 		Formats: {
-			FigureSelector,
-			TableSelector,
-			TableRowSelector,
-			TableCellSet,
-			TableCellSelector,
-			ListItemSelector,
-			ListSet,
-			ListSelector,
-			BlockFormatTags,
+			FigureSelector: Format.FigureSelector,
+			TableSelector: Format.TableSelector,
+			TableRowSelector: Format.TableRowSelector,
+			TableCellSet: Format.TableCellSet,
+			TableCellSelector: Format.TableCellSelector,
+			ListItemSelector: Format.ListItemSelector,
+			ListSet: Format.ListSet,
+			ListSelector: Format.ListSelector,
+			BlockFormatTags: Format.BlockFormatTags,
 		},
 		UI: FormatUI,
 		Utils: FormatUtils,

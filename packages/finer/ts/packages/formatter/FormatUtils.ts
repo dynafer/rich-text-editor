@@ -3,6 +3,7 @@ import Options from '../../Options';
 import DOM from '../dom/DOM';
 import Editor from '../Editor';
 import { ICaretData } from '../editorUtils/caret/CaretUtils';
+import { IRangeUtils } from '../editorUtils/caret/RangeUtils';
 import { BlockFormatTags, FigureSelector, TableCellSet, TableSelector } from './Format';
 
 export type TConfigOption = string | string[] | Record<string, string>;
@@ -103,7 +104,7 @@ const FormatUtils = (): IFormatUtils => {
 
 	const createMarkers = (editor: Editor): TCaretPath[] => {
 		const self = editor;
-		if (self.DOM.Select({ tagName: TableSelector, attrs: [Options.ATTRIBUTE_SELECTED] })) return [];
+		if (self.DOM.Select({ tagName: TableSelector, attrs: [Options.ATTRIBUTE_SELECTED] }, self.GetBody())) return [];
 
 		const CaretUtils = self.Utils.Caret;
 		const carets = CaretUtils.Get();
@@ -122,33 +123,41 @@ const FormatUtils = (): IFormatUtils => {
 			return [id, marker];
 		};
 
+		const getChildOrCreateBr = (target: Node, bFirst: boolean): Node => {
+			const getChild = bFirst ? self.DOM.Utils.GetFirstChild : self.DOM.Utils.GetLastChild;
+			const child = getChild(target, true);
+			if (child) return child;
+
+			const brElement = self.DOM.Create('br');
+			self.DOM.Insert(target, brElement);
+			return brElement;
+		};
+
 		Arr.Each(carets, caret => {
 			let startNode = caret.Start.Node;
 			let endNode = caret.End.Node;
 			const startNodeName = self.DOM.Utils.GetNodeName(startNode);
 			const endNodeName = self.DOM.Utils.GetNodeName(endNode);
 
-			if (BlockFormatTags.Block.has(startNodeName)) {
-				const firstChild = self.DOM.Utils.GetFirstChild(startNode, true);
-				if (!firstChild) {
-					const brElement = self.DOM.Create('br');
-					self.DOM.Insert(startNode, brElement);
-					startNode = brElement;
-				} else {
-					startNode = firstChild;
+			if (BlockFormatTags.Figures.has(startNodeName) || BlockFormatTags.Figures.has(endNodeName)) {
+				const newMarker = createMarker();
+				if (startNodeName === FigureSelector || endNodeName === FigureSelector) {
+					const figureType = self.DOM.GetAttr(startNode, 'type');
+					if (!figureType) return;
+					startNode = self.DOM.Select(figureType, startNode);
+					if (!startNode) return;
 				}
+
+				self.DOM.InsertBefore(startNode, newMarker[1]);
+				return Arr.Push(markers, {
+					bRange: false,
+					Marker: newMarker[0],
+					Offset: 0,
+				});
 			}
 
-			if (BlockFormatTags.Block.has(endNodeName)) {
-				const lastChild = self.DOM.Utils.GetLastChild(endNode, true);
-				if (!lastChild) {
-					const brElement = self.DOM.Create('br');
-					self.DOM.Insert(endNode, brElement);
-					endNode = brElement;
-				} else {
-					endNode = lastChild;
-				}
-			}
+			if (BlockFormatTags.Block.has(startNodeName)) startNode = getChildOrCreateBr(startNode, true);
+			if (BlockFormatTags.Block.has(endNodeName)) endNode = getChildOrCreateBr(endNode, false);
 
 			if (!caret.IsRange()) {
 				const newMarker = createMarker();
@@ -182,14 +191,14 @@ const FormatUtils = (): IFormatUtils => {
 
 	const applyCaretsByMarkers = (editor: Editor, markers: TCaretPath[]) => {
 		const self = editor;
-		const newRanges: Range[] = [];
+		const newRanges: IRangeUtils[] = [];
 
 		const getTextOrBrNode = (parent: Node): Node => {
 			if (DOM.Utils.IsText(parent)) return parent;
 
 			let node = parent;
 			while (node && !DOM.Utils.IsText(node) && !DOM.Utils.IsBr(node)) {
-				node = DOM.GetChildNodes(node, false)[0];
+				node = self.DOM.GetChildNodes(node, false)[0];
 			}
 
 			return node;
@@ -198,10 +207,19 @@ const FormatUtils = (): IFormatUtils => {
 		const getMarkerSibling = (markerId: string, bPrevious: boolean = false): Node => {
 			const marker = self.DOM.Select({
 				id: markerId
-			});
+			}, self.GetBody());
 
 			const sibling = bPrevious ? marker.previousSibling : marker.nextSibling;
-			if (sibling) return getTextOrBrNode(sibling);
+
+			if (sibling) {
+				const siblingName = DOM.Utils.GetNodeName(sibling);
+				if (BlockFormatTags.Figures.has(siblingName)) {
+					if (siblingName !== FigureSelector) return sibling.parentNode as Element;
+					return sibling;
+				}
+
+				return getTextOrBrNode(sibling);
+			}
 
 			let current: Node | null = marker;
 			while (current && current !== self.GetBody()) {
@@ -214,6 +232,12 @@ const FormatUtils = (): IFormatUtils => {
 				current = current.parentNode;
 			}
 
+			const currentName = DOM.Utils.GetNodeName(current);
+			if (BlockFormatTags.Figures.has(currentName)) {
+				if (currentName !== FigureSelector) return current?.parentNode as Element;
+				return current as Element;
+			}
+
 			return getTextOrBrNode(!current ? marker : current);
 		};
 
@@ -223,14 +247,14 @@ const FormatUtils = (): IFormatUtils => {
 			if (!marker.bRange) {
 				const markerNode = getMarkerSibling(marker.Marker);
 				newRange.SetStartToEnd(markerNode, marker.Offset, marker.Offset);
-				return Arr.Push(newRanges, newRange.Get());
+				return Arr.Push(newRanges, newRange);
 			}
 
 			const startMarker = getMarkerSibling(marker.StartMarker);
 			const endMarker = getMarkerSibling(marker.EndMarker, true);
 			newRange.SetStart(startMarker, marker.StartOffset);
 			newRange.SetEnd(endMarker, marker.EndOffset);
-			Arr.Push(newRanges, newRange.Get());
+			Arr.Push(newRanges, newRange);
 		});
 
 		self.Utils.Caret.UpdateRanges(newRanges);
@@ -239,7 +263,7 @@ const FormatUtils = (): IFormatUtils => {
 			attrs: {
 				marker: 'true',
 			}
-		});
+		}, self.GetBody());
 
 		Arr.Each(markerNodes, marker => {
 			let emptyMarker: Element | null = marker;
@@ -282,7 +306,7 @@ const FormatUtils = (): IFormatUtils => {
 		if (middleNode.length > 0) fragment.append(middleNode);
 		if (endNode.length > 0) fragment.append(endNode);
 
-		const children = DOM.GetChildNodes(parent, false);
+		const children = self.DOM.GetChildNodes(parent, false);
 		const index = Arr.Find(children, node) + (bInsertedStartNode ? 1 : 0);
 		parent.replaceChild(fragment, node);
 
@@ -394,8 +418,11 @@ const FormatUtils = (): IFormatUtils => {
 		Arr.Each(children, child => {
 			if (!child
 				|| !isNodeEmpty(child)
+				|| self.DOM.Utils.IsBr(child)
+				|| (self.DOM.Utils.IsBr(self.DOM.GetChildNodes(child)[0]))
 				|| self.DOM.HasAttr(child, 'caret')
 				|| self.DOM.HasAttr(child, 'marker')
+				|| self.DOM.Utils.GetNodeName(child) === FigureSelector
 			) return;
 
 			let bSkip = false;

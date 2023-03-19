@@ -22,13 +22,12 @@ const Backspace = (editor: Editor) => {
 
 	if (!lastChild) return CaretUtils.Clean();
 
-	const newCaret = self.Utils.Range();
+	const newRange = self.Utils.Range();
 
 	const index = DOM.Utils.IsText(lastChild) ? lastChild.length : 0;
-	newCaret.SetStartToEnd(lastChild, index, index);
+	newRange.SetStartToEnd(lastChild, index, index);
 
-	CaretUtils.UpdateRanges([newCaret.Get()]);
-	CaretUtils.Clean();
+	CaretUtils.UpdateRanges(newRange);
 };
 
 export default Backspace;

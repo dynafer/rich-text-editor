@@ -1,6 +1,7 @@
 import { Arr, Obj, Str, Type } from '@dynafer/utils';
 import Editor from '../../Editor';
 import { ICaretData } from '../../editorUtils/caret/CaretUtils';
+import { FigureSelector, TableSelector } from '../Format';
 import { IInlineFormat } from '../FormatType';
 import FormatUtils from '../FormatUtils';
 
@@ -79,6 +80,17 @@ const ToggleInline = (editor: Editor, formats: IInlineFormat | IInlineFormat[]):
 		if (!splitedTextNode) return node;
 
 		return splitedTextNode;
+	};
+
+	const leaveProcessorIfInFigure = (bWrap: boolean, caret: ICaretData) => {
+		const element = FormatUtils.GetParentIfText(caret.Start.Node);
+		if (DOM.Utils.GetNodeName(element) !== FigureSelector) return false;
+
+		const figureType = DOM.GetAttr(element, 'type');
+		if (figureType === TableSelector) return false;
+
+		self.Utils.Shared.DispatchCaretChange([element]);
+		return true;
 	};
 
 	const rangeProcessor = (bWrap: boolean, caret: ICaretData, value?: string): boolean => {
@@ -181,6 +193,7 @@ const ToggleInline = (editor: Editor, formats: IInlineFormat | IInlineFormat[]):
 			value,
 			tableProcessor,
 			processors: [
+				{ processor: leaveProcessorIfInFigure },
 				{ processor: caretProcessor },
 				{ processor: sameNodeProcessor },
 				{ processor: rangeProcessor },

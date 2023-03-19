@@ -9,7 +9,7 @@ import FormatUI from '../FormatUI';
 import FormatUtils from '../FormatUtils';
 
 interface IStyleFormatUIItem {
-	Format: IStyleFormat | IStyleFormat[],
+	readonly Format: IStyleFormat | IStyleFormat[],
 	Title: string,
 	Icon: string,
 	bDetector: boolean,
@@ -52,7 +52,7 @@ const StyleFormat = (editor: Editor, detector: IFormatDetector): IFormatUIRegist
 
 	const UINames = Object.keys(StyleFormats);
 
-	const createAlignmentDetector = (formats: IStyleFormat | IStyleFormat[], button: HTMLElement): TFormatDetectCallback => {
+	const createAlignmentDetector = (formats: IStyleFormat | IStyleFormat[], button: HTMLElement, bDetector: boolean): TFormatDetectCallback => {
 		const detect = (format: IStyleFormat, node: Node): boolean => {
 			const { StrictFormats, Styles } = format;
 			const closest = self.DOM.ClosestByStyle(node, FormatUtils.GetStyleSelectorMap(Styles));
@@ -62,10 +62,19 @@ const StyleFormat = (editor: Editor, detector: IFormatDetector): IFormatUIRegist
 
 		return (paths: Node[]) => {
 			const node = FormatUtils.GetParentIfText(paths[0]);
-			if (!Type.IsArray(formats)) return FormatUI.ToggleActivateClass(button, detect(formats, node));
+			if (!Type.IsArray(formats)) {
+				const bNearDisableList = FormatUI.IsNearDisableList(self, formats.DisableList, button, node);
+				if (bNearDisableList || !bDetector) return;
+
+				return FormatUI.ToggleActivateClass(button, detect(formats, node));
+			}
 
 			for (let index = 0, length = formats.length; index < length; ++index) {
 				const format = formats[index];
+
+				const bNearDisableList = FormatUI.IsNearDisableList(self, format.DisableList, button, node);
+				if (bNearDisableList || !bDetector) return;
+
 				const bActivate = detect(format, node);
 				if (!bActivate) continue;
 
@@ -76,12 +85,16 @@ const StyleFormat = (editor: Editor, detector: IFormatDetector): IFormatUIRegist
 		};
 	};
 
-	const createIndentationDetector = (format: IStyleFormat, button: HTMLElement): TFormatDetectCallback => {
+	const createIndentationDetector = (format: IStyleFormat, button: HTMLElement, bDetector: boolean): TFormatDetectCallback => {
 		const { StrictFormats, Styles } = format;
 		const styleName = Object.keys(Styles)[0];
 
 		return (paths: Node[]) => {
 			const node = FormatUtils.GetParentIfText(paths[0]);
+
+			const bNearDisableList = FormatUI.IsNearDisableList(self, format.DisableList, button, node);
+			if (bNearDisableList || !bDetector) return;
+
 			let blockNode: Node | null = node;
 			while (blockNode && blockNode.parentNode !== self.GetBody()) {
 				blockNode = blockNode.parentNode;
@@ -102,10 +115,13 @@ const StyleFormat = (editor: Editor, detector: IFormatDetector): IFormatUIRegist
 			if (!bCalculate) FormatUI.ToggleActivateClass(button, bActive as boolean);
 
 			const toggler = ToggleStyleFormat(self, Format);
-			if (!bCalculate) return toggler.ToggleFromCaret(bActive as boolean, DefaultValue);
-			toggler.CalculateFromCaret(DefaultValue ?? FormatUtils.GetPixcelFromRoot(), bSubtract);
+			if (!bCalculate) {
+				toggler.ToggleFromCaret(bActive as boolean, DefaultValue);
+				return self.Utils.Shared.DispatchCaretChange();
+			}
 
-			self.Dispatch('caret:change', []);
+			toggler.CalculateFromCaret(DefaultValue ?? FormatUtils.GetPixcelFromRoot(), bSubtract);
+			self.Utils.Shared.DispatchCaretChange();
 		};
 	};
 
@@ -127,6 +143,7 @@ const StyleFormat = (editor: Editor, detector: IFormatDetector): IFormatUIRegist
 			if (bSubtract) FormatUI.ToggleDisable(button, true);
 
 			if (Type.IsString(Keys)) FormatUI.RegisterKeyboardEvent(self, Keys, (e: Editor, event: Event) => {
+				if (FormatUI.IsDisabled(button)) return;
 				const figure = self.DOM.Closest(event.target as Element, FigureSelector);
 				if (figure) return;
 				eventCallback();
@@ -135,9 +152,7 @@ const StyleFormat = (editor: Editor, detector: IFormatDetector): IFormatUIRegist
 
 			DOM.Insert(group, button);
 
-			if (!bDetector) return;
-
-			Detector.Register(createdDetector(item.Format as IStyleFormat, button));
+			Detector.Register(createdDetector(item.Format as IStyleFormat, button, bDetector));
 		});
 
 		return group;

@@ -1,7 +1,7 @@
 import { Arr, Str } from '@dynafer/utils';
 import Editor from '../../Editor';
 import { ICaretData } from '../../editorUtils/caret/CaretUtils';
-import { TableSelector } from '../Format';
+import { FigureSelector, TableSelector } from '../Format';
 import { IBlockFormat } from '../FormatType';
 import FormatUtils from '../FormatUtils';
 
@@ -34,6 +34,17 @@ const ToggleBlock = (editor: Editor, format: IBlockFormat): IToggleBlock => {
 
 		Arr.Each(cells, cell => Toggler.ToggleRecursive(bWrap, format, cell));
 
+		return true;
+	};
+
+	const leaveProcessorIfInFigure = (bWrap: boolean, caret: ICaretData) => {
+		const element = FormatUtils.GetParentIfText(caret.Start.Node);
+		if (DOM.Utils.GetNodeName(element) !== FigureSelector) return false;
+
+		const figureType = DOM.GetAttr(element, 'type');
+		if (figureType === TableSelector) return false;
+
+		self.Utils.Shared.DispatchCaretChange([element]);
 		return true;
 	};
 
@@ -87,6 +98,7 @@ const ToggleBlock = (editor: Editor, format: IBlockFormat): IToggleBlock => {
 			bWrap,
 			tableProcessor,
 			processors: [
+				{ processor: leaveProcessorIfInFigure },
 				{ processor: sameLineProcessor },
 				{ processor: rangeProcessor },
 			]

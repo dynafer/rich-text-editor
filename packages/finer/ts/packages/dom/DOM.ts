@@ -280,7 +280,9 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 
 	const Closest = (selector: TElement, find: string): Element | null => {
 		if (!Instance.Is(selector, elementType) || !Type.IsString(find) || Str.IsEmpty(find)) return null;
-		return selector.closest(find);
+		const closest = selector.closest(find);
+		if (!closest || HasAttr(closest, 'id', Utils.CreateUEID('editor-body', false))) return null;
+		return closest;
 	};
 
 	const ClosestByStyle = (selector: TElement, styles: string | (string | Record<string, string>)[] | Record<string, string>): Element | null => {
@@ -391,6 +393,7 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 
 		if (option.attrs && Type.IsObject(option.attrs)) SetAttrs(newElement, option.attrs as Record<string, string>);
 		if (option.styles && Type.IsObject(option.styles)) SetStyles(newElement, option.styles as Record<string, string>);
+		else if (option.styles && Type.IsString(option.styles)) SetStyleText(newElement, option.styles);
 
 		if (option.class && Type.IsString(option.class)) newElement.className = option.class;
 		else if (option.class && Type.IsArray(option.class)) AddClass(newElement, ...option.class as string[]);
