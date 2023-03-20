@@ -71,8 +71,7 @@
 				}
 			}
 
-			&[style*='margin-left: auto'][style*='margin-right: auto'],
-			&[style*='margin: auto auto'] {
+			&[style*='margin-left: auto'][style*='margin-right: auto'] {
 				img,
 				div[data-fake] {
 					@include all-margin(auto auto);

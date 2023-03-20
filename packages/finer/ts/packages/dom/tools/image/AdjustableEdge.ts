@@ -2,10 +2,11 @@ import { Arr, Str, Type } from '@dynafer/utils';
 import Editor from '../../../Editor';
 import { ENativeEvents, PreventEvent } from '../../../events/EventSetupUtils';
 import { CreateAdjustableEdgeSize, RegisterAdjustingEvents } from '../Utils';
+import AdjustingNavigation from './AdjustingNavigation';
+import { CreateFakeFigure, MakeAbsolute, ResetAbsolute } from './ImageToolsUtils';
 
 const AdjustableEdge = (editor: Editor, image: HTMLImageElement): HTMLElement => {
 	const self = editor;
-	const rootDOM = self.GetRootDOM();
 	const DOM = self.DOM;
 
 	const adjustableEdgeGroup = DOM.Create('div', {
@@ -58,75 +59,23 @@ const AdjustableEdge = (editor: Editor, image: HTMLImageElement): HTMLElement =>
 		const bLeft = adjustItem === leftTopEdge || adjustItem === leftBottomEdge;
 		const bTop = adjustItem === leftTopEdge || adjustItem === rightTopEdge;
 
-		const originalWidth = image.naturalWidth;
-		const originalHeight = image.naturalHeight;
-
 		const oldWidth = image.offsetWidth;
 		const oldHeight = image.offsetHeight;
+		const oldLeft = image.offsetLeft;
+		const oldTop = image.offsetTop;
 
 		self.SaveScrollPosition();
 
-		const navigationMargin = 20;
-		const navigationAddableLeft = self.IsIFrame() ? self.Frame.Wrapper.offsetLeft : 0;
-		const navigationAddableTop = self.IsIFrame() ? self.Frame.Wrapper.offsetTop : 0;
+		const navigation = AdjustingNavigation(self, image);
+		navigation.Update(startOffsetX, startOffsetY);
 
-		const navigation = rootDOM.Create('div', {
-			class: DOM.Utils.CreateUEID('image-size-navigation', false),
-		});
-
-		const getImageInfo = (): string => {
-			const ratio = `${Math.round(image.offsetWidth / originalWidth * 100) / 100} : ${Math.round(image.offsetHeight / originalHeight * 100) / 100}`;
-			return `R. ${ratio}<br>W. ${image.offsetWidth}px<br> H. ${image.offsetHeight}px`;
-		};
-
-		const updateNavigation = (offsetX: number, offsetY: number) => {
-			let calculatedLeft = offsetX + navigationAddableLeft + rootDOM.Win.scrollX + navigationMargin;
-			let calculatedTop = offsetY + navigationAddableTop + rootDOM.Win.scrollY + navigationMargin;
-			if (calculatedLeft + navigation.offsetWidth >= rootDOM.Win.innerWidth)
-				calculatedLeft -= navigation.offsetWidth + navigationMargin;
-
-			if (calculatedTop + navigation.offsetHeight >= rootDOM.Win.innerHeight)
-				calculatedTop -= navigation.offsetHeight + navigationMargin;
-
-			rootDOM.SetStyles(navigation, {
-				left: `${calculatedLeft}px`,
-				top: `${calculatedTop}px`
-			});
-
-			rootDOM.SetHTML(navigation, getImageInfo());
-		};
-
-		updateNavigation(startOffsetX, startOffsetY);
-
-		rootDOM.Insert(rootDOM.Doc.body, navigation);
-
-		const fakeSizedFigure = DOM.Clone(figure) as HTMLElement;
-		DOM.SetStyles(fakeSizedFigure, {
-			position: 'relative',
-			width: `${figure.offsetWidth}px`,
-			height: `${figure.offsetHeight}px`,
-		});
-
-		const fakeSizedImage = DOM.Create('div', {
-			attrs: {
-				dataFake: ''
-			}
-		});
-		DOM.SetStyles(fakeSizedImage, {
-			width: `${oldWidth}px`,
-			height: `${oldHeight}px`
-		});
-
-		DOM.Insert(fakeSizedFigure, fakeSizedImage);
-		DOM.InsertBefore(figure, fakeSizedFigure);
-		DOM.SetStyles(figure, {
-			position: 'absolute',
-			left: '0px',
-			top: '0px',
-		});
+		const fakeFigure = CreateFakeFigure(self, figure, image);
+		DOM.InsertBefore(figure, fakeFigure.Figure);
+		MakeAbsolute(self, fakeFigure, figure, image);
 
 		const dumpWidth = DOM.GetStyle(image, 'width');
 		const dumpHeight = DOM.GetStyle(image, 'height');
+
 		DOM.SetStyles(image, {
 			width: '0px',
 			height: '0px',
@@ -134,12 +83,10 @@ const AdjustableEdge = (editor: Editor, image: HTMLImageElement): HTMLElement =>
 
 		const minWidth = image.offsetWidth;
 		const minHeight = image.offsetHeight;
-		const minLeft = image.offsetLeft + Math.max(0, oldWidth - minWidth);
-		const minTop = image.offsetTop + Math.max(0, oldHeight - minHeight);
+		const minLeft = image.offsetLeft + (bLeft ? Math.max(minWidth - oldWidth, oldWidth - minWidth) : 0);
+		const minTop = image.offsetTop + (bTop ? Math.max(minHeight - oldHeight, oldHeight - minHeight) : 0);
 
 		updateEdgePosition();
-		const savedAdjustItemLeft = adjustItem.offsetLeft + (bLeft ? Math.max(0, oldWidth - minWidth) : 0);
-		const savedAdjustItemTop = adjustItem.offsetTop + (bTop ? Math.max(0, oldHeight - minHeight) : 0);
 
 		const toggleWidth = !Str.IsEmpty(dumpWidth) ? DOM.SetStyle : DOM.RemoveStyle;
 		const toggleHeight = !Str.IsEmpty(dumpHeight) ? DOM.SetStyle : DOM.RemoveStyle;
@@ -153,17 +100,21 @@ const AdjustableEdge = (editor: Editor, image: HTMLImageElement): HTMLElement =>
 		const lineGroup = DOM.Select<HTMLElement>({ attrs: ['data-adjustable-line-group'] }, figure);
 		DOM.Hide(lineGroup);
 
-		let lastAdjustOffsetX = -1;
-		let lastAdjustOffsetY = -1;
-
-		DOM.SetStyles(figure, {
-			position: 'absolute',
-			left: `${fakeSizedFigure.offsetLeft + parseFloat(DOM.GetStyle(fakeSizedImage, 'margin-left', true)) - parseFloat(DOM.GetStyle(fakeSizedFigure, 'margin-left', true))}px`,
-			top: `${fakeSizedFigure.offsetTop + parseFloat(DOM.GetStyle(fakeSizedImage, 'margin-top', true)) - parseFloat(DOM.GetStyle(fakeSizedFigure, 'margin-top', true))}px`,
-		});
-
 		const bFigureRight = DOM.HasStyle(figure, 'float', 'right')
 			|| (DOM.HasStyle(figure, 'margin-left', 'auto') && !DOM.HasStyle(figure, 'margin-right', 'auto'));
+
+		const startWidthDifference = bLeft ? 0 : (minWidth - oldWidth);
+		const adjustLeftDifference = minLeft - oldLeft + startWidthDifference;
+		const minimumOffsetX = startOffsetX + adjustLeftDifference;
+		const minimumAdjustPositionX = adjustItem.offsetLeft + adjustLeftDifference;
+
+		const startHeightDifference = bTop ? 0 : (minHeight - oldHeight);
+		const adjustTopDifference = minTop - oldTop + startHeightDifference;
+		const minimumOffsetY = startOffsetY + adjustTopDifference;
+		const minimumAdjustPositionY = adjustItem.offsetTop + adjustTopDifference;
+
+		let bUpdatableX = true;
+		let bUpdatableY = true;
 
 		const isUpdatable = (bHorizontal: boolean, current: number): false | number => {
 			const bLeftOrTop = bHorizontal ? bLeft : bTop;
@@ -171,48 +122,29 @@ const AdjustableEdge = (editor: Editor, image: HTMLImageElement): HTMLElement =>
 			const calculated = bLeftOrTop ? startOffset - current : current - startOffset;
 			if (calculated === 0) return false;
 
-			const adjustPosition = bHorizontal ? adjustItem.offsetLeft : adjustItem.offsetTop;
-			const savedPosition = bHorizontal ? savedAdjustItemLeft : savedAdjustItemTop;
-			const lastAdjustOffset = bHorizontal ? lastAdjustOffsetX : lastAdjustOffsetY;
-
-			const estimateAdjustPosition = adjustPosition + (calculated * (bLeftOrTop ? -1 : 1));
-
-			const bUnderPosition = bLeftOrTop ? estimateAdjustPosition >= savedPosition : estimateAdjustPosition <= savedPosition;
-			const bUnderOffset = bLeftOrTop ? lastAdjustOffset > current : lastAdjustOffset < current;
-
 			if (bHorizontal) startOffsetX = current;
 			else startOffsetY = current;
 
-			const difference = adjustPosition - savedPosition;
+			const minimumOffset = bHorizontal ? minimumOffsetX : minimumOffsetY;
+			const minimumAdjustPosition = bHorizontal ? minimumAdjustPositionX : minimumAdjustPositionY;
+			const currentAdjustPosition = bHorizontal ? adjustItem.offsetLeft : adjustItem.offsetTop;
 
-			if (lastAdjustOffset !== -1) {
-				const bReset = calculated > 0 && !bUnderPosition && bUnderOffset;
-				if (bReset) {
-					if (bHorizontal) lastAdjustOffsetX = -1;
-					else lastAdjustOffsetY = -1;
+			const offsetDifference = bLeftOrTop ? minimumOffset - current : current - minimumOffset;
+			const adjustDifference = bLeftOrTop ? minimumAdjustPosition - currentAdjustPosition : currentAdjustPosition - minimumAdjustPosition;
 
-					return calculated;
+			const bUpdatable = bHorizontal ? bUpdatableX : bUpdatableY;
+
+			if (!bUpdatable) {
+				if (calculated < 0 || (offsetDifference <= 0 && adjustDifference <= 0)) return false;
+
+				if (bHorizontal) bUpdatableX = true;
+				else bUpdatableY = true;
+			} else {
+				if (calculated < 0 && offsetDifference <= 0 && adjustDifference <= 0) {
+					if (bHorizontal) bUpdatableX = false;
+					else bUpdatableY = false;
+					return false;
 				}
-
-				const imagePosition = bHorizontal ? image.offsetLeft : image.offsetTop;
-				DOM.SetStyle(image, bHorizontal ? 'left' : 'top', `${imagePosition}px`);
-
-				updateEdgePosition();
-
-				return false;
-			}
-
-			const bSave = calculated < 0 && bUnderPosition;
-			if (bSave) {
-				if (bHorizontal) lastAdjustOffsetX = current + difference;
-				else lastAdjustOffsetY = current + difference;
-
-				const imagePosition = bHorizontal ? image.offsetLeft : image.offsetTop;
-				DOM.SetStyle(image, bHorizontal ? 'left' : 'top', `${imagePosition}px`);
-
-				updateEdgePosition();
-
-				return false;
 			}
 
 			return calculated;
@@ -226,8 +158,9 @@ const AdjustableEdge = (editor: Editor, image: HTMLImageElement): HTMLElement =>
 			const calculatedX = isUpdatable(true, currentOffsetX);
 			const calculatedY = isUpdatable(false, currentOffsetY);
 
-			if ((Type.IsBoolean(calculatedX) && !calculatedX) && (Type.IsBoolean(calculatedY) && !calculatedY))
-				return updateNavigation(currentOffsetX, currentOffsetY);
+			navigation.Update(currentOffsetX, currentOffsetY);
+
+			if ((Type.IsBoolean(calculatedX) && !calculatedX) && (Type.IsBoolean(calculatedY) && !calculatedY)) return;
 
 			const newStyle: Record<string, string> = {};
 
@@ -249,24 +182,19 @@ const AdjustableEdge = (editor: Editor, image: HTMLImageElement): HTMLElement =>
 					left: `${figure.offsetLeft - parseFloat(DOM.GetStyle(figure, 'margin-left', true)) - calculatedX}px`
 				});
 
-			updateNavigation(currentOffsetX, currentOffsetY);
-
 			updateEdgePosition();
 		};
 
 		const finishAdjusting = (e: MouseEvent) => {
 			PreventEvent(e);
 
-			DOM.RemoveStyle(image, 'left');
-			DOM.RemoveStyle(image, 'top');
-			fakeSizedFigure.remove();
+			fakeFigure.Figure.remove();
 
-			DOM.RemoveStyle(figure, 'position');
-			DOM.RemoveStyle(figure, 'left');
-			DOM.RemoveStyle(figure, 'top');
+			ResetAbsolute(self, figure, image);
+
 			DOM.Show(lineGroup);
 
-			rootDOM.Remove(navigation);
+			navigation.Remove();
 		};
 
 		RegisterAdjustingEvents(self, adjust, finishAdjusting);
