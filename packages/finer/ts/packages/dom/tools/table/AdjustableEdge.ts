@@ -1,4 +1,4 @@
-import { Arr, Type } from '@dynafer/utils';
+import { Arr, Formula, Type } from '@dynafer/utils';
 import Editor from '../../../Editor';
 import { ENativeEvents, PreventEvent } from '../../../events/EventSetupUtils';
 import { CreateAdjustableEdgeSize, GetClientSize, RegisterAdjustingEvents } from '../Utils';
@@ -57,24 +57,21 @@ const AdjustableEdge = (editor: Editor, table: HTMLElement, tableGrid: ITableGri
 
 		let savedPoint = CreateCurrentPoint(self, table);
 
-		const moveToSavedPoint = () => {
-			MoveToCurrentPoint(self, table, savedPoint);
-			savedPoint = undefined;
-		};
-
 		let startOffsetX = event.clientX;
 		let startOffsetY = event.clientY;
 
 		const bLeft = adjustItem === leftTopEdge || adjustItem === leftBottomEdge;
 		const bTop = adjustItem === leftTopEdge || adjustItem === rightTopEdge;
 
-		const oldWidth = table.offsetWidth;
-		const oldHeight = table.offsetHeight;
-
 		self.SaveScrollPosition();
 
 		const fakeTable = CreateFakeTable(self, table);
 		DOM.Insert(adjustableEdgeGroup, fakeTable);
+
+		const oldWidth = fakeTable.offsetWidth;
+		const oldHeight = fakeTable.offsetHeight;
+		const oldLeft = fakeTable.offsetLeft;
+		const oldTop = fakeTable.offsetTop;
 
 		const fakeTableGrid = GetTableGridWithIndex(self, fakeTable);
 		const cellSizePercents: [number, number][][] = [];
@@ -107,12 +104,10 @@ const AdjustableEdge = (editor: Editor, table: HTMLElement, tableGrid: ITableGri
 
 		const minWidth = fakeTable.offsetWidth;
 		const minHeight = fakeTable.offsetHeight;
-		const minLeft = fakeTable.offsetLeft + Math.max(0, oldWidth - minWidth);
-		const minTop = fakeTable.offsetTop + Math.max(0, oldHeight - minHeight);
+		const minLeft = fakeTable.offsetLeft + (bLeft ? Math.max(minWidth - oldWidth, oldWidth - minWidth) : 0);
+		const minTop = fakeTable.offsetTop + (bTop ? Math.max(minHeight - oldHeight, oldHeight - minHeight) : 0);
 
 		setEdgePositionStyles(fakeTable, adjustItem, bLeft, bTop);
-		const savedAdjustItemLeft = adjustItem.offsetLeft + (bLeft ? Math.max(0, oldWidth - minWidth) : 0);
-		const savedAdjustItemTop = adjustItem.offsetTop + (bTop ? Math.max(0, oldHeight - minHeight) : 0);
 
 		Arr.Each(fakeTableGrid.Grid, row =>
 			Arr.Each(row, cell => {
@@ -134,8 +129,18 @@ const AdjustableEdge = (editor: Editor, table: HTMLElement, tableGrid: ITableGri
 		const movable = DOM.Select<HTMLElement>({ attrs: ['data-movable'] }, table.parentNode);
 		DOM.Hide(movable);
 
-		let lastAdjustOffsetX = -1;
-		let lastAdjustOffsetY = -1;
+		const startWidthDifference = bLeft ? 0 : (minWidth - oldWidth);
+		const adjustLeftDifference = minLeft - oldLeft + startWidthDifference;
+		const minimumOffsetX = startOffsetX + adjustLeftDifference;
+		const minimumAdjustPositionX = adjustItem.offsetLeft + adjustLeftDifference;
+
+		const startHeightDifference = bTop ? 0 : (minHeight - oldHeight);
+		const adjustTopDifference = minTop - oldTop + startHeightDifference;
+		const minimumOffsetY = startOffsetY + adjustTopDifference;
+		const minimumAdjustPositionY = adjustItem.offsetTop + adjustTopDifference;
+
+		let bUpdatableX = true;
+		let bUpdatableY = true;
 
 		const isUpdatable = (bHorizontal: boolean, current: number): false | number => {
 			const bLeftOrTop = bHorizontal ? bLeft : bTop;
@@ -143,48 +148,29 @@ const AdjustableEdge = (editor: Editor, table: HTMLElement, tableGrid: ITableGri
 			const calculated = bLeftOrTop ? startOffset - current : current - startOffset;
 			if (calculated === 0) return false;
 
-			const adjustPosition = bHorizontal ? adjustItem.offsetLeft : adjustItem.offsetTop;
-			const savedPosition = bHorizontal ? savedAdjustItemLeft : savedAdjustItemTop;
-			const lastAdjustOffset = bHorizontal ? lastAdjustOffsetX : lastAdjustOffsetY;
-
-			const estimateAdjustPosition = adjustPosition + (calculated * (bLeftOrTop ? -1 : 1));
-
-			const bUnderPosition = bLeftOrTop ? estimateAdjustPosition >= savedPosition : estimateAdjustPosition <= savedPosition;
-			const bUnderOffset = bLeftOrTop ? lastAdjustOffset > current : lastAdjustOffset < current;
-
 			if (bHorizontal) startOffsetX = current;
 			else startOffsetY = current;
 
-			const difference = adjustPosition - savedPosition;
+			const minimumOffset = bHorizontal ? minimumOffsetX : minimumOffsetY;
+			const minimumAdjustPosition = bHorizontal ? minimumAdjustPositionX : minimumAdjustPositionY;
+			const currentAdjustPosition = bHorizontal ? adjustItem.offsetLeft : adjustItem.offsetTop;
 
-			if (lastAdjustOffset !== -1) {
-				const bReset = calculated > 0 && !bUnderPosition && bUnderOffset;
-				if (bReset) {
-					if (bHorizontal) lastAdjustOffsetX = -1;
-					else lastAdjustOffsetY = -1;
+			const offsetDifference = bLeftOrTop ? minimumOffset - current : current - minimumOffset;
+			const adjustDifference = bLeftOrTop ? minimumAdjustPosition - currentAdjustPosition : currentAdjustPosition - minimumAdjustPosition;
 
-					return calculated;
+			const bUpdatable = bHorizontal ? bUpdatableX : bUpdatableY;
+
+			if (!bUpdatable) {
+				if (calculated < 0 || (offsetDifference <= 0 && adjustDifference <= 0)) return false;
+
+				if (bHorizontal) bUpdatableX = true;
+				else bUpdatableY = true;
+			} else {
+				if (calculated < 0 && offsetDifference <= 0 && adjustDifference <= 0) {
+					if (bHorizontal) bUpdatableX = false;
+					else bUpdatableY = false;
+					return false;
 				}
-
-				const tablePosition = bHorizontal ? fakeTable.offsetLeft : fakeTable.offsetTop;
-				DOM.SetStyle(fakeTable, bHorizontal ? 'left' : 'top', `${tablePosition}px`);
-
-				updateEdgePosition(fakeTable);
-
-				return false;
-			}
-
-			const bSave = calculated < 0 && bUnderPosition;
-			if (bSave) {
-				if (bHorizontal) lastAdjustOffsetX = current + difference;
-				else lastAdjustOffsetY = current + difference;
-
-				const tablePosition = bHorizontal ? fakeTable.offsetLeft : fakeTable.offsetTop;
-				DOM.SetStyle(fakeTable, bHorizontal ? 'left' : 'top', `${tablePosition}px`);
-
-				updateEdgePosition(fakeTable);
-
-				return false;
 			}
 
 			return calculated;
@@ -210,12 +196,12 @@ const AdjustableEdge = (editor: Editor, table: HTMLElement, tableGrid: ITableGri
 					const newStyle: Record<string, string> = {};
 
 					if (!Type.IsBoolean(calculatedX)) {
-						const addableWidth = Math.round(calculatedX * cellSizePercent[0] * 100) * 0.01;
+						const addableWidth = Formula.RoundDecimal(calculatedX * cellSizePercent[0]);
 						if (addableWidth !== 0) newStyle.width = `${GetClientSize(self, cell, 'width') + addableWidth}px`;
 					}
 
 					if (!Type.IsBoolean(calculatedY)) {
-						const addableHeight = Math.round(calculatedY * cellSizePercent[1] * 100) * 0.01;
+						const addableHeight = Formula.RoundDecimal(calculatedY * cellSizePercent[1]);
 						if (addableHeight !== 0) newStyle.height = `${GetClientSize(self, cell, 'height') + addableHeight}px`;
 					}
 
@@ -238,25 +224,19 @@ const AdjustableEdge = (editor: Editor, table: HTMLElement, tableGrid: ITableGri
 		const finishAdjusting = (e: MouseEvent) => {
 			PreventEvent(e);
 
-			const newWidth = fakeTable.offsetWidth;
-			const newHeight = fakeTable.offsetHeight;
+			const widthDifference = fakeTable.offsetWidth - oldWidth;
+			const heightDifference = fakeTable.offsetHeight - oldHeight;
 
 			DOM.Remove(fakeTable);
 
 			const cellGridStyles: ICellStyleMap[][] = [];
 
-			const widthDifference = newWidth - oldWidth;
-			const heightDifference = newHeight - oldHeight;
-
 			Arr.Each(tableGrid.Grid, row => {
 				const cellStyles: ICellStyleMap[] = [];
 
 				Arr.Each(row, cell => {
-					const percentCellWidth = cell.offsetWidth / oldWidth;
-					const percentCellHeight = cell.offsetHeight / oldHeight;
-
-					const newCellWidth = Math.round(widthDifference * percentCellWidth * 100) * 0.01;
-					const newCellHeight = Math.round(heightDifference * percentCellHeight * 100) * 0.01;
+					const newCellWidth = Formula.RoundDecimal(widthDifference * cell.offsetWidth / oldWidth);
+					const newCellHeight = Formula.RoundDecimal(heightDifference * cell.offsetHeight / oldHeight);
 
 					Arr.Push(cellStyles, {
 						cell,
@@ -276,7 +256,8 @@ const AdjustableEdge = (editor: Editor, table: HTMLElement, tableGrid: ITableGri
 
 			DOM.Show(movable);
 
-			moveToSavedPoint();
+			MoveToCurrentPoint(self, table, savedPoint);
+			savedPoint = undefined;
 		};
 
 		RegisterAdjustingEvents(self, adjust, finishAdjusting);
