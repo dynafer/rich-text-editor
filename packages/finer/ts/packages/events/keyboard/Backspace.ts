@@ -1,3 +1,4 @@
+import { NodeType } from '@dynafer/dom-control';
 import Editor from '../../Editor';
 import { IsTableFigure } from './KeyboardUtils';
 
@@ -6,8 +7,9 @@ const Backspace = (editor: Editor) => {
 	const DOM = self.DOM;
 	const CaretUtils = self.Utils.Caret;
 
-	const lines = DOM.GetChildNodes(self.GetBody(), false);
+	const lines = DOM.GetChildren(self.GetBody(), false);
 	const caret = CaretUtils.Get()[0];
+	if (!caret) return CaretUtils.Clean();
 
 	const currentLine = caret.Start.Path[0];
 
@@ -15,7 +17,7 @@ const Backspace = (editor: Editor) => {
 		|| !DOM.Utils.IsTextEmpty(currentLine)
 		|| IsTableFigure(self, currentLine)) return CaretUtils.Clean();
 
-	DOM.Remove(currentLine as Element);
+	DOM.Remove(currentLine);
 
 	let lastChild: Node | null = DOM.Utils.GetLastChild(lines[lines.length - 1], true);
 	if (DOM.Utils.IsBr(lastChild)) lastChild = lastChild.parentNode;
@@ -24,7 +26,7 @@ const Backspace = (editor: Editor) => {
 
 	const newRange = self.Utils.Range();
 
-	const index = DOM.Utils.IsText(lastChild) ? lastChild.length : 0;
+	const index = NodeType.IsText(lastChild) ? lastChild.length : 0;
 	newRange.SetStartToEnd(lastChild, index, index);
 
 	CaretUtils.UpdateRanges(newRange);

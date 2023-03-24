@@ -1,7 +1,6 @@
 import { Arr, Type } from '@dynafer/utils';
 import Editor from '../../Editor';
 import { ICaretData } from '../../editorUtils/caret/CaretUtils';
-import { FigureSelector } from '../Format';
 import { IStyleFormat } from '../FormatType';
 import FormatUtils from '../FormatUtils';
 
@@ -58,7 +57,7 @@ const ToggleStyleFormat = (editor: Editor, formats: IStyleFormat | IStyleFormat[
 	const rangeProcessor = (bWrap: boolean, caret: ICaretData, value?: string): boolean => {
 		if (caret.Start.Line === caret.End.Line) return false;
 
-		const lines = DOM.GetChildNodes(self.GetBody());
+		const lines = DOM.GetChildren(self.GetBody());
 
 		toggleRangeEdge(bWrap, caret.Start.Node, lines[caret.Start.Line], value, true);
 		for (let index = caret.Start.Line + 1; index < caret.End.Line; ++index) {
@@ -71,9 +70,9 @@ const ToggleStyleFormat = (editor: Editor, formats: IStyleFormat | IStyleFormat[
 	};
 
 	const calculateRange = (caret: ICaretData, styleName: string, calculateValue: number) => {
-		const lines = DOM.GetChildNodes(self.GetBody());
+		const lines = DOM.GetChildren(self.GetBody());
 
-		const toggleStyle = (element: HTMLElement) => {
+		const toggleStyle = (element: Element) => {
 			const styleValue = DOM.GetStyle(element, styleName, true);
 			const calculated = parseFloat(styleValue) + calculateValue;
 
@@ -83,13 +82,14 @@ const ToggleStyleFormat = (editor: Editor, formats: IStyleFormat | IStyleFormat[
 
 		const cells = FormatUtils.GetTableItems(self, true);
 		if (!Arr.IsEmpty(cells)) {
-			const figure = DOM.Closest(cells[0], FigureSelector) as HTMLElement | null;
-			if (!figure) return;
-			return toggleStyle(figure);
+			const { Figure } = DOM.Element.Figure.Find<HTMLElement>(cells[0]);
+			if (!Figure) return;
+
+			return toggleStyle(Figure);
 		}
 
 		for (let index = caret.Start.Line; index <= caret.End.Line; ++index) {
-			toggleStyle(lines[index] as HTMLElement);
+			toggleStyle(lines[index]);
 		}
 	};
 

@@ -1,3 +1,4 @@
+import { NodeType } from '@dynafer/dom-control';
 import { Arr, Str } from '@dynafer/utils';
 import Editor from '../../../packages/Editor';
 import { ICaretData } from '../../../packages/editorUtils/caret/CaretUtils';
@@ -50,7 +51,7 @@ const Wrapper = (editor: Editor, format: IPluginListFormat) => {
 	const mergeList = (node: Node, insertion?: Node) => {
 		if (!!node.previousSibling && DOM.Utils.GetNodeName(node.previousSibling) === Tag) {
 			DOM.Insert(node.previousSibling, ...(!!insertion ? [insertion] : DOM.GetChildNodes(node, false)));
-			return DOM.Remove(node as Element, true);
+			return DOM.Remove(node, true);
 		}
 
 		if (!node.nextSibling || DOM.Utils.GetNodeName(node.nextSibling) !== Tag) return;
@@ -60,7 +61,7 @@ const Wrapper = (editor: Editor, format: IPluginListFormat) => {
 		const insert = bFirstChild ? DOM.InsertBefore : DOM.Insert;
 		const selector = bFirstChild ? firstChild : node.nextSibling;
 		insert(selector, ...(!!insertion ? [insertion] : DOM.GetChildNodes(node, false)));
-		DOM.Remove(node as Element, true);
+		DOM.Remove(node, true);
 	};
 
 	const switchFormat = (node: Node) => {
@@ -80,7 +81,7 @@ const Wrapper = (editor: Editor, format: IPluginListFormat) => {
 
 		if (node.previousSibling && DOM.Utils.GetNodeName(node.previousSibling) === Tag) {
 			DOM.Insert(node.previousSibling, ...[newListItem]);
-			return DOM.Remove(node as Element, true);
+			return DOM.Remove(node, true);
 		}
 
 		if (node.nextSibling && DOM.Utils.GetNodeName(node.nextSibling) === Tag) {
@@ -89,7 +90,7 @@ const Wrapper = (editor: Editor, format: IPluginListFormat) => {
 			const insert = bFirstChild ? DOM.InsertBefore : DOM.Insert;
 			const selector = bFirstChild ? firstChild : node.nextSibling;
 			insert(selector, ...[newListItem]);
-			return DOM.Remove(node as Element, true);
+			return DOM.Remove(node, true);
 		}
 
 		const newList = DOM.Create(Tag);
@@ -196,7 +197,7 @@ const Wrapper = (editor: Editor, format: IPluginListFormat) => {
 		const wrapNodeInTableCell = (child: Node, marker?: Node | null, bPrevious?: boolean) => {
 			if (DOM.Utils.IsBr(child)) return DOM.Remove(child);
 
-			const bChildText = DOM.Utils.IsText(child);
+			const bChildText = NodeType.IsText(child);
 			const node = bChildText ? wrapBlockBeforeWrapList(child) : child;
 			if (bChildText && marker) {
 				const insert = bPrevious ? DOM.InsertBefore : DOM.InsertAfter;
@@ -276,7 +277,7 @@ const Wrapper = (editor: Editor, format: IPluginListFormat) => {
 	const processRange = (caret: ICaretData) => {
 		if (caret.Start.Line === caret.End.Line) return;
 
-		const lines = DOM.GetChildNodes(self.GetBody());
+		const lines = DOM.GetChildren(self.GetBody());
 
 		wrapRange(caret.Start.Node);
 		for (let index = caret.Start.Line + 1; index < caret.End.Line; ++index) {

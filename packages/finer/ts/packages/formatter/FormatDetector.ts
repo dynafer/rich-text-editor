@@ -1,6 +1,5 @@
 import { Arr } from '@dynafer/utils';
 import Editor from '../Editor';
-import { IEvent } from '../editorUtils/EventUtils';
 import { TFormatDetectCallback } from './FormatType';
 
 interface IDetection {
@@ -16,13 +15,13 @@ const FormatDetector = (editor: Editor): IFormatDetector => {
 	const CaretUtils = self.Utils.Caret;
 	const detections: IDetection[] = [];
 
-	self.On('caret:change', ((paths: Node[]) => {
+	self.On('caret:change', (paths: Node[]) => {
 		const promises: Promise<void>[] = [];
 		Arr.Each(detections, detection => Arr.Push(promises, detection(paths)));
 
 		Promise.all(promises)
 			.finally(() => CaretUtils.Clean());
-	}) as IEvent);
+	});
 
 	const Register = (callback: TFormatDetectCallback) => {
 		const asyncDetection: IDetection = (paths: Node[]) =>

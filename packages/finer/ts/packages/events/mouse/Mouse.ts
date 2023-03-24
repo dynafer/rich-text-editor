@@ -3,6 +3,7 @@ import { CaretChangeEvent, ENativeEvents, Setup } from '../EventSetupUtils';
 import ClickFigure from './ClickFigure';
 import DoubleClick from './DoubleClick';
 import HoverFigure from './HoverFigure';
+import MoveInTable from './MoveInTable';
 import SelectTableCell from './SelectTableCell';
 
 const Mouse = (editor: Editor) => {
@@ -11,8 +12,8 @@ const Mouse = (editor: Editor) => {
 	Setup(self, ENativeEvents.mouseup, CaretChangeEvent);
 	Setup(self, ENativeEvents.mousedown, SelectTableCell);
 	Setup(self, ENativeEvents.mousemove, HoverFigure);
+	Setup(self, ENativeEvents.mousemove, MoveInTable);
 	Setup(self, ENativeEvents.mouseup, ClickFigure);
-	Setup(self, ENativeEvents.click, ClickFigure);
 	Setup(self, ENativeEvents.dblclick, DoubleClick);
 };
 

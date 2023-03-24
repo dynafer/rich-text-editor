@@ -1,0 +1,121 @@
+@mixin dom-tools {
+	[data-fixed='dom-tool'] {
+		[data-movable] {
+			@include position(absolute, calc(0px - 1rem), 0);
+			@include all-border(getVar(tool-default-color) !important, 3px);
+			@include all-margin(0px);
+			@include square(calc(1rem - 6px));
+			@include height($line: 0);
+			cursor: move;
+
+			svg {
+				@include all-margin(0px);
+				@include square(calc(1rem - 6px));
+			}
+		}
+
+		[data-adjustable-edge-group] {
+			[data-adjustable-edge] {
+				@include position(absolute);
+				@include all-margin(0px);
+				@include square(0.75rem);
+				@include height($line: 0);
+				background-color: getVar(tool-default-color);
+
+				&[data-adjustable-edge='east'] {
+					cursor: ne-resize;
+				}
+
+				&[data-adjustable-edge='west'] {
+					cursor: nw-resize;
+				}
+			}
+		}
+
+		&[data-type='table-tool'] {
+			[data-adjustable-line-group] {
+				[data-adjustable-line] {
+					@include position(absolute);
+					@include all-margin(0px);
+
+					&[data-adjusting] {
+						background-color: getVar(tool-default-color);
+					}
+				}
+
+				[data-adjustable-line='width'] {
+					cursor: col-resize;
+				}
+
+				[data-adjustable-line='height'] {
+					cursor: row-resize;
+				}
+			}
+
+			table {
+				@include font($color: transparent);
+				border-style: dotted;
+
+				th,
+				td {
+					border-style: dotted;
+					white-space: nowrap;
+				}
+			}
+		}
+
+		&[data-type='img-tool'] {
+			[data-adjustable-line-group] {
+				[data-adjustable-line] {
+					@include position(absolute);
+					@include all-margin(0px);
+					background-color: getVar(tool-default-color);
+				}
+
+				[data-adjustable-line='left'],
+				[data-adjustable-line='right'] {
+					cursor: col-resize;
+				}
+
+				[data-adjustable-line='top'],
+				[data-adjustable-line='bottom'] {
+					cursor: row-resize;
+				}
+			}
+
+			[data-image-menu] {
+				@include position(absolute);
+				@include all-border(getVar(image-menu-border));
+				@include round(getVar(image-menu-radius));
+				@include all-padding(0.2rem);
+				@include rectangle(8rem, 1.6rem);
+				@include flex(space-between, center);
+				background-color: getVar(image-menu-bg);
+
+				.#{getClassName(icon-group)} {
+					.#{getClassName(icon-button)} {
+						@include flex($align: center, $inline: true);
+						@include all-padding(0.2rem);
+						@include all-border(none);
+						@include round(getVar(image-menu-item-radius));
+						background-color: getVar(image-menu-item-bg);
+						cursor: pointer;
+
+						svg {
+							@include square(1.2rem);
+							fill: getVar(image-menu-item-icon-fill);
+						}
+
+						&:hover {
+							background-color: getVar(image-menu-item-hover-bg);
+						}
+
+						&.active {
+							background-color: getVar(image-menu-item-active-bg);
+						}
+					}
+				}
+			}
+		}
+	}
+}

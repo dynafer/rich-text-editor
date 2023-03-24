@@ -13,7 +13,7 @@ export interface IRangeUtils {
 	SetEndAfter: (node: Node) => void,
 	Select: (node: Node) => void,
 	SelectContents: (node: Node) => void,
-	SetStartToEnd: (node: Node, startOffset: number, endOffset: number) => void,
+	SetStartToEnd: (node: Node | null, startOffset: number, endOffset: number) => void,
 }
 
 const RangeUtils = (range: Range = new Range()): IRangeUtils => {
@@ -31,7 +31,8 @@ const RangeUtils = (range: Range = new Range()): IRangeUtils => {
 	const SetEndAfter = (node: Node) => range.setEndAfter(node);
 	const Select = (node: Node) => range.selectNode(node);
 	const SelectContents = (node: Node) => range.selectNodeContents(node);
-	const SetStartToEnd = (node: Node, startOffset: number, endOffset: number) => {
+	const SetStartToEnd = (node: Node | null, startOffset: number, endOffset: number) => {
+		if (!node) return;
 		SetStart(node, startOffset);
 		SetEnd(node, endOffset);
 	};

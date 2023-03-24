@@ -3,7 +3,8 @@ import * as Attribute from './Attribute';
 
 const win = window;
 
-export const GetAsMap = (selector: HTMLElement): Record<string, string> => {
+export const GetAsMap = (selector: Node | Element | null): Record<string, string> => {
+	if (!Obj.HasProperty<HTMLElement>(selector, 'style')) return {};
 	const styleList = selector.style.cssText.split(';');
 	const styleDict: Record<string, string> = {};
 	Arr.Each(styleList, style => {
@@ -15,7 +16,8 @@ export const GetAsMap = (selector: HTMLElement): Record<string, string> => {
 	return styleDict;
 };
 
-export const Get = (selector: HTMLElement, name: string, bComputed?: boolean): string => {
+export const Get = (selector: Node | Element | null, name: string, bComputed?: boolean): string => {
+	if (!Obj.HasProperty<HTMLElement>(selector, 'style')) return '';
 	const computedStyle = win.getComputedStyle(selector);
 	const capitalisedStyle = Str.DashToCapital(name);
 	if (bComputed) return computedStyle[capitalisedStyle as 'all'];
@@ -27,10 +29,12 @@ export const Get = (selector: HTMLElement, name: string, bComputed?: boolean): s
 	return styles[capitalisedStyle] ?? '';
 };
 
-export const GetText = (selector: HTMLElement): string => selector.style.cssText;
+export const GetText = (selector: Node | Element | null): string => Obj.GetProperty<CSSStyleDeclaration>(selector, 'style')?.cssText ?? '';
 
-export const Set = (selector: HTMLElement, name: string, value: string) => {
-	if (selector.style[name as 'all']) {
+export const Set = (selector: Node | Element | null, name: string, value: string) => {
+	if (!Obj.HasProperty<HTMLElement>(selector, 'style')) return;
+
+	if (Obj.GetProperty<Record<string, string>>(selector, 'style')?.[name]) {
 		selector.style[name as 'all'] = value;
 		return;
 	}
@@ -40,16 +44,20 @@ export const Set = (selector: HTMLElement, name: string, value: string) => {
 	selector.style.cssText = Str.Join(';', ...styleList);
 };
 
-export const SetAsMap = (selector: HTMLElement, styles: Record<string, string>) =>
+export const SetAsMap = (selector: Node | Element | null, styles: Record<string, string>) =>
 	Obj.Entries(styles, (name, value) => Set(selector, name, value));
 
-export const SetText = (selector: HTMLElement, styleText: string) => {
+export const SetText = (selector: Node | Element | null, styleText: string) => {
+	if (!Obj.HasProperty<HTMLElement>(selector, 'style')) return;
+
 	if (Str.IsEmpty(styleText)) return Attribute.Remove(selector, 'style');
 
 	selector.style.cssText = styleText;
 };
 
-export const Remove = (selector: HTMLElement, name: string) => {
+export const Remove = (selector: Node | Element | null, name: string) => {
+	if (!Obj.HasProperty<HTMLElement>(selector, 'style')) return;
+
 	if (selector.style[name as 'all']) {
 		selector.style[name as 'all'] = '';
 		if (Str.IsEmpty(selector.style.cssText)) Attribute.Remove(selector, 'style');
@@ -69,7 +77,9 @@ export const Remove = (selector: HTMLElement, name: string) => {
 	if (Str.IsEmpty(selector.style.cssText)) Attribute.Remove(selector, 'style');
 };
 
-export const Has = (selector: HTMLElement, name: string, compareValue?: string): boolean => {
+export const Has = (selector: Node | Element | null, name: string, compareValue?: string): boolean => {
+	if (!Obj.HasProperty<HTMLElement>(selector, 'style')) return false;
+
 	const cssText = selector.style.cssText.replace(/\s*:\s*/gi, ':');
 	if (compareValue) {
 		if (!Type.IsString(compareValue)) return false;

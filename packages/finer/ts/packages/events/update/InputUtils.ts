@@ -1,8 +1,9 @@
+import { NodeType } from '@dynafer/dom-control';
 import { Arr, Str } from '@dynafer/utils';
 import { TElement } from '../../dom/DOM';
 import Editor from '../../Editor';
 import { ICaretData } from '../../editorUtils/caret/CaretUtils';
-import { AllBlockFormats, BlockFormatTags, FigureElementFormats, FigureSelector, ListItemSelector, ListSelector } from '../../formatter/Format';
+import { AllBlockFormats, BlockFormatTags, FigureElementFormats, ListItemSelector, ListSelector } from '../../formatter/Format';
 import FormatUtils from '../../formatter/FormatUtils';
 
 const InputUtils = (editor: Editor) => {
@@ -11,7 +12,7 @@ const InputUtils = (editor: Editor) => {
 
 	const EditFigures = (fragment: DocumentFragment) => {
 		const figures = DOM.SelectAll({
-			tagName: FigureSelector
+			tagName: DOM.Element.Figure.Selector
 		}, fragment);
 
 		let currentFigure: HTMLElement | undefined = undefined;
@@ -31,7 +32,7 @@ const InputUtils = (editor: Editor) => {
 		let currentElement: HTMLElement | undefined = undefined;
 		while (!Arr.IsEmpty(figureElements)) {
 			currentElement = Arr.Shift(figureElements);
-			if (!currentElement || DOM.Closest(currentElement, FigureSelector)) continue;
+			if (!currentElement || !!DOM.Element.Figure.GetClosest(currentElement)) continue;
 
 			const tagName = DOM.Utils.GetNodeName(currentElement);
 			if (!FigureElementFormats.has(tagName)) {
@@ -39,12 +40,7 @@ const InputUtils = (editor: Editor) => {
 				continue;
 			}
 
-			const figure = DOM.Create(FigureSelector, {
-				attrs: {
-					type: tagName,
-					contenteditable: 'false',
-				}
-			});
+			const figure = DOM.Element.Figure.Create(tagName);
 
 			DOM.CloneAndInsert(figure, true, currentElement);
 
@@ -64,7 +60,7 @@ const InputUtils = (editor: Editor) => {
 	const insertBlocks = (caret: ICaretData, fragment: DocumentFragment) => {
 		const nodes = DOM.GetChildNodes(fragment);
 
-		const endBlock = self.Utils.Shared.SplitLines(caret.Start.Node, caret.Start.Offset).endBlock;
+		const { EndBlock } = self.Utils.Shared.SplitLines(caret.Start.Node, caret.Start.Offset);
 
 		let bStopInlineNodes = false;
 		let bInList = false;
@@ -149,19 +145,19 @@ const InputUtils = (editor: Editor) => {
 			}
 		}
 
-		if (!endBlock || !previousNode) return;
+		if (!EndBlock || !previousNode) return;
 
-		if (!bInList || !BlockFormatTags.List.has(DOM.Utils.GetNodeName(endBlock))) {
+		if (!bInList || !BlockFormatTags.List.has(DOM.Utils.GetNodeName(EndBlock))) {
 			const blockNode = DOM.Closest(previousNode, Str.Join(',', ...BlockFormatTags.Block))
 				?? DOM.Closest(previousNode, ListSelector)
-				?? DOM.Closest(previousNode, FigureSelector)
+				?? DOM.Element.Figure.GetClosest(previousNode)
 				?? DOM.GetParents(previousNode)[0];
 
-			return DOM.InsertAfter(blockNode, endBlock);
+			return DOM.InsertAfter(blockNode, EndBlock);
 		}
 
 		const previousList = DOM.Closest(FormatUtils.GetParentIfText(previousNode), ListSelector);
-		const endList = DOM.Closest(FormatUtils.GetParentIfText(endBlock), ListSelector);
+		const endList = DOM.Closest(FormatUtils.GetParentIfText(EndBlock), ListSelector);
 
 		if (DOM.Utils.GetNodeName(endList) !== DOM.Utils.GetNodeName(previousList))
 			return DOM.InsertAfter(previousList, endList);
@@ -169,8 +165,8 @@ const InputUtils = (editor: Editor) => {
 		const listItems: Node[] = [];
 		Arr.Each(DOM.GetChildNodes(endList), child => {
 			if (
-				DOM.Utils.IsText(child)
-				|| (!DOM.Select('br', child) && Str.IsEmpty(DOM.GetText(child as HTMLElement)))
+				NodeType.IsText(child)
+				|| (!DOM.Select('br', child) && Str.IsEmpty(DOM.GetText(child)))
 			) return;
 
 			Arr.Push(listItems, child);

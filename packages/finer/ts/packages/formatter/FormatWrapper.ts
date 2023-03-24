@@ -1,3 +1,4 @@
+import { NodeType } from '@dynafer/dom-control';
 import { Arr, Obj, Str, Type } from '@dynafer/utils';
 import Editor from '../Editor';
 import { AllBlockFormats } from './Format';
@@ -25,16 +26,16 @@ const FormatWrapper = (editor: Editor): IFormatWrapper => {
 		if (tagName === DOM.Utils.GetNodeName(oldNode)) return;
 		const newNode = DOM.Create(tagName);
 		if (!!styles) DOM.SetStyles(newNode, styles);
-		const insertions = DOM.Utils.IsText(oldNode) || DOM.Utils.IsBr(oldNode) ? [oldNode] : DOM.GetChildNodes(oldNode, false);
+		const insertions = NodeType.IsText(oldNode) || DOM.Utils.IsBr(oldNode) ? [oldNode] : DOM.GetChildNodes(oldNode, false);
 		DOM.CloneAndInsert(newNode, true, ...insertions);
 		oldNode.parentElement?.replaceChild(newNode, oldNode);
 	};
 
 	const mergeStyle = (node: Node, styles: Record<string, string>) =>
 		Obj.Entries(styles, (styleName, styleValue) => {
-			if (DOM.HasStyle(node as HTMLElement, styleName, styleValue)) return;
+			if (DOM.HasStyle(node, styleName, styleValue)) return;
 
-			DOM.SetStyle(node as HTMLElement, styleName, styleValue);
+			DOM.SetStyle(node, styleName, styleValue);
 		});
 
 	const wrapBlock = (format: IBlockFormat, node: Node) => {
@@ -63,7 +64,7 @@ const FormatWrapper = (editor: Editor): IFormatWrapper => {
 	const wrapInline = (format: IInlineFormat, node: Node, value?: string) => {
 		const { Tag, Styles } = format;
 
-		const elementForCheck = FormatUtils.GetParentIfText(node) as Element;
+		const elementForCheck = FormatUtils.GetParentIfText(node);
 
 		if (!Styles) {
 			if (DOM.Closest(elementForCheck, Tag) || AllBlockFormats.has(DOM.Utils.GetNodeName(node))) return;
@@ -97,7 +98,7 @@ const FormatWrapper = (editor: Editor): IFormatWrapper => {
 
 		const removeStyles = () => {
 			if (!Type.IsArray(SameStyles)) return;
-			Arr.Each(SameStyles, styleName => DOM.RemoveStyle(parent as HTMLElement, styleName));
+			Arr.Each(SameStyles, styleName => DOM.RemoveStyle(parent, styleName));
 		};
 
 		removeStyles();
@@ -119,7 +120,8 @@ const FormatWrapper = (editor: Editor): IFormatWrapper => {
 				}
 
 				return Arr.Each(formats, (styleFormat, exit) => {
-					if (wrapStyleFormat(styleFormat as IStyleFormat, node, value)) exit();
+					if (styleFormat.Type !== EFormatType.STYLE) return;
+					if (wrapStyleFormat(styleFormat, node, value)) exit();
 				});
 		}
 	};

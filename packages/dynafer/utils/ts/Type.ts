@@ -19,3 +19,4 @@ export const IsString: (value: unknown) => value is string = isType('string');
 export const IsBoolean: (value: unknown) => value is boolean = isType('boolean');
 export const IsFunction: (value: unknown) => value is (...params: unknown[]) => void = isType('function');
 export const IsNull: (value: unknown) => value is null = isType('null');
+export const IsUndefined: (value: unknown) => value is undefined = isType('undefined');

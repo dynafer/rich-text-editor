@@ -171,7 +171,7 @@ export const CaretChangeEvent = <K extends keyof GlobalEventHandlersEventMap>(ed
 	const paths: Node[] = [];
 	Arr.Each(event.composedPath(), (path, exit) => {
 		if (self.GetBody() === path || self.DOM.GetRoot() === path) return exit();
-		Arr.Push(paths, path as Node);
+		Arr.Push(paths, path);
 	});
 
 	self.Utils.Shared.DispatchCaretChange(paths);

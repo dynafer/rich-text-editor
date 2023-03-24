@@ -1,9 +1,8 @@
 import { Str } from '@dynafer/utils';
+import Figure from '../dom/elements/Figure';
 import { EFormatType, TFormat } from './FormatType';
 
-export const FigureSelector = 'figure';
-export const FigureAsTextSelector = 'figure[data-as-text]';
-export const FigureNotTableSelector = 'figure:not([type="table"])';
+export const FigureNotTableSelector = Str.Merge(Figure.Selector, ':not([type="table"])');
 export const TableSelector = 'table';
 export const TableRowSelector = 'tr';
 export const TableCellSet = new Set(['th', 'td']);
@@ -11,10 +10,10 @@ export const TableCellSelector = Str.Join(',', ...TableCellSet);
 export const ListSet = new Set(['ol', 'ul']);
 export const ListSelector = Str.Join(',', ...ListSet);
 export const ListItemSelector = 'li';
+export const FigureElementSet = new Set(['img', 'audio', 'video']);
 
 export const BlockFormatTags = {
-	FigureAsText: new Set([FigureAsTextSelector]),
-	Figures: new Set([FigureSelector, 'img', 'audio', 'video']),
+	Figures: new Set([Figure.Selector, 'img', 'audio', 'video']),
 	Table: new Set([TableSelector]),
 	TableItems: new Set([...TableCellSet, TableRowSelector]),
 	Block: new Set(['p', 'div', 'blockquote', 'pre', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6']),
@@ -22,13 +21,11 @@ export const BlockFormatTags = {
 	FollowingItems: new Set([ListItemSelector, ...TableCellSet]),
 };
 
-export const AllDisableList = new Set([FigureNotTableSelector, ...BlockFormatTags.Figures]);
+export const AllDisableList = new Set([FigureNotTableSelector, ...FigureElementSet]);
 export const FigureElementFormats = new Set([...BlockFormatTags.Figures, ...BlockFormatTags.Table]);
 export const UnswitchableFormats = new Set([...BlockFormatTags.TableItems, ...BlockFormatTags.List]);
 export const AllStrictFormats = new Set([...BlockFormatTags.Block, ...UnswitchableFormats]);
-export const AllBlockFormats = new Set([FigureSelector, ...BlockFormatTags.Table, ...BlockFormatTags.TableItems, ...BlockFormatTags.Block, ...BlockFormatTags.List]);
-
-export const TagDisableForamtList = ['img', 'audio', 'video'];
+export const AllBlockFormats = new Set([Figure.Selector, ...BlockFormatTags.Table, ...BlockFormatTags.TableItems, ...BlockFormatTags.Block, ...BlockFormatTags.List]);
 
 export const Formats: Record<string, TFormat | TFormat[]> = {
 	Bold: [
@@ -60,13 +57,13 @@ export const Formats: Record<string, TFormat | TFormat[]> = {
 
 	Outdent: {
 		Type: EFormatType.STYLE,
-		StrictFormats: new Set([FigureSelector, ...AllStrictFormats]),
+		StrictFormats: new Set([Figure.Selector, ...AllStrictFormats]),
 		Styles: { marginLeft: '{{value}}' },
 		DisableList: AllDisableList
 	},
 	Indent: {
 		Type: EFormatType.STYLE,
-		StrictFormats: new Set([FigureSelector, ...AllStrictFormats]),
+		StrictFormats: new Set([Figure.Selector, ...AllStrictFormats]),
 		Styles: { marginLeft: '{{value}}' },
 		DisableList: AllDisableList
 	},
@@ -78,21 +75,21 @@ export const Formats: Record<string, TFormat | TFormat[]> = {
 		DisableList: AllDisableList
 	},
 	AlignLeft: [
+		{ Type: EFormatType.STYLE, StrictFormats: new Set<string>(), Styles: {}, DisableList: AllDisableList },
 		{ Type: EFormatType.STYLE, StrictFormats: AllStrictFormats, Styles: { textAlign: 'left' }, SameStyles: ['margin-left', 'margin-right', 'float'] },
 		{ Type: EFormatType.STYLE, StrictFormats: BlockFormatTags.Table, Styles: { marginLeft: '0px', marginRight: 'auto' }, SameStyles: ['text-align', 'float'] },
-		{ Type: EFormatType.STYLE, StrictFormats: BlockFormatTags.FigureAsText, Styles: { float: 'left' }, SameStyles: ['text-align', 'margin-left', 'margin-right'] },
 		{ Type: EFormatType.STYLE, StrictFormats: BlockFormatTags.Figures, Styles: { marginLeft: '0px', marginRight: 'auto' }, SameStyles: ['text-align', 'float'] }
 	],
 	AlignCenter: [
-		{ Type: EFormatType.STYLE, StrictFormats: new Set<string>(), Styles: {}, DisableList: BlockFormatTags.FigureAsText },
+		{ Type: EFormatType.STYLE, StrictFormats: new Set<string>(), Styles: {}, DisableList: AllDisableList },
 		{ Type: EFormatType.STYLE, StrictFormats: AllStrictFormats, Styles: { textAlign: 'center' }, SameStyles: ['margin-left', 'margin-right', 'float'] },
 		{ Type: EFormatType.STYLE, StrictFormats: BlockFormatTags.Table, Styles: { marginLeft: 'auto', marginRight: 'auto' }, SameStyles: ['text-align', 'float'] },
 		{ Type: EFormatType.STYLE, StrictFormats: BlockFormatTags.Figures, Styles: { marginLeft: 'auto', marginRight: 'auto' }, SameStyles: ['text-align', 'float'] }
 	],
 	AlignRight: [
+		{ Type: EFormatType.STYLE, StrictFormats: new Set<string>(), Styles: {}, DisableList: AllDisableList },
 		{ Type: EFormatType.STYLE, StrictFormats: AllStrictFormats, Styles: { textAlign: 'right' }, SameStyles: ['margin-left', 'margin-right', 'float'] },
 		{ Type: EFormatType.STYLE, StrictFormats: BlockFormatTags.Table, Styles: { marginLeft: 'auto', marginRight: '0px' }, SameStyles: ['text-align', 'float'] },
-		{ Type: EFormatType.STYLE, StrictFormats: BlockFormatTags.FigureAsText, Styles: { float: 'right' }, SameStyles: ['text-align', 'margin-left', 'margin-right'] },
 		{ Type: EFormatType.STYLE, StrictFormats: BlockFormatTags.Figures, Styles: { marginLeft: 'auto', marginRight: '0px' }, SameStyles: ['text-align', 'float'] }
 	],
 

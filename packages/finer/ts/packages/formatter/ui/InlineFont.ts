@@ -70,7 +70,7 @@ const InlineFont = (editor: Editor, detector: IFormatDetector): IFormatUIRegistr
 			? (Str.Contains(value, 'pt') ? FormatUtils.ConvertPointsToPixel(parseFloat(value)) : value)
 			: getFirstValue(value);
 
-		const checkDetected = (element: HTMLElement | null, bBody: boolean = false): boolean => {
+		const checkDetected = (element: Element | null, bBody: boolean = false): boolean => {
 			if (!element) return false;
 			const detectedValue = getFirstValue(self.DOM.GetStyle(element, styleName, bBody));
 
@@ -82,7 +82,7 @@ const InlineFont = (editor: Editor, detector: IFormatDetector): IFormatUIRegistr
 
 		for (let index = 0, length = nodes.length; index < length; ++index) {
 			const node = nodes[index];
-			const detected = self.DOM.ClosestByStyle(FormatUtils.GetParentIfText(node), selector) as HTMLElement;
+			const detected = self.DOM.ClosestByStyle(FormatUtils.GetParentIfText(node), selector);
 			if (checkDetected(detected)) return true;
 
 			if (node === self.GetBody()) {

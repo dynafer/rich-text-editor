@@ -8,7 +8,6 @@ import FormatRegistry, { IFormatRegistry } from './ui/FormatRegistry';
 
 export interface IFormatter {
 	Formats: {
-		FigureSelector: string,
 		TableSelector: string,
 		TableRowSelector: string,
 		TableCellSet: Set<string>,
@@ -41,7 +40,6 @@ const Formatter = (editor: Editor): IFormatter => {
 
 	return {
 		Formats: {
-			FigureSelector: Format.FigureSelector,
 			TableSelector: Format.TableSelector,
 			TableRowSelector: Format.TableRowSelector,
 			TableCellSet: Format.TableCellSet,

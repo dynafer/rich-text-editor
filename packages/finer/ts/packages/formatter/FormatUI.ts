@@ -7,15 +7,14 @@ import { Formats, ListItemSelector } from './Format';
 import ToggleInline from './format/ToggleInline';
 import { IInlineFormat } from './FormatType';
 
-const ACTIVE_CLASS = 'active';
-const DISABLED_ATTRIBUTE = 'disabled';
-
 export interface IFormatUISelection {
 	Label: HTMLElement,
 	Selection: HTMLElement,
 }
 
 export interface IFormatUI {
+	readonly ACTIVE_CLASS: string,
+	readonly DISABLED_ATTRIBUTE: string,
 	Create: (opts: Record<string, string>) => HTMLElement,
 	GetSystemStyle: (editor: Editor, style: string) => string,
 	CreateIconButton: (title: string, iconName: string) => HTMLElement,
@@ -41,6 +40,9 @@ export interface IFormatUI {
 }
 
 const FormatUI = (): IFormatUI => {
+	const ACTIVE_CLASS = 'active';
+	const DISABLED_ATTRIBUTE = 'disabled';
+
 	const GetSystemStyle = (editor: Editor, style: string): string => editor.DOM.GetStyle(editor.GetBody(), style);
 
 	const Create = (opts: Record<string, string>): HTMLElement => {
@@ -288,6 +290,8 @@ const FormatUI = (): IFormatUI => {
 	};
 
 	return {
+		ACTIVE_CLASS,
+		DISABLED_ATTRIBUTE,
 		Create,
 		GetSystemStyle,
 		CreateIconButton,

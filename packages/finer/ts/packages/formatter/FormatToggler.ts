@@ -1,3 +1,4 @@
+import { NodeType } from '@dynafer/dom-control';
 import { Arr } from '@dynafer/utils';
 import Editor from '../Editor';
 import { IToggleRecursiveOption, TFormat } from './FormatType';
@@ -43,7 +44,7 @@ const FormatToggler = (editor: Editor): IFormatToggler => {
 			if (childNextSibling && DOM.HasAttr(childNextSibling, 'marker')) childNextSibling = childNextSibling.nextSibling;
 			if (endNodeNextSibling && DOM.HasAttr(endNodeNextSibling, 'marker')) endNodeNextSibling = endNodeNextSibling.nextSibling;
 
-			if (DOM.Utils.IsText(child) || (children.length === 1 && DOM.Utils.IsBr(child))) {
+			if (NodeType.IsText(child) || (children.length === 1 && DOM.Utils.IsBr(child))) {
 				process(bWrap, formats, child, value);
 				if (endNode && child === endNode) {
 					const bRemovedFromChild = trimEndBr(childNextSibling);

@@ -1,10 +1,11 @@
+import { NodeType } from '@dynafer/dom-control';
 import { Arr, Obj, Str, Type } from '@dynafer/utils';
 import Options from '../../Options';
 import DOM from '../dom/DOM';
 import Editor from '../Editor';
 import { ICaretData } from '../editorUtils/caret/CaretUtils';
 import { IRangeUtils } from '../editorUtils/caret/RangeUtils';
-import { BlockFormatTags, FigureSelector, TableCellSet, TableSelector } from './Format';
+import { BlockFormatTags, TableCellSet, TableSelector } from './Format';
 
 export type TConfigOption = string | string[] | Record<string, string>;
 
@@ -43,7 +44,7 @@ export interface IFormatUtils {
 	HasFormatName: (finder: string, names: string[]) => boolean,
 	GetFormatConfig: (editor: Editor, defaultOptions: TConfigOption, configName: string) => TConfigOption,
 	LabelConfigArray: (config: string[]) => Record<string, string>,
-	GetParentIfText: (node: Node) => Node,
+	GetParentIfText: (node: Node) => Element,
 	RunFormatting: (editor: Editor, toggle: () => void) => void,
 	SplitTextNode: (editor: Editor, node: Node, start: number, end: number) => Node | null,
 	GetStyleSelectorMap: (styles: Record<string, string>, value?: string) => (string | Record<string, string>)[],
@@ -99,8 +100,8 @@ const FormatUtils = (): IFormatUtils => {
 		return newMap;
 	};
 
-	const GetParentIfText = (node: Node): Node =>
-		DOM.Utils.IsText(node) ? node.parentNode as Node : node;
+	const GetParentIfText = (node: Node): Element =>
+		(NodeType.IsText(node) ? node.parentElement : node) as Element;
 
 	const createMarkers = (editor: Editor): TCaretPath[] => {
 		const self = editor;
@@ -141,11 +142,10 @@ const FormatUtils = (): IFormatUtils => {
 
 			if (BlockFormatTags.Figures.has(startNodeName) || BlockFormatTags.Figures.has(endNodeName)) {
 				const newMarker = createMarker();
-				if (startNodeName === FigureSelector || endNodeName === FigureSelector) {
-					const figureType = self.DOM.GetAttr(startNode, 'type');
-					if (!figureType) return;
-					startNode = self.DOM.Select(figureType, startNode);
-					if (!startNode) return;
+				if (DOM.Element.Figure.IsFigure(startNode) || DOM.Element.Figure.IsFigure(endNode)) {
+					const { FigureElement } = DOM.Element.Figure.Find(startNode);
+					if (!FigureElement) return;
+					startNode = FigureElement;
 				}
 
 				self.DOM.InsertBefore(startNode, newMarker[1]);
@@ -194,10 +194,10 @@ const FormatUtils = (): IFormatUtils => {
 		const newRanges: IRangeUtils[] = [];
 
 		const getTextOrBrNode = (parent: Node): Node => {
-			if (DOM.Utils.IsText(parent)) return parent;
+			if (NodeType.IsText(parent)) return parent;
 
 			let node = parent;
-			while (node && !DOM.Utils.IsText(node) && !DOM.Utils.IsBr(node)) {
+			while (node && !NodeType.IsText(node) && !DOM.Utils.IsBr(node)) {
 				node = self.DOM.GetChildNodes(node, false)[0];
 			}
 
@@ -214,7 +214,7 @@ const FormatUtils = (): IFormatUtils => {
 			if (sibling) {
 				const siblingName = DOM.Utils.GetNodeName(sibling);
 				if (BlockFormatTags.Figures.has(siblingName)) {
-					if (siblingName !== FigureSelector) return sibling.parentNode as Element;
+					if (!DOM.Element.Figure.IsFigure(sibling) && sibling.parentNode) return sibling.parentNode;
 					return sibling;
 				}
 
@@ -233,9 +233,9 @@ const FormatUtils = (): IFormatUtils => {
 			}
 
 			const currentName = DOM.Utils.GetNodeName(current);
-			if (BlockFormatTags.Figures.has(currentName)) {
-				if (currentName !== FigureSelector) return current?.parentNode as Element;
-				return current as Element;
+			if (current && BlockFormatTags.Figures.has(currentName)) {
+				if (!DOM.Element.Figure.IsFigure(current) && current.parentNode) return current.parentNode;
+				return current;
 			}
 
 			return getTextOrBrNode(!current ? marker : current);
@@ -287,7 +287,7 @@ const FormatUtils = (): IFormatUtils => {
 	};
 
 	const SplitTextNode = (editor: Editor, node: Node, start: number, end: number): Node | null => {
-		if (!DOM.Utils.IsText(node)) return null;
+		if (!NodeType.IsText(node)) return null;
 
 		const self = editor;
 
@@ -373,6 +373,19 @@ const FormatUtils = (): IFormatUtils => {
 		return getNodesInRoot(node, root, bPrevious);
 	};
 
+	const leaveProcessorIfInFigure = (editor: Editor, caret: ICaretData): boolean => {
+		const self = editor;
+
+		const element = GetParentIfText(caret.Start.Node);
+		if (!DOM.Element.Figure.IsFigure(element)) return false;
+
+		const figureType = DOM.GetAttr(element, 'type');
+		if (figureType === TableSelector) return false;
+
+		self.Utils.Shared.DispatchCaretChange([element]);
+		return true;
+	};
+
 	const SerialiseWithProcessors = (editor: Editor, options: IProcessorOption) => {
 		const self = editor;
 		const CaretUtils = self.Utils.Caret;
@@ -381,6 +394,8 @@ const FormatUtils = (): IFormatUtils => {
 		if (tableProcessor(bWrap, value)) return;
 
 		Arr.Each(CaretUtils.Get(), caret => {
+			if (leaveProcessorIfInFigure(self, caret)) return;
+
 			Arr.Each(processors, (option, exit) => {
 				if (!option.processor(bWrap, caret, value)) return;
 				if (!option.bSkipFocus) self.Focus();
@@ -394,6 +409,8 @@ const FormatUtils = (): IFormatUtils => {
 	};
 
 	const CleanDirty = (editor: Editor, caret: ICaretData) => {
+		if (!caret) return;
+
 		const self = editor;
 
 		const followingItemsSelector = Str.Join(',', ...BlockFormatTags.FollowingItems);
@@ -401,19 +418,16 @@ const FormatUtils = (): IFormatUtils => {
 		const endBlock = self.DOM.Closest(GetParentIfText(caret.End.Node), followingItemsSelector) ?? caret.End.Path[0];
 		const children: Node[] = [];
 
-		const startBlockName = self.DOM.Utils.GetNodeName(startBlock);
-		const endBlockName = self.DOM.Utils.GetNodeName(endBlock);
-
 		const caretNodes = [
 			...self.DOM.SelectAll({ attrs: 'caret' }, startBlock),
 			...self.DOM.SelectAll({ attrs: 'caret' }, endBlock)
 		];
 
-		if (startBlockName !== FigureSelector) Arr.Push(children, ...self.DOM.GetChildNodes(startBlock));
-		if (endBlockName !== FigureSelector) Arr.Push(children, ...self.DOM.GetChildNodes(endBlock));
+		if (!DOM.Element.Figure.IsFigure(startBlock)) Arr.Push(children, ...self.DOM.GetChildNodes(startBlock));
+		if (!DOM.Element.Figure.IsFigure(endBlock)) Arr.Push(children, ...self.DOM.GetChildNodes(endBlock));
 
 		const isNodeEmpty = (target: Node): boolean =>
-			(self.DOM.Utils.IsText(target) && Str.IsEmpty(target.textContent)) || (!self.DOM.Utils.IsText(target) && Str.IsEmpty(self.DOM.GetText(target as HTMLElement)));
+			(NodeType.IsText(target) && Str.IsEmpty(target.textContent)) || (!NodeType.IsText(target) && Str.IsEmpty(self.DOM.GetText(target)));
 
 		Arr.Each(children, child => {
 			if (!child
@@ -422,7 +436,7 @@ const FormatUtils = (): IFormatUtils => {
 				|| (self.DOM.Utils.IsBr(self.DOM.GetChildNodes(child)[0]))
 				|| self.DOM.HasAttr(child, 'caret')
 				|| self.DOM.HasAttr(child, 'marker')
-				|| self.DOM.Utils.GetNodeName(child) === FigureSelector
+				|| DOM.Element.Figure.IsFigure(child)
 			) return;
 
 			let bSkip = false;
@@ -435,8 +449,8 @@ const FormatUtils = (): IFormatUtils => {
 
 			if (bSkip) return;
 
-			if (self.DOM.Utils.IsText(child)) return child.remove();
-			self.DOM.Remove(child as Element, false);
+			if (NodeType.IsText(child)) return child.remove();
+			self.DOM.Remove(child, false);
 		});
 	};
 

@@ -14,7 +14,7 @@
 	#{getVarName(toolbar-item-active-text)}: #000;
 	#{getVarName(toolbar-item-option-bg)}: #fff;
 	#{getVarName(toolbar-item-select-border)}: #afafaf;
-	#{getVarName(toolbar-item-radius)}: 0.4rem;
+	#{getVarName(toolbar-item-radius)}: 0.25rem;
 	#{getVarName(toolbar-item-disabled-icon-fill)}: #aeaeae;
 
 	#{getVarName(editor-bg)}: transparent;
@@ -23,7 +23,7 @@
 	#{getVarName(modal-bg)}: #fff;
 	#{getVarName(modal-border)}: #c9c9c9;
 
-	#{getVarName(button-radius)}: 0.3rem;
+	#{getVarName(button-radius)}: 0.25rem;
 	#{getVarName(button-bg)}: #2c8ed8;
 	#{getVarName(button-border)}: #2c8ed8;
 	#{getVarName(button-font)}: #fff;
@@ -40,6 +40,20 @@
 	#{getVarName(button-disabled-border)}: #737b81;
 	#{getVarName(button-disabled-font)}: #fff;
 
+	#{getVarName(selected-color)}: rgba(116, 195, 255, 0.7);
+	#{getVarName(tool-default-color)}: rgba(116, 195, 255, 0.7);
+
 	#{getVarName(image-size-navigation-bg)}: rgba(0, 0, 0, 0.6);
 	#{getVarName(image-size-navigation-font)}: #fff;
+
+	#{getVarName(image-menu-bg)}: #fff;
+	#{getVarName(image-menu-border)}: #ececec;
+	#{getVarName(image-menu-radius)}: 0.4rem;
+
+	#{getVarName(image-menu-item-bg)}: #fff;
+	#{getVarName(image-menu-item-border)}: #ececec;
+	#{getVarName(image-menu-item-icon-fill)}: #000;
+	#{getVarName(image-menu-item-radius)}: 0.25rem;
+	#{getVarName(image-menu-item-hover-bg)}: rgba(116, 195, 255, 0.7);
+	#{getVarName(image-menu-item-active-bg)}: rgba(88, 183, 255, 0.7);
 }

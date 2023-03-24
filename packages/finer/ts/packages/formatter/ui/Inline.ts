@@ -47,7 +47,7 @@ const Inline = (editor: Editor, detector: IFormatDetector): IFormatUIRegistryUni
 				return true;
 			}
 
-			if (!self.DOM.Closest(node, selector as string)) continue;
+			if (!Type.IsString(selector) || !self.DOM.Closest(node, selector)) continue;
 
 			return true;
 		}

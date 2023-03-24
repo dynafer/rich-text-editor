@@ -48,7 +48,7 @@ const UI = (editor: Editor): IPluginListUI => {
 		Detector.Register((paths: Node[]) => {
 			formatUI.ToggleActivateClass(button, IsDetected(format.Tag, paths));
 
-			const figure = self.DOM.Closest(paths[0], formats.FigureSelector);
+			const figure = self.DOM.Element.Figure.GetClosest(paths[0]);
 			const bDisable = !!figure && formats.BlockFormatTags.Figures.has(self.DOM.GetAttr(figure, 'type') ?? '');
 			formatUI.ToggleDisable(button, bDisable);
 		});

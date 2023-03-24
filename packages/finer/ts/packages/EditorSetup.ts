@@ -17,21 +17,26 @@ const EditorSetup = (editor: Editor): Promise<void> => {
 	const editorDefaultId = DOM.Utils.CreateUEID('editor-default', false);
 	const editorDefaultCss = `<link id="${editorDefaultId}" rel="stylesheet" href="${Options.JoinUrl('css', 'skins/Editor')}">`;
 
+	const skinId = DOM.Utils.CreateUEID('skin', false);
+	const skinLink = `<link id="${skinId}" rel="stylesheet" href="${Options.JoinUrl('css', `skins/${config.Skin}/skin`)}">`;
+
 	const createIframe = (): HTMLElement => {
+		const container = frame.Container as HTMLIFrameElement;
+
 		self.DOM = DOM.New(
-			(frame.Container as HTMLIFrameElement).contentWindow as Window & typeof globalThis,
-			(frame.Container as HTMLIFrameElement).contentDocument ?? document,
+			container.contentWindow as Window & typeof globalThis,
+			container.contentDocument ?? document,
 			true
 		);
 
 		const iframeHTML = Str.Merge('<!DOCTYPE html>',
 			'<html>',
-			`<head>${editorDefaultCss}</head>`,
+			`<head>${skinLink}${editorDefaultCss}</head>`,
 			`<body id="${bodyId}" contenteditable="true"></body>`,
 			'</html>');
 
-		(frame.Container as HTMLIFrameElement).contentDocument?.write(iframeHTML);
-		(frame.Container as HTMLIFrameElement).contentDocument?.close();
+		container.contentDocument?.write(iframeHTML);
+		container.contentDocument?.close();
 
 		return self.DOM.Doc.body;
 	};
@@ -50,8 +55,6 @@ const EditorSetup = (editor: Editor): Promise<void> => {
 	};
 
 	const setEditorBody = () => {
-		const skinId = DOM.Utils.CreateUEID('skin', false);
-		const skinLink = `<link id="${skinId}" rel="stylesheet" href="${Options.JoinUrl('css', `skins/${config.Skin}/skin`)}">`;
 		const body: HTMLElement = self.IsIFrame() ? createIframe() : createDiv();
 
 		if (!DOM.Select({ id: editorDefaultId }, DOM.Doc.head)) DOM.Insert(DOM.Doc.head, editorDefaultCss);

@@ -1,4 +1,4 @@
-import { IsFunction, IsObject } from './Type';
+import { IsFunction, IsNull, IsObject, IsUndefined } from './Type';
 
 export const Entries = <T>(obj: Record<string, T> | ArrayLike<T>, callback?: (key: string, value: T, exit: () => void) => void): [string, T][] => {
 	if (!IsObject(obj)) return [];
@@ -43,4 +43,18 @@ export const Values = <T>(obj: Record<string, T> | ArrayLike<T>, callback?: (val
 	}
 
 	return values;
+};
+
+export const SetProperty = (obj: unknown, key: string, value: string) => {
+	const assigned = Object.assign(obj ?? {}) as Record<string, unknown>;
+	if (IsUndefined(assigned) || IsNull(assigned) || !IsObject(assigned)) return;
+	assigned[key] = value;
+};
+
+export const GetProperty = <T>(obj: unknown, key: string): T | undefined => Object.assign(obj ?? {})?.[key];
+
+export const HasProperty = <T>(obj: unknown, key: string): obj is T => {
+	const assigned = Object.assign(obj ?? {})?.[key];
+	if (IsUndefined(assigned) || IsNull(assigned)) return false;
+	return true;
 };

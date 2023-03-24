@@ -1,7 +1,7 @@
+import { NodeType } from '@dynafer/dom-control';
 import { Arr, Obj, Str, Type } from '@dynafer/utils';
 import Editor from '../../Editor';
 import { ICaretData } from '../../editorUtils/caret/CaretUtils';
-import { FigureSelector, TableSelector } from '../Format';
 import { IInlineFormat } from '../FormatType';
 import FormatUtils from '../FormatUtils';
 
@@ -55,9 +55,9 @@ const ToggleInline = (editor: Editor, formats: IInlineFormat | IInlineFormat[]):
 		if ((bWrap && bFormat) || (!bWrap && !bFormat)) return false;
 
 		const splitedTextNode = FormatUtils.SplitTextNode(self, node, caret.Start.Offset, caret.End.Offset);
-		if (!splitedTextNode) return false;
+		if (!NodeType.IsText(splitedTextNode)) return false;
 
-		caret.Range.SetStartToEnd(splitedTextNode, 0, (splitedTextNode as Text).length);
+		caret.Range.SetStartToEnd(splitedTextNode, 0, splitedTextNode.length);
 
 		Toggler.Toggle(bWrap, formats, splitedTextNode, value);
 
@@ -80,17 +80,6 @@ const ToggleInline = (editor: Editor, formats: IInlineFormat | IInlineFormat[]):
 		if (!splitedTextNode) return node;
 
 		return splitedTextNode;
-	};
-
-	const leaveProcessorIfInFigure = (bWrap: boolean, caret: ICaretData) => {
-		const element = FormatUtils.GetParentIfText(caret.Start.Node);
-		if (DOM.Utils.GetNodeName(element) !== FigureSelector) return false;
-
-		const figureType = DOM.GetAttr(element, 'type');
-		if (figureType === TableSelector) return false;
-
-		self.Utils.Shared.DispatchCaretChange([element]);
-		return true;
 	};
 
 	const rangeProcessor = (bWrap: boolean, caret: ICaretData, value?: string): boolean => {
@@ -126,8 +115,8 @@ const ToggleInline = (editor: Editor, formats: IInlineFormat | IInlineFormat[]):
 
 		const fragment = DOM.CreateFragment();
 		Arr.Each(DOM.GetChildNodes(existedCaret, false), child => {
-			const bEmpty = DOM.Utils.IsText(child) ? DOM.Utils.IsTextEmpty(child) : Str.IsEmpty(DOM.GetText(child as HTMLElement));
-			const bMakrer = !DOM.Utils.IsText(child) && DOM.HasAttr(child, 'marker');
+			const bEmpty = NodeType.IsText(child) ? DOM.Utils.IsTextEmpty(child) : Str.IsEmpty(DOM.GetText(child));
+			const bMakrer = !NodeType.IsText(child) && DOM.HasAttr(child, 'marker');
 			if (bEmpty && !DOM.Utils.IsBr(child) && !bMakrer) return;
 			DOM.Insert(fragment, child);
 		});
@@ -193,7 +182,6 @@ const ToggleInline = (editor: Editor, formats: IInlineFormat | IInlineFormat[]):
 			value,
 			tableProcessor,
 			processors: [
-				{ processor: leaveProcessorIfInFigure },
 				{ processor: caretProcessor },
 				{ processor: sameNodeProcessor },
 				{ processor: rangeProcessor },
