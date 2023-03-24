@@ -1,17 +1,10 @@
 import { Arr } from '@dynafer/utils';
-import Options from '../../../../Options';
 import Editor from '../../../Editor';
 import { ENativeEvents, PreventEvent } from '../../../events/EventSetupUtils';
-import { TableCellSelector } from '../../../formatter/Format';
-import { ADJUSTABLE_LINE_HALF_SIZE, CreateAdjustableLineSize, GetClientSize, RegisterAdjustingEvents } from '../Utils';
-import { CreateCurrentPoint, CreateFakeTable, GetTableGridWithIndex, ITableGrid, MoveToCurrentPoint } from './TableToolsUtils';
+import { ADJUSTABLE_LINE_HALF_SIZE, GetClientSize, RegisterAdjustingEvents } from '../Utils';
+import { CreateCurrentPoint, CreateFakeTable, GetTableGridWithIndex, MoveToCurrentPoint } from './TableToolsUtils';
 
-interface IAdjustableLine {
-	BoundEvents: [ENativeEvents, EventListener],
-	Element: HTMLElement,
-}
-
-const AdjustableLine = (editor: Editor, table: HTMLElement, tableGrid: ITableGrid): IAdjustableLine => {
+const AdjustableLine = (editor: Editor, table: HTMLElement): HTMLElement => {
 	const self = editor;
 	const DOM = self.DOM;
 
@@ -58,11 +51,17 @@ const AdjustableLine = (editor: Editor, table: HTMLElement, tableGrid: ITableGri
 		const bWidth = event.target === adjustableWidth;
 
 		const adjustItem = bWidth ? adjustableWidth : adjustableHeight;
+
+		const { FigureElement } = DOM.Element.Figure.Find<HTMLElement>(adjustItem);
+		if (!FigureElement) return;
+
 		let startOffset = bWidth ? event.clientX : event.clientY;
 
 		DOM.SetAttr(adjustItem, 'data-adjusting', '');
 
-		const fakeTable = CreateFakeTable(self, table);
+		const tableGrid = GetTableGridWithIndex(self, FigureElement);
+
+		const fakeTable = CreateFakeTable(self, FigureElement);
 		DOM.Insert(adjustableLineGroup, fakeTable);
 
 		const fakeTableGrid = GetTableGridWithIndex(self, fakeTable);
@@ -81,11 +80,11 @@ const AdjustableLine = (editor: Editor, table: HTMLElement, tableGrid: ITableGri
 			});
 
 			if (!bWidth) {
-				let sibling: HTMLElement | null = cell.nextElementSibling as HTMLElement;
+				let sibling = cell.nextElementSibling;
 				while (sibling) {
 					DOM.SetAttr(sibling, 'dump-height', DOM.GetStyle(sibling, 'height'));
 					DOM.RemoveStyle(sibling, 'height');
-					sibling = sibling.nextElementSibling as HTMLElement;
+					sibling = sibling.nextElementSibling;
 				}
 			}
 
@@ -95,17 +94,17 @@ const AdjustableLine = (editor: Editor, table: HTMLElement, tableGrid: ITableGri
 			DOM.SetStyle(cell, sizeStyleName, currentSize);
 
 			if (!bWidth) {
-				let sibling: HTMLElement | null = cell.nextElementSibling as HTMLElement;
+				let sibling = cell.nextElementSibling;
 				while (sibling) {
 					DOM.SetStyle(sibling, 'height', DOM.GetAttr(sibling, 'dump-height') ?? '');
 					DOM.RemoveAttr(sibling, 'dump-height');
-					sibling = sibling.nextElementSibling as HTMLElement;
+					sibling = sibling.nextElementSibling;
 				}
 			}
 
 			DOM.SetStyles(fakeTable, {
-				width: `${table.offsetWidth}px`,
-				height: `${table.offsetHeight}px`,
+				width: `${FigureElement.offsetWidth}px`,
+				height: `${FigureElement.offsetHeight}px`,
 			});
 
 			self.ScrollSavedPosition();
@@ -123,7 +122,7 @@ const AdjustableLine = (editor: Editor, table: HTMLElement, tableGrid: ITableGri
 
 		Arr.Each(fakeTableGrid.Grid, row =>
 			Arr.Each(row, cell => {
-				const cellPosition = getPosition(table) + getPosition(cell);
+				const cellPosition = getPosition(FigureElement) + getPosition(cell);
 				const adjustablePosition = getPosition(adjustItem);
 				const adjustableAddableSize = ADJUSTABLE_LINE_HALF_SIZE * 1.5;
 
@@ -158,7 +157,7 @@ const AdjustableLine = (editor: Editor, table: HTMLElement, tableGrid: ITableGri
 			DOM.Remove(fakeTable);
 			DOM.RemoveAttr(adjustItem, 'data-adjusting');
 
-			MoveToCurrentPoint(self, table, savedPoint);
+			MoveToCurrentPoint(self, FigureElement, savedPoint);
 			savedPoint = undefined;
 		};
 
@@ -319,50 +318,15 @@ const AdjustableLine = (editor: Editor, table: HTMLElement, tableGrid: ITableGri
 			commonFinishAdjusting();
 		};
 
-		RegisterAdjustingEvents(self, adjust, finishAdjusting);
+		RegisterAdjustingEvents(self, FigureElement, adjust, finishAdjusting);
 	};
 
 	DOM.On(adjustableWidth, ENativeEvents.mousedown, startAdjusting);
 	DOM.On(adjustableHeight, ENativeEvents.mousedown, startAdjusting);
 
-	const mouseMoveInTable = (event: MouseEvent) => {
-		if (DOM.HasAttr(self.GetBody(), Options.ATTRIBUTE_ADJUSTING)) return;
-
-		setAdjustableSize();
-
-		const targetCell = DOM.Closest(event.target as Element, TableCellSelector) as HTMLElement;
-		if ((!targetCell || !DOM.Utils.IsChildOf(targetCell, table)) && event.target !== adjustableWidth && event.target !== adjustableHeight) return;
-
-		const bTargetHelper = event.target === adjustableWidth || event.target === adjustableHeight;
-
-		const { offsetX, offsetY } = event;
-
-		if (bTargetHelper) return;
-
-		const left = table.offsetLeft + targetCell.offsetLeft;
-		const top = table.offsetTop + targetCell.offsetTop;
-
-		if (offsetX <= ADJUSTABLE_LINE_HALF_SIZE) {
-			DOM.SetStyle(adjustableWidth, 'left', CreateAdjustableLineSize(left, true));
-		} else if (offsetX >= targetCell.offsetWidth - ADJUSTABLE_LINE_HALF_SIZE) {
-			DOM.SetStyle(adjustableWidth, 'left', CreateAdjustableLineSize(left + targetCell.offsetWidth, true));
-		}
-
-		if (offsetY <= ADJUSTABLE_LINE_HALF_SIZE) {
-			DOM.SetStyle(adjustableHeight, 'top', CreateAdjustableLineSize(top, true));
-		} else if (offsetY >= targetCell.offsetHeight - ADJUSTABLE_LINE_HALF_SIZE) {
-			DOM.SetStyle(adjustableHeight, 'top', CreateAdjustableLineSize(top + targetCell.offsetHeight, true));
-		}
-	};
-
-	DOM.On(self.GetBody(), ENativeEvents.mousemove, mouseMoveInTable);
-
 	DOM.Insert(adjustableLineGroup, adjustableWidth, adjustableHeight);
 
-	return {
-		BoundEvents: [ENativeEvents.mousemove, mouseMoveInTable as EventListener],
-		Element: adjustableLineGroup,
-	};
+	return adjustableLineGroup;
 };
 
 export default AdjustableLine;

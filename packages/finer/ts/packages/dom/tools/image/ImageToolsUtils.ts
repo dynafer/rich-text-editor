@@ -19,7 +19,7 @@ export const CreateFakeFigure = (editor: Editor, figure: HTMLElement, image: HTM
 	const self = editor;
 	const DOM = self.DOM;
 
-	const Figure = DOM.Clone(figure) as HTMLElement;
+	const Figure = DOM.Clone(figure);
 	DOM.SetStyles(Figure, {
 		position: 'relative',
 		width: `${figure.offsetWidth}px`,

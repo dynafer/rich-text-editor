@@ -4,6 +4,8 @@ import { IFileSize } from './Type';
 export const FILE_SIZE_UNITS = ['byte', 'KB', 'MB', 'GB', 'TB'];
 export const MAX_BYTES = 1024;
 
+export const IMAGE_MENU_ADDABLE_TOP = 6;
+
 export const CalculateFileSize = (type: string = 'auto', size: number = 0) => {
 	const fileSize: IFileSize = {
 		size,

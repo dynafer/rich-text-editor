@@ -120,7 +120,7 @@ export const CreateFakeTable = (editor: Editor, table: HTMLElement): HTMLElement
 	const self = editor;
 	const DOM = self.DOM;
 
-	const fakeTable = DOM.Clone(table, true) as HTMLElement;
+	const fakeTable = DOM.Clone(table, true);
 	DOM.SetAttr(fakeTable, 'contenteditable', 'false');
 	DOM.SetStyles(fakeTable, {
 		margin: '0',

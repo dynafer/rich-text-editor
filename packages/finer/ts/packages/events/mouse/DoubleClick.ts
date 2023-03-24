@@ -1,3 +1,4 @@
+import { NodeType } from '@dynafer/dom-control';
 import { Str } from '@dynafer/utils';
 import Editor from '../../Editor';
 import { BlockFormatTags } from '../../formatter/Format';
@@ -22,7 +23,7 @@ const DoubleClick = (editor: Editor, event: MouseEvent) => {
 	const newRange = self.Utils.Range();
 	newRange.SetStart(firstChild, 0);
 
-	const lastOffset = DOM.Utils.IsText(lastChild) ? lastChild.length : 0;
+	const lastOffset = NodeType.IsText(lastChild) ? lastChild.length : 0;
 	newRange.SetEnd(lastChild, lastOffset);
 
 	self.Utils.Caret.UpdateRanges(newRange);

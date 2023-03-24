@@ -1,3 +1,4 @@
+import { NodeType } from '@dynafer/dom-control';
 import { Arr, Str } from '@dynafer/utils';
 import Options from '../../../../Options';
 import Editor from '../../../Editor';
@@ -24,25 +25,31 @@ const Movable = (editor: Editor, table: HTMLElement): HTMLElement => {
 		html: Finer.Icons.Get('Move'),
 	});
 
-	DOM.On(movable, ENativeEvents.click, () => {
-		const cells = DOM.SelectAll(TableCellSelector, table);
+	DOM.On(movable, ENativeEvents.click, (event: MouseEvent) => {
+		const { Figure, FigureElement } = DOM.Element.Figure.Find<HTMLElement>(event.target as Node);
+		if (!Figure || !FigureElement) return;
+
+		const cells = DOM.SelectAll(TableCellSelector, FigureElement);
 		Arr.Each(cells, cell => DOM.SetAttr(cell, Options.ATTRIBUTE_SELECTED, ''));
 
 		self.Utils.Shared.DispatchCaretChange();
 	});
 
 	DOM.On(movable, ENativeEvents.dragstart, (event: DragEvent) => {
-		event.dataTransfer?.setData('text/html', DOM.GetOuterHTML(table));
-		event.dataTransfer?.setDragImage(table, 0, 0);
+		const { Figure, FigureElement } = DOM.Element.Figure.Find<HTMLElement>(movable);
+		if (!Figure || !FigureElement) return;
 
-		let savedPoint = CreateCurrentPoint(self, table);
+		event.dataTransfer?.setData('text/html', DOM.GetOuterHTML(FigureElement));
+		event.dataTransfer?.setDragImage(FigureElement, 0, 0);
+
+		let savedPoint = CreateCurrentPoint(self, FigureElement);
 
 		const moveToSavedPoint = () => {
-			MoveToCurrentPoint(self, table, savedPoint);
+			MoveToCurrentPoint(self, FigureElement, savedPoint);
 			savedPoint = undefined;
 		};
 
-		const cells = DOM.SelectAll(TableCellSelector, table);
+		const cells = DOM.SelectAll(TableCellSelector, FigureElement);
 		Arr.Each(cells, cell => DOM.SetAttr(cell, Options.ATTRIBUTE_SELECTED, ''));
 
 		const stopDragEvent = (e: InputEvent) => {
@@ -55,81 +62,24 @@ const Movable = (editor: Editor, table: HTMLElement): HTMLElement => {
 			if (!caret) return moveToSavedPoint();
 
 			const closestTable = DOM.Closest(FormatUtils.GetParentIfText(caret.Start.Node), TableSelector);
-			if (closestTable === table) return moveToSavedPoint();
+			if (closestTable === FigureElement) return moveToSavedPoint();
 
 			const bPointLine = caret.SameRoot === caret.Start.Path[0];
-			const bLineEmpty = bPointLine ? Str.IsEmpty(DOM.GetText(caret.SameRoot as HTMLElement)) : false;
+			const bLineEmpty = bPointLine ? Str.IsEmpty(DOM.GetText(caret.SameRoot)) : false;
 
-			if (!!closestTable || (bPointLine && !bLineEmpty) || !DOM.Utils.IsText(caret.SameRoot) || Str.IsEmpty(caret.SameRoot.textContent) || !caret.SameRoot.parentNode) {
-				DOM.InsertAfter(caret.Start.Path[0], table.parentNode);
+			if (!!closestTable || (bPointLine && !bLineEmpty) || !NodeType.IsText(caret.SameRoot) || Str.IsEmpty(caret.SameRoot.textContent) || !caret.SameRoot.parentNode) {
+				DOM.InsertAfter(caret.Start.Path[0], Figure);
 				return moveToSavedPoint();
 			}
 
 			if (bPointLine && bLineEmpty) {
-				self.GetBody().replaceChild(table.parentNode as Node, caret.SameRoot);
+				self.GetBody().replaceChild(Figure, caret.SameRoot);
 				return moveToSavedPoint();
 			}
 
-			let leftNode = DOM.Clone(caret.SameRoot.parentNode);
-			let rightNode = DOM.Clone(caret.SameRoot.parentNode);
+			const { StartBlock, EndBlock } = self.Utils.Shared.SplitLines(caret.SameRoot, caret.Start.Offset);
 
-			const partNode = (node: Node, left: Node, right: Node, nodeCallback: () => void) => {
-				let point = node.parentNode?.firstChild ?? null;
-				let bRight = false;
-
-				while (point) {
-					if (point === node) {
-						nodeCallback();
-						point = point.nextSibling;
-						bRight = true;
-						continue;
-					}
-
-					if (Str.IsEmpty(DOM.Utils.IsText(point) ? point.textContent : DOM.GetText(point as HTMLElement))) {
-						point = point.nextSibling;
-						continue;
-					}
-
-					const target = !bRight ? left : right;
-					DOM.CloneAndInsert(target, true, point);
-
-					point = point.nextSibling;
-				}
-			};
-
-			partNode(caret.SameRoot, leftNode, rightNode, () => {
-				const text = caret.SameRoot.textContent ?? '';
-				const leftText = text.slice(0, caret.Start.Offset);
-				const rightText = text.slice(caret.Start.Offset, text.length);
-
-				if (!Str.IsEmpty(leftText)) DOM.Insert(leftNode, DOM.CreateTextNode(leftText));
-				if (!Str.IsEmpty(rightText)) DOM.Insert(rightNode, DOM.CreateTextNode(rightText));
-			});
-
-			let parent: Node | null = caret.SameRoot.parentNode;
-
-			const partParent = (leftParent: Node, rightParent: Node) =>
-				() => {
-					if (!Str.IsEmpty(DOM.GetText(leftNode as HTMLElement))) DOM.Insert(leftParent, leftNode);
-					if (!Str.IsEmpty(DOM.GetText(rightNode as HTMLElement))) DOM.Insert(rightParent, rightNode);
-				};
-
-			while (parent && parent.parentNode !== self.GetBody()) {
-				const leftParentNode = DOM.Clone(parent.parentNode as Node);
-				const rightParentNode = DOM.Clone(parent.parentNode as Node);
-				const callback = partParent(leftParentNode, rightParentNode);
-
-				partNode(parent, leftParentNode, rightParentNode, callback);
-
-				leftNode = leftParentNode;
-				rightNode = rightParentNode;
-				parent = parent.parentNode;
-			}
-
-			const bEmptyLeftNode = Str.IsEmpty(DOM.GetText(leftNode as HTMLElement));
-			self.GetBody().replaceChild(!bEmptyLeftNode ? leftNode : table.parentNode as Node, caret.Start.Path[0]);
-			if (!bEmptyLeftNode) DOM.InsertAfter(leftNode, table.parentNode);
-			if (!Str.IsEmpty(DOM.GetText(rightNode as HTMLElement))) DOM.InsertAfter(table.parentNode, rightNode);
+			DOM.InsertAfter(StartBlock, EndBlock, Figure);
 
 			moveToSavedPoint();
 		};

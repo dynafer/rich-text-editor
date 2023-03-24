@@ -1,6 +1,5 @@
 import Options from '../../../Options';
 import Editor from '../../Editor';
-import { FigureSelector } from '../../formatter/Format';
 
 const ClickFigure = (editor: Editor, event: MouseEvent) => {
 	const self = editor;
@@ -9,31 +8,18 @@ const ClickFigure = (editor: Editor, event: MouseEvent) => {
 
 	if (DOM.HasAttr(self.GetBody(), Options.ATTRIBUTE_ADJUSTING) || !event.composedPath()[0]) return;
 
-	const figure = DOM.Closest(event.composedPath()[0] as Element, FigureSelector);
-	const figureType = DOM.GetAttr(figure, 'type');
-	if (!figure || !figureType) return DOMTools.RemoveAll();
+	const { Figure, FigureType, FigureElement } = DOM.Element.Figure.Find<HTMLElement>(event.composedPath()[0]);
+	if (!Figure || !FigureType || !FigureElement) return DOMTools.HideAll();
 
-	if (figureType === 'img') {
+	if (FigureType === 'img') {
 		const newRange = self.Utils.Range();
-		newRange.SetStartToEnd(figure, 0, 0);
+		newRange.SetStartToEnd(Figure, 0, 0);
 		self.Utils.Caret.UpdateRanges(newRange);
-		self.Utils.Shared.DispatchCaretChange([figure]);
+		self.Utils.Shared.DispatchCaretChange([Figure]);
 	}
 
-	const figureElement = DOM.SelectAll(figureType, figure)[0];
-	if (!figureElement) return DOMTools.RemoveAll();
-
-	DOM.SetAttr(figure, Options.ATTRIBUTE_FOCUSED, '');
-
-	const bHasTools = !!DOM.Select({
-		attrs: {
-			dataFixed: 'dom-tool'
-		}
-	}, figure);
-
-	if (bHasTools) return;
-
-	DOM.Insert(figure, DOMTools.Create(figureType, figureElement));
+	DOM.SetAttr(Figure, Options.ATTRIBUTE_FOCUSED, '');
+	DOMTools.ChangePositions();
 };
 
 export default ClickFigure;

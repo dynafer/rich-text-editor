@@ -10,7 +10,7 @@ interface IPluginsIconWrapReturn {
 
 export interface IPluginTableUI {
 	CreateIconWrap: (uiFormat: IPluginsTableFormatUI) => IPluginsIconWrapReturn,
-	BindCliCkEvent: (event: () => void, ...uiList: HTMLElement[]) => void,
+	BindClickEvent: (event: () => void, ...uiList: HTMLElement[]) => void,
 }
 
 const UI = (editor: Editor): IPluginTableUI => {
@@ -34,12 +34,12 @@ const UI = (editor: Editor): IPluginTableUI => {
 		};
 	};
 
-	const BindCliCkEvent = (event: () => void, ...uiList: HTMLElement[]) =>
+	const BindClickEvent = (event: () => void, ...uiList: HTMLElement[]) =>
 		Arr.Each(uiList, ui => formatUI.BindClickEvent(ui, event));
 
 	return {
 		CreateIconWrap,
-		BindCliCkEvent,
+		BindClickEvent,
 	};
 };
 

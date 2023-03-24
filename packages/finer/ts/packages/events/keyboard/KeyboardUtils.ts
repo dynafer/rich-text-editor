@@ -1,6 +1,6 @@
 import { Type } from '@dynafer/utils';
 import Editor from '../../Editor';
-import { FigureSelector, TableSelector } from '../../formatter/Format';
+import { TableSelector } from '../../formatter/Format';
 import { IEventSetupCallback, PreventEvent, Setup } from '../EventSetupUtils';
 
 export enum EKeyCode {
@@ -93,4 +93,4 @@ export const SetupWith = <K extends keyof GlobalEventHandlersEventMap>(editor: E
 };
 
 export const IsTableFigure = (editor: Editor, node: Node): boolean =>
-	editor.DOM.Utils.GetNodeName(node) === FigureSelector && editor.DOM.HasAttr(node, 'type', TableSelector);
+	editor.DOM.Element.Figure.IsFigure(node) && editor.DOM.HasAttr(node, 'type', TableSelector);

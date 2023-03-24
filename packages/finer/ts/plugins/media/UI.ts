@@ -1,5 +1,6 @@
 import { Arr } from '@dynafer/utils';
 import Editor from '../../packages/Editor';
+import { IFormatUI } from '../../packages/formatter/FormatUI';
 import { IPluginsMediaFormatUI } from './utils/Type';
 
 interface IPluginsIconWrapReturn {
@@ -8,17 +9,24 @@ interface IPluginsIconWrapReturn {
 	Helper: HTMLElement,
 }
 
-export interface IPluginImageUI {
-	CreateButton: (uiFormat: IPluginsMediaFormatUI) => IPluginsIconWrapReturn,
-	BindCliCkEvent: (event: () => void, ...uiList: HTMLElement[]) => void,
+export interface IPluginMediaUI {
+	readonly ACTIVE_CLASS: string,
+	readonly DISABLED_ATTRIBUTE: string,
+	CreateFormatButton: (uiFormat: IPluginsMediaFormatUI) => IPluginsIconWrapReturn,
+	RegisterCommand: IFormatUI['RegisterCommand'],
+	RunCommand: IFormatUI['RunCommand'],
+	BindClickEvent: (event: () => void, ...uiList: HTMLElement[]) => void,
 }
 
-const UI = (editor: Editor): IPluginImageUI => {
+const UI = (editor: Editor): IPluginMediaUI => {
 	const self = editor;
 	const DOM = self.GetRootDOM();
 	const formatUI = self.Formatter.UI;
 
-	const CreateButton = (uiFormat: IPluginsMediaFormatUI): IPluginsIconWrapReturn => {
+	const ACTIVE_CLASS = formatUI.ACTIVE_CLASS;
+	const DISABLED_ATTRIBUTE = formatUI.DISABLED_ATTRIBUTE;
+
+	const CreateFormatButton = (uiFormat: IPluginsMediaFormatUI): IPluginsIconWrapReturn => {
 		const { Title, Icon } = uiFormat;
 
 		const Wrapper = formatUI.CreateIconWrap(Title);
@@ -34,12 +42,19 @@ const UI = (editor: Editor): IPluginImageUI => {
 		};
 	};
 
-	const BindCliCkEvent = (event: () => void, ...uiList: HTMLElement[]) =>
+	const RegisterCommand = formatUI.RegisterCommand;
+	const RunCommand = formatUI.RunCommand;
+
+	const BindClickEvent = (event: () => void, ...uiList: HTMLElement[]) =>
 		Arr.Each(uiList, ui => formatUI.BindClickEvent(ui, event));
 
 	return {
-		CreateButton,
-		BindCliCkEvent,
+		ACTIVE_CLASS,
+		DISABLED_ATTRIBUTE,
+		CreateFormatButton,
+		RegisterCommand,
+		RunCommand,
+		BindClickEvent,
 	};
 };
 

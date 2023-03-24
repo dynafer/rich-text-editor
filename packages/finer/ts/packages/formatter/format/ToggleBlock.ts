@@ -1,7 +1,7 @@
 import { Arr, Str } from '@dynafer/utils';
 import Editor from '../../Editor';
 import { ICaretData } from '../../editorUtils/caret/CaretUtils';
-import { FigureSelector, TableSelector } from '../Format';
+import { TableSelector } from '../Format';
 import { IBlockFormat } from '../FormatType';
 import FormatUtils from '../FormatUtils';
 
@@ -37,17 +37,6 @@ const ToggleBlock = (editor: Editor, format: IBlockFormat): IToggleBlock => {
 		return true;
 	};
 
-	const leaveProcessorIfInFigure = (bWrap: boolean, caret: ICaretData) => {
-		const element = FormatUtils.GetParentIfText(caret.Start.Node);
-		if (DOM.Utils.GetNodeName(element) !== FigureSelector) return false;
-
-		const figureType = DOM.GetAttr(element, 'type');
-		if (figureType === TableSelector) return false;
-
-		self.Utils.Shared.DispatchCaretChange([element]);
-		return true;
-	};
-
 	const sameLineProcessor = (bWrap: boolean, caret: ICaretData): boolean => {
 		if (caret.Start.Line !== caret.End.Line) return false;
 
@@ -76,7 +65,7 @@ const ToggleBlock = (editor: Editor, format: IBlockFormat): IToggleBlock => {
 	const rangeProcessor = (bWrap: boolean, caret: ICaretData): boolean => {
 		if (caret.Start.Line === caret.End.Line) return false;
 
-		const lines = DOM.GetChildNodes(self.GetBody());
+		const lines = DOM.GetChildren(self.GetBody());
 
 		toggleRangeEdge(bWrap, caret.Start.Node, lines[caret.Start.Line], true);
 		for (let index = caret.Start.Line + 1; index < caret.End.Line; ++index) {
@@ -98,7 +87,6 @@ const ToggleBlock = (editor: Editor, format: IBlockFormat): IToggleBlock => {
 			bWrap,
 			tableProcessor,
 			processors: [
-				{ processor: leaveProcessorIfInFigure },
 				{ processor: sameLineProcessor },
 				{ processor: rangeProcessor },
 			]

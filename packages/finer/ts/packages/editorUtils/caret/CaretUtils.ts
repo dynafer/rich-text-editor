@@ -1,5 +1,7 @@
+import { NodeType } from '@dynafer/dom-control';
 import { Arr, Type } from '@dynafer/utils';
 import Editor from '../../Editor';
+import { AllBlockFormats, BlockFormatTags } from '../../formatter/Format';
 import RangeUtils, { IRangeUtils } from './RangeUtils';
 
 interface ILineData {
@@ -40,8 +42,29 @@ const CaretUtils = (editor: Editor): ICaretUtils => {
 		}
 	};
 
+	const getDeepestSiblingChild = (node: Node, bPrevious: boolean): Node | null => {
+		const siblingLine = bPrevious ? node.previousSibling : node.nextSibling;
+		const getChild = bPrevious ? DOM.Utils.GetLastChild : DOM.Utils.GetFirstChild;
+		const getChildReverse = bPrevious ? DOM.Utils.GetFirstChild : DOM.Utils.GetLastChild;
+
+		if (siblingLine) return getChild(siblingLine, true);
+
+		let parentSibling: Node | null = node.parentNode;
+		while (parentSibling && parentSibling !== self.GetBody()) {
+			if (AllBlockFormats.has(DOM.Utils.GetNodeName(parentSibling.previousSibling))) {
+				parentSibling = parentSibling.previousSibling;
+				break;
+			}
+
+			parentSibling = parentSibling.parentNode;
+		}
+
+		const getChildInSibling = !!parentSibling ? getChild : getChildReverse;
+		return getChildInSibling(parentSibling ?? node, true);
+	};
+
 	const getLine = (node: Node, offset: number, bStart: boolean): ILineData => {
-		const lines = DOM.GetChildNodes(self.GetBody());
+		const lines = DOM.GetChildren(self.GetBody());
 
 		if (node === self.GetBody()) {
 			const getChild = bStart ? DOM.Utils.GetFirstChild : DOM.Utils.GetLastChild;
@@ -49,8 +72,13 @@ const CaretUtils = (editor: Editor): ICaretUtils => {
 
 			if (current) {
 				node = current;
-				offset = DOM.Utils.IsText(node) && !bStart ? node.length : 0;
+				offset = NodeType.IsText(node) && !bStart ? node.length : 0;
 			}
+		}
+
+		if (BlockFormatTags.Block.has(DOM.Utils.GetNodeName(node)) && !bStart) {
+			const deepestChild = getDeepestSiblingChild(node, offset === 0);
+			if (deepestChild) node = deepestChild;
 		}
 
 		const Path: Node[] = DOM.GetParents(node);

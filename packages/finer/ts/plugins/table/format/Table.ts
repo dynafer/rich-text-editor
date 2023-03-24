@@ -3,7 +3,7 @@ import Editor from '../../../packages/Editor';
 const TableFormat = (editor: Editor) => {
 	const self = editor;
 	const DOM = self.DOM;
-	const formatterFormats = self.Formatter.Formats;
+	const formats = self.Formatter.Formats;
 
 	const CreateFromCaret = (rowNum: number, cellNum: number) => {
 		self.Focus();
@@ -16,26 +16,23 @@ const TableFormat = (editor: Editor) => {
 
 		const caret = bRange ? self.Utils.Caret.Get()[0] : caretForDeletion;
 
-		const { startBlock, endBlock } = self.Utils.Shared.SplitLines(caret.Start.Node, caret.Start.Offset);
+		const { StartBlock, EndBlock } = self.Utils.Shared.SplitLines(caret.Start.Node, caret.Start.Offset);
 
-		const figure = DOM.Create(formatterFormats.FigureSelector, {
-			attrs: {
-				type: formatterFormats.TableSelector,
-				contenteditable: 'false',
-			},
-		});
+		const figure = DOM.Element.Figure.Create(formats.TableSelector);
 
-		const table = DOM.Create(formatterFormats.TableSelector, {
+		const table = DOM.Create(formats.TableSelector, {
 			attrs: {
 				border: '1',
 				contenteditable: 'true',
 			},
 		});
 
+		const tools = self.Tools.DOM.Create('table', table);
+
 		let firstCell: HTMLElement = table;
 
 		for (let rowIndex = 0; rowIndex <= rowNum; ++rowIndex) {
-			const tr = DOM.Create(formatterFormats.TableRowSelector);
+			const tr = DOM.Create(formats.TableRowSelector);
 
 			for (let cellIndex = 0; cellIndex <= cellNum; ++cellIndex) {
 				const cell = DOM.Create('td', {
@@ -48,17 +45,17 @@ const TableFormat = (editor: Editor) => {
 			DOM.Insert(table, tr);
 		}
 
-		DOM.Insert(figure, table);
+		DOM.Insert(figure, table, tools);
 
-		if (startBlock && endBlock) {
-			DOM.InsertAfter(startBlock, endBlock, figure);
+		if (StartBlock && EndBlock) {
+			DOM.InsertAfter(StartBlock, EndBlock, figure);
 			caret.Range.SetStartToEnd(firstCell, 0, 0);
 			self.Focus();
 			return self.Utils.Shared.DispatchCaretChange([firstCell]);
 		}
 
 		const parentIfText = self.Formatter.Utils.GetParentIfText(caret.Start.Node);
-		const nearTable = DOM.Closest(parentIfText, formatterFormats.TableSelector);
+		const nearTable = DOM.Closest(parentIfText, formats.TableSelector);
 		if (!nearTable) {
 			DOM.InsertAfter(caret.Start.Path[0], figure);
 		} else {

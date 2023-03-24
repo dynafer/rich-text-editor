@@ -2,19 +2,17 @@ import { Arr, Str, Type } from '@dynafer/utils';
 import Editor from '../../../packages/Editor';
 import { TConfigurationCallback, TConfigurationCommon } from '../../../packages/EditorConfigure';
 import Img from '../format/Img';
-import { IPluginImageUI } from '../UI';
+import { IPluginMediaUI } from '../UI';
 import BlobList, { IBlobList } from '../utils/BlobList';
 import { IPluginsMediaFormatUI } from '../utils/Type';
 
 type TImageConfiguration = TConfigurationCommon<IBlobList, string>;
 type TUploadCallback = TConfigurationCallback<IBlobList, string>;
 
-const ImageUploader = (editor: Editor, ui: IPluginImageUI) => {
+const ImageUploader = (editor: Editor, ui: IPluginMediaUI) => {
 	const self = editor;
 	const DOM = self.GetRootDOM();
-	const formatUI = self.Formatter.UI;
 
-	const uiName = 'Image';
 	const uiFormat: IPluginsMediaFormatUI = {
 		Title: 'Upload an image',
 		Icon: 'Image'
@@ -57,13 +55,14 @@ const ImageUploader = (editor: Editor, ui: IPluginImageUI) => {
 		for (let index = 0, length = availableExtensions.length; index < length; ++index) {
 			availableExtensions[index] = Str.Merge('image/', availableExtensions[index]);
 		}
+
 		return Str.Join(',', ...availableExtensions);
 	};
 
 	const configuration = getConfiguration();
 	const bMultiple = Type.IsBoolean(configuration.multiple) ? configuration.multiple : true;
-	const allowedExtensions = getAllowedExtensions(configuration.accept as string | string[] | undefined);
-	const uploadCallback = configuration.uploadCallback as TUploadCallback | undefined;
+	const allowedExtensions = getAllowedExtensions(configuration.accept as string);
+	const uploadCallback = configuration.uploadCallback as TUploadCallback;
 
 	const inputOptions: Record<string, Record<string, string>> = {
 		attrs: {
@@ -74,30 +73,29 @@ const ImageUploader = (editor: Editor, ui: IPluginImageUI) => {
 
 	if (bMultiple) inputOptions.attrs.multiple = 'true';
 
-	const createFileInput = () => {
-		const fileInput = DOM.Create('input', inputOptions);
+	const fileInput = DOM.Create('input', inputOptions);
 
-		DOM.On(fileInput, Finer.NativeEventMap.change, () => {
-			const fileList = fileInput.files;
-			if (!fileList) return DOM.Remove(fileInput);
+	DOM.On(fileInput, Finer.NativeEventMap.change, () => {
+		const fileList = fileInput.files;
+		if (!fileList) return;
 
-			const files = BlobList(fileList);
+		const files = BlobList(fileList);
 
-			const img = Img(self);
-			img.CreateFromCaret(files);
+		const img = Img(self);
+		img.CreateFromCaret(files);
+		fileInput.value = '';
 
-			if (!Type.IsFunction(uploadCallback)) return DOM.Remove(fileInput);
+		if (!Type.IsFunction(uploadCallback)) return;
 
-			uploadCallback(files);
-		});
+		uploadCallback(files);
+	});
 
-		fileInput.click();
-	};
+	const openDialog = () => fileInput.click();
 
 	const Create = () => {
-		const iconWrap = ui.CreateButton(uiFormat);
+		const iconWrap = ui.CreateFormatButton(uiFormat);
 
-		formatUI.BindOptionListEvent(self, uiName, iconWrap.Button, createFileInput);
+		ui.BindClickEvent(openDialog, iconWrap.Button);
 
 		self.Toolbar.Add('Image', iconWrap.Wrapper);
 	};

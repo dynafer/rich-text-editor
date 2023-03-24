@@ -146,7 +146,7 @@ const Unwrapper = (editor: Editor, format: IPluginListFormat) => {
 	const processRange = (caret: ICaretData) => {
 		if (caret.Start.Line === caret.End.Line) return;
 
-		const lines = DOM.GetChildNodes(self.GetBody());
+		const lines = DOM.GetChildren(self.GetBody());
 
 		unwrapRange(caret.Start.Node);
 		for (let index = caret.Start.Line + 1; index < caret.End.Line; ++index) {

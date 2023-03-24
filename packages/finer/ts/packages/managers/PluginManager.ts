@@ -35,7 +35,7 @@ const PluginManager = (editor: Editor): IPluginManager => {
 
 			Promise.all(attachPlugins)
 				.catch(error => {
-					self.Notify(ENotificationStatus.ERROR, error as string);
+					self.Notify(ENotificationStatus.ERROR, error);
 					reject(error);
 				})
 				.finally(() => {

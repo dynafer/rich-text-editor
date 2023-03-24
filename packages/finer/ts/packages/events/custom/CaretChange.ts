@@ -3,7 +3,7 @@ import Options from '../../../Options';
 import Editor from '../../Editor';
 import { IRangeUtils } from '../../editorUtils/caret/RangeUtils';
 import { IEvent } from '../../editorUtils/EventUtils';
-import { FigureSelector, TableCellSelector, TableSelector } from '../../formatter/Format';
+import { FigureElementFormats, TableCellSelector, TableSelector } from '../../formatter/Format';
 import FormatUtils from '../../formatter/FormatUtils';
 
 const CaretChange = (editor: Editor) => {
@@ -33,25 +33,45 @@ const CaretChange = (editor: Editor) => {
 
 			const parents = DOM.GetParents(caretPointer, true);
 			Arr.Each(parents, (parent, exit) => {
-				if (!Str.IsEmpty(DOM.GetText(parent as HTMLElement))) return exit();
+				if (!Str.IsEmpty(DOM.GetText(parent))) return exit();
 
-				DOM.Remove(parent as Element, true);
+				DOM.Remove(parent, true);
 			});
 		});
 	};
 
-	const addDOMTools = (figure: Element, figureType: string) => {
-		const bHasTool = !!DOM.Select({
-			attrs: {
-				dataFixed: 'dom-tool'
+	const wrapFigure = () => {
+		const figureElements = DOM.SelectAll({
+			tagName: Array.from(FigureElementFormats)
+		}, self.GetBody());
+
+		let currentElement: HTMLElement | undefined = undefined;
+		while (!Arr.IsEmpty(figureElements)) {
+			currentElement = Arr.Shift(figureElements);
+			if (!currentElement?.parentElement || !DOM.Element.Figure.IsFigure(currentElement)) continue;
+
+			const elementName = DOM.Utils.GetNodeName(currentElement);
+			const currentFigure = DOM.Element.Figure.GetClosest(currentElement);
+
+			const figure = currentFigure ?? DOM.Element.Figure.Create(elementName);
+
+			if (!currentFigure) {
+				DOM.InsertAfter(currentElement, figure);
+				DOM.Insert(figure, currentElement);
 			}
-		}, figure);
-		if (bHasTool) return;
 
-		const figureElement = DOM.SelectAll(figureType, figure)[0];
-		if (!figureElement) return;
+			const bhasTool = !!DOM.Select({
+				attrs: {
+					dataFixed: 'dom-tool'
+				}
+			}, figure);
 
-		DOM.Insert(figure, DOMTools.Create(figureType, figureElement));
+			if (bhasTool) continue;
+
+			const tools = self.Tools.DOM.Create(elementName, currentElement);
+			DOM.Insert(figure, tools);
+		}
+		currentElement = undefined;
 	};
 
 	const setFocusFigure = () => {
@@ -60,29 +80,29 @@ const CaretChange = (editor: Editor) => {
 		const carets = CaretUtils.Get();
 		const node = FormatUtils.GetParentIfText(carets[0]?.Start.Node);
 
-		const figure = DOM.Closest(node, FigureSelector);
+		const { Figure, FigureType } = DOM.Element.Figure.Find<HTMLImageElement>(node);
+
 		Arr.Each(DOM.SelectAll({ attrs: [Options.ATTRIBUTE_FOCUSED] }, self.GetBody()), (focused, exit) => {
-			if (focused === figure) return;
+			if (focused === Figure) return;
 			DOM.RemoveAttr(focused, Options.ATTRIBUTE_FOCUSED);
-			DOMTools.RemoveAll(figure);
+			DOMTools.HideAll(Figure);
 			exit();
 		});
 
-		const bNotNodeFigure = !!figure && !!carets[0]?.IsRange() && DOM.Closest(node, FigureSelector) !== figure;
-		const figureType = DOM.GetAttr(figure, 'type');
-		if (!figure || !figureType || bNotNodeFigure) return CaretUtils.Clean();
+		const bNotNodeFigure = !!Figure && !!carets[0]?.IsRange() && DOM.Element.Figure.GetClosest(node) !== Figure;
+		if (!Figure || !FigureType || bNotNodeFigure) return CaretUtils.Clean();
 
 		const newRanges: IRangeUtils[] = [];
 
 		Arr.Each(carets, caret => {
-			if (caret.Start.Node !== figure || caret.End.Node !== figure) return;
+			if (caret.Start.Node !== Figure || caret.End.Node !== Figure) return;
 
-			if (figureType !== TableSelector) {
-				caret.Range.SetStartToEnd(figure, 1, 1);
+			if (FigureType !== TableSelector) {
+				caret.Range.SetStartToEnd(Figure, caret.Start.Offset, caret.Start.Offset);
 				return Arr.Push(newRanges, caret.Range.Clone());
 			}
 
-			const firstCell = DOM.SelectAll(TableCellSelector, figure)[0];
+			const firstCell = DOM.SelectAll(TableCellSelector, Figure)[0];
 			if (!firstCell) return;
 
 			let firstChild: Node | null = DOM.Utils.GetFirstChild(firstCell, true);
@@ -96,15 +116,15 @@ const CaretChange = (editor: Editor) => {
 
 		if (!Arr.IsEmpty(newRanges)) CaretUtils.UpdateRanges(newRanges);
 
-		addDOMTools(figure, figureType);
-
-		if (!DOM.HasAttr(figure, Options.ATTRIBUTE_FOCUSED)) DOM.SetAttr(figure, Options.ATTRIBUTE_FOCUSED, '');
+		if (!DOM.HasAttr(Figure, Options.ATTRIBUTE_FOCUSED)) DOM.SetAttr(Figure, Options.ATTRIBUTE_FOCUSED, '');
+		DOMTools.ChangePositions();
 	};
 
 	const listener = (): IEvent<Node[]> =>
 		(paths: Node[]) => {
-			self.Tools.DOM.ChangePositions();
+			DOMTools.ChangePositions();
 			removeCaretPointers(paths);
+			wrapFigure();
 			setFocusFigure();
 		};
 

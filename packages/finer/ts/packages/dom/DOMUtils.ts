@@ -1,3 +1,4 @@
+import { NodeType } from '@dynafer/dom-control';
 import { Arr, Obj, Str, Type, Utils } from '@dynafer/utils';
 import Options, { EModeEditor } from '../../Options';
 
@@ -21,7 +22,6 @@ export interface IDOMUtils {
 	GetModeTag: (mode: EModeEditor) => string,
 	GetEmptyString: () => string,
 	IsParagraph: (selector: Node | null) => selector is HTMLParagraphElement,
-	IsText: (selector: Node | null) => selector is Text,
 	IsBr: (selector: Node | null) => selector is HTMLBRElement,
 	GetNodeName: (selector: Node | null) => string,
 	CreateStyleVariable: (name: string, value: string) => string,
@@ -56,8 +56,6 @@ const DOMUtils = (): IDOMUtils => {
 
 	const IsParagraph = (selector: Node | null): selector is HTMLParagraphElement => Str.LowerCase(selector?.nodeName ?? '') === 'p' ?? false;
 
-	const IsText = (selector: Node | null): selector is Text => Str.LowerCase(selector?.nodeName ?? '') === '#text' ?? false;
-
 	const IsBr = (selector: Node | null): selector is HTMLBRElement => Str.LowerCase(selector?.nodeName ?? '') === 'br' ?? false;
 
 	const GetNodeName = (selector: Node | null): string => Str.LowerCase(selector?.nodeName ?? '') ?? '';
@@ -73,7 +71,8 @@ const DOMUtils = (): IDOMUtils => {
 	const IsChildOf = (child: Node, parent: Node): boolean =>
 		child === parent || parent.contains(child);
 
-	const IsTextEmpty = (selector: Node | null): boolean => !selector ? false : Str.IsEmpty(decodeURI(encodeURI(selector.textContent ?? '').replace(ESCAPE_EMPTY_TEXT_REGEX, '')));
+	const IsTextEmpty = (selector: Node | null): boolean =>
+		!NodeType.IsText(selector) || Str.IsEmpty(decodeURI(encodeURI(selector.textContent ?? '').replace(ESCAPE_EMPTY_TEXT_REGEX, '')));
 
 	const HasChildNodes = (selector: Node | null): boolean => selector?.hasChildNodes() ?? false;
 
@@ -177,7 +176,6 @@ const DOMUtils = (): IDOMUtils => {
 		GetModeTag,
 		GetEmptyString,
 		IsParagraph,
-		IsText,
 		IsBr,
 		GetNodeName,
 		CreateStyleVariable,

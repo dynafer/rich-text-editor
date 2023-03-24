@@ -78,3 +78,9 @@ export const Compare = <T>(array: T[], compare: T[]): boolean => {
 };
 
 export const Part = <T>(array: T[], start: number, end: number): T[] => array.slice(start, end);
+
+export const Remove = <T>(array: T[], target: T, offset?: number) => {
+	const index = offset ?? Find(array, target);
+	if (index === -1) return undefined;
+	return array.splice(index, 1);
+};

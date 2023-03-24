@@ -2,20 +2,26 @@ import Editor from '../../Editor';
 import { CaretChangeEvent, ENativeEvents, Setup } from '../EventSetupUtils';
 import Backspace from './Backspace';
 import DefaultEvent from './Default';
-import Delete from './Delete';
+import InImage from './InImage';
 import InTable from './InTable';
 import { EKeyCode, SetupKeyboard, SetupWith } from './KeyboardUtils';
+import MoveCaret from './MoveCaret';
 
 const Keyboard = (editor: Editor) => {
 	const self = editor;
 
+	const inImage = InImage(self);
 	const inTable = InTable(self);
 
 	Setup(self, ENativeEvents.keyup, DefaultEvent);
 	Setup(self, ENativeEvents.keypress, DefaultEvent);
 	Setup(self, ENativeEvents.keydown, DefaultEvent);
 
+	Setup(self, ENativeEvents.keydown, MoveCaret);
+
 	Setup(self, ENativeEvents.keydown, inTable.KeyDownEvent);
+
+	SetupKeyboard(self, ENativeEvents.keydown, EKeyCode.Enter, inImage.EnterEvent);
 
 	SetupKeyboard(self, ENativeEvents.keyup, EKeyCode.ArrowUp, CaretChangeEvent);
 	SetupKeyboard(self, ENativeEvents.keyup, EKeyCode.ArrowDown, CaretChangeEvent);
@@ -27,10 +33,7 @@ const Keyboard = (editor: Editor) => {
 	SetupKeyboard(self, ENativeEvents.keyup, EKeyCode.PageUp, CaretChangeEvent);
 	SetupKeyboard(self, ENativeEvents.keyup, EKeyCode.Enter, CaretChangeEvent);
 
-	SetupKeyboard(self, ENativeEvents.keyup, EKeyCode.Backspace, Backspace);
-
-	SetupKeyboard(self, ENativeEvents.keydown, EKeyCode.Backspace, Delete);
-	SetupKeyboard(self, ENativeEvents.keydown, EKeyCode.Delete, Delete);
+	SetupKeyboard(self, ENativeEvents.keydown, EKeyCode.Backspace, Backspace);
 
 	SetupWith(self, ENativeEvents.keyup, EKeyCode.KeyA, { bCtrl: true }, CaretChangeEvent);
 };

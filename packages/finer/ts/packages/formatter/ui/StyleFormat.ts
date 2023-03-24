@@ -1,7 +1,7 @@
 import { Arr, Str, Type } from '@dynafer/utils';
 import DOM from '../../dom/DOM';
 import Editor from '../../Editor';
-import { FigureSelector, Formats } from '../Format';
+import { Formats } from '../Format';
 import ToggleStyleFormat from '../format/ToggleStyleFormat';
 import { IFormatDetector } from '../FormatDetector';
 import { IFormatUIRegistryUnit, IStyleFormat, TFormatDetectCallback } from '../FormatType';
@@ -102,7 +102,7 @@ const StyleFormat = (editor: Editor, detector: IFormatDetector): IFormatUIRegist
 
 			if (!blockNode || !StrictFormats.has(DOM.Utils.GetNodeName(blockNode))) return;
 
-			const detectedValue = self.DOM.GetStyle(blockNode as HTMLElement, styleName);
+			const detectedValue = self.DOM.GetStyle(blockNode, styleName);
 			FormatUI.ToggleDisable(button, Str.IsEmpty(detectedValue) || parseFloat(detectedValue) === 0);
 		};
 	};
@@ -144,7 +144,7 @@ const StyleFormat = (editor: Editor, detector: IFormatDetector): IFormatUIRegist
 
 			if (Type.IsString(Keys)) FormatUI.RegisterKeyboardEvent(self, Keys, (e: Editor, event: Event) => {
 				if (FormatUI.IsDisabled(button)) return;
-				const figure = self.DOM.Closest(event.target as Element, FigureSelector);
+				const figure = DOM.Element.Figure.GetClosest(event.target);
 				if (figure) return;
 				eventCallback();
 			});

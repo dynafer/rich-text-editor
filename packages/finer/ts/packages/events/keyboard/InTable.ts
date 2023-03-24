@@ -1,3 +1,4 @@
+import { NodeType } from '@dynafer/dom-control';
 import { Arr } from '@dynafer/utils';
 import { GetTableGridWithIndex, ITableGrid } from '../../dom/tools/table/TableToolsUtils';
 import Editor from '../../Editor';
@@ -18,7 +19,7 @@ const InTable = (editor: Editor) => {
 		if (DOM.Utils.IsBr(findNode)) findNode = findNode.parentNode;
 		if (!findNode) findNode = node;
 
-		const position = DOM.Utils.IsText(findNode)
+		const position = NodeType.IsText(findNode)
 			? (bPrevious ? findNode.length : 0)
 			: 0;
 
@@ -43,7 +44,7 @@ const InTable = (editor: Editor) => {
 		self.Utils.Shared.DispatchCaretChange();
 	};
 
-	const getLineInCell = (cell: HTMLElement, node: Node): Node => {
+	const getLineInCell = (cell: Node, node: Node): Node => {
 		let current: Node | null = node;
 		while (current) {
 			const parent: Node | null = current.parentNode;
@@ -55,7 +56,7 @@ const InTable = (editor: Editor) => {
 		return current;
 	};
 
-	const isNextCell = (startNode: Node, endNode: Node, cell: HTMLElement, bPrevious: boolean): boolean => {
+	const isNextCell = (startNode: Node, endNode: Node, cell: Node, bPrevious: boolean): boolean => {
 		const startLine = getLineInCell(cell, startNode);
 		const endLine = getLineInCell(cell, endNode);
 
@@ -68,8 +69,9 @@ const InTable = (editor: Editor) => {
 		const { Grid, TargetCellRowIndex, TargetCellIndex } = tableGrid;
 
 		const caret = CaretUtils.Get()[0];
+		if (!caret) return CaretUtils.Clean();
 
-		if (isNextCell(caret.Start.Node, caret.End.Node, Grid[TargetCellRowIndex][TargetCellIndex], bUp)) return;
+		if (isNextCell(caret.Start.Node, caret.End.Node, Grid[TargetCellRowIndex][TargetCellIndex], bUp)) return CaretUtils.Clean();
 
 		PreventEvent(event);
 
@@ -91,8 +93,9 @@ const InTable = (editor: Editor) => {
 		const bLeft = (bShift && bTab) || event.key === EKeyCode.ArrowLeft || event.code === EKeyCode.ArrowLeft;
 
 		const caret = CaretUtils.Get()[0];
+		if (!caret) return CaretUtils.Clean();
 
-		if (isNextCell(caret.Start.Node, caret.End.Node, cell as HTMLElement, bLeft)) return;
+		if (isNextCell(caret.Start.Node, caret.End.Node, cell, bLeft)) return CaretUtils.Clean();
 
 		const rows = DOM.SelectAll(TableRowSelector, line);
 		const cells = DOM.SelectAll(TableCellSelector, line);
@@ -124,6 +127,8 @@ const InTable = (editor: Editor) => {
 		if (!bUp && !bDown && !bLeft && !bRight) return;
 
 		const caret = CaretUtils.Get()[0];
+		if (!caret) return CaretUtils.Clean();
+
 		const line = bLeft ? caret.Start.Path[0] : caret.End.Path[0];
 		if (!IsTableFigure(self, line)) return CaretUtils.Clean();
 

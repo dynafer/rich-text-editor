@@ -1,8 +1,9 @@
+import { NodeType } from '@dynafer/dom-control';
 import { Arr, Str } from '@dynafer/utils';
 import Options from '../../../Options';
 import Editor from '../../Editor';
 import { ICaretData } from '../../editorUtils/caret/CaretUtils';
-import { BlockFormatTags, FigureSelector } from '../../formatter/Format';
+import { BlockFormatTags } from '../../formatter/Format';
 import FormatUtils from '../../formatter/FormatUtils';
 import { EInputEventType, PreventEvent } from '../EventSetupUtils';
 import InputUtils from './InputUtils';
@@ -12,6 +13,7 @@ const Input = (editor: Editor) => {
 	const DOM = self.DOM;
 	const CaretUtils = self.Utils.Caret;
 	const inputUtils = InputUtils(self);
+	const DOMTools = self.Tools.DOM;
 
 	let fakeFragment: DocumentFragment | null = null;
 	let lastChildName: string | null = null;
@@ -53,6 +55,8 @@ const Input = (editor: Editor) => {
 		if (!fakeFragment) return CaretUtils.Clean();
 
 		const caret = CaretUtils.Get()[0];
+		if (!caret) return CaretUtils.Clean();
+
 		const newRange = self.Utils.Range();
 		const lastChild = DOM.Utils.GetLastChild(fakeFragment, true);
 
@@ -61,10 +65,10 @@ const Input = (editor: Editor) => {
 		if (lastChild) {
 			const childName = DOM.Utils.GetNodeName(lastChild);
 			if (BlockFormatTags.Figures.has(childName)) {
-				const child = childName === FigureSelector ? lastChild : lastChild.parentElement as Node;
+				const child = DOM.Element.Figure.IsFigure(lastChild) ? lastChild : lastChild.parentElement as Node;
 				newRange.SetStartToEnd(child, 0, 0);
 			} else {
-				const offset = DOM.Utils.IsText(lastChild) ? lastChild.length : 0;
+				const offset = NodeType.IsText(lastChild) ? lastChild.length : 0;
 				newRange.SetStartToEnd(lastChild, offset, offset);
 			}
 		}
@@ -72,7 +76,7 @@ const Input = (editor: Editor) => {
 		CaretUtils.UpdateRanges(newRange);
 		fakeFragment = null;
 
-		self.Tools.DOM.ChangePositions();
+		DOMTools.ChangePositions();
 		self.Utils.Shared.DispatchCaretChange();
 	};
 
@@ -91,6 +95,8 @@ const Input = (editor: Editor) => {
 	const deleteByDragEvent = (event: InputEvent) => {
 		PreventEvent(event);
 		const caret = CaretUtils.Get()[0];
+		if (!caret) return CaretUtils.Clean();
+
 		fakeFragment = caret.Range.Extract();
 		return CaretUtils.Clean();
 	};
@@ -105,7 +111,7 @@ const Input = (editor: Editor) => {
 		};
 
 	const setLastChildName = () => {
-		const root: Node = CaretUtils.Get()[0].SameRoot;
+		const root: Node = CaretUtils.Get()[0]?.SameRoot;
 		let current: Node | null = FormatUtils.GetParentIfText(root);
 		while (current && current !== self.GetBody()) {
 			if (current.parentNode && current.parentNode === self.GetBody()) break;
@@ -152,7 +158,7 @@ const Input = (editor: Editor) => {
 
 	const processInput = (event: InputEvent) => {
 		const clean = () => {
-			self.Tools.DOM.ChangePositions();
+			DOMTools.ChangePositions();
 			lastChildName = null;
 			CaretUtils.Clean();
 		};
@@ -161,6 +167,7 @@ const Input = (editor: Editor) => {
 			return clean();
 
 		const caret = CaretUtils.Get()[0];
+		if (!caret) return clean();
 
 		if (caret.SameRoot.parentNode !== self.GetBody() || DOM.Utils.IsParagraph(caret.SameRoot)) return clean();
 

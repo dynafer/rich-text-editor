@@ -54,7 +54,7 @@ module.exports = async (runner, config) => {
 
 	const sassList = [];
 	fs.readdirSync(SCSS_PATH).forEach(dir => {
-		if (dir.includes('.scss') || dir.includes('ui')) return;
+		if (dir.includes('.scss') || dir.includes('ui') || dir.includes('elements')) return;
 
 		const dirPath = path.join(SCSS_PATH, `./${dir}`);
 		fs.readdirSync(dirPath).forEach(subDir => {
@@ -92,7 +92,7 @@ module.exports = async (runner, config) => {
 		sourcemap: bDevelopment
 	});
 
-	const inputPath = path.resolve(PACKAGE_PATH, './finer/build/lib');
+	const inputPath = path.resolve(PACKAGE_PATH, `./${PROJECT_NAME}/build/lib`);
 
 	const rollups = [
 		{

@@ -41,9 +41,9 @@ const Configure = (config: IEditorConfiguration): IConfiguration => {
 		throw new Error('Configuration: selector must be an provided.');
 	}
 
-	const Id: string = DOM.Utils.CreateUEID();
+	const Id = DOM.Utils.CreateUEID();
 
-	const Selector: HTMLElement = config.selector;
+	const Selector = config.selector;
 	DOM.Hide(Selector);
 
 	const mode: string = Str.LowerCase(config.mode ?? EModeEditor.classic);
@@ -51,11 +51,11 @@ const Configure = (config: IEditorConfiguration): IConfiguration => {
 		throw new Error(`Configuration: ${mode} mode doesn't exist.`);
 	}
 
-	const Mode: EModeEditor = EModeEditor[mode as EModeEditor] as EModeEditor;
+	const Mode = EModeEditor[mode as EModeEditor];
 
-	const Width: string = config.width ?? '100%';
-	const defaultHeight: string = Mode === EModeEditor.classic ? '400px' : 'auto';
-	const Height: string = config.height ?? defaultHeight;
+	const Width = config.width ?? '100%';
+	const defaultHeight = Mode === EModeEditor.classic ? '400px' : 'auto';
+	const Height = config.height ?? defaultHeight;
 
 	const Plugins: string[] = config.plugins ?? [];
 	if (!Type.IsArray(Plugins)) {

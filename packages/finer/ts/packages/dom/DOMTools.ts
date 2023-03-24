@@ -1,106 +1,83 @@
 import { Arr } from '@dynafer/utils';
+import Options from '../../Options';
 import Editor from '../Editor';
-import { FigureSelector } from '../formatter/Format';
-import ImageTools from './tools/image/ImageTools';
-import TableTools from './tools/table/TableTools';
-import { ADJUSTABLE_LINE_HALF_SIZE, CreateAdjustableEdgeSize, CreateMovableHorizontalSize, GetClientSize } from './tools/Utils';
+import DefaultParts from './tools/DefaultParts';
+import ToolsManager, { IToolsManager } from './tools/ToolsManager';
+import { ChangeAllPositions } from './tools/Utils';
 
 export interface IDOMTools {
+	Manager: IToolsManager,
 	Create: (type: string, element: HTMLElement) => HTMLElement | null,
-	RemoveAll: (except?: Element | null) => void,
+	RemoveAll: () => void,
+	Show: (target?: HTMLElement) => void,
+	HideAll: (except?: Element | null) => void,
 	ChangePositions: () => void,
 }
 
 const DOMTools = (editor: Editor): IDOMTools => {
 	const self = editor;
 	const DOM = self.DOM;
+	const Manager = ToolsManager(self);
 
-	const image = ImageTools(self);
-	const table = TableTools(self);
+	// Register image tools
+	Manager.Attach(DefaultParts.Image);
 
-	const Create = (type: string, element: HTMLElement): HTMLElement | null => {
-		switch (type) {
-			case 'image':
-			case 'img':
-				return image.Create(element as HTMLImageElement);
-			case 'table':
-				return table.Create(element);
-			default:
-				return null;
-		}
+	// Register table tools
+	Manager.Attach(DefaultParts.Table);
+
+	const selectFocused = (): HTMLElement => DOM.Select<HTMLElement>({
+		attrs: [
+			Options.ATTRIBUTE_FOCUSED,
+		]
+	}, self.GetBody());
+
+	const Create = (type: string, element: HTMLElement): HTMLElement | null =>
+		Manager.Create(type, element);
+
+	const RemoveAll = () => {
+		const toolList = DOM.SelectAll({
+			attrs: {
+				dataFixed: 'dom-tool'
+			}
+		}, self.GetBody());
+
+		Arr.Each(toolList, tools => DOM.Remove(tools, true));
 	};
 
-	const RemoveAll = (except?: Element | null) => {
-		image.RemoveAll(except);
-		table.RemoveAll(except);
+	const Show = (target?: HTMLElement | null) =>
+		DOM.Show(target ?? selectFocused());
+
+	const HideAll = (except?: Element | null) => {
+		const toolList = DOM.SelectAll({
+			attrs: {
+				dataFixed: 'dom-tool'
+			}
+		}, self.GetBody());
+
+		const focused = selectFocused();
+
+		const isSkippable = (tools: HTMLElement): boolean =>
+			(!!focused && DOM.Utils.IsChildOf(tools, focused) && DOM.Element.Figure.GetClosest(tools) === focused)
+			|| (!!except && DOM.Utils.IsChildOf(tools, except));
+
+		Arr.Each(toolList, tools => {
+			if (isSkippable(tools)) return;
+			DOM.Hide(tools);
+		});
 	};
 
 	const ChangePositions = () => {
-		Arr.Each(DOM.SelectAll({ attrs: ['data-movable'] }, self.GetBody()), movable => {
-			const figure = DOM.Closest(movable, FigureSelector);
-			const figureType = DOM.GetAttr(figure, 'type');
-			if (!figure || !figureType) return;
-
-			const figureElement = DOM.Select<HTMLElement>(figureType, figure);
-			if (!figureElement) return;
-
-			DOM.SetStyle(movable, 'left', CreateMovableHorizontalSize(figureElement.offsetLeft + figureElement.offsetWidth / 2, true));
-		});
-
-		const attributeLine = 'data-adjustable-line';
-
-		Arr.Each(DOM.SelectAll({ attrs: [attributeLine] }, self.GetBody()), line => {
-			const figure = DOM.Closest(line, FigureSelector);
-			const figureType = DOM.GetAttr(figure, 'type');
-			if (!figure || !figureType) return;
-
-			const figureElement = DOM.Select<HTMLElement>(figureType, figure);
-			if (!figureElement) return;
-
-			const styles: Record<string, string> = {};
-			const lineType = DOM.GetAttr(line, attributeLine);
-
-			switch (figureType) {
-				case 'table':
-					const bWidth = lineType === 'width';
-					styles.width = `${bWidth ? ADJUSTABLE_LINE_HALF_SIZE * 2 - 1 : figureElement.offsetWidth}px`;
-					styles.height = `${bWidth ? figureElement.offsetHeight : ADJUSTABLE_LINE_HALF_SIZE * 2 - 1}px`;
-					styles.left = `${bWidth ? 0 : figureElement.offsetLeft}px`;
-					styles.top = `${bWidth ? figureElement.offsetTop : 0}px`;
-					break;
-				case 'img':
-					const bHorizontal = lineType === 'left' || lineType === 'right';
-					styles.width = `${bHorizontal ? ADJUSTABLE_LINE_HALF_SIZE : GetClientSize(self, figureElement, 'width')}px`;
-					styles.height = `${bHorizontal ? GetClientSize(self, figureElement, 'height') : ADJUSTABLE_LINE_HALF_SIZE}px`;
-					styles.left = `${figureElement.offsetLeft + (lineType !== 'right' ? 0 : figureElement.offsetWidth) - ADJUSTABLE_LINE_HALF_SIZE / 2}px`;
-					styles.top = `${figureElement.offsetTop + (lineType !== 'bottom' ? 0 : figureElement.offsetHeight) - ADJUSTABLE_LINE_HALF_SIZE / 2}px`;
-					break;
-			}
-
-			DOM.SetStyles(line, styles);
-		});
-
-		Arr.Each(DOM.SelectAll({ attrs: ['data-adjustable-edge'] }, self.GetBody()), edge => {
-			const figure = DOM.Closest(edge, FigureSelector);
-			const figureType = DOM.GetAttr(figure, 'type');
-			if (!figure || !figureType) return;
-
-			const figureElement = DOM.Select<HTMLElement>(figureType, figure);
-			if (!figureElement) return;
-
-			const bLeft = DOM.HasAttr(edge, 'data-horizontal', 'left');
-			const bTop = DOM.HasAttr(edge, 'data-vertical', 'top');
-
-			DOM.SetStyles(edge, {
-				left: CreateAdjustableEdgeSize(figureElement.offsetLeft + (bLeft ? 0 : figureElement.offsetWidth), true),
-				top: CreateAdjustableEdgeSize(figureElement.offsetTop + (bTop ? 0 : figureElement.offsetHeight), true),
-			});
-		});
+		Show();
+		ChangeAllPositions(self);
+		Manager.ChangePositions();
 	};
 
 	return {
+		Manager,
 		Create,
 		RemoveAll,
+		Show,
+		HideAll,
 		ChangePositions,
 	};
 };

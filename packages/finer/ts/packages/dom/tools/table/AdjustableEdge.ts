@@ -2,14 +2,14 @@ import { Arr, Formula, Type } from '@dynafer/utils';
 import Editor from '../../../Editor';
 import { ENativeEvents, PreventEvent } from '../../../events/EventSetupUtils';
 import { CreateAdjustableEdgeSize, GetClientSize, RegisterAdjustingEvents } from '../Utils';
-import { CreateCurrentPoint, CreateFakeTable, GetTableGridWithIndex, ITableGrid, MoveToCurrentPoint } from './TableToolsUtils';
+import { CreateCurrentPoint, CreateFakeTable, GetTableGridWithIndex, MoveToCurrentPoint } from './TableToolsUtils';
 
 interface ICellStyleMap {
 	cell: HTMLElement,
 	styles: Record<string, string>,
 }
 
-const AdjustableEdge = (editor: Editor, table: HTMLElement, tableGrid: ITableGrid): HTMLElement => {
+const AdjustableEdge = (editor: Editor, table: HTMLElement): HTMLElement => {
 	const self = editor;
 	const DOM = self.DOM;
 
@@ -43,19 +43,15 @@ const AdjustableEdge = (editor: Editor, table: HTMLElement, tableGrid: ITableGri
 			top: CreateAdjustableEdgeSize(targetTable.offsetTop + (bTop ? 0 : targetTable.offsetHeight), true),
 		});
 
-	const updateEdgePosition = (targetTable: HTMLElement) => {
-		setEdgePositionStyles(targetTable, leftTopEdge, true, true);
-		setEdgePositionStyles(targetTable, rightTopEdge, false, true);
-		setEdgePositionStyles(targetTable, leftBottomEdge, true, false);
-		setEdgePositionStyles(targetTable, rightBottomEdge, false, false);
-	};
-
 	const startAdjusting = (event: MouseEvent) => {
 		PreventEvent(event);
 
 		const adjustItem = event.target as HTMLElement;
 
-		let savedPoint = CreateCurrentPoint(self, table);
+		const { Figure, FigureElement } = DOM.Element.Figure.Find<HTMLElement>(adjustItem);
+		if (!Figure || !FigureElement) return;
+
+		let savedPoint = CreateCurrentPoint(self, FigureElement);
 
 		let startOffsetX = event.clientX;
 		let startOffsetY = event.clientY;
@@ -65,7 +61,9 @@ const AdjustableEdge = (editor: Editor, table: HTMLElement, tableGrid: ITableGri
 
 		self.SaveScrollPosition();
 
-		const fakeTable = CreateFakeTable(self, table);
+		const tableGrid = GetTableGridWithIndex(self, FigureElement);
+
+		const fakeTable = CreateFakeTable(self, FigureElement);
 		DOM.Insert(adjustableEdgeGroup, fakeTable);
 
 		const oldWidth = fakeTable.offsetWidth;
@@ -126,7 +124,7 @@ const AdjustableEdge = (editor: Editor, table: HTMLElement, tableGrid: ITableGri
 
 		self.ScrollSavedPosition();
 
-		const movable = DOM.Select<HTMLElement>({ attrs: ['data-movable'] }, table.parentNode);
+		const movable = DOM.Select<HTMLElement>({ attrs: ['data-movable'] }, Figure);
 		DOM.Hide(movable);
 
 		const startWidthDifference = bLeft ? 0 : (minWidth - oldWidth);
@@ -218,7 +216,10 @@ const AdjustableEdge = (editor: Editor, table: HTMLElement, tableGrid: ITableGri
 
 			DOM.SetStyles(fakeTable, newStyle);
 
-			updateEdgePosition(fakeTable);
+			setEdgePositionStyles(fakeTable, leftTopEdge, true, true);
+			setEdgePositionStyles(fakeTable, rightTopEdge, false, true);
+			setEdgePositionStyles(fakeTable, leftBottomEdge, true, false);
+			setEdgePositionStyles(fakeTable, rightBottomEdge, false, false);
 		};
 
 		const finishAdjusting = (e: MouseEvent) => {
@@ -256,11 +257,11 @@ const AdjustableEdge = (editor: Editor, table: HTMLElement, tableGrid: ITableGri
 
 			DOM.Show(movable);
 
-			MoveToCurrentPoint(self, table, savedPoint);
+			MoveToCurrentPoint(self, FigureElement, savedPoint);
 			savedPoint = undefined;
 		};
 
-		RegisterAdjustingEvents(self, adjust, finishAdjusting);
+		RegisterAdjustingEvents(self, FigureElement, adjust, finishAdjusting);
 	};
 
 	const edges = [leftTopEdge, rightTopEdge, leftBottomEdge, rightBottomEdge];

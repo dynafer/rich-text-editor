@@ -16,21 +16,18 @@ const Img = (editor: Editor) => {
 		}, self.GetBody());
 
 		Arr.Each(focusedFigures, focused => DOM.RemoveAttr(focused, Finer.Options.ATTRIBUTE_FOCUSED));
-		self.Tools.DOM.RemoveAll();
+		self.Tools.DOM.HideAll();
 
 		Arr.Each(files.GetList(), file => {
-			const figure = DOM.Create(formatter.Formats.FigureSelector, {
-				attrs: {
-					type: 'img',
-					contenteditable: 'false',
-				}
-			});
+			const figure = DOM.Element.Figure.Create('img');
 
 			const image = DOM.Create('img', {
 				attrs: {
 					title: file.GetName()
 				}
 			});
+
+			const tools = self.Tools.DOM.Create('img', image);
 
 			const bFirst = Arr.IsEmpty(figures);
 
@@ -47,7 +44,7 @@ const Img = (editor: Editor) => {
 			});
 			reader.readAsDataURL(file.Get());
 
-			DOM.Insert(figure, image);
+			DOM.Insert(figure, image, tools);
 
 			Arr.Push(figures, figure);
 		});
@@ -56,12 +53,14 @@ const Img = (editor: Editor) => {
 
 		CaretUtils.Get()[0]?.Range.DeleteContents();
 
+		formatter.Utils.CleanDirty(self, CaretUtils.Get()[0]);
+
 		const caret = CaretUtils.Get()[0];
 		const lines = DOM.GetChildren(self.GetBody());
 
 		const finish = () => {
 			const newRange = self.Utils.Range();
-			newRange.SetStartToEnd(figures[0], 0, 0);
+			newRange.SetStartToEnd(figures[0], 1, 1);
 			CaretUtils.UpdateRanges(newRange);
 			self.Utils.Shared.DispatchCaretChange([figures[0]]);
 			Arr.Clean(figures);
@@ -75,12 +74,12 @@ const Img = (editor: Editor) => {
 			return finish();
 		}
 
-		const { startBlock, endBlock } = self.Utils.Shared.SplitLines(caret.Start.Node, caret.Start.Offset);
+		const { StartBlock, EndBlock } = self.Utils.Shared.SplitLines(caret.Start.Node, caret.Start.Offset);
 
 		const node = formatter.Utils.GetParentIfText(caret.Start.Node);
-		const blockNode = startBlock ?? DOM.Closest(node, Str.Join(',', ...formatter.Formats.BlockFormatTags.Block)) ?? lines[0];
+		const blockNode = StartBlock ?? DOM.Closest(node, Str.Join(',', ...formatter.Formats.BlockFormatTags.Block)) ?? lines[0];
 		const insert = !blockNode ? DOM.Insert : DOM.InsertAfter;
-		const insertions = !blockNode ? [...figures, endBlock] : [endBlock, ...Arr.Reverse(figures)];
+		const insertions = !blockNode ? [...figures, EndBlock] : [EndBlock, ...Arr.Reverse(figures)];
 		insert(blockNode ?? self.GetBody(), ...insertions);
 
 		finish();
