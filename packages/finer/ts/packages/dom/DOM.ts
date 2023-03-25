@@ -348,8 +348,9 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 		selector.dispatchEvent(customEvent);
 	};
 
-	const Show = (selector: TElement, displayType: string = 'block') => {
-		if (!NodeType.IsElement(selector) || !Type.IsString(displayType)) return;
+	const Show = (selector: TElement, displayType?: string) => {
+		if (!NodeType.IsElement(selector)) return;
+		if (!Type.IsString(displayType)) return RemoveStyle(selector, 'display');
 		SetStyle(selector, 'display', displayType);
 	};
 

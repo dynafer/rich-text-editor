@@ -88,7 +88,7 @@
 				@include all-border(getVar(image-menu-border));
 				@include round(getVar(image-menu-radius));
 				@include all-padding(0.2rem);
-				@include rectangle(8rem, 1.6rem);
+				@include rectangle(9rem, 1.6rem);
 				@include flex(space-between, center);
 				background-color: getVar(image-menu-bg);
 
@@ -113,6 +113,10 @@
 						&.active {
 							background-color: getVar(image-menu-item-active-bg);
 						}
+					}
+
+					&:not(:last-child) {
+						@include margin(rem, $left: 0.25);
 					}
 				}
 			}

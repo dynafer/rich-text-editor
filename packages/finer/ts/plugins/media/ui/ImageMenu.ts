@@ -1,10 +1,11 @@
 import { Arr, Obj, Str } from '@dynafer/utils';
+import Options from '../../../Options';
 import { IDOMToolsPartAttacher } from '../../../packages/dom/tools/Types';
 import Editor from '../../../packages/Editor';
 import ImgStyles from '../format/ImgStyles';
 import { IPluginMediaUI } from '../UI';
 import { IPluginImageMenuFormatUI } from '../utils/Type';
-import { IMAGE_MENU_ADDABLE_TOP } from '../utils/Utils';
+import { ATTRIBUTE_AS_TEXT, IMAGE_MENU_ADDABLE_TOP } from '../utils/Utils';
 
 export interface IImageMenu {
 	Create: IDOMToolsPartAttacher,
@@ -29,15 +30,22 @@ const ImageMenu = (editor: Editor, ui: IPluginMediaUI): IImageMenu => {
 
 	const createCommandName = (uiName: string, formatName: string): string => Str.Merge(uiName, ':', formatName);
 
-	const createCommand = (figure: HTMLElement, format: IPluginImageMenuFormatUI, button: HTMLElement) =>
+	const createCommand = (imageMenu: HTMLElement, image: HTMLElement, format: IPluginImageMenuFormatUI, button: HTMLElement) =>
 		<T = boolean>(bActive: T) => {
 			const toggler = ImgStyles(self, format);
-			toggler.Toggle(bActive as boolean);
+			toggler.Toggle(bActive as boolean, image);
+
+			const otherButtons = DOM.SelectAll({
+				class: DOM.Utils.CreateUEID('icon-button', false)
+			}, imageMenu);
+
+			Arr.Each(otherButtons, otherButton => DOM.RemoveClass(otherButton, ui.ACTIVE_CLASS));
+
 			const toggleClass = bActive ? DOM.AddClass : DOM.RemoveClass;
 			toggleClass(button, ui.ACTIVE_CLASS);
 		};
 
-	const createGroup = (figure: HTMLElement, uiName: string, formats: IPluginImageMenuFormatUI[]): HTMLElement => {
+	const createGroup = (imageMenu: HTMLElement, figure: HTMLElement, uiName: string, formats: IPluginImageMenuFormatUI[]): HTMLElement => {
 		const group = DOM.Create('div', {
 			class: DOM.Utils.CreateUEID('icon-group', false)
 		});
@@ -55,7 +63,7 @@ const ImageMenu = (editor: Editor, ui: IPluginMediaUI): IImageMenu => {
 				html: Finer.Icons.Get(Icon)
 			});
 
-			ui.RegisterCommand(self, commandName, createCommand(figure, format, button));
+			ui.RegisterCommand(self, commandName, createCommand(imageMenu, figure, format, button));
 
 			const eventCallback = () => ui.RunCommand(self, commandName, !DOM.HasClass(button, ui.ACTIVE_CLASS));
 			DOM.On(button, Finer.NativeEventMap.click, eventCallback);
@@ -66,17 +74,14 @@ const ImageMenu = (editor: Editor, ui: IPluginMediaUI): IImageMenu => {
 		return group;
 	};
 
-	const Create: IDOMToolsPartAttacher = (e: Editor, img: HTMLElement): HTMLElement | null => {
-		const image = img as HTMLImageElement;
-		const figure = image.parentNode as HTMLElement;
-
+	const Create: IDOMToolsPartAttacher = (e: Editor, image: HTMLElement): HTMLElement | null => {
 		const imageMenu = DOM.Create('div', {
 			attrs: {
 				dataImageMenu: ''
 			}
 		});
 
-		Obj.Entries(uiFormats, (uiName, formats) => DOM.Insert(imageMenu, createGroup(figure, uiName, formats)));
+		Obj.Entries(uiFormats, (uiName, formats) => DOM.Insert(imageMenu, createGroup(imageMenu, image, uiName, formats)));
 
 		return imageMenu;
 	};
@@ -86,12 +91,26 @@ const ImageMenu = (editor: Editor, ui: IPluginMediaUI): IImageMenu => {
 			const { Figure, FigureType, FigureElement } = DOM.Element.Figure.Find<HTMLElement>(imageMenu);
 			if (!Figure || !FigureType || !FigureElement) return;
 
+			if (!DOM.HasAttr(Figure, Options.ATTRIBUTE_FOCUSED)) return DOM.Hide(imageMenu);
+			DOM.Show(imageMenu);
+
 			const newStyles: Record<string, string> = {};
-			const figureRightPosition = FigureElement.offsetLeft + FigureElement.offsetWidth;
-			const menuCenterPosition = figureRightPosition - imageMenu.offsetWidth - (FigureElement.offsetWidth - imageMenu.offsetWidth) / 2;
-			if (menuCenterPosition < 0) newStyles.left = '0px';
-			else if (menuCenterPosition > figureRightPosition) newStyles.left = `${figureRightPosition}px`;
-			else newStyles.left = `${menuCenterPosition}px`;
+
+			const figureRightPosition = Figure.offsetLeft + Figure.offsetWidth;
+			const figureElementRightPosition = FigureElement.offsetLeft + FigureElement.offsetWidth;
+			const halfWithDifference = (FigureElement.offsetWidth - imageMenu.offsetWidth) / 2;
+			const menuCentredLeftPosition = figureElementRightPosition - imageMenu.offsetWidth - halfWithDifference;
+			const menuCentredRightPosition = menuCentredLeftPosition + imageMenu.offsetWidth;
+
+			const bAsText = DOM.HasAttr(Figure, ATTRIBUTE_AS_TEXT);
+			const bOutOfBody = bAsText && figureRightPosition > DOM.Doc.body.offsetWidth;
+
+			if (menuCentredLeftPosition < 0 && !bOutOfBody)
+				newStyles.left = '0px';
+			else if (menuCentredRightPosition > DOM.Doc.body.offsetWidth || bOutOfBody)
+				newStyles.left = `${menuCentredLeftPosition + halfWithDifference}px`;
+			else
+				newStyles.left = `${menuCentredLeftPosition}px`;
 
 			const yRange = DOM.Win.innerHeight + DOM.Win.scrollY;
 
