@@ -180,7 +180,8 @@ const AdjustableEdge = (editor: Editor, img: HTMLElement): HTMLElement => {
 
 			if (bLeft && bFigureRight && !Type.IsBoolean(calculatedX))
 				DOM.SetStyles(Figure, {
-					left: `${Figure.offsetLeft - parseFloat(DOM.GetStyle(Figure, 'margin-left', true)) - calculatedX}px`
+					left: `${Figure.offsetLeft - parseFloat(DOM.GetStyle(Figure, 'margin-left', true)) - calculatedX}px`,
+					width: `${Figure.offsetWidth + calculatedX}px`
 				});
 
 			updateEdgePosition();
