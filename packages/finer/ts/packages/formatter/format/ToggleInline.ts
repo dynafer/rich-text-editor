@@ -38,7 +38,7 @@ const ToggleInline = (editor: Editor, formats: IInlineFormat | IInlineFormat[]):
 	};
 
 	const tableProcessor = (bWrap: boolean, value?: string): boolean => {
-		const cells = FormatUtils.GetTableItems(self, true);
+		const cells = DOM.Element.Table.GetSelectedCells(self);
 		if (cells.length === 0) return false;
 
 		Arr.Each(cells, cell => Toggler.ToggleRecursive(bWrap, formats, cell, { value }));

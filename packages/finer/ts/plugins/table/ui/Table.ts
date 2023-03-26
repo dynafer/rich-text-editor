@@ -8,11 +8,11 @@ const Table = (editor: Editor, ui: IPluginTableUI) => {
 	const self = editor;
 	const DOM = self.GetRootDOM();
 	const formatUI = self.Formatter.UI;
-	const formatterFormats = self.Formatter.Formats;
+	const formatter = self.Formatter;
 
 	const uiName = 'Table';
 	const uiFormat: IPluginsTableFormatUI = {
-		Format: { Tag: formatterFormats.TableSelector },
+		Format: { Tag: DOM.Element.Table.Selector },
 		Title: 'Create a table',
 		Icon: 'Table'
 	};
@@ -61,7 +61,7 @@ const Table = (editor: Editor, ui: IPluginTableUI) => {
 
 			for (let cell = 0; cell < numCells; ++cell) {
 				const cellItem = formatUI.Create({
-					tagName: formatterFormats.ListItemSelector,
+					tagName: formatter.Formats.ListItemSelector,
 					type: 'option-item',
 				});
 
@@ -85,7 +85,7 @@ const Table = (editor: Editor, ui: IPluginTableUI) => {
 	const createOptionList = (wrapper: HTMLElement) =>
 		() => {
 			const navigationWrapper = formatUI.Create({
-				tagName: formatterFormats.ListItemSelector,
+				tagName: formatter.Formats.ListItemSelector,
 				type: 'option-item',
 			});
 
@@ -99,7 +99,7 @@ const Table = (editor: Editor, ui: IPluginTableUI) => {
 			Arr.Push(items, navigationWrapper);
 
 			const tableList = formatUI.CreateOptionList(uiName, items);
-			DOM.SetAttr(tableList, formatterFormats.TableSelector, 'true');
+			DOM.SetAttr(tableList, DOM.Element.Table.Selector, 'true');
 			DOM.On(tableList, 'mouseleave', removeAllHovered(navigation, tableList));
 
 			DOM.Insert(self.Frame.Root, tableList);

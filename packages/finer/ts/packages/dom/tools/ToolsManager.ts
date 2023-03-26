@@ -1,3 +1,4 @@
+import { NodeType } from '@dynafer/dom-control';
 import { Arr, Type } from '@dynafer/utils';
 import Editor from '../../Editor';
 import { IDOMToolsPartAttacher } from './Types';
@@ -15,6 +16,8 @@ export interface IToolsManager {
 	Attach: <T = unknown>(opts: IDOMToolsOption<T>) => void,
 	Detach: <T = unknown>(opts: IDOMToolsOption<T>) => void,
 	Create: (name: string, element: HTMLElement) => HTMLElement,
+	SelectTools: <T extends boolean>(bAll: T, parent?: Element) => T extends true ? HTMLElement[] : (HTMLElement | null),
+	IsTools: (selector?: Node | EventTarget | null) => boolean,
 	ChangePositions: () => void,
 }
 
@@ -80,6 +83,34 @@ const ToolsManager = (editor: Editor): IToolsManager => {
 		return tools;
 	};
 
+	const SelectTools = <T extends boolean>(bAll: T, parent?: Element): T extends true ? HTMLElement[] : (HTMLElement | null) => {
+		const selectOption = { attrs: { dataFixed: 'dom-tool' } };
+
+		const parentSelector = parent ?? self.GetBody();
+
+		if (!bAll && !!parent) {
+			const allTools = DOM.SelectAll(selectOption, parentSelector);
+			const figure = DOM.Element.Figure.IsFigure(parent)
+				? parent
+				: (DOM.Element.Figure.GetClosest(parent) ?? DOM.Select(DOM.Element.Figure.Selector, parent));
+
+			if (!figure) return null as T extends true ? HTMLElement[] : (HTMLElement | null);
+
+			for (let index = 0, length = allTools.length; index < length; ++index) {
+				const tools = allTools[index];
+				if (DOM.Element.Figure.GetClosest(tools) !== figure || !DOM.Utils.IsChildOf(tools, figure)) continue;
+				return tools as T extends true ? HTMLElement[] : (HTMLElement | null);
+			}
+		}
+
+		const select = bAll ? DOM.SelectAll : DOM.Select;
+
+		return select(selectOption, parentSelector) as T extends true ? HTMLElement[] : (HTMLElement | null);
+	};
+
+	const IsTools = (selector?: Node | EventTarget | null): boolean =>
+		!NodeType.IsNode(selector) ? false : DOM.HasAttr(selector, 'data-fixed', 'dom-tool');
+
 	const ChangePositions = () => Arr.Each(partListeners, listener => listener(self));
 
 	return {
@@ -87,6 +118,8 @@ const ToolsManager = (editor: Editor): IToolsManager => {
 		Attach,
 		Detach,
 		Create,
+		SelectTools,
+		IsTools,
 		ChangePositions,
 	};
 };

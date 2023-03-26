@@ -1,6 +1,6 @@
 import { Arr, Obj, Str, Type } from '@dynafer/utils';
 import Editor from '../Editor';
-import { AllStrictFormats, TableCellSelector } from './Format';
+import { AllStrictFormats } from './Format';
 import { EFormatType, IBlockFormat, IInlineFormat, IStyleFormat, TFormat } from './FormatType';
 import FormatUtils from './FormatUtils';
 
@@ -34,7 +34,7 @@ const FormatUnwrapper = (editor: Editor): IFormatUnwrapper => {
 		const addInsideSelector = Str.Join(',', ...AddInside);
 		const oldElement = FormatUtils.GetParentIfText(node);
 
-		if (!DOM.Closest(oldElement, addInsideSelector) || DOM.Closest(oldElement, TableCellSelector)) {
+		if (!DOM.Closest(oldElement, addInsideSelector) || DOM.Element.Table.GetClosestCell(oldElement)) {
 			const blockElement = DOM.Closest(oldElement, Tag);
 			if (!blockElement) return true;
 

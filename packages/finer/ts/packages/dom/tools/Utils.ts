@@ -72,11 +72,7 @@ export const ChangeAllPositions = (editor: Editor) => {
 	const self = editor;
 	const DOM = self.DOM;
 
-	const figureTools = DOM.SelectAll({
-		attrs: {
-			dataFixed: 'dom-tool'
-		}
-	}, self.GetBody());
+	const figureTools = self.Tools.DOM.Manager.SelectTools(true);
 
 	Arr.Each(figureTools, tools => {
 		if (DOM.IsHidden(tools)) return;

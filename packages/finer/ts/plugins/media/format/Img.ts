@@ -11,13 +11,6 @@ const Img = (editor: Editor) => {
 	const CreateFromCaret = (files: IBlobList) => {
 		const figures: HTMLElement[] = [];
 
-		const focusedFigures = DOM.SelectAll({
-			attrs: [Finer.Options.ATTRIBUTE_FOCUSED]
-		}, self.GetBody());
-
-		Arr.Each(focusedFigures, focused => DOM.RemoveAttr(focused, Finer.Options.ATTRIBUTE_FOCUSED));
-		self.Tools.DOM.HideAll();
-
 		Arr.Each(files.GetList(), file => {
 			const figure = DOM.Element.Figure.Create('img');
 
@@ -51,8 +44,8 @@ const Img = (editor: Editor) => {
 
 		self.Focus();
 
+		self.Tools.DOM.UnsetAllFocused();
 		CaretUtils.Get()[0]?.Range.DeleteContents();
-
 		formatter.Utils.CleanDirty(self, CaretUtils.Get()[0]);
 
 		const caret = CaretUtils.Get()[0];

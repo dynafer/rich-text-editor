@@ -87,7 +87,7 @@ const ImageMenu = (editor: Editor, ui: IPluginMediaUI): IImageMenu => {
 	};
 
 	const ChangePosition = () =>
-		Arr.Each(DOM.SelectAll({ attrs: ['data-image-menu'] }, self.GetBody()), imageMenu => {
+		Arr.Each(DOM.SelectAll<HTMLElement>({ attrs: ['data-image-menu'] }, self.GetBody()), imageMenu => {
 			const { Figure, FigureType, FigureElement } = DOM.Element.Figure.Find<HTMLElement>(imageMenu);
 			if (!Figure || !FigureType || !FigureElement) return;
 

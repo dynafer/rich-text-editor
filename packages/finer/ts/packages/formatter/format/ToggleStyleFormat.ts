@@ -25,7 +25,7 @@ const ToggleStyleFormat = (editor: Editor, formats: IStyleFormat | IStyleFormat[
 	};
 
 	const tableProcessor = (bWrap: boolean, value?: string): boolean => {
-		const cells = FormatUtils.GetTableItems(self, true);
+		const cells = DOM.Element.Table.GetSelectedCells(self);
 		if (cells.length === 0) return false;
 
 		Arr.Each(cells, cell => Toggler.ToggleRecursive(bWrap, formats, cell, { value }));
@@ -80,7 +80,7 @@ const ToggleStyleFormat = (editor: Editor, formats: IStyleFormat | IStyleFormat[
 			toggle(element, styleName, FormatUtils.GetPixelString(calculated));
 		};
 
-		const cells = FormatUtils.GetTableItems(self, true);
+		const cells = DOM.Element.Table.GetSelectedCells(self);
 		if (!Arr.IsEmpty(cells)) {
 			const { Figure } = DOM.Element.Figure.Find<HTMLElement>(cells[0]);
 			if (!Figure) return;

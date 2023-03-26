@@ -104,7 +104,7 @@ const DOMUtils = (): IDOMUtils => {
 			return newValue;
 		}
 
-		if (!Type.IsArray(target) && Type.IsObject(target)) return mapCallback(target);
+		if (Type.IsObject(target)) return mapCallback(target);
 
 		return '';
 	};
@@ -145,11 +145,14 @@ const DOMUtils = (): IDOMUtils => {
 		return selector;
 	};
 
-	const getDeepestChild = (node: Node, bFirst: boolean): Node => {
+	const isDOMTools = (node: Node | null): node is Element => NodeType.IsElement(node) && node.getAttribute('data-fixed') === 'dom-tool';
+
+	const getDeepestChild = (node: Node, bFirst: boolean): Node | null => {
 		let child: Node | null = node;
 
 		while (child) {
-			const nextChild: Node | null = bFirst ? child.firstChild : child.lastChild;
+			if (isDOMTools(child)) child = child.previousElementSibling;
+			const nextChild: Node | null = (bFirst ? child?.firstChild : child?.lastChild) ?? null;
 			if (!nextChild) break;
 			child = nextChild;
 		}
@@ -159,14 +162,14 @@ const DOMUtils = (): IDOMUtils => {
 
 	const GetFirstChild = (node: Node | null, bDeep: boolean = false): Node | null => {
 		if (!node) return null;
-		if (!bDeep) return node.firstChild;
+		if (!bDeep) return isDOMTools(node.firstChild) ? null : node.firstChild;
 
 		return getDeepestChild(node, true);
 	};
 
 	const GetLastChild = (node: Node | null, bDeep: boolean = false): Node | null => {
 		if (!node) return null;
-		if (!bDeep) return node.lastChild;
+		if (!bDeep) return isDOMTools(node.lastChild) ? node.lastChild.previousElementSibling : node.lastChild;
 
 		return getDeepestChild(node, false);
 	};

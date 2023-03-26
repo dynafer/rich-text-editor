@@ -22,7 +22,7 @@ const ImageMenuEvents = (editor: Editor) => {
 		};
 
 	const scrollEvent = () =>
-		Arr.Each(DOM.SelectAll({ attrs: ['data-image-menu'] }, self.GetBody()), imageMenu => {
+		Arr.Each(DOM.SelectAll<HTMLElement>({ attrs: ['data-image-menu'] }, self.GetBody()), imageMenu => {
 			const { Figure } = DOM.Element.Figure.Find<HTMLElement>(imageMenu);
 			if (!Figure) return;
 

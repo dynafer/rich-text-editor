@@ -63,7 +63,7 @@ const CaretUtils = (editor: Editor): ICaretUtils => {
 		return getChildInSibling(parentSibling ?? node, true);
 	};
 
-	const getLine = (node: Node, offset: number, bStart: boolean): ILineData => {
+	const getLine = (node: Node, offset: number, bRange: boolean, bStart: boolean): ILineData => {
 		const lines = DOM.GetChildren(self.GetBody());
 
 		if (node === self.GetBody()) {
@@ -76,8 +76,16 @@ const CaretUtils = (editor: Editor): ICaretUtils => {
 			}
 		}
 
-		if (BlockFormatTags.Block.has(DOM.Utils.GetNodeName(node)) && !bStart) {
+		const nodeName = DOM.Utils.GetNodeName(node);
+
+		if (BlockFormatTags.Block.has(nodeName) && bRange && !bStart) {
 			const deepestChild = getDeepestSiblingChild(node, offset === 0);
+			if (deepestChild) node = deepestChild;
+		}
+
+		if (!bRange && AllBlockFormats.has(nodeName) && !DOM.Element.Figure.IsFigure(node)) {
+			const getChild = bStart ? DOM.Utils.GetFirstChild : DOM.Utils.GetLastChild;
+			const deepestChild = getChild(node, true);
 			if (deepestChild) node = deepestChild;
 		}
 
@@ -115,8 +123,8 @@ const CaretUtils = (editor: Editor): ICaretUtils => {
 
 		Arr.Each(ranges, range => {
 			const IsRange = (): boolean => !range.collapsed;
-			const Start = getLine(range.startContainer, range.startOffset, true);
-			const End = getLine(range.endContainer, range.endOffset, false);
+			const Start = getLine(range.startContainer, range.startOffset, !range.collapsed, true);
+			const End = getLine(range.endContainer, range.endOffset, !range.collapsed, false);
 			const SameRoot = range.commonAncestorContainer;
 			const Range = RangeUtils(range);
 

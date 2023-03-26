@@ -2,7 +2,7 @@ import { Arr, Formula, Type } from '@dynafer/utils';
 import Editor from '../../../Editor';
 import { ENativeEvents, PreventEvent } from '../../../events/EventSetupUtils';
 import { CreateAdjustableEdgeSize, GetClientSize, RegisterAdjustingEvents } from '../Utils';
-import { CreateCurrentPoint, CreateFakeTable, GetTableGridWithIndex, MoveToCurrentPoint } from './TableToolsUtils';
+import { CreateCurrentPoint, CreateFakeTable, MoveToCurrentPoint } from './TableToolsUtils';
 
 interface ICellStyleMap {
 	cell: HTMLElement,
@@ -61,7 +61,7 @@ const AdjustableEdge = (editor: Editor, table: HTMLElement): HTMLElement => {
 
 		self.SaveScrollPosition();
 
-		const tableGrid = GetTableGridWithIndex(self, FigureElement);
+		const tableGrid = DOM.Element.Table.GetTableGridWithIndex(FigureElement);
 
 		const fakeTable = CreateFakeTable(self, FigureElement);
 		DOM.Insert(adjustableEdgeGroup, fakeTable);
@@ -71,7 +71,7 @@ const AdjustableEdge = (editor: Editor, table: HTMLElement): HTMLElement => {
 		const oldLeft = fakeTable.offsetLeft;
 		const oldTop = fakeTable.offsetTop;
 
-		const fakeTableGrid = GetTableGridWithIndex(self, fakeTable);
+		const fakeTableGrid = DOM.Element.Table.GetTableGridWithIndex(fakeTable);
 		const cellSizePercents: [number, number][][] = [];
 
 		Arr.Each(fakeTableGrid.Grid, row => {
