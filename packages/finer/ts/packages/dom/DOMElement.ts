@@ -2,8 +2,8 @@ import Figure, { IFigure } from './elements/Figure';
 import Table, { ITable } from './elements/Table';
 
 export interface IDOMElement {
-	Figure: IFigure,
-	Table: ITable,
+	readonly Figure: IFigure,
+	readonly Table: ITable,
 }
 
 const DOMElement = () => ({

@@ -17,7 +17,7 @@ const DragImage = (editor: Editor, event: DragEvent) => {
 
 	const moveCaret = (startBlock: Node | null, endBlock: Node | null) => {
 		let figure = image.parentNode;
-		if (DOM.Element.Figure.IsFigure(figure)) {
+		if (!DOM.Element.Figure.IsFigure(figure)) {
 			figure = DOM.Element.Figure.Create('img');
 			DOM.Insert(figure, image);
 

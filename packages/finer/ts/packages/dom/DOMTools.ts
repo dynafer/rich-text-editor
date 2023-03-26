@@ -1,4 +1,4 @@
-import { Arr } from '@dynafer/utils';
+import { Arr, Type } from '@dynafer/utils';
 import Options from '../../Options';
 import Editor from '../Editor';
 import DefaultParts from './tools/DefaultParts';
@@ -6,9 +6,10 @@ import ToolsManager, { IToolsManager } from './tools/ToolsManager';
 import { ChangeAllPositions } from './tools/Utils';
 
 export interface IDOMTools {
-	Manager: IToolsManager,
+	readonly Manager: IToolsManager,
 	Create: (type: string, element: HTMLElement) => HTMLElement | null,
 	RemoveAll: () => void,
+	SelectFocused: <T extends boolean = false>(bAll?: T | false, type?: string) => T extends false ? (HTMLElement | null) : HTMLElement[],
 	Show: (target?: HTMLElement) => void,
 	HideAll: (except?: Element | null) => void,
 	UnsetAllFocused: (except?: Element | null) => void,
@@ -26,12 +27,6 @@ const DOMTools = (editor: Editor): IDOMTools => {
 	// Register table tools
 	Manager.Attach(DefaultParts.Table);
 
-	const selectFocused = (): HTMLElement | null => DOM.Select<HTMLElement>({
-		attrs: [
-			Options.ATTRIBUTE_FOCUSED,
-		]
-	}, self.GetBody());
-
 	const Create = (type: string, element: HTMLElement): HTMLElement | null =>
 		Manager.Create(type, element);
 
@@ -41,9 +36,16 @@ const DOMTools = (editor: Editor): IDOMTools => {
 		Arr.Each(toolList, tools => DOM.Remove(tools, true));
 	};
 
+	const SelectFocused = <T extends boolean = false>(bAll: T | false = false, type?: string): T extends false ? (HTMLElement | null) : HTMLElement[] => {
+		const select = !bAll ? DOM.Select<HTMLElement> : DOM.SelectAll<HTMLElement>;
+		const attrs: (string | Record<string, string>)[] = [Options.ATTRIBUTE_FOCUSED];
+		if (Type.IsString(type)) Arr.Push(attrs, { type });
+		return select({ attrs }, self.GetBody()) as T extends false ? (HTMLElement | null) : HTMLElement[];
+	};
+
 	const Show = (target?: HTMLElement | null) => {
 		if (target) return DOM.Show(target);
-		const focused = selectFocused();
+		const focused = SelectFocused();
 		if (!focused) return;
 		DOM.Show(target ?? Manager.SelectTools(false, focused));
 	};
@@ -51,7 +53,7 @@ const DOMTools = (editor: Editor): IDOMTools => {
 	const HideAll = (except?: Element | null) => {
 		const toolList = Manager.SelectTools(true);
 
-		const focused = selectFocused();
+		const focused = SelectFocused();
 
 		const isSkippable = (tools: HTMLElement): boolean =>
 			(!!focused && DOM.Utils.IsChildOf(tools, focused) && DOM.Element.Figure.GetClosest(tools) === focused)
@@ -64,9 +66,7 @@ const DOMTools = (editor: Editor): IDOMTools => {
 	};
 
 	const UnsetAllFocused = (except?: Element | null) => {
-		const focusedFigures = DOM.SelectAll({
-			attrs: [Finer.Options.ATTRIBUTE_FOCUSED]
-		}, self.GetBody());
+		const focusedFigures = SelectFocused(true);
 
 		Arr.Each(focusedFigures, focused => {
 			if (!!except && focused === except) return;
@@ -86,6 +86,7 @@ const DOMTools = (editor: Editor): IDOMTools => {
 		Manager,
 		Create,
 		RemoveAll,
+		SelectFocused,
 		Show,
 		HideAll,
 		UnsetAllFocused,

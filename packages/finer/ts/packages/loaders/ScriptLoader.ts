@@ -19,7 +19,7 @@ const ScriptLoader = (loaderName: string): IScriptLoader => {
 
 			const script = DOM.Create('script', {
 				attrs: {
-					src: Options.JoinUrl(Str.LowerCase(loaderName), name)
+					src: Options.JoinURL(Str.LowerCase(loaderName), name)
 				}
 			});
 

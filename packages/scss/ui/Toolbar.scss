@@ -66,6 +66,7 @@
 			}
 
 			&:not([disabled]):hover {
+				.#{getClassName(icon-button)}:not([no-border]),
 				.#{getClassName(color-icon)} {
 					@include padding(null, $right: calc(0.3rem - 1px) !important);
 					@include border($right: getVar(toolbar-item-select-border));
