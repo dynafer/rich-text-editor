@@ -7,8 +7,8 @@ import { IPluginTableUI } from '../UI';
 const Table = (editor: Editor, ui: IPluginTableUI) => {
 	const self = editor;
 	const DOM = self.GetRootDOM();
-	const formatUI = self.Formatter.UI;
 	const formatter = self.Formatter;
+	const formatUI = formatter.UI;
 
 	const uiName = 'Table';
 	const uiFormat: IPluginsTableFormatUI = {
@@ -109,7 +109,9 @@ const Table = (editor: Editor, ui: IPluginTableUI) => {
 	const Create = () => {
 		const iconWrap = ui.CreateIconWrap(uiFormat);
 
-		formatUI.BindOptionListEvent(self, uiName, iconWrap.Wrapper, createOptionList(iconWrap.Wrapper));
+		DOM.SetAttr(iconWrap.Button, 'no-border', '');
+
+		formatUI.BindOptionListEvent(self, uiName, iconWrap.Wrapper, iconWrap.Wrapper, createOptionList(iconWrap.Wrapper));
 
 		self.Toolbar.Add('Table', iconWrap.Wrapper);
 	};

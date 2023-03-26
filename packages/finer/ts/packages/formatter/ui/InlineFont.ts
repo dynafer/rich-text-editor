@@ -160,7 +160,7 @@ const InlineFont = (editor: Editor, detector: IFormatDetector): IFormatUIRegistr
 			DOM.SetText(selection.Label, value);
 		};
 
-		FormatUI.BindOptionListEvent(self, uiName, selection.Selection, () => {
+		FormatUI.BindOptionListEvent(self, uiName, selection.Selection, selection.Selection, () => {
 			const optionElements = createOptionElements(uiName, uiFormat, DOM.GetText(selection.Label), setLabelText);
 			createOptionsList(selection, uiName, optionElements);
 		});

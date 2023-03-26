@@ -14,7 +14,7 @@ export interface IDOMEventUtils {
 	Destroy: () => void,
 }
 
-const DOMEventUtils = () => {
+const DOMEventUtils = (): IDOMEventUtils => {
 	const boundEvents: Record<string, IBoundEvent> = {};
 
 	const propertyName = 'finer-boundary-id';

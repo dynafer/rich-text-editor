@@ -12,6 +12,12 @@ export interface IFormatUISelection {
 	Selection: HTMLElement,
 }
 
+export interface IFormatUIInputWrap {
+	Wrapper: HTMLElement,
+	Input: HTMLInputElement,
+	Placeholder: HTMLElement,
+}
+
 export interface IFormatUI {
 	readonly ACTIVE_CLASS: string,
 	readonly DISABLED_ATTRIBUTE: string,
@@ -25,13 +31,14 @@ export interface IFormatUI {
 	CreateIconGroup: () => HTMLElement,
 	CreateIconWrap: (title: string) => HTMLElement,
 	CreateHelper: (title: string) => HTMLElement,
+	CreateInputWrap: (placeholder?: string) => IFormatUIInputWrap,
+	ToggleActivateClass: (selector: HTMLElement, bActive: boolean) => void,
+	HasActiveClass: (selector: HTMLElement) => boolean,
+	ToggleDisable: (selector: HTMLElement, bDisable: boolean) => void,
 	IsDisabled: (selector: HTMLElement) => boolean,
-	BindOptionListEvent: (editor: Editor, type: string, clickable: HTMLElement, create: () => void) => void,
+	BindOptionListEvent: (editor: Editor, type: string, activable: HTMLElement, clickable: HTMLElement, create: () => void) => void,
 	SetOptionListCoordinate: (editor: Editor, name: string, selection: HTMLElement, optionList: HTMLElement) => void,
 	BindClickEvent: (selector: HTMLElement, callback: () => void) => void,
-	ToggleActivateClass: (selector: HTMLElement, bActive: boolean) => void,
-	ToggleDisable: (selector: HTMLElement, bDisable: boolean) => void,
-	HasActiveClass: (selector: HTMLElement) => boolean,
 	UnwrapSameInlineFormats: (editor: Editor, formats: IInlineFormat | IInlineFormat[]) => void,
 	RegisterCommand: (editor: Editor, name: string, command: <T>(...args: T[]) => void) => void,
 	RunCommand: <T>(editor: Editor, name: string, ...args: T[]) => void,
@@ -40,6 +47,8 @@ export interface IFormatUI {
 }
 
 const FormatUI = (): IFormatUI => {
+	const optionsActivableList: HTMLElement[] = [];
+
 	const ACTIVE_CLASS = 'active';
 	const DISABLED_ATTRIBUTE = 'disabled';
 
@@ -130,10 +139,51 @@ const FormatUI = (): IFormatUI => {
 		html: Finer.Icons.Get('AngleDown')
 	});
 
+	const CreateInputWrap = (placeholder: string = ''): IFormatUIInputWrap => {
+		const Wrapper = Create({
+			tagName: 'div',
+			type: 'input-wrap'
+		});
+
+		const Input = DOM.Create('input', {
+			attrs: {
+				type: 'text',
+				required: ''
+			}
+		});
+
+		const Placeholder = Create({
+			tagName: 'span',
+			type: 'input-placeholder',
+			html: placeholder
+		});
+
+		DOM.Insert(Wrapper, Input, Placeholder);
+
+		return {
+			Wrapper,
+			Input,
+			Placeholder,
+		};
+	};
+
+	const ToggleActivateClass = (selector: HTMLElement, bActive: boolean) => {
+		const toggle = bActive ? DOM.AddClass : DOM.RemoveClass;
+		toggle(selector, ACTIVE_CLASS);
+	};
+
+	const HasActiveClass = (selector: HTMLElement): boolean => DOM.HasClass(selector, ACTIVE_CLASS);
+
+	const ToggleDisable = (selector: HTMLElement, bDisable: boolean) => {
+		if (bDisable) return DOM.SetAttr(selector, DISABLED_ATTRIBUTE, DISABLED_ATTRIBUTE);
+
+		DOM.RemoveAttr(selector, DISABLED_ATTRIBUTE);
+	};
+
 	const IsDisabled = (selector: HTMLElement): boolean =>
 		DOM.HasAttr(selector, DISABLED_ATTRIBUTE) || DOM.HasAttr(selector.parentElement, DISABLED_ATTRIBUTE);
 
-	const BindOptionListEvent = (editor: Editor, type: string, clickable: HTMLElement, create: () => void) => {
+	const BindOptionListEvent = (editor: Editor, type: string, activable: HTMLElement, clickable: HTMLElement, create: () => void) => {
 		const self = editor;
 
 		const selectOptionList = (): Element | null => DOM.Select({
@@ -141,6 +191,8 @@ const FormatUI = (): IFormatUI => {
 		}, self.Frame.Root);
 		const hasTypeAttribute = (): boolean => !!selectOptionList() && DOM.GetAttr(selectOptionList(), 'data-type') === type;
 		const toggleEvents = (bOn: boolean, event: () => void) => {
+			Arr.Each(optionsActivableList, activableItem => ToggleActivateClass(activableItem, false));
+			ToggleActivateClass(activable, bOn);
 			const toggleRoot = bOn ? DOM.On : DOM.Off;
 			const toggleEditor = bOn ? self.DOM.On : self.DOM.Off;
 			toggleRoot(self.Frame.Toolbar, ENativeEvents.scroll, event);
@@ -155,12 +207,15 @@ const FormatUI = (): IFormatUI => {
 			DOM.Remove(selectOptionList(), true);
 		};
 
+		Arr.Push(optionsActivableList, activable);
+
 		DOM.On(clickable, ENativeEvents.click, (event: MouseEvent) => {
 			if (!!selectOptionList() && hasTypeAttribute()) return destroyOptionList();
 			PreventEvent(event);
 
 			destroyOptionList();
-			if (!IsDisabled(clickable)) create();
+			if (IsDisabled(clickable)) return;
+			create();
 			toggleEvents(true, destroyOptionList);
 		});
 	};
@@ -198,19 +253,6 @@ const FormatUI = (): IFormatUI => {
 			if (IsDisabled(selector)) return;
 			callback();
 		});
-
-	const ToggleActivateClass = (selector: HTMLElement, bActive: boolean) => {
-		const toggle = bActive ? DOM.AddClass : DOM.RemoveClass;
-		toggle(selector, ACTIVE_CLASS);
-	};
-
-	const ToggleDisable = (selector: HTMLElement, bDisable: boolean) => {
-		if (bDisable) return DOM.SetAttr(selector, DISABLED_ATTRIBUTE, DISABLED_ATTRIBUTE);
-
-		DOM.RemoveAttr(selector, DISABLED_ATTRIBUTE);
-	};
-
-	const HasActiveClass = (selector: HTMLElement): boolean => DOM.HasClass(selector, ACTIVE_CLASS);
 
 	const UnwrapSameInlineFormats = (editor: Editor, formats: IInlineFormat | IInlineFormat[]) => {
 		const unwrap = (format: IInlineFormat) => {
@@ -302,13 +344,14 @@ const FormatUI = (): IFormatUI => {
 		CreateIconGroup,
 		CreateIconWrap,
 		CreateHelper,
+		CreateInputWrap,
+		ToggleActivateClass,
+		HasActiveClass,
+		ToggleDisable,
 		IsDisabled,
 		BindOptionListEvent,
 		SetOptionListCoordinate,
 		BindClickEvent,
-		ToggleActivateClass,
-		ToggleDisable,
-		HasActiveClass,
 		UnwrapSameInlineFormats,
 		RegisterCommand,
 		RunCommand,

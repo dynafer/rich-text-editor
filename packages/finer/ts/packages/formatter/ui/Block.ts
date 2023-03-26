@@ -132,7 +132,7 @@ const Block = (editor: Editor, detector: IFormatDetector): IFormatUIRegistryUnit
 			});
 		});
 
-		FormatUI.BindOptionListEvent(self, uiName, selection.Selection, () => createOptionsList(selection, uiName, uiFormat));
+		FormatUI.BindOptionListEvent(self, uiName, selection.Selection, selection.Selection, () => createOptionsList(selection, uiName, uiFormat));
 
 		Detector.Register((paths: Node[]) => {
 			const node = FormatUtils.GetParentIfText(paths[0]);

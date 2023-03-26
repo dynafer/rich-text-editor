@@ -15,10 +15,10 @@ const EditorSetup = (editor: Editor): Promise<void> => {
 
 	const bodyId = DOM.Utils.CreateUEID('editor-body', false);
 	const editorDefaultId = DOM.Utils.CreateUEID('editor-default', false);
-	const editorDefaultCss = `<link id="${editorDefaultId}" rel="stylesheet" href="${Options.JoinUrl('css', 'skins/Editor')}">`;
+	const editorDefaultCss = `<link id="${editorDefaultId}" rel="stylesheet" href="${Options.JoinURL('css', 'skins/Editor')}">`;
 
 	const skinId = DOM.Utils.CreateUEID('skin', false);
-	const skinLink = `<link id="${skinId}" rel="stylesheet" href="${Options.JoinUrl('css', `skins/${config.Skin}/skin`)}">`;
+	const skinLink = `<link id="${skinId}" rel="stylesheet" href="${Options.JoinURL('css', `skins/${config.Skin}/skin`)}">`;
 
 	const createIframe = (): HTMLElement => {
 		const container = frame.Container as HTMLIFrameElement;

@@ -12,7 +12,10 @@ type TUploadCallback = TConfigurationCallback<IBlobList, string>;
 const ImageUploader = (editor: Editor, ui: IPluginMediaUI) => {
 	const self = editor;
 	const DOM = self.GetRootDOM();
+	const formatter = self.Formatter;
+	const formatUI = formatter.UI;
 
+	const uiName = 'Image';
 	const uiFormat: IPluginsMediaFormatUI = {
 		Title: 'Upload an image',
 		Icon: 'Image'
@@ -82,7 +85,7 @@ const ImageUploader = (editor: Editor, ui: IPluginMediaUI) => {
 		const files = BlobList(fileList);
 
 		const img = Img(self);
-		img.CreateFromCaret(files);
+		img.CreateFromFiles(files, allowedExtensions);
 		fileInput.value = '';
 
 		if (!Type.IsFunction(uploadCallback)) return;
@@ -90,12 +93,59 @@ const ImageUploader = (editor: Editor, ui: IPluginMediaUI) => {
 		uploadCallback(files);
 	});
 
-	const openDialog = () => fileInput.click();
+	const createOptionList = (wrapper: HTMLElement) =>
+		() => {
+			const optionWrapper = formatUI.CreateOptionList(uiName);
+			DOM.SetAttr(optionWrapper, 'media-url', 'true');
+			DOM.On(optionWrapper, Finer.NativeEventMap.click, event => Finer.PreventEvent(event));
+
+			const { Wrapper, Input } = formatUI.CreateInputWrap('Insert an image via URL');
+
+			const createImage = () => {
+				const img = Img(self);
+				img.CreateFromURL(Input.value);
+
+				DOM.Doc.body.click();
+			};
+
+			DOM.On(Input, Finer.NativeEventMap.keyup, e => {
+				const event = e as KeyboardEvent;
+				if (event.key !== Finer.KeyCode.Enter && event.code !== Finer.KeyCode.Enter) return;
+				createImage();
+			});
+
+			const buttonGroup = formatUI.Create({
+				tagName: 'div',
+				type: 'button-group'
+			});
+
+			const cancelButton = formatUI.Create({
+				tagName: 'button',
+				title: 'Cancel',
+				html: 'Cancel'
+			});
+			DOM.On(cancelButton, Finer.NativeEventMap.click, () => DOM.Doc.body.click());
+
+			const insertButton = formatUI.Create({
+				tagName: 'button',
+				title: 'Insert',
+				html: 'Insert'
+			});
+			DOM.On(insertButton, Finer.NativeEventMap.click, createImage);
+
+			DOM.Insert(buttonGroup, cancelButton, insertButton);
+			DOM.Insert(optionWrapper, Wrapper, buttonGroup);
+
+			DOM.Insert(self.Frame.Root, optionWrapper);
+			formatUI.SetOptionListCoordinate(self, uiName, wrapper, optionWrapper);
+			Input.focus();
+		};
 
 	const Create = () => {
 		const iconWrap = ui.CreateFormatButton(uiFormat);
 
-		ui.BindClickEvent(openDialog, iconWrap.Button);
+		ui.BindClickEvent(() => fileInput.click(), iconWrap.Button);
+		formatUI.BindOptionListEvent(self, uiName, iconWrap.Wrapper, iconWrap.Helper, createOptionList(iconWrap.Wrapper));
 
 		self.Toolbar.Add('Image', iconWrap.Wrapper);
 	};

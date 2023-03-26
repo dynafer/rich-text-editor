@@ -1,4 +1,4 @@
-import { Arr, Str } from '@dynafer/utils';
+import { Arr, Str, Type } from '@dynafer/utils';
 import Editor from '../../../packages/Editor';
 import { IBlobList } from '../utils/BlobList';
 
@@ -8,40 +8,7 @@ const Img = (editor: Editor) => {
 	const CaretUtils = self.Utils.Caret;
 	const formatter = self.Formatter;
 
-	const CreateFromCaret = (files: IBlobList) => {
-		const figures: HTMLElement[] = [];
-
-		Arr.Each(files.GetList(), file => {
-			const figure = DOM.Element.Figure.Create('img');
-
-			const image = DOM.Create('img', {
-				attrs: {
-					title: file.GetName()
-				}
-			});
-
-			const tools = self.Tools.DOM.Create('img', image);
-
-			const bFirst = Arr.IsEmpty(figures);
-
-			const reader = new FileReader();
-			reader.addEventListener('load', () => {
-				DOM.SetAttr(image, 'src', reader.result as string);
-				if (!bFirst) return;
-
-				const update = () => {
-					self.Tools.DOM.ChangePositions();
-					DOM.Off(image, Finer.NativeEventMap.load, update);
-				};
-				DOM.On(image, Finer.NativeEventMap.load, update);
-			});
-			reader.readAsDataURL(file.Get());
-
-			DOM.Insert(figure, image, tools);
-
-			Arr.Push(figures, figure);
-		});
-
+	const completeCreation = (...figures: HTMLElement[]) => {
 		self.Focus();
 
 		self.Tools.DOM.UnsetAllFocused();
@@ -78,8 +45,73 @@ const Img = (editor: Editor) => {
 		finish();
 	};
 
+	const CreateFromURL = (url: string) => {
+		const figure = DOM.Element.Figure.Create('img');
+
+		const image = DOM.Create('img', {
+			attrs: {
+				src: url
+			}
+		});
+
+		const tools = self.Tools.DOM.Create('img', image);
+
+		const loadEvent = () => {
+			self.Tools.DOM.ChangePositions();
+			DOM.Off(image, Finer.NativeEventMap.load, loadEvent);
+		};
+
+		DOM.On(image, Finer.NativeEventMap.load, loadEvent);
+		DOM.On(image, Finer.NativeEventMap.error, () => DOM.Remove(figure, true));
+
+		DOM.Insert(figure, image, tools);
+
+		completeCreation(figure);
+	};
+
+	const CreateFromFiles = (files: IBlobList, extensions: string) => {
+		const figures: HTMLElement[] = [];
+
+		Arr.Each(files.GetList(), file => {
+			if (!Str.Contains(extensions, '*') && !Str.Contains(extensions, file.GetType())) return;
+			const figure = DOM.Element.Figure.Create('img');
+
+			const image = DOM.Create('img', {
+				attrs: {
+					title: file.GetName()
+				}
+			});
+
+			const tools = self.Tools.DOM.Create('img', image);
+
+			const bFirst = Arr.IsEmpty(figures);
+
+			file.Read('DataURL', result => {
+				if (!Type.IsString(result)) return DOM.Remove(figure, true);
+
+				DOM.SetAttr(image, 'src', result);
+				DOM.On(image, Finer.NativeEventMap.error, () => DOM.Remove(figure, true));
+
+				if (!bFirst) return;
+
+				const update = () => {
+					self.Tools.DOM.ChangePositions();
+					DOM.Off(image, Finer.NativeEventMap.load, update);
+				};
+				DOM.On(image, Finer.NativeEventMap.load, update);
+			});
+
+			DOM.Insert(figure, image, tools);
+
+			Arr.Push(figures, figure);
+		});
+
+		completeCreation(...figures);
+	};
+
 	return {
-		CreateFromCaret,
+		CreateFromURL,
+		CreateFromFiles,
 	};
 };
 

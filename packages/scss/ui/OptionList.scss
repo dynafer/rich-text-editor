@@ -150,6 +150,83 @@
 			}
 		}
 
+		&[media-url='true'] {
+			@include all-padding(0.75rem);
+
+			.#{getClassName(input-wrap)} {
+				@include position(relative);
+				@include width(12rem);
+
+				input {
+					@include width(100%);
+					@include all-padding(0.5rem);
+					@include round(0.4rem);
+					@include all-border(getVar(toolbar-item-select-border));
+					@include margin(px, 2, $bottom: 2);
+					outline: none;
+
+					&:focus {
+						@include all-border(getVar(toolbar-input-focus-border), 3px);
+						@include margin(px, 0, $bottom: 0);
+					}
+				}
+
+				.#{getClassName(input-placeholder)} {
+					@include position(absolute, 0.6rem, 0.5rem);
+					@include flex($align: center);
+					@include font($color: getVar(toolbar-input-placeholder-text));
+					background: none;
+					pointer-events: none;
+					transition: all 0.2s;
+					transform-origin: 0% 0%;
+				}
+
+				input:valid + .#{getClassName(input-placeholder)},
+				input:focus + .#{getClassName(input-placeholder)} {
+					transform: scale(0.6) translate(1rem, -1.35rem);
+					background-color: #fff;
+				}
+			}
+
+			.#{getClassName(button-group)} {
+				@include flex(center);
+				@include margin(rem, 0.5);
+
+				button {
+					@include round(getVar(button-radius));
+					@include all-margin(0.25rem);
+					@include padding(rem, 0.25, 0.4, 0.25, 0.4);
+					@include font(1rem);
+					display: inline-block;
+					cursor: pointer;
+
+					&:first-child {
+						@include all-border(getVar(button-cancel-border));
+						@include font($color: getVar(button-cancel-font));
+						background-color: getVar(button-cancel-bg);
+
+						&:hover {
+							@include all-border(getVar(button-cancel-hover-border));
+							@include font($color: getVar(button-cancel-hover-font));
+							background-color: getVar(button-cancel-hover-bg);
+						}
+					}
+
+					&:last-child {
+						@include all-border(getVar(button-border));
+						@include font($color: getVar(button-font));
+						background-color: getVar(button-bg);
+
+						&:hover {
+							@include all-border(getVar(button-hover-border));
+							@include font($color: getVar(button-hover-font));
+							background-color: getVar(button-hover-bg);
+						}
+					}
+				}
+			}
+		}
+
 		.#{getClassName(item-group)} {
 			&[vertical='true'] {
 				@include flex($direction: column, $inline: true);
@@ -159,7 +236,7 @@
 			}
 		}
 
-		&:not([palette='true'], [table='true']) {
+		&:not([palette='true'], [table='true'], [media-url='true']) {
 			.#{getClassName(option-item)} {
 				@include flex($align: center);
 				@include all-padding(0.4rem);

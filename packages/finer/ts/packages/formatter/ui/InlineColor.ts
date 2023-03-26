@@ -155,7 +155,7 @@ const InlineColor = (editor: Editor, detector: IFormatDetector): IFormatUIRegist
 
 		const helper = FormatUI.CreateHelper(Title);
 
-		FormatUI.BindOptionListEvent(self, uiName, helper, () => createPalette(uiName, uiFormat, wrapper));
+		FormatUI.BindOptionListEvent(self, uiName, wrapper, helper, () => createPalette(uiName, uiFormat, wrapper));
 
 		return helper;
 	};
