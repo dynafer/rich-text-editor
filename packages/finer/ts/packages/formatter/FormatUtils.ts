@@ -1,11 +1,10 @@
 import { NodeType } from '@dynafer/dom-control';
 import { Arr, Obj, Str, Type } from '@dynafer/utils';
-import Options from '../../Options';
 import DOM from '../dom/DOM';
 import Editor from '../Editor';
 import { ICaretData } from '../editorUtils/caret/CaretUtils';
 import { IRangeUtils } from '../editorUtils/caret/RangeUtils';
-import { BlockFormatTags, TableCellSet, TableSelector } from './Format';
+import { BlockFormatTags } from './Format';
 
 export type TConfigOption = string | string[] | Record<string, string>;
 
@@ -48,7 +47,6 @@ export interface IFormatUtils {
 	RunFormatting: (editor: Editor, toggle: () => void) => void,
 	SplitTextNode: (editor: Editor, node: Node, start: number, end: number) => Node | null,
 	GetStyleSelectorMap: (styles: Record<string, string>, value?: string) => (string | Record<string, string>)[],
-	GetTableItems: (editor: Editor, bSelected: boolean, table?: Node) => Node[],
 	ExceptNodes: (editor: Editor, node: Node, root: Node, bPrevious?: boolean) => Node[],
 	SerialiseWithProcessors: (editor: Editor, options: IProcessorOption) => void,
 	CleanDirty: (editor: Editor, caret: ICaretData) => void,
@@ -105,7 +103,7 @@ const FormatUtils = (): IFormatUtils => {
 
 	const createMarkers = (editor: Editor): TCaretPath[] => {
 		const self = editor;
-		if (self.DOM.Select({ tagName: TableSelector, attrs: [Options.ATTRIBUTE_SELECTED] }, self.GetBody())) return [];
+		if (!Arr.IsEmpty(DOM.Element.Table.GetSelectedCells(self))) return [];
 
 		const CaretUtils = self.Utils.Caret;
 		const carets = CaretUtils.Get();
@@ -350,37 +348,24 @@ const FormatUtils = (): IFormatUtils => {
 		return nodes;
 	};
 
-	const GetTableItems = (editor: Editor, bSelected: boolean, table?: Node): Node[] => {
-		const self = editor;
-
-		return self.DOM.SelectAll({
-			tagName: [...TableCellSet],
-			attrs: [Options.ATTRIBUTE_SELECTED],
-			bNot: !bSelected,
-		}, table);
-	};
-
 	const ExceptNodes = (editor: Editor, node: Node, root: Node, bPrevious: boolean = false): Node[] => {
 		const self = editor;
 
-		const tableNode = self.DOM.Closest(GetParentIfText(root), TableSelector);
+		const tableNode = DOM.Element.Table.GetClosest(GetParentIfText(root));
 		if (!!tableNode) {
 			const nodes: Node[] = [];
-			Arr.Push(nodes, ...GetTableItems(self, false, tableNode), ...getNodesInRoot(node, root, bPrevious));
+			Arr.Push(nodes, ...DOM.Element.Table.GetSelectedCells(self, tableNode, false), ...getNodesInRoot(node, root, bPrevious));
 			return nodes;
 		}
 
 		return getNodesInRoot(node, root, bPrevious);
 	};
 
-	const leaveProcessorIfInFigure = (editor: Editor, caret: ICaretData): boolean => {
+	const leaveProcessorIfFigure = (editor: Editor, caret: ICaretData): boolean => {
 		const self = editor;
 
 		const element = GetParentIfText(caret.Start.Node);
 		if (!DOM.Element.Figure.IsFigure(element)) return false;
-
-		const figureType = DOM.GetAttr(element, 'type');
-		if (figureType === TableSelector) return false;
 
 		self.Utils.Shared.DispatchCaretChange([element]);
 		return true;
@@ -394,7 +379,7 @@ const FormatUtils = (): IFormatUtils => {
 		if (tableProcessor(bWrap, value)) return;
 
 		Arr.Each(CaretUtils.Get(), caret => {
-			if (leaveProcessorIfInFigure(self, caret)) return;
+			if (leaveProcessorIfFigure(self, caret)) return;
 
 			Arr.Each(processors, (option, exit) => {
 				if (!option.processor(bWrap, caret, value)) return;
@@ -468,7 +453,6 @@ const FormatUtils = (): IFormatUtils => {
 		RunFormatting,
 		SplitTextNode,
 		GetStyleSelectorMap,
-		GetTableItems,
 		ExceptNodes,
 		SerialiseWithProcessors,
 		CleanDirty,

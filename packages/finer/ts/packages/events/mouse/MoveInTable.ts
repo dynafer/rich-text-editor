@@ -1,7 +1,6 @@
 import Options from '../../../Options';
 import { ADJUSTABLE_LINE_HALF_SIZE, CreateAdjustableLineSize } from '../../dom/tools/Utils';
 import Editor from '../../Editor';
-import { TableCellSelector, TableSelector } from '../../formatter/Format';
 
 const MoveInTable = (editor: Editor, event: MouseEvent) => {
 	const self = editor;
@@ -11,10 +10,10 @@ const MoveInTable = (editor: Editor, event: MouseEvent) => {
 
 	const target = event.target as Element;
 
-	const { Figure, FigureType, FigureElement } = DOM.Element.Figure.Find<HTMLElement>(target);
-	if (!Figure || FigureType !== TableSelector || !FigureElement) return;
+	const { Figure, FigureElement } = DOM.Element.Figure.Find<HTMLElement>(target);
+	if (!Figure || !FigureElement || !DOM.Element.Table.IsTable(FigureElement)) return;
 
-	const targetCell = DOM.Closest<HTMLElement>(target, TableCellSelector);
+	const targetCell = DOM.Element.Table.GetClosestCell<HTMLElement>(target);
 	if (!targetCell) return;
 
 	const selectAdjustable = (type: 'width' | 'height'): HTMLElement => DOM.Select<HTMLElement>({

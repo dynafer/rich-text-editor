@@ -14,7 +14,7 @@ export interface IFigure {
 		<T extends Element>(from: EventTarget | Node): IFoundFigure<T>;
 		(from: EventTarget | Node): IFoundFigure<Element>;
 	},
-	IsFigure: <T extends Node>(selector?: T | EventTarget | null) => boolean,
+	IsFigure: (selector?: Node | EventTarget | null) => boolean,
 	GetClosest: <T extends Node>(selector?: T | EventTarget | null) => HTMLElement | T | null,
 }
 
@@ -46,7 +46,7 @@ const Figure = (): IFigure => {
 		return found;
 	};
 
-	const IsFigure = <T extends Node>(selector?: T | EventTarget | null): boolean =>
+	const IsFigure = (selector?: Node | EventTarget | null): boolean =>
 		!NodeType.IsNode(selector) ? false : DOMUtils.GetNodeName(selector) === Selector;
 
 	const GetClosest = <T extends Node>(selector?: T | EventTarget | null): HTMLElement | T | null =>

@@ -1,12 +1,9 @@
 import { Str } from '@dynafer/utils';
 import Figure from '../dom/elements/Figure';
+import Table from '../dom/elements/Table';
 import { EFormatType, TFormat } from './FormatType';
 
-export const FigureNotTableSelector = Str.Merge(Figure.Selector, ':not([type="table"])');
-export const TableSelector = 'table';
-export const TableRowSelector = 'tr';
-export const TableCellSet = new Set(['th', 'td']);
-export const TableCellSelector = Str.Join(',', ...TableCellSet);
+export const FigureNotTableSelector = Str.Merge(Figure.Selector, `:not([type="${Table.Selector}"])`);
 export const ListSet = new Set(['ol', 'ul']);
 export const ListSelector = Str.Join(',', ...ListSet);
 export const ListItemSelector = 'li';
@@ -14,11 +11,11 @@ export const FigureElementSet = new Set(['img', 'audio', 'video']);
 
 export const BlockFormatTags = {
 	Figures: new Set([Figure.Selector, 'img', 'audio', 'video']),
-	Table: new Set([TableSelector]),
-	TableItems: new Set([...TableCellSet, TableRowSelector]),
+	Table: new Set([Table.Selector]),
+	TableItems: new Set([...Table.CellSet, Table.RowSelector]),
 	Block: new Set(['p', 'div', 'blockquote', 'pre', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6']),
 	List: new Set([ListItemSelector, ...ListSet]),
-	FollowingItems: new Set([ListItemSelector, ...TableCellSet]),
+	FollowingItems: new Set([ListItemSelector, ...Table.CellSet]),
 };
 
 export const AllDisableList = new Set([FigureNotTableSelector, ...FigureElementSet]);

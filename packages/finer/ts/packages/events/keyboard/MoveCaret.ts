@@ -5,11 +5,16 @@ import { BlockFormatTags, ListItemSelector } from '../../formatter/Format';
 import FormatUtils from '../../formatter/FormatUtils';
 import { PreventEvent } from '../EventSetupUtils';
 import { EKeyCode } from './KeyboardUtils';
+import MoveInTable from './MoveInTable';
+import MoveUtils from './MoveUtils';
 
 const MoveCaret = (editor: Editor, event: KeyboardEvent) => {
 	const self = editor;
 	const DOM = self.DOM;
 	const CaretUtils = self.Utils.Caret;
+
+	const bTab = event.key === EKeyCode.Tab || event.code === EKeyCode.Tab;
+	const bShift = event.shiftKey;
 
 	const bUp = event.key === EKeyCode.ArrowUp || event.code === EKeyCode.ArrowUp;
 	const bDown = event.key === EKeyCode.ArrowDown || event.code === EKeyCode.ArrowDown;
@@ -18,7 +23,10 @@ const MoveCaret = (editor: Editor, event: KeyboardEvent) => {
 	const bBackspace = event.key === EKeyCode.Backspace || event.code === EKeyCode.Backspace;
 	const bDelete = event.key === EKeyCode.Delete || event.code === EKeyCode.Delete;
 
-	if (!bUp && !bDown && !bLeft && !bRight && !bBackspace && !bDelete) return;
+	const bMoveLeft = (bShift && bTab) || bLeft;
+	const bMoveRight = (!bShift && bTab) || bRight;
+
+	if (!bUp && !bDown && !bMoveLeft && !bMoveRight && !bBackspace && !bDelete) return;
 
 	const bBackward = bUp || bLeft || bBackspace;
 
@@ -27,46 +35,42 @@ const MoveCaret = (editor: Editor, event: KeyboardEvent) => {
 	const caret = CaretUtils.Get()[0];
 	if (!caret || caret.IsRange()) return CaretUtils.Clean();
 
-	const updateRange = (node: Node, offset: number) => {
-		PreventEvent(event);
-		const newRange = self.Utils.Range();
-		newRange.SetStartToEnd(node, offset, offset);
-		CaretUtils.UpdateRanges(newRange);
-
-		self.Utils.Shared.DispatchCaretChange();
-	};
+	const moveUtils = MoveUtils(self, event);
 
 	const moveOrDeleteInFigure = (): boolean => {
 		if (!DOM.Element.Figure.IsFigure(caret.Start.Node)) return false;
+
+		const { Figure, FigureType, FigureElement } = DOM.Element.Figure.Find<HTMLElement>(caret.Start.Node);
+		if (!Figure || !FigureType || !FigureElement) return false;
+
 		if (bBackspace || bDelete) {
 			PreventEvent(event);
-			DOM.Remove(caret.Start.Node, true);
+			const bPrevious = !!Figure.previousElementSibling;
+			const sibling = Figure.previousElementSibling ?? Figure.nextElementSibling;
+			if (!sibling) {
+				const newParagraph = self.CreateEmptyParagraph();
+				DOM.InsertAfter(Figure, newParagraph);
+				moveUtils.UpdateRange(DOM.Utils.GetFirstChild(newParagraph) as Element, 0);
+			} else if (DOM.Element.Figure.IsFigure(sibling)) {
+				moveUtils.UpdateRange(sibling, bPrevious ? 1 : 0);
+			} else {
+				moveUtils.UpdateRangeWithDescendants(sibling, sibling, bPrevious);
+			}
+			DOM.Remove(Figure, true);
 			return true;
 		}
 
-		const figure = caret.Start.Node as Element;
-		if (bLeft && caret.Start.Offset !== 0) {
-			updateRange(figure, 0);
+		if (DOM.Element.Table.IsTable(FigureElement)) return false;
+
+		if (
+			(bLeft && caret.Start.Offset !== 0)
+			|| (bRight && caret.Start.Offset !== 1)
+		) {
+			moveUtils.UpdateRange(Figure, bLeft ? 0 : 1);
 			return true;
 		}
 
-		if (bRight && caret.Start.Offset !== 1) {
-			updateRange(figure, 1);
-			return true;
-		}
-
-		const target = bBackward ? figure.previousElementSibling : figure.nextElementSibling;
-		if (!target) return false;
-
-		const getChild = bBackward ? DOM.Utils.GetLastChild : DOM.Utils.GetFirstChild;
-		const child = getChild(target, true);
-		if (!child) return false;
-
-		const offset = bBackward
-			? (NodeType.IsText(child) ? child.length : 0)
-			: 0;
-
-		updateRange(child, offset);
+		moveUtils.UpdateRangeWithFigure(Figure, bBackward);
 		return true;
 	};
 
@@ -82,6 +86,7 @@ const MoveCaret = (editor: Editor, event: KeyboardEvent) => {
 		if (!targetChild
 			|| (bBackward && caret.Start.Offset !== 0)
 			|| (!bBackward && textLength > caret.Start.Offset)
+			|| !moveUtils.IsLastOffset(caret.Start.Node, caret.Start.Offset, bBackward)
 		) return;
 
 		const listItem = DOM.Closest(blockNode, ListItemSelector);
@@ -105,12 +110,18 @@ const MoveCaret = (editor: Editor, event: KeyboardEvent) => {
 		if (!DOM.Element.Figure.IsFigure(checker)) return;
 
 		const offset = bBackward ? 1 : 0;
-		updateRange(checker, offset);
+		moveUtils.UpdateRange(checker, offset);
 	};
 
-	if (moveOrDeleteInFigure()) return CaretUtils.Clean();
+	const exit = () => {
+		CaretUtils.Clean();
+		self.Utils.Shared.DispatchCaretChange();
+	};
+
+	if (moveOrDeleteInFigure()) return exit();
+	if (MoveInTable(self, event, caret)) return exit();
 	moveOrDeleteBeforeFigure();
-	CaretUtils.Clean();
+	exit();
 };
 
 export default MoveCaret;

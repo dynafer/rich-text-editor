@@ -20,11 +20,7 @@ const HoverFigure = (editor: Editor, event: MouseEvent) => {
 	const { Figure } = DOM.Element.Figure.Find<HTMLElement>(event.composedPath()[0]);
 	if (!Figure) return DOMTools.HideAll();
 
-	const tools = DOM.SelectAll({
-		attrs: {
-			dataFixed: 'dom-tool'
-		}
-	}, Figure);
+	const tools = DOMTools.Manager.SelectTools(true, Figure);
 
 	let target: HTMLElement | undefined;
 	Arr.Each(tools, tool => {

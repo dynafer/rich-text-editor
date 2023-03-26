@@ -1,7 +1,6 @@
 import { NodeType } from '@dynafer/dom-control';
 import { Arr } from '@dynafer/utils';
 import Editor from '../Editor';
-import { TableCellSelector, TableSelector } from '../formatter/Format';
 import FormatUtils from '../formatter/FormatUtils';
 
 interface ISplitedLines {
@@ -23,8 +22,10 @@ const SharedUtils = (editor: Editor): ISharedUtils => {
 
 		const carets = self.Utils.Caret.Get();
 
-		if ((newPaths.length === 1 || !!DOM.Select(TableSelector, newPaths[0])) && carets[0])
-			Arr.Push(newPaths, ...Arr.MergeUnique(carets[0].Start.Path, carets[0].End.Path));
+		if (
+			(newPaths.length === 1 || !!DOM.Select(DOM.Element.Table.Selector, newPaths[0]))
+			&& carets[0]
+		) Arr.Push(newPaths, ...Arr.MergeUnique(carets[0].Start.Path, carets[0].End.Path));
 
 		if (!Arr.IsEmpty(newPaths)) return self.Dispatch('caret:change', newPaths);
 
@@ -33,7 +34,7 @@ const SharedUtils = (editor: Editor): ISharedUtils => {
 			return self.Dispatch('caret:change', newPaths);
 		}
 
-		const selectedCells = self.Formatter.Utils.GetTableItems(self, true);
+		const selectedCells = DOM.Element.Table.GetSelectedCells(self);
 		if (Arr.IsEmpty(selectedCells)) return self.Dispatch('caret:change', newPaths);
 
 		Arr.Push(newPaths, ...DOM.GetChildren(selectedCells[0]));
@@ -49,7 +50,7 @@ const SharedUtils = (editor: Editor): ISharedUtils => {
 			EndBlock,
 		};
 
-		const until = DOM.Closest(FormatUtils.GetParentIfText(node), TableCellSelector) ?? self.GetBody();
+		const until = DOM.Element.Table.GetClosestCell(FormatUtils.GetParentIfText(node)) ?? self.GetBody();
 		const nextText = node.splitText(offset);
 		const nextTextParent = nextText.parentNode;
 

@@ -8,10 +8,6 @@ import FormatRegistry, { IFormatRegistry } from './ui/FormatRegistry';
 
 export interface IFormatter {
 	Formats: {
-		TableSelector: string,
-		TableRowSelector: string,
-		TableCellSet: Set<string>,
-		TableCellSelector: string,
 		ListItemSelector: string,
 		ListSet: Set<string>,
 		ListSelector: string,
@@ -40,10 +36,6 @@ const Formatter = (editor: Editor): IFormatter => {
 
 	return {
 		Formats: {
-			TableSelector: Format.TableSelector,
-			TableRowSelector: Format.TableRowSelector,
-			TableCellSet: Format.TableCellSet,
-			TableCellSelector: Format.TableCellSelector,
 			ListItemSelector: Format.ListItemSelector,
 			ListSet: Format.ListSet,
 			ListSelector: Format.ListSelector,

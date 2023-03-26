@@ -13,9 +13,7 @@ const Wrapper = (editor: Editor, format: IPluginListFormat) => {
 	const blockFormats = formatter.Formats.BlockFormatTags;
 	const { Tag, Switchable, Following } = format;
 
-	const tableSelector = formatter.Formats.TableSelector;
-	const tableCellSelector = formatter.Formats.TableCellSelector;
-	const tableAndListSelector = Str.Join(',', ...[tableSelector, ...blockFormats.List]);
+	const tableAndListSelector = Str.Join(',', ...[DOM.Element.Table.Selector, ...blockFormats.List]);
 
 	const createListItem = (...nodes: Node[]): HTMLElement => {
 		const newListItem = DOM.Create(Following);
@@ -150,7 +148,7 @@ const Wrapper = (editor: Editor, format: IPluginListFormat) => {
 			return wrapBlock(blockNode);
 		}
 
-		const table = DOM.Closest(target, tableSelector);
+		const table = DOM.Element.Table.GetClosest(target);
 		if (!!table) return;
 
 		const follower = DOM.Closest(target, Following);
@@ -235,9 +233,9 @@ const Wrapper = (editor: Editor, format: IPluginListFormat) => {
 			return wrapBlock(blockNode);
 		}
 
-		const table = DOM.Closest(startNode, tableSelector);
+		const table = DOM.Element.Table.GetClosest(startNode);
 		if (!!table) {
-			const selectedTableItems = formatUtils.GetTableItems(self, true, table);
+			const selectedTableItems = DOM.Element.Table.GetSelectedCells(self, table);
 			if (!Arr.IsEmpty(selectedTableItems)) return wrapNodesInTable(selectedTableItems);
 		}
 
@@ -268,7 +266,7 @@ const Wrapper = (editor: Editor, format: IPluginListFormat) => {
 			if (bStart) return;
 		}
 
-		const bRootTableCell = DOM.Closest(startNode, tableCellSelector) === DOM.Closest(endNode, tableCellSelector);
+		const bRootTableCell = DOM.Element.Table.GetClosestCell(startNode) === DOM.Element.Table.GetClosestCell(endNode);
 		if (!bRootTableCell) return;
 
 		wrapNodesInTableCell(caret.SameRoot, caret.Start.Node, caret.End.Node);

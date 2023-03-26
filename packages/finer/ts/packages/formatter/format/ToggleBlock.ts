@@ -1,7 +1,6 @@
 import { Arr, Str } from '@dynafer/utils';
 import Editor from '../../Editor';
 import { ICaretData } from '../../editorUtils/caret/CaretUtils';
-import { TableSelector } from '../Format';
 import { IBlockFormat } from '../FormatType';
 import FormatUtils from '../FormatUtils';
 
@@ -29,7 +28,7 @@ const ToggleBlock = (editor: Editor, format: IBlockFormat): IToggleBlock => {
 	};
 
 	const tableProcessor = (bWrap: boolean): boolean => {
-		const cells = FormatUtils.GetTableItems(self, true);
+		const cells = DOM.Element.Table.GetSelectedCells(self);
 		if (cells.length === 0) return false;
 
 		Arr.Each(cells, cell => Toggler.ToggleRecursive(bWrap, format, cell));
@@ -43,7 +42,7 @@ const ToggleBlock = (editor: Editor, format: IBlockFormat): IToggleBlock => {
 		const startElement = FormatUtils.GetParentIfText(caret.Start.Node);
 
 		if (
-			(!DOM.Closest(startElement, TableSelector) && !DOM.Closest(startElement, addInsideSelector))
+			(!DOM.Element.Table.GetClosest(startElement) && !DOM.Closest(startElement, addInsideSelector))
 			|| caret.Start.Node === caret.End.Node
 		) {
 			Toggler.Toggle(bWrap, format, DOM.GetChildNodes(caret.Start.Node, false)[0] ?? caret.Start.Node);

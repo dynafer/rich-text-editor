@@ -11,7 +11,7 @@ const InputUtils = (editor: Editor) => {
 	const DOM = self.DOM;
 
 	const EditFigures = (fragment: DocumentFragment) => {
-		const figures = DOM.SelectAll({
+		const figures = DOM.SelectAll<HTMLElement>({
 			tagName: DOM.Element.Figure.Selector
 		}, fragment);
 
@@ -25,7 +25,7 @@ const InputUtils = (editor: Editor) => {
 		}
 		currentFigure = undefined;
 
-		const figureElements = DOM.SelectAll({
+		const figureElements = DOM.SelectAll<HTMLElement>({
 			tagName: Array.from(FigureElementFormats)
 		}, fragment);
 
@@ -44,11 +44,7 @@ const InputUtils = (editor: Editor) => {
 
 			DOM.CloneAndInsert(figure, true, currentElement);
 
-			const tools = DOM.SelectAll({
-				attrs: {
-					dataFixed: 'dom-tool'
-				}
-			}, figure);
+			const tools = self.Tools.DOM.Manager.SelectTools(true, figure);
 
 			Arr.Each(tools, tableTool => DOM.Remove(tableTool, true));
 

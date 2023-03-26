@@ -11,10 +11,6 @@ const Unwrapper = (editor: Editor, format: IPluginListFormat) => {
 	const formatUtils = formatter.Utils;
 	const { Tag, UnsetSwitcher } = format;
 
-	const tableSelector = formatter.Formats.TableSelector;
-	const tableItemsSelector = formatter.Formats.TableCellSelector;
-	const tableRowSelector = formatter.Formats.TableRowSelector;
-
 	const unwrap = (oldList: Node, start: Node, end: Node, bTable: boolean = false) => {
 		const startList = DOM.Create(Tag);
 		const middleNodes: Node[] = [];
@@ -87,7 +83,7 @@ const Unwrapper = (editor: Editor, format: IPluginListFormat) => {
 		if (!node) return;
 		const target = formatUtils.GetParentIfText(node);
 
-		const table = DOM.Closest(target, tableSelector);
+		const table = DOM.Element.Table.GetClosest(target);
 		if (!!table) return;
 
 		const oldList = DOM.Closest(target, Tag);
@@ -96,7 +92,7 @@ const Unwrapper = (editor: Editor, format: IPluginListFormat) => {
 		const children = DOM.GetChildNodes(oldList);
 		const startChild = !bFromFirst ? node : children[0];
 		const endChild = !bFromFirst ? children[children.length - 1] : node;
-		unwrap(oldList, startChild, endChild, !!DOM.Closest(target, tableSelector));
+		unwrap(oldList, startChild, endChild, false);
 	};
 
 	const processSameLine = (caret: ICaretData) => {
@@ -105,17 +101,15 @@ const Unwrapper = (editor: Editor, format: IPluginListFormat) => {
 		const target = formatUtils.GetParentIfText(caret.Start.Node);
 
 		const oldList = DOM.Closest(target, Tag);
-		const table = DOM.Closest(target, tableSelector);
+		const table = DOM.Element.Table.GetClosest(target);
 		if (!oldList && !table) return;
 
 		if (table) {
-			const selectedTableItems = formatUtils.GetTableItems(self, true, table);
+			const selectedTableItems = DOM.Element.Table.GetSelectedCells(self, table);
 			if (!Arr.IsEmpty(selectedTableItems)) return unwrapNodesInTable(selectedTableItems);
 		}
 
-		const tableCell = DOM.Closest(target, tableItemsSelector);
-		if (DOM.Utils.GetNodeName(tableCell) === tableRowSelector) return;
-
+		const tableCell = DOM.Element.Table.GetClosestCell(target);
 		if (!tableCell && oldList) return unwrap(oldList, caret.Start.Node, caret.End.Node);
 
 		if (!tableCell) return;

@@ -3,7 +3,6 @@ import { Arr, Str } from '@dynafer/utils';
 import Options from '../../../../Options';
 import Editor from '../../../Editor';
 import { ENativeEvents, PreventEvent } from '../../../events/EventSetupUtils';
-import { TableCellSelector, TableSelector } from '../../../formatter/Format';
 import FormatUtils from '../../../formatter/FormatUtils';
 import { CreateMovableHorizontalSize } from '../Utils';
 import { CreateCurrentPoint, MoveToCurrentPoint } from './TableToolsUtils';
@@ -29,8 +28,10 @@ const Movable = (editor: Editor, table: HTMLElement): HTMLElement => {
 		const { Figure, FigureElement } = DOM.Element.Figure.Find<HTMLElement>(event.target as Node);
 		if (!Figure || !FigureElement) return;
 
-		const cells = DOM.SelectAll(TableCellSelector, FigureElement);
+		const cells = DOM.SelectAll(DOM.Element.Table.CellSelector, FigureElement);
 		Arr.Each(cells, cell => DOM.SetAttr(cell, Options.ATTRIBUTE_SELECTED, ''));
+
+		DOM.SetAttr(Figure, Options.ATTRIBUTE_FOCUSED, '');
 
 		self.Utils.Shared.DispatchCaretChange();
 	});
@@ -49,8 +50,10 @@ const Movable = (editor: Editor, table: HTMLElement): HTMLElement => {
 			savedPoint = undefined;
 		};
 
-		const cells = DOM.SelectAll(TableCellSelector, FigureElement);
+		const cells = DOM.SelectAll(DOM.Element.Table.CellSelector, FigureElement);
 		Arr.Each(cells, cell => DOM.SetAttr(cell, Options.ATTRIBUTE_SELECTED, ''));
+
+		DOM.SetAttr(Figure, Options.ATTRIBUTE_FOCUSED, '');
 
 		const stopDragEvent = (e: InputEvent) => {
 			PreventEvent(e);
@@ -61,7 +64,7 @@ const Movable = (editor: Editor, table: HTMLElement): HTMLElement => {
 			const caret = CaretUtils.Get()[0];
 			if (!caret) return moveToSavedPoint();
 
-			const closestTable = DOM.Closest(FormatUtils.GetParentIfText(caret.Start.Node), TableSelector);
+			const closestTable = DOM.Element.Table.GetClosest(FormatUtils.GetParentIfText(caret.Start.Node));
 			if (closestTable === FigureElement) return moveToSavedPoint();
 
 			const bPointLine = caret.SameRoot === caret.Start.Path[0];

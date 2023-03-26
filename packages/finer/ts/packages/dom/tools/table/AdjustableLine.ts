@@ -2,7 +2,7 @@ import { Arr } from '@dynafer/utils';
 import Editor from '../../../Editor';
 import { ENativeEvents, PreventEvent } from '../../../events/EventSetupUtils';
 import { ADJUSTABLE_LINE_HALF_SIZE, GetClientSize, RegisterAdjustingEvents } from '../Utils';
-import { CreateCurrentPoint, CreateFakeTable, GetTableGridWithIndex, MoveToCurrentPoint } from './TableToolsUtils';
+import { CreateCurrentPoint, CreateFakeTable, MoveToCurrentPoint } from './TableToolsUtils';
 
 const AdjustableLine = (editor: Editor, table: HTMLElement): HTMLElement => {
 	const self = editor;
@@ -59,12 +59,12 @@ const AdjustableLine = (editor: Editor, table: HTMLElement): HTMLElement => {
 
 		DOM.SetAttr(adjustItem, 'data-adjusting', '');
 
-		const tableGrid = GetTableGridWithIndex(self, FigureElement);
+		const tableGrid = DOM.Element.Table.GetTableGridWithIndex(FigureElement);
 
 		const fakeTable = CreateFakeTable(self, FigureElement);
 		DOM.Insert(adjustableLineGroup, fakeTable);
 
-		const fakeTableGrid = GetTableGridWithIndex(self, fakeTable);
+		const fakeTableGrid = DOM.Element.Table.GetTableGridWithIndex(fakeTable);
 
 		const sizeStyleName = bWidth ? 'width' : 'height';
 		const positionStyleName = bWidth ? 'left' : 'top';
