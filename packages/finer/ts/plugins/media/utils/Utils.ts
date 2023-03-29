@@ -1,4 +1,4 @@
-import { Str } from '@dynafer/utils';
+import { Arr, Str, Type } from '@dynafer/utils';
 import { IFileSize } from './Type';
 
 export const FILE_SIZE_UNITS = ['byte', 'KB', 'MB', 'GB', 'TB'];
@@ -34,4 +34,38 @@ export const CalculateFileSize = (type: string = 'auto', size: number = 0) => {
 	}
 
 	return fileSize;
+};
+
+export const GetAllowedExtensions = (mimeTypes: string[], accept?: string | string[]): string => {
+	if (!accept || accept === 'all') return 'image/*';
+
+	const extensions: string[] = Type.IsArray(accept) ? accept : [];
+	const availableExtensions: string[] = [];
+
+	if (Type.IsString(accept)) {
+		let copiedAccept = accept;
+		if (Str.Contains(accept, ',')) copiedAccept = copiedAccept.replace(/\s+/g, '');
+		copiedAccept = copiedAccept.replace(/\s+/g, ',');
+		Arr.Push(extensions, ...copiedAccept.split(','));
+	}
+
+	Arr.Each(extensions, extension => {
+		if (!Type.IsString(extension)) return;
+
+		const escapedString = Str.LowerCase(extension.replace('image/', '').trim());
+
+		Arr.Each(mimeTypes, (mimeType, exit) => {
+			if (Arr.Contains(availableExtensions, mimeType) || (!Str.Contains(mimeType, escapedString) && !Str.Contains(escapedString, mimeType))) return;
+			Arr.Push(availableExtensions, mimeType);
+			exit();
+		});
+	});
+
+	if (mimeTypes.length === availableExtensions.length || Arr.IsEmpty(availableExtensions)) return 'image/*';
+
+	for (let index = 0, length = availableExtensions.length; index < length; ++index) {
+		availableExtensions[index] = Str.Merge('image/', availableExtensions[index]);
+	}
+
+	return Str.Join(',', ...availableExtensions);
 };

@@ -4,8 +4,9 @@ import DOM from './dom/DOM';
 import { EToolbarStyle } from './EditorToolbar';
 
 export type TConfigurationCallback<A, R> = ((...args: A[]) => R);
-export type TConfigurationCommon<A, R> = string | string[] | TConfigurationCallback<A, R> | undefined;
-type TConfigurationKey<A = unknown, R = unknown> = TConfigurationCommon<A, R> | Record<string, TConfigurationCommon<A, R>> | HTMLElement;
+export type TConfigurationCommon<A, R> = string | string[] | TConfigurationCallback<A, R> | RegExp | undefined;
+export type TConfigurationMap<A, R> = Record<string, TConfigurationCommon<A, R>>;
+type TConfigurationKey<A = unknown, R = unknown> = TConfigurationCommon<A, R> | TConfigurationMap<A, R> | TConfigurationMap<A, R>[] | HTMLElement | RegExp;
 
 export interface IEditorConfiguration {
 	selector?: HTMLElement,

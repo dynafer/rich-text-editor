@@ -1,13 +1,13 @@
-import ImageAdjustableEdge from './image/AdjustableEdge';
-import ImageAdjustableLine from './image/AdjustableLine';
+import MediaAdjustableEdge from './media/AdjustableEdge';
+import MediaAdjustableLine from './media/AdjustableLine';
 import TableAdjustableEdge from './table/AdjustableEdge';
 import TableAdjustableLine from './table/AdjustableLine';
 import TableMovable from './table/Movable';
 
 export default {
-	Image: {
-		name: 'img',
-		partAttachers: [ImageAdjustableLine, ImageAdjustableEdge]
+	Media: {
+		name: 'media',
+		partAttachers: [MediaAdjustableLine, MediaAdjustableEdge]
 	},
 	Table: {
 		name: 'table',

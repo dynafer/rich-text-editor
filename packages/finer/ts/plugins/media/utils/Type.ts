@@ -7,7 +7,7 @@ export interface IPluginsMediaFormatUI {
 	Icon: string,
 }
 
-export interface IPluginImageMenuFormatUI {
+export interface IPluginMediaMenuFormatUI {
 	Name: string,
 	Title: string,
 	Icon: string,

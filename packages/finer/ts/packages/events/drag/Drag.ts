@@ -1,11 +1,11 @@
 import Editor from '../../Editor';
 import { ENativeEvents, Setup } from '../EventSetupUtils';
-import DragImage from './DragImage';
+import DragMedia from './DragMedia';
 
 const Drag = (editor: Editor) => {
 	const self = editor;
 
-	Setup(self, ENativeEvents.dragstart, DragImage);
+	Setup(self, ENativeEvents.dragstart, DragMedia);
 };
 
 export default Drag;

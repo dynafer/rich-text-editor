@@ -1,9 +1,12 @@
-import { Arr } from '@dynafer/utils';
+import { Arr, Type } from '@dynafer/utils';
 import Editor from '../../packages/Editor';
-import ImageMenuEvents from './events/ImageMenuEvents';
+import { TConfigurationMap } from '../../packages/EditorConfigure';
+import MediaMenuEvents from './events/MediaMenuEvents';
 import UI from './UI';
-import ImageMenu from './ui/ImageMenu';
 import ImageUploader from './ui/ImageUploader';
+import MediaInserter from './ui/MediaInserter';
+import MediaMenu from './ui/MediaMenu';
+import URLMatcher from './utils/URLMatcher';
 
 const Setup = (editor: Editor) => {
 	const self = editor;
@@ -13,21 +16,31 @@ const Setup = (editor: Editor) => {
 
 	const ui = UI(self);
 
-	const formatNames = ['Image'];
+	const formatNames = ['Image', 'Media'];
+
+	const parts = MediaMenu(self, ui);
+	toolsManager.Attach({
+		name: 'media',
+		partAttachers: [parts.Create],
+		partPositionListeners: [parts.ChangePosition]
+	});
+	MediaMenuEvents(self).Register();
+
+	if (Type.IsArray(self.Config.MediaUrlPatterns)) {
+		const matchers = self.Config.MediaUrlPatterns as TConfigurationMap<string, string>[];
+		Arr.Each(matchers, matcher => URLMatcher.Add(matcher));
+	}
 
 	const createUi = <T = string>(name: T) => {
 		if (!formatUtils.HasFormatName(name as string, formatNames)) return;
 		const uiName = formatUtils.GetFormatName(name as string, formatNames);
+
 		switch (uiName) {
-			case 'Image':
+			case formatNames[0]:
 				ImageUploader(self, ui).Create();
-				const parts = ImageMenu(self, ui);
-				toolsManager.Attach({
-					name: 'img',
-					partAttachers: [parts.Create],
-					partPositionListeners: [parts.ChangePosition]
-				});
-				ImageMenuEvents(self).Register();
+				break;
+			case formatNames[1]:
+				MediaInserter(self, ui).Create();
 				break;
 		}
 	};

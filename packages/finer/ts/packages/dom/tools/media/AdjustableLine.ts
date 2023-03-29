@@ -1,11 +1,11 @@
 import { Arr, Str } from '@dynafer/utils';
 import Editor from '../../../Editor';
 import { ENativeEvents, PreventEvent } from '../../../events/EventSetupUtils';
-import { ADJUSTABLE_LINE_HALF_SIZE, GetClientSize, RegisterAdjustingEvents } from '../Utils';
+import { ADJUSTABLE_LINE_HALF_SIZE, RegisterAdjustingEvents } from '../Utils';
 import AdjustingNavigation from './AdjustingNavigation';
-import { CreateFakeFigure, MakeAbsolute, ResetAbsolute } from './ImageToolsUtils';
+import { CreateFakeFigure, CreateFakeMedia, MakeAbsolute, ResetAbsolute } from './MediaToolsUtils';
 
-const AdjustableLine = (editor: Editor, img: HTMLElement): HTMLElement => {
+const AdjustableLine = (editor: Editor, media: HTMLElement): HTMLElement => {
 	const self = editor;
 	const DOM = self.DOM;
 
@@ -22,10 +22,10 @@ const AdjustableLine = (editor: Editor, img: HTMLElement): HTMLElement => {
 				dataAdjustableLine: type,
 			},
 			styles: {
-				width: `${bHorizontal ? ADJUSTABLE_LINE_HALF_SIZE : GetClientSize(self, img, 'width')}px`,
-				height: `${bHorizontal ? GetClientSize(self, img, 'height') : ADJUSTABLE_LINE_HALF_SIZE}px`,
-				left: `${img.offsetLeft + (type !== 'right' ? 0 : img.offsetWidth) - ADJUSTABLE_LINE_HALF_SIZE / 2}px`,
-				top: `${img.offsetTop + (type !== 'bottom' ? 0 : img.offsetHeight) - ADJUSTABLE_LINE_HALF_SIZE / 2}px`,
+				width: `${bHorizontal ? ADJUSTABLE_LINE_HALF_SIZE : media.offsetWidth}px`,
+				height: `${bHorizontal ? media.offsetHeight : ADJUSTABLE_LINE_HALF_SIZE}px`,
+				left: `${media.offsetLeft + (type !== 'right' ? 0 : media.offsetWidth) - ADJUSTABLE_LINE_HALF_SIZE / 2}px`,
+				top: `${media.offsetTop + (type !== 'bottom' ? 0 : media.offsetHeight) - ADJUSTABLE_LINE_HALF_SIZE / 2}px`,
 			}
 		});
 	};
@@ -35,19 +35,19 @@ const AdjustableLine = (editor: Editor, img: HTMLElement): HTMLElement => {
 	const adjustableRight = createAdjustableLine('right');
 	const adjustableBottom = createAdjustableLine('bottom');
 
-	const setLineStyles = (element: HTMLElement, type: 'left' | 'top' | 'right' | 'bottom') =>
+	const setLineStyles = (figureElement: HTMLElement, element: HTMLElement, type: 'left' | 'top' | 'right' | 'bottom') =>
 		DOM.SetStyles(element, {
-			width: `${type === 'left' || type === 'right' ? ADJUSTABLE_LINE_HALF_SIZE : GetClientSize(self, img, 'width')}px`,
-			height: `${type === 'left' || type === 'right' ? GetClientSize(self, img, 'height') : ADJUSTABLE_LINE_HALF_SIZE}px`,
-			left: `${img.offsetLeft + (type !== 'right' ? 0 : img.offsetWidth) - ADJUSTABLE_LINE_HALF_SIZE / 2}px`,
-			top: `${img.offsetTop + (type !== 'bottom' ? 0 : img.offsetHeight) - ADJUSTABLE_LINE_HALF_SIZE / 2}px`,
+			width: `${type === 'left' || type === 'right' ? ADJUSTABLE_LINE_HALF_SIZE : figureElement.offsetWidth}px`,
+			height: `${type === 'left' || type === 'right' ? figureElement.offsetHeight : ADJUSTABLE_LINE_HALF_SIZE}px`,
+			left: `${figureElement.offsetLeft + (type !== 'right' ? 0 : figureElement.offsetWidth) - ADJUSTABLE_LINE_HALF_SIZE / 2}px`,
+			top: `${figureElement.offsetTop + (type !== 'bottom' ? 0 : figureElement.offsetHeight) - ADJUSTABLE_LINE_HALF_SIZE / 2}px`,
 		});
 
-	const setAdjustableSizeAndPosition = () => {
-		setLineStyles(adjustableLeft, 'left');
-		setLineStyles(adjustableTop, 'top');
-		setLineStyles(adjustableRight, 'right');
-		setLineStyles(adjustableBottom, 'bottom');
+	const setAdjustableSizeAndPosition = (figureElement: HTMLElement) => {
+		setLineStyles(figureElement, adjustableLeft, 'left');
+		setLineStyles(figureElement, adjustableTop, 'top');
+		setLineStyles(figureElement, adjustableRight, 'right');
+		setLineStyles(figureElement, adjustableBottom, 'bottom');
 	};
 
 	const startAdjusting = (event: MouseEvent) => {
@@ -55,8 +55,16 @@ const AdjustableLine = (editor: Editor, img: HTMLElement): HTMLElement => {
 
 		const adjustItem = event.target as HTMLElement;
 
-		const { Figure, FigureType, FigureElement } = DOM.Element.Figure.Find<HTMLImageElement>(adjustItem);
-		if (!Figure || !FigureType || !FigureElement) return;
+		const { Figure, FigureElement } = DOM.Element.Figure.Find<HTMLElement>(adjustItem);
+		if (!Figure || !FigureElement) return;
+
+		const bIFrame = DOM.Utils.IsIFrame(FigureElement);
+
+		const figureElement = bIFrame ? CreateFakeMedia(self, FigureElement) : FigureElement;
+		if (bIFrame) {
+			DOM.InsertAfter(FigureElement, figureElement);
+			DOM.Hide(FigureElement);
+		}
 
 		const bWidth = adjustItem === adjustableLeft || adjustItem === adjustableRight;
 		const bPosition = adjustItem === adjustableLeft || adjustItem === adjustableTop;
@@ -70,31 +78,31 @@ const AdjustableLine = (editor: Editor, img: HTMLElement): HTMLElement => {
 		let startOffsetX = event.clientX;
 		let startOffsetY = event.clientY;
 
-		const oldSize = getSize(FigureElement);
-		const oldPosition = getPosition(FigureElement);
+		const oldSize = getSize(figureElement);
+		const oldPosition = getPosition(figureElement);
 
 		self.SaveScrollPosition();
 
-		const navigation = AdjustingNavigation(self, FigureElement);
+		const navigation = AdjustingNavigation(self, FigureElement, figureElement);
 		navigation.Update(startOffsetX, startOffsetY);
 
-		const fakeFigure = CreateFakeFigure(self, Figure, FigureElement);
+		const fakeFigure = CreateFakeFigure(self, Figure, figureElement);
 		DOM.InsertBefore(Figure, fakeFigure.Figure);
 
-		MakeAbsolute(self, fakeFigure, Figure, FigureElement);
+		MakeAbsolute(self, fakeFigure, Figure, figureElement);
 
-		const dumpWidth = Str.IsEmpty(DOM.GetStyle(FigureElement, 'width')) ? FigureElement.offsetWidth : parseFloat(DOM.GetStyle(FigureElement, 'width'));
-		const dumpHeight = Str.IsEmpty(DOM.GetStyle(FigureElement, 'height')) ? FigureElement.offsetHeight : parseFloat(DOM.GetStyle(FigureElement, 'height'));
+		const dumpWidth = Str.IsEmpty(DOM.GetStyle(figureElement, 'width')) ? figureElement.offsetWidth : parseFloat(DOM.GetStyle(figureElement, 'width'));
+		const dumpHeight = Str.IsEmpty(DOM.GetStyle(figureElement, 'height')) ? figureElement.offsetHeight : parseFloat(DOM.GetStyle(figureElement, 'height'));
 
-		DOM.SetStyles(FigureElement, {
+		DOM.SetStyles(figureElement, {
 			width: '0px',
 			height: '0px',
 		});
 
-		const minSize = getSize(FigureElement);
-		const minPosition = getPosition(FigureElement) + (bPosition ? Math.max(minSize - oldSize, oldSize - minSize) : 0);
+		const minSize = getSize(figureElement);
+		const minPosition = getPosition(figureElement) + (bPosition ? Math.max(minSize - oldSize, oldSize - minSize) : 0);
 
-		DOM.SetStyles(FigureElement, {
+		DOM.SetStyles(figureElement, {
 			width: `${dumpWidth}px`,
 			height: `${dumpHeight}px`,
 		});
@@ -108,8 +116,8 @@ const AdjustableLine = (editor: Editor, img: HTMLElement): HTMLElement => {
 			const newStyle: Record<string, string> = {};
 			newStyle[sizeStyleName] = `${minSize}px`;
 			newStyle[positionStyleName] = `${minPosition}px`;
-			DOM.SetStyles(FigureElement, newStyle);
-			setAdjustableSizeAndPosition();
+			DOM.SetStyles(figureElement, newStyle);
+			setAdjustableSizeAndPosition(figureElement);
 		};
 
 		const sizeDifference = bPosition ? 0 : (minSize - oldSize);
@@ -149,12 +157,12 @@ const AdjustableLine = (editor: Editor, img: HTMLElement): HTMLElement => {
 			}
 
 			const newStyle: Record<string, string> = {};
-			const newSize = getSize(FigureElement) + calculated;
+			const newSize = getSize(figureElement) + calculated;
 			newStyle[sizeStyleName] = `${newSize}px`;
 			if (bPosition) newStyle[positionStyleName] = `${minPosition + minSize - newSize}px`;
 
-			DOM.SetStyles(FigureElement, newStyle);
-			setAdjustableSizeAndPosition();
+			DOM.SetStyles(figureElement, newStyle);
+			setAdjustableSizeAndPosition(figureElement);
 		};
 
 		const finishAdjusting = (e: MouseEvent) => {
@@ -162,7 +170,16 @@ const AdjustableLine = (editor: Editor, img: HTMLElement): HTMLElement => {
 
 			fakeFigure.Figure.remove();
 
-			ResetAbsolute(self, Figure, FigureElement);
+			ResetAbsolute(self, Figure, figureElement);
+
+			if (bIFrame) {
+				DOM.Show(FigureElement);
+				DOM.SetStyles(FigureElement, {
+					width: DOM.GetStyle(figureElement, 'width'),
+					height: DOM.GetStyle(figureElement, 'height'),
+				});
+				figureElement.remove();
+			}
 
 			DOM.Show(edgeGroup);
 

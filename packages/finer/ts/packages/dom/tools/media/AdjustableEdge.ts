@@ -3,9 +3,9 @@ import Editor from '../../../Editor';
 import { ENativeEvents, PreventEvent } from '../../../events/EventSetupUtils';
 import { CreateAdjustableEdgeSize, RegisterAdjustingEvents } from '../Utils';
 import AdjustingNavigation from './AdjustingNavigation';
-import { CreateFakeFigure, MakeAbsolute, ResetAbsolute } from './ImageToolsUtils';
+import { CreateFakeFigure, CreateFakeMedia, MakeAbsolute, ResetAbsolute } from './MediaToolsUtils';
 
-const AdjustableEdge = (editor: Editor, img: HTMLElement): HTMLElement => {
+const AdjustableEdge = (editor: Editor, media: HTMLElement): HTMLElement => {
 	const self = editor;
 	const DOM = self.DOM;
 
@@ -23,8 +23,8 @@ const AdjustableEdge = (editor: Editor, img: HTMLElement): HTMLElement => {
 				dataVertical: bTop ? 'top' : 'bottom',
 			},
 			styles: {
-				left: CreateAdjustableEdgeSize(img.offsetLeft + (bLeft ? 0 : img.offsetWidth), true),
-				top: CreateAdjustableEdgeSize(img.offsetTop + (bTop ? 0 : img.offsetHeight), true),
+				left: CreateAdjustableEdgeSize(media.offsetLeft + (bLeft ? 0 : media.offsetWidth), true),
+				top: CreateAdjustableEdgeSize(media.offsetTop + (bTop ? 0 : media.offsetHeight), true),
 			},
 		});
 
@@ -33,17 +33,17 @@ const AdjustableEdge = (editor: Editor, img: HTMLElement): HTMLElement => {
 	const leftBottomEdge = createCommonEdge('east', true, false);
 	const rightBottomEdge = createCommonEdge('west', false, false);
 
-	const setEdgePositionStyles = (element: HTMLElement, bLeft: boolean, bTop: boolean) =>
+	const setEdgePositionStyles = (figureElement: HTMLElement, element: HTMLElement, bLeft: boolean, bTop: boolean) =>
 		DOM.SetStyles(element, {
-			left: CreateAdjustableEdgeSize(img.offsetLeft + (bLeft ? 0 : img.offsetWidth), true),
-			top: CreateAdjustableEdgeSize(img.offsetTop + (bTop ? 0 : img.offsetHeight), true),
+			left: CreateAdjustableEdgeSize(figureElement.offsetLeft + (bLeft ? 0 : figureElement.offsetWidth), true),
+			top: CreateAdjustableEdgeSize(figureElement.offsetTop + (bTop ? 0 : figureElement.offsetHeight), true),
 		});
 
-	const updateEdgePosition = () => {
-		setEdgePositionStyles(leftTopEdge, true, true);
-		setEdgePositionStyles(rightTopEdge, false, true);
-		setEdgePositionStyles(leftBottomEdge, true, false);
-		setEdgePositionStyles(rightBottomEdge, false, false);
+	const updateEdgePosition = (figureElement: HTMLElement) => {
+		setEdgePositionStyles(figureElement, leftTopEdge, true, true);
+		setEdgePositionStyles(figureElement, rightTopEdge, false, true);
+		setEdgePositionStyles(figureElement, leftBottomEdge, true, false);
+		setEdgePositionStyles(figureElement, rightBottomEdge, false, false);
 	};
 
 	const startAdjusting = (event: MouseEvent) => {
@@ -51,8 +51,16 @@ const AdjustableEdge = (editor: Editor, img: HTMLElement): HTMLElement => {
 
 		const adjustItem = event.target as HTMLElement;
 
-		const { Figure, FigureType, FigureElement } = DOM.Element.Figure.Find<HTMLImageElement>(adjustItem);
-		if (!Figure || !FigureType || !FigureElement) return;
+		const { Figure, FigureElement } = DOM.Element.Figure.Find<HTMLElement>(adjustItem);
+		if (!Figure || !FigureElement) return;
+
+		const bIFrame = DOM.Utils.IsIFrame(FigureElement);
+
+		const figureElement = bIFrame ? CreateFakeMedia(self, FigureElement) : FigureElement;
+		if (bIFrame) {
+			DOM.InsertAfter(FigureElement, figureElement);
+			DOM.Hide(FigureElement);
+		}
 
 		let startOffsetX = event.clientX;
 		let startOffsetY = event.clientY;
@@ -60,41 +68,41 @@ const AdjustableEdge = (editor: Editor, img: HTMLElement): HTMLElement => {
 		const bLeft = adjustItem === leftTopEdge || adjustItem === leftBottomEdge;
 		const bTop = adjustItem === leftTopEdge || adjustItem === rightTopEdge;
 
-		const oldWidth = FigureElement.offsetWidth;
-		const oldHeight = FigureElement.offsetHeight;
-		const oldLeft = FigureElement.offsetLeft;
-		const oldTop = FigureElement.offsetTop;
+		const oldWidth = figureElement.offsetWidth;
+		const oldHeight = figureElement.offsetHeight;
+		const oldLeft = figureElement.offsetLeft;
+		const oldTop = figureElement.offsetTop;
 
 		self.SaveScrollPosition();
 
-		const navigation = AdjustingNavigation(self, FigureElement);
+		const navigation = AdjustingNavigation(self, FigureElement, figureElement);
 		navigation.Update(startOffsetX, startOffsetY);
 
-		const fakeFigure = CreateFakeFigure(self, Figure, FigureElement);
+		const fakeFigure = CreateFakeFigure(self, Figure, figureElement);
 		DOM.InsertBefore(Figure, fakeFigure.Figure);
-		MakeAbsolute(self, fakeFigure, Figure, FigureElement);
+		MakeAbsolute(self, fakeFigure, Figure, figureElement);
 
-		const dumpWidth = DOM.GetStyle(FigureElement, 'width');
-		const dumpHeight = DOM.GetStyle(FigureElement, 'height');
+		const dumpWidth = DOM.GetStyle(figureElement, 'width');
+		const dumpHeight = DOM.GetStyle(figureElement, 'height');
 
-		DOM.SetStyles(FigureElement, {
+		DOM.SetStyles(figureElement, {
 			width: '0px',
 			height: '0px',
 		});
 
-		const minWidth = FigureElement.offsetWidth;
-		const minHeight = FigureElement.offsetHeight;
-		const minLeft = FigureElement.offsetLeft + (bLeft ? Math.max(minWidth - oldWidth, oldWidth - minWidth) : 0);
-		const minTop = FigureElement.offsetTop + (bTop ? Math.max(minHeight - oldHeight, oldHeight - minHeight) : 0);
+		const minWidth = figureElement.offsetWidth;
+		const minHeight = figureElement.offsetHeight;
+		const minLeft = figureElement.offsetLeft + (bLeft ? Math.max(minWidth - oldWidth, oldWidth - minWidth) : 0);
+		const minTop = figureElement.offsetTop + (bTop ? Math.max(minHeight - oldHeight, oldHeight - minHeight) : 0);
 
-		updateEdgePosition();
+		updateEdgePosition(figureElement);
 
 		const toggleWidth = !Str.IsEmpty(dumpWidth) ? DOM.SetStyle : DOM.RemoveStyle;
 		const toggleHeight = !Str.IsEmpty(dumpHeight) ? DOM.SetStyle : DOM.RemoveStyle;
-		toggleWidth(FigureElement, 'width', dumpWidth);
-		toggleHeight(FigureElement, 'height', dumpHeight);
+		toggleWidth(figureElement, 'width', dumpWidth);
+		toggleHeight(figureElement, 'height', dumpHeight);
 
-		updateEdgePosition();
+		updateEdgePosition(figureElement);
 
 		self.ScrollSavedPosition();
 
@@ -166,17 +174,17 @@ const AdjustableEdge = (editor: Editor, img: HTMLElement): HTMLElement => {
 			const newStyle: Record<string, string> = {};
 
 			if (!Type.IsBoolean(calculatedX)) {
-				const newWidth = FigureElement.offsetWidth + calculatedX;
+				const newWidth = figureElement.offsetWidth + calculatedX;
 				newStyle.width = `${newWidth}px`;
 				if (bLeft && !bFigureRight) newStyle.left = `${minLeft + minWidth - newWidth}px`;
 			}
 			if (!Type.IsBoolean(calculatedY)) {
-				const newHeight = FigureElement.offsetHeight + calculatedY;
+				const newHeight = figureElement.offsetHeight + calculatedY;
 				newStyle.height = `${newHeight}px`;
 				if (bTop) newStyle.top = `${minTop + minHeight - newHeight}px`;
 			}
 
-			DOM.SetStyles(FigureElement, newStyle);
+			DOM.SetStyles(figureElement, newStyle);
 
 			if (bLeft && bFigureRight && !Type.IsBoolean(calculatedX))
 				DOM.SetStyles(Figure, {
@@ -184,7 +192,7 @@ const AdjustableEdge = (editor: Editor, img: HTMLElement): HTMLElement => {
 					width: `${Figure.offsetWidth + calculatedX}px`
 				});
 
-			updateEdgePosition();
+			updateEdgePosition(figureElement);
 		};
 
 		const finishAdjusting = (e: MouseEvent) => {
@@ -192,7 +200,16 @@ const AdjustableEdge = (editor: Editor, img: HTMLElement): HTMLElement => {
 
 			fakeFigure.Figure.remove();
 
-			ResetAbsolute(self, Figure, FigureElement);
+			ResetAbsolute(self, Figure, figureElement);
+
+			if (bIFrame) {
+				DOM.Show(FigureElement);
+				DOM.SetStyles(FigureElement, {
+					width: DOM.GetStyle(figureElement, 'width'),
+					height: DOM.GetStyle(figureElement, 'height'),
+				});
+				figureElement.remove();
+			}
 
 			DOM.Show(lineGroup);
 

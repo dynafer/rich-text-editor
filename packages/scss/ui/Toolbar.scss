@@ -65,7 +65,8 @@
 				}
 			}
 
-			&:not([disabled]):hover {
+			&:not([disabled]):hover,
+			&:not([disabled]).active {
 				.#{getClassName(icon-button)}:not([no-border]),
 				.#{getClassName(color-icon)} {
 					@include padding(null, $right: calc(0.3rem - 1px) !important);

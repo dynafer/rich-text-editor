@@ -17,10 +17,10 @@ const Setup = (editor: Editor) => {
 		if (!formatUtils.HasFormatName(name as string, formatNames)) return;
 		const uiName = formatUtils.GetFormatName(name as string, formatNames);
 		switch (uiName) {
-			case 'BulletList':
+			case formatNames[0]:
 				BulletList(self, ui);
 				break;
-			case 'NumberList':
+			case formatNames[1]:
 				NumberList(self, ui);
 				break;
 		}
