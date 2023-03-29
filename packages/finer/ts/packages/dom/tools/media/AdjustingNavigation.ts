@@ -2,7 +2,7 @@ import { Formula } from '@dynafer/utils';
 import Editor from '../../../Editor';
 import DOM from '../../DOM';
 
-const AdjustingNavigation = (editor: Editor, image: HTMLImageElement) => {
+const AdjustingNavigation = (editor: Editor, media: HTMLElement, fakeMedia: HTMLElement) => {
 	const self = editor;
 
 	const NAVIGATION_MARGIN = 20;
@@ -13,14 +13,24 @@ const AdjustingNavigation = (editor: Editor, image: HTMLImageElement) => {
 			: 0;
 
 	const navigation = DOM.Create('div', {
-		class: DOM.Utils.CreateUEID('image-size-navigation', false),
+		class: DOM.Utils.CreateUEID('media-size-navigation', false),
 	});
 
-	const getImageInfo = (): string => {
-		const ratioWidth = Formula.RoundDecimal(image.offsetWidth / image.naturalWidth);
-		const ratioHeight = Formula.RoundDecimal(image.offsetHeight / image.naturalHeight);
+	const getOriginalSize = (type: 'width' | 'height') => {
+		const bWidth = type === 'width';
+		if (DOM.Utils.IsImage(media)) return bWidth ? media.naturalWidth : media.naturalHeight;
+		if (DOM.Utils.IsVideo(media)) return bWidth ? media.videoWidth : media.videoHeight;
+		return parseFloat(self.DOM.GetAttr(media, `data-original-${type}`) ?? '0');
+	};
+
+	const originalWidth = getOriginalSize('width');
+	const originalHeight = getOriginalSize('height');
+
+	const getMediaInfo = (): string => {
+		const ratioWidth = Formula.RoundDecimal(fakeMedia.offsetWidth / originalWidth);
+		const ratioHeight = Formula.RoundDecimal(fakeMedia.offsetHeight / originalHeight);
 		const ratio = `${ratioWidth} : ${ratioHeight}`;
-		return `R. ${ratio}<br>W. ${image.offsetWidth}px<br> H. ${image.offsetHeight}px`;
+		return `R. ${ratio}<br>W. ${fakeMedia.offsetWidth}px<br> H. ${fakeMedia.offsetHeight}px`;
 	};
 
 	const Update = (offsetX: number, offsetY: number) => {
@@ -37,7 +47,7 @@ const AdjustingNavigation = (editor: Editor, image: HTMLImageElement) => {
 			top: `${calculatedTop}px`
 		});
 
-		DOM.SetHTML(navigation, getImageInfo());
+		DOM.SetHTML(navigation, getMediaInfo());
 	};
 
 	DOM.Insert(DOM.Doc.body, navigation);

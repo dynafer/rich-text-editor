@@ -45,17 +45,17 @@
 	#{getVarName(selected-color)}: rgba(116, 195, 255, 0.7);
 	#{getVarName(tool-default-color)}: rgba(116, 195, 255, 0.7);
 
-	#{getVarName(image-size-navigation-bg)}: rgba(0, 0, 0, 0.6);
-	#{getVarName(image-size-navigation-font)}: #fff;
+	#{getVarName(media-size-navigation-bg)}: rgba(0, 0, 0, 0.6);
+	#{getVarName(media-size-navigation-font)}: #fff;
 
-	#{getVarName(image-menu-bg)}: #fff;
-	#{getVarName(image-menu-border)}: #ececec;
-	#{getVarName(image-menu-radius)}: 0.4rem;
+	#{getVarName(media-menu-bg)}: #fff;
+	#{getVarName(media-menu-border)}: #ececec;
+	#{getVarName(media-menu-radius)}: 0.4rem;
 
-	#{getVarName(image-menu-item-bg)}: #fff;
-	#{getVarName(image-menu-item-border)}: #ececec;
-	#{getVarName(image-menu-item-icon-fill)}: #000;
-	#{getVarName(image-menu-item-radius)}: 0.25rem;
-	#{getVarName(image-menu-item-hover-bg)}: rgba(116, 195, 255, 0.7);
-	#{getVarName(image-menu-item-active-bg)}: rgba(88, 183, 255, 0.7);
+	#{getVarName(media-menu-item-bg)}: #fff;
+	#{getVarName(media-menu-item-border)}: #ececec;
+	#{getVarName(media-menu-item-icon-fill)}: #000;
+	#{getVarName(media-menu-item-radius)}: 0.25rem;
+	#{getVarName(media-menu-item-hover-bg)}: rgba(116, 195, 255, 0.7);
+	#{getVarName(media-menu-item-active-bg)}: rgba(88, 183, 255, 0.7);
 }

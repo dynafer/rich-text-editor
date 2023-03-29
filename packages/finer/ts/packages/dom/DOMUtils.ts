@@ -21,9 +21,12 @@ export interface IDOMUtils {
 	CreateUEID: (id?: string, bAddNum?: boolean) => string,
 	GetModeTag: (mode: EModeEditor) => string,
 	GetEmptyString: () => string,
+	GetNodeName: (selector: Node | null) => string,
 	IsParagraph: (selector: Node | null) => selector is HTMLParagraphElement,
 	IsBr: (selector: Node | null) => selector is HTMLBRElement,
-	GetNodeName: (selector: Node | null) => string,
+	IsImage: (selector: Node | null) => selector is HTMLImageElement,
+	IsIFrame: (selector: Node | null) => selector is HTMLIFrameElement,
+	IsVideo: (selector: Node | null) => selector is HTMLVideoElement,
 	CreateStyleVariable: (name: string, value: string) => string,
 	WrapTagHTML: (tagName: string, text: string) => string,
 	IsChildOf: (child: Node, parent: Node) => boolean,
@@ -56,9 +59,14 @@ const DOMUtils = (): IDOMUtils => {
 
 	const IsParagraph = (selector: Node | null): selector is HTMLParagraphElement => Str.LowerCase(selector?.nodeName ?? '') === 'p' ?? false;
 
-	const IsBr = (selector: Node | null): selector is HTMLBRElement => Str.LowerCase(selector?.nodeName ?? '') === 'br' ?? false;
-
 	const GetNodeName = (selector: Node | null): string => Str.LowerCase(selector?.nodeName ?? '') ?? '';
+
+	const is = <T extends Element>(tagName: string) => (selector: Node | null): selector is T => GetNodeName(selector) === tagName;
+
+	const IsBr: (selector: Node | null) => selector is HTMLBRElement = is('br');
+	const IsImage: (selector: Node | null) => selector is HTMLImageElement = is('img');
+	const IsIFrame: (selector: Node | null) => selector is HTMLIFrameElement = is('iframe');
+	const IsVideo: (selector: Node | null) => selector is HTMLVideoElement = is('video');
 
 	const CreateStyleVariable = (name: string, value: string): string =>
 		Str.Join(' ',
@@ -178,9 +186,12 @@ const DOMUtils = (): IDOMUtils => {
 		CreateUEID,
 		GetModeTag,
 		GetEmptyString,
+		GetNodeName,
 		IsParagraph,
 		IsBr,
-		GetNodeName,
+		IsImage,
+		IsIFrame,
+		IsVideo,
 		CreateStyleVariable,
 		WrapTagHTML,
 		IsChildOf,

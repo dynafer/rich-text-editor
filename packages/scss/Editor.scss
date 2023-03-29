@@ -46,13 +46,25 @@
 	figure {
 		@include position(relative);
 
-		&[type='img'] {
+		&[type='media'] {
 			@include margin($left: 0, $right: 0);
 
-			img {
+			img,
+			iframe,
+			video,
+			audio {
 				@include position(relative);
 				@include width($min: 1.25rem);
 				@include height($min: 1.25rem);
+			}
+
+			video,
+			audio {
+				background-color: #000;
+			}
+
+			iframe {
+				pointer-events: none;
 			}
 
 			&[style*='float: left'] {
@@ -66,6 +78,9 @@
 			&[style*='margin-left: 0'][style*='margin-right: auto'],
 			&[style*='margin-left: 0px'][style*='margin-right: auto'] {
 				img,
+				iframe,
+				video,
+				audio,
 				div[data-fake] {
 					@include margin(null, $left: 0, $right: auto);
 					display: block;
@@ -74,6 +89,9 @@
 
 			&[style*='margin-left: auto'][style*='margin-right: auto'] {
 				img,
+				iframe,
+				video,
+				audio,
 				div[data-fake] {
 					@include all-margin(auto auto);
 					display: block;
@@ -83,6 +101,9 @@
 			&[style*='margin-left: auto'][style*='margin-right: 0'],
 			&[style*='margin-left: auto'][style*='margin-right: 0px'] {
 				img,
+				iframe,
+				video,
+				audio,
 				div[data-fake] {
 					@include margin(null, $left: auto, $right: 0);
 					display: block;
@@ -128,9 +149,9 @@
 	}
 }
 
-.#{getClassName(image-size-navigation)} {
+.#{getClassName(media-size-navigation)} {
 	@include position(absolute, 0, 0);
-	@include font($color: getVar(image-size-navigation-font));
+	@include font($color: getVar(media-size-navigation-font));
 	@include all-padding(0.25rem);
-	background-color: getVar(image-size-navigation-bg);
+	background-color: getVar(media-size-navigation-bg);
 }

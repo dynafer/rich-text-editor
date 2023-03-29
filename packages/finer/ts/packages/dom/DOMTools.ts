@@ -21,10 +21,8 @@ const DOMTools = (editor: Editor): IDOMTools => {
 	const DOM = self.DOM;
 	const Manager = ToolsManager(self);
 
-	// Register image tools
-	Manager.Attach(DefaultParts.Image);
-
-	// Register table tools
+	// Register default tools
+	Manager.Attach(DefaultParts.Media);
 	Manager.Attach(DefaultParts.Table);
 
 	const Create = (type: string, element: HTMLElement): HTMLElement | null =>

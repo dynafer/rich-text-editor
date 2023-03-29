@@ -17,6 +17,6 @@ export const IsNumber: (value: unknown) => value is number = isType('number');
 export const IsObject: (value: unknown) => value is object = isType('object');
 export const IsString: (value: unknown) => value is string = isType('string');
 export const IsBoolean: (value: unknown) => value is boolean = isType('boolean');
-export const IsFunction: (value: unknown) => value is (...params: unknown[]) => void = isType('function');
+export const IsFunction: <T = void>(value: unknown) => value is (...params: unknown[]) => T = isType('function');
 export const IsNull: (value: unknown) => value is null = isType('null');
 export const IsUndefined: (value: unknown) => value is undefined = isType('undefined');

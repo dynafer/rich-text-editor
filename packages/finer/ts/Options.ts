@@ -32,7 +32,8 @@ const Options = (): IOptions => {
 	const ATTRIBUTE_ADJUSTING = 'data-adjusting';
 	const ATTRIBUTE_FOCUSED = 'data-focused';
 	const ATTRIBUTE_SELECTED = 'data-selected';
-	const URL_PREFIX: string = new URL(projectURL).pathname;
+	const URL_PREFIX: string = new URL(projectURL).href;
+
 	const URLS: Record<string, string> = {
 		PREFIX: URL_PREFIX,
 		CSS: `${URL_PREFIX}`,

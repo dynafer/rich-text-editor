@@ -1,5 +1,7 @@
 @mixin dom-tools {
 	[data-fixed='dom-tool'] {
+		z-index: 999999;
+
 		[data-movable] {
 			@include position(absolute, calc(0px - 1rem), 0);
 			@include all-border(getVar(tool-default-color) !important, 3px);
@@ -64,7 +66,7 @@
 			}
 		}
 
-		&[data-type='img-tool'] {
+		&[data-type='media-tool'] {
 			[data-adjustable-line-group] {
 				[data-adjustable-line] {
 					@include position(absolute);
@@ -83,35 +85,35 @@
 				}
 			}
 
-			[data-image-menu] {
+			[data-media-menu] {
 				@include position(absolute);
-				@include all-border(getVar(image-menu-border));
-				@include round(getVar(image-menu-radius));
+				@include all-border(getVar(media-menu-border));
+				@include round(getVar(media-menu-radius));
 				@include all-padding(0.2rem);
 				@include rectangle(9rem, 1.6rem);
 				@include flex(space-between, center);
-				background-color: getVar(image-menu-bg);
+				background-color: getVar(media-menu-bg);
 
 				.#{getClassName(icon-group)} {
 					.#{getClassName(icon-button)} {
 						@include flex($align: center, $inline: true);
 						@include all-padding(0.2rem);
 						@include all-border(none);
-						@include round(getVar(image-menu-item-radius));
-						background-color: getVar(image-menu-item-bg);
+						@include round(getVar(media-menu-item-radius));
+						background-color: getVar(media-menu-item-bg);
 						cursor: pointer;
 
 						svg {
 							@include square(1.2rem);
-							fill: getVar(image-menu-item-icon-fill);
+							fill: getVar(media-menu-item-icon-fill);
 						}
 
 						&:hover {
-							background-color: getVar(image-menu-item-hover-bg);
+							background-color: getVar(media-menu-item-hover-bg);
 						}
 
 						&.active {
-							background-color: getVar(image-menu-item-active-bg);
+							background-color: getVar(media-menu-item-active-bg);
 						}
 					}
 

@@ -50,10 +50,10 @@ const CaretChange = (editor: Editor) => {
 			currentElement = Arr.Shift(figureElements);
 			if (!currentElement?.parentElement || !DOM.Element.Figure.IsFigure(currentElement)) continue;
 
-			const elementName = DOM.Utils.GetNodeName(currentElement);
 			const currentFigure = DOM.Element.Figure.GetClosest(currentElement);
 
-			const figure = currentFigure ?? DOM.Element.Figure.Create(elementName);
+			const figureType = DOM.Element.Figure.FindType(DOM.Utils.GetNodeName(currentElement));
+			const figure = currentFigure ?? DOM.Element.Figure.Create(figureType);
 
 			if (!currentFigure) {
 				DOM.InsertAfter(currentElement, figure);
@@ -62,7 +62,7 @@ const CaretChange = (editor: Editor) => {
 
 			if (!!DOMTools.Manager.SelectTools(false, figure)) continue;
 
-			const tools = DOMTools.Create(elementName, currentElement);
+			const tools = DOMTools.Create(figureType, currentElement);
 			DOM.Insert(figure, tools);
 		}
 		currentElement = undefined;

@@ -84,7 +84,6 @@ export const ChangeAllPositions = (editor: Editor) => {
 			DOM.SetStyle(movable, 'left', CreateMovableHorizontalSize(FigureElement.offsetLeft + FigureElement.offsetWidth / 2, true))
 		);
 
-
 		const attributeLine = 'data-adjustable-line';
 		Arr.Each(DOM.SelectAll({ attrs: [attributeLine] }, tools), line => {
 			const styles: Record<string, string> = {};
@@ -98,10 +97,10 @@ export const ChangeAllPositions = (editor: Editor) => {
 					styles.left = `${bWidth ? 0 : FigureElement.offsetLeft}px`;
 					styles.top = `${bWidth ? FigureElement.offsetTop : 0}px`;
 					break;
-				case 'img':
+				case 'media':
 					const bHorizontal = lineType === 'left' || lineType === 'right';
-					styles.width = `${bHorizontal ? ADJUSTABLE_LINE_HALF_SIZE : GetClientSize(self, FigureElement, 'width')}px`;
-					styles.height = `${bHorizontal ? GetClientSize(self, FigureElement, 'height') : ADJUSTABLE_LINE_HALF_SIZE}px`;
+					styles.width = `${bHorizontal ? ADJUSTABLE_LINE_HALF_SIZE : FigureElement.offsetWidth}px`;
+					styles.height = `${bHorizontal ? FigureElement.offsetHeight : ADJUSTABLE_LINE_HALF_SIZE}px`;
 					styles.left = `${FigureElement.offsetLeft + (lineType !== 'right' ? 0 : FigureElement.offsetWidth) - ADJUSTABLE_LINE_HALF_SIZE / 2}px`;
 					styles.top = `${FigureElement.offsetTop + (lineType !== 'bottom' ? 0 : FigureElement.offsetHeight) - ADJUSTABLE_LINE_HALF_SIZE / 2}px`;
 					break;
