@@ -13,7 +13,7 @@ const MoveUtils = (editor: Editor, event: KeyboardEvent) => {
 		PreventEvent(event);
 		const newRange = self.Utils.Range();
 		newRange.SetStartToEnd(node, offset, offset);
-		self.Utils.Caret.UpdateRanges(newRange);
+		self.Utils.Caret.UpdateRange(newRange);
 		self.Utils.Shared.DispatchCaretChange();
 	};
 

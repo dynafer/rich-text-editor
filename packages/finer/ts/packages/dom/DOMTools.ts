@@ -38,7 +38,7 @@ const DOMTools = (editor: Editor): IDOMTools => {
 		const select = !bAll ? DOM.Select<HTMLElement> : DOM.SelectAll<HTMLElement>;
 		const attrs: (string | Record<string, string>)[] = [Options.ATTRIBUTE_FOCUSED];
 		if (Type.IsString(type)) Arr.Push(attrs, { type });
-		return select({ attrs }, self.GetBody()) as T extends false ? (HTMLElement | null) : HTMLElement[];
+		return select({ attrs }) as T extends false ? (HTMLElement | null) : HTMLElement[];
 	};
 
 	const Show = (target?: HTMLElement | null) => {

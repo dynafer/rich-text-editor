@@ -7,17 +7,17 @@ const DefaultEvent = (editor: Editor, event: KeyboardEvent) => {
 	const DOM = self.DOM;
 	const CaretUtils = self.Utils.Caret;
 
-	if (!Str.IsEmpty(self.DOM.GetHTML(self.GetBody()).replace(/(\\n|\\t|\s|\<br\>)/gi, ''))) return;
+	if (!Str.IsEmpty(DOM.GetHTML(self.GetBody()).replace(/(\\n|\\t|\s|\<br\>)/gi, ''))) return;
 
 	PreventEvent(event);
 	self.InitContent();
 
 	const firstLine = DOM.Utils.GetFirstChild(self.GetBody());
-	if (!firstLine) return CaretUtils.Clean();
+	if (!firstLine) return;
 
 	const newRange = self.Utils.Range();
 	newRange.SetStartToEnd(firstLine, 0, 0);
-	CaretUtils.UpdateRanges(newRange);
+	CaretUtils.UpdateRange(newRange);
 };
 
 export default DefaultEvent;

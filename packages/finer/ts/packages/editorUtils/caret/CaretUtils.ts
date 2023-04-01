@@ -1,5 +1,5 @@
 import { NodeType } from '@dynafer/dom-control';
-import { Arr, Type } from '@dynafer/utils';
+import { Arr } from '@dynafer/utils';
 import Editor from '../../Editor';
 import { AllBlockFormats, BlockFormatTags } from '../../formatter/Format';
 import RangeUtils, { IRangeUtils } from './RangeUtils';
@@ -20,27 +20,17 @@ export interface ICaretData {
 }
 
 export interface ICaretUtils {
-	Clean: () => void,
 	CleanRanges: () => void,
-	UpdateRanges: (rangeUtils: IRangeUtils | IRangeUtils[]) => void,
-	Get: () => ICaretData[],
+	Refresh: () => void,
+	UpdateRange: (range: IRangeUtils) => void,
+	Get: () => ICaretData | null,
 }
 
 const CaretUtils = (editor: Editor): ICaretUtils => {
 	const self = editor;
 	const DOM = self.DOM;
 
-	let selection: Selection | null = null;
-	const ranges: Range[] = [];
-
-	const refreshRanges = () => {
-		Arr.Clean(ranges);
-		if (!selection) return;
-		for (let rangeIndex = 0; rangeIndex < selection.rangeCount; ++rangeIndex) {
-			const range = selection.getRangeAt(rangeIndex);
-			Arr.Push(ranges, range);
-		}
-	};
+	let caret: ICaretData | null = null;
 
 	const getDeepestSiblingChild = (node: Node, bPrevious: boolean): Node | null => {
 		const siblingLine = bPrevious ? node.previousSibling : node.nextSibling;
@@ -102,53 +92,60 @@ const CaretUtils = (editor: Editor): ICaretUtils => {
 	};
 
 	const CleanRanges = () => {
-		if (!selection) selection = DOM.Win.getSelection();
+		const selection = DOM.Win.getSelection();
 		selection?.removeAllRanges();
+		caret = null;
 	};
 
-	const UpdateRanges = (rangeUtils: IRangeUtils | IRangeUtils[]) => {
+	const hasSelectedCells = (): boolean => {
+		const cells = DOM.Element.Table.GetSelectedCells(self);
+		if (!Arr.IsEmpty(cells)) {
+			caret = null;
+			return true;
+		}
+
+		return false;
+	};
+
+	const Refresh = () => {
+		if (hasSelectedCells()) return;
+
+		const selection = DOM.Win.getSelection();
+		if (!selection) return;
+
+		const range = selection.rangeCount === 0 ? null : selection.getRangeAt(0);
+		if (!range || !DOM.Utils.IsChildOf(range.commonAncestorContainer, self.GetBody())) return;
+
+		const bRange = !range.collapsed;
+
+		const IsRange = (): boolean => bRange;
+
+		caret = {
+			IsRange,
+			Start: getLine(range.startContainer, range.startOffset, !range.collapsed, true),
+			End: getLine(range.endContainer, range.endOffset, !range.collapsed, false),
+			SameRoot: range.commonAncestorContainer,
+			Range: RangeUtils(range),
+		};
+	};
+
+	const UpdateRange = (range: IRangeUtils) => {
+		if (hasSelectedCells()) return;
 		CleanRanges();
-		Arr.Clean(ranges);
-
-		const newRanges = Type.IsArray(rangeUtils) ? rangeUtils : [rangeUtils];
-
-		Arr.Each(newRanges, range => selection?.addRange(range.Get()));
+		const selection = DOM.Win.getSelection();
+		selection?.addRange(range.Get());
+		Refresh();
 	};
 
-	const Get = (): ICaretData[] => {
-		selection = DOM.Win.getSelection();
-		refreshRanges();
-
-		const CaretData: ICaretData[] = [];
-
-		Arr.Each(ranges, range => {
-			const IsRange = (): boolean => !range.collapsed;
-			const Start = getLine(range.startContainer, range.startOffset, !range.collapsed, true);
-			const End = getLine(range.endContainer, range.endOffset, !range.collapsed, false);
-			const SameRoot = range.commonAncestorContainer;
-			const Range = RangeUtils(range);
-
-			Arr.Push(CaretData, {
-				IsRange,
-				Start,
-				End,
-				SameRoot,
-				Range,
-			});
-		});
-
-		return CaretData;
-	};
-
-	const Clean = () => {
-		Arr.Clean(ranges);
-		selection = null;
+	const Get = (): ICaretData | null => {
+		Refresh();
+		return caret;
 	};
 
 	return {
-		Clean,
 		CleanRanges,
-		UpdateRanges,
+		Refresh,
+		UpdateRange,
 		Get,
 	};
 };

@@ -12,7 +12,6 @@ export interface IFormatDetector {
 
 const FormatDetector = (editor: Editor): IFormatDetector => {
 	const self = editor;
-	const CaretUtils = self.Utils.Caret;
 	const detections: IDetection[] = [];
 
 	self.On('Caret:Change', (paths: Node[]) => {
@@ -20,7 +19,7 @@ const FormatDetector = (editor: Editor): IFormatDetector => {
 		Arr.Each(detections, detection => Arr.Push(promises, detection(paths)));
 
 		Promise.all(promises)
-			.finally(() => CaretUtils.Clean());
+			.finally(() => { });
 	});
 
 	const Register = (callback: TFormatDetectCallback) => {

@@ -1,4 +1,3 @@
-import { Arr } from '@dynafer/utils';
 import Editor from '../Editor';
 
 export enum ENativeEvents {
@@ -162,17 +161,6 @@ export interface IEventSetupCallback<K extends keyof GlobalEventHandlersEventMap
 
 export const Setup = <K extends keyof GlobalEventHandlersEventMap>(editor: Editor, eventName: K, event: IEventSetupCallback<K>) =>
 	editor.On(eventName, (evt: GlobalEventHandlersEventMap[K]) => event(editor, evt));
-
-export const CaretChangeEvent = <K extends keyof GlobalEventHandlersEventMap>(editor: Editor, event: GlobalEventHandlersEventMap[K]) => {
-	const self = editor;
-	const paths: Node[] = [];
-	Arr.Each(event.composedPath(), (path, exit) => {
-		if (self.GetBody() === path || self.DOM.GetRoot() === path) return exit();
-		Arr.Push(paths, path);
-	});
-
-	self.Utils.Shared.DispatchCaretChange(paths);
-};
 
 export const PreventEvent = (event: Event) => {
 	event.preventDefault();

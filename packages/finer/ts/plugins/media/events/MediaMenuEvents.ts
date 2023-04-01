@@ -22,7 +22,7 @@ const MediaMenuEvents = (editor: Editor) => {
 		};
 
 	const scrollEvent = () =>
-		Arr.Each(DOM.SelectAll<HTMLElement>({ attrs: ['data-media-menu'] }, self.GetBody()), mediaMenu => {
+		Arr.Each(DOM.SelectAll<HTMLElement>({ attrs: ['data-media-menu'] }), mediaMenu => {
 			const { Figure, FigureElement } = DOM.Element.Figure.Find<HTMLElement>(mediaMenu);
 			if (!Figure || !FigureElement) return;
 

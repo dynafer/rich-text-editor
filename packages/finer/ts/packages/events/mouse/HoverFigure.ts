@@ -9,13 +9,8 @@ const HoverFigure = (editor: Editor, event: MouseEvent) => {
 
 	if (DOM.HasAttr(self.GetBody(), Options.ATTRIBUTE_ADJUSTING)) return;
 
-	const caret = self.Utils.Caret.Get()[0];
-	if (caret?.IsRange()) {
-		DOMTools.HideAll();
-		return self.Utils.Caret.Clean();
-	}
-
-	self.Utils.Caret.Clean();
+	const caret = self.Utils.Caret.Get();
+	if (caret?.IsRange()) return DOMTools.HideAll();
 
 	const { Figure } = DOM.Element.Figure.Find<HTMLElement>(event.composedPath()[0]);
 	if (!Figure) return DOMTools.HideAll();

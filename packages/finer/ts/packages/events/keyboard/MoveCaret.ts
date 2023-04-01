@@ -30,10 +30,10 @@ const MoveCaret = (editor: Editor, event: KeyboardEvent) => {
 
 	const bBackward = bUp || bLeft || bBackspace;
 
-	FormatUtils.CleanDirty(self, CaretUtils.Get()[0]);
+	FormatUtils.CleanDirty(self, CaretUtils.Get());
 
-	const caret = CaretUtils.Get()[0];
-	if (!caret || caret.IsRange()) return CaretUtils.Clean();
+	const caret = CaretUtils.Get();
+	if (!caret || caret.IsRange()) return;
 
 	const moveUtils = MoveUtils(self, event);
 
@@ -110,10 +110,7 @@ const MoveCaret = (editor: Editor, event: KeyboardEvent) => {
 		moveUtils.UpdateRange(checker, offset);
 	};
 
-	const exit = () => {
-		CaretUtils.Clean();
-		self.Utils.Shared.DispatchCaretChange();
-	};
+	const exit = () => self.Utils.Shared.DispatchCaretChange();
 
 	if (moveOrDeleteInFigure()) return exit();
 	if (MoveInTable(self, event, caret)) return exit();

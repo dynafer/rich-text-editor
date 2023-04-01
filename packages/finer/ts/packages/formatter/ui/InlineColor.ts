@@ -191,7 +191,7 @@ const InlineColor = (editor: Editor, detector: IFormatDetector): IFormatUIRegist
 		DOM.Insert(wrapper, button, helper);
 
 		Detector.Register((paths: Node[]) =>
-			FormatUI.IsNearDisableList(self, uiFormat.Format.DisableList, wrapper, FormatUtils.GetParentIfText(paths[0]))
+			FormatUI.IsNearDisableList(uiFormat.Format.DisableList, wrapper, FormatUtils.GetParentIfText(paths[0]))
 		);
 
 		return wrapper;

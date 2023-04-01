@@ -2,6 +2,7 @@ import { NodeType } from '@dynafer/dom-control';
 import { Arr, Obj, Str, Type } from '@dynafer/utils';
 import Editor from '../../Editor';
 import { ICaretData } from '../../editorUtils/caret/CaretUtils';
+import { AllBlockFormats } from '../Format';
 import { IInlineFormat } from '../FormatType';
 import FormatUtils from '../FormatUtils';
 
@@ -104,46 +105,57 @@ const ToggleInline = (editor: Editor, formats: IInlineFormat | IInlineFormat[]):
 		return true;
 	};
 
-	const cleanExistedCaret = (caret: ICaretData) => {
+	const cleanExistedCaret = (caret: ICaretData): Node | null => {
 		const node = caret.Start.Node;
 		const offset = caret.Start.Offset;
 		const existedCaret = DOM.Closest(FormatUtils.GetParentIfText(node), DOM.Utils.CreateAttrSelector('caret'));
+		if (!existedCaret) return null;
 
-		if (!existedCaret) return;
+		let requiredWrapTag: Node | null = null;
 
 		const fragment = DOM.CreateFragment();
 		Arr.Each(DOM.GetChildNodes(existedCaret, false), child => {
 			const bEmpty = NodeType.IsText(child) ? DOM.Utils.IsTextEmpty(child) : Str.IsEmpty(DOM.GetText(child));
-			const bMakrer = !NodeType.IsText(child) && DOM.HasAttr(child, 'marker');
-			if (bEmpty && !DOM.Utils.IsBr(child) && !bMakrer) return;
+			if (bEmpty && !DOM.Utils.IsBr(child)) {
+				const childName = DOM.Utils.GetNodeName(child);
+				if ((!DOM.Utils.IsChildOf(node, child) && !DOM.Utils.IsChildOf(child, node))
+					|| AllBlockFormats.has(childName)
+					|| NodeType.IsText(child)) return;
+				requiredWrapTag = DOM.Clone(child);
+				return;
+			}
 			DOM.Insert(fragment, child);
 		});
 
 		if (Arr.IsEmpty(DOM.GetChildNodes(fragment))) {
 			caret.Range.SetEndAfter(existedCaret);
-			return existedCaret.remove();
+			existedCaret.remove();
+			return requiredWrapTag;
 		}
 
 		existedCaret.parentNode?.replaceChild(fragment, existedCaret);
 		caret.Range.SetStartToEnd(node, offset, offset);
+		return requiredWrapTag;
 	};
 
 	const caretProcessor = (bWrap: boolean, caret: ICaretData, value?: string): boolean => {
 		if (caret.IsRange() || caret.Start.Node !== caret.End.Node || caret.Start.Offset !== caret.End.Offset) return false;
-		cleanExistedCaret(caret);
+		const requiredWrap = cleanExistedCaret(caret);
 
 		const caretId = DOM.Utils.CreateUEID('caret');
 
 		const caretSpliter = DOM.Create('span', {
-			attrs: {
-				id: caretId,
-				caret: 'true',
-			},
+			attrs: [
+				'caret',
+				{ id: caretId }
+			],
 		});
 
 		if (!bWrap) {
 			DOM.Insert(caretSpliter, DOM.Utils.GetEmptyString());
-			caret.Range.Insert(caretSpliter);
+			if (requiredWrap) DOM.Insert(requiredWrap, caretSpliter);
+			const spliter = requiredWrap ?? caretSpliter;
+			caret.Range.Insert(spliter);
 			caret.Range.SetStartToEnd(caretSpliter, 1, 1);
 			Toggler.Toggle(false, formats, caretSpliter, value);
 			return true;
@@ -167,9 +179,15 @@ const ToggleInline = (editor: Editor, formats: IInlineFormat | IInlineFormat[]):
 
 		const wrapped = DOM.Create(Tag, createOption);
 		DOM.Insert(caretSpliter, wrapped);
+		if (requiredWrap) DOM.Insert(requiredWrap, caretSpliter);
 
-		caret.Range.Insert(caretSpliter);
+		const spliter = requiredWrap ?? caretSpliter;
+
+		caret.Range.Insert(spliter);
 		caret.Range.SetStartToEnd(wrapped, 1, 1);
+
+		if (DOM.Utils.IsBr(spliter.previousSibling)) spliter.previousSibling.remove();
+		if (DOM.Utils.IsBr(spliter.nextSibling)) spliter.nextSibling.remove();
 
 		return true;
 	};

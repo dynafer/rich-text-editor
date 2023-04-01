@@ -41,16 +41,16 @@ const TableFormat = (editor: Editor) => {
 		self.Focus();
 
 		self.Tools.DOM.UnsetAllFocused();
-		CaretUtils.Get()[0]?.Range.DeleteContents();
-		formatter.Utils.CleanDirty(self, CaretUtils.Get()[0]);
+		CaretUtils.Get()?.Range.DeleteContents();
+		formatter.Utils.CleanDirty(self, CaretUtils.Get());
 
-		const caret = CaretUtils.Get()[0];
+		const caret = CaretUtils.Get();
 		const lines = DOM.GetChildren(self.GetBody());
 
 		const finish = () => {
 			const newRange = self.Utils.Range();
 			newRange.SetStartToEnd(firstCellParagraph, 1, 1);
-			CaretUtils.UpdateRanges(newRange);
+			CaretUtils.UpdateRange(newRange);
 			self.Utils.Shared.DispatchCaretChange([firstCellParagraph]);
 		};
 

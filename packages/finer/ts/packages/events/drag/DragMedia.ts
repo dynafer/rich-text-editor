@@ -37,18 +37,18 @@ const DragMedia = (editor: Editor, event: DragEvent) => {
 		DOM.InsertAfter(startBlock, endBlock, figure);
 		const newRange = self.Utils.Range();
 		newRange.SetStartToEnd(figure, 1, 1);
-		CaretUtils.UpdateRanges(newRange);
+		CaretUtils.UpdateRange(newRange);
 	};
 
 	const dropMedia = (e: InputEvent) => {
 		PreventEvent(e);
 		DOM.Off(self.GetBody(), ENativeEvents.beforeinput, dropMedia);
 
-		const caret = CaretUtils.Get()[0];
-		if (!caret) return CaretUtils.Clean();
+		const caret = CaretUtils.Get();
+		if (!caret) return;
 
 		const closestFigure = DOM.Element.Figure.GetClosest(FormatUtils.GetParentIfText(caret.Start.Node));
-		if (closestFigure === (media.parentElement ?? media)) return CaretUtils.Clean();
+		if (closestFigure === (media.parentElement ?? media)) return;
 
 		if (!NodeType.IsText(caret.SameRoot)) return moveCaret(caret.Start.Path[0], null);
 

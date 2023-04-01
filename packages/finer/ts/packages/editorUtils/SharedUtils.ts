@@ -20,15 +20,15 @@ const SharedUtils = (editor: Editor): ISharedUtils => {
 	const DispatchCaretChange = (paths: Node[] = []) => {
 		const newPaths: Node[] = [...paths];
 
-		const carets = self.Utils.Caret.Get();
+		const caret = self.Utils.Caret.Get();
 
-		if (carets[0] && (newPaths.length === 1 || !!DOM.Select(DOM.Element.Table.Selector, newPaths[0])))
-			Arr.Push(newPaths, ...Arr.MergeUnique(carets[0].Start.Path, carets[0].End.Path));
+		if (caret && (newPaths.length === 1 || !!DOM.Select(DOM.Element.Table.Selector, newPaths[0])))
+			Arr.Push(newPaths, ...Arr.MergeUnique(caret.Start.Path, caret.End.Path));
 
 		if (!Arr.IsEmpty(newPaths)) return self.Dispatch('Caret:Change', newPaths);
 
-		if (!Arr.IsEmpty(carets)) {
-			Arr.Push(newPaths, ...Arr.Reverse(Arr.MergeUnique(carets[0].Start.Path, carets[0].End.Path)));
+		if (caret) {
+			Arr.Push(newPaths, ...Arr.Reverse(Arr.MergeUnique(caret.Start.Path, caret.End.Path)));
 			return self.Dispatch('Caret:Change', newPaths);
 		}
 

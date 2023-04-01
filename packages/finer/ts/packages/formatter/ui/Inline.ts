@@ -18,6 +18,7 @@ interface IInlineFormatUI {
 
 const Inline = (editor: Editor, detector: IFormatDetector): IFormatUIRegistryUnit => {
 	const self = editor;
+	const DOM = self.DOM;
 	const Detector = detector;
 	const inlineColor = InlineColor(self, detector);
 	const inlineFont = InlineFont(self, detector);
@@ -42,12 +43,12 @@ const Inline = (editor: Editor, detector: IFormatDetector): IFormatUIRegistryUni
 		for (let index = 0, length = nodes.length; index < length; ++index) {
 			const node = nodes[index];
 			if (!!Styles) {
-				if (!self.DOM.ClosestByStyle(node, selector)) continue;
+				if (!DOM.ClosestByStyle(node, selector)) continue;
 
 				return true;
 			}
 
-			if (!Type.IsString(selector) || !self.DOM.Closest(node, selector)) continue;
+			if (!Type.IsString(selector) || !DOM.Closest(node, selector)) continue;
 
 			return true;
 		}
@@ -76,11 +77,11 @@ const Inline = (editor: Editor, detector: IFormatDetector): IFormatUIRegistryUni
 		if (Type.IsString(Keys)) FormatUI.RegisterKeyboardEvent(self, Keys, eventCallback);
 
 		const isNearDisableList = (node: Node): boolean => {
-			if (!Type.IsArray(Format)) return FormatUI.IsNearDisableList(self, Format.DisableList, button, node);
+			if (!Type.IsArray(Format)) return FormatUI.IsNearDisableList(Format.DisableList, button, node);
 
 			let bNearDisableList = false;
 			Arr.Each(Format, (format, exit) => {
-				bNearDisableList = FormatUI.IsNearDisableList(self, format.DisableList, button, node);
+				bNearDisableList = FormatUI.IsNearDisableList(format.DisableList, button, node);
 				if (bNearDisableList) exit();
 			});
 			return bNearDisableList;
