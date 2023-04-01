@@ -10,6 +10,7 @@ export interface IPluginListUI {
 
 const UI = (editor: Editor): IPluginListUI => {
 	const self = editor;
+	const DOM = self.DOM;
 	const formats = self.Formatter.Formats;
 	const formatUI = self.Formatter.UI;
 	const Detector = self.Formatter.Detector;
@@ -17,7 +18,7 @@ const UI = (editor: Editor): IPluginListUI => {
 	const IsDetected = (tagName: string, nodes: Node[]): boolean => {
 		for (let index = 0, length = nodes.length; index < length; ++index) {
 			const node = nodes[index];
-			if (!self.DOM.Closest(node, tagName)) continue;
+			if (!DOM.Closest(node, tagName)) continue;
 
 			return true;
 		}
@@ -44,15 +45,14 @@ const UI = (editor: Editor): IPluginListUI => {
 		return button;
 	};
 
-	const RegisterDetector = (button: HTMLElement, format: IPluginListFormat) => {
+	const RegisterDetector = (button: HTMLElement, format: IPluginListFormat) =>
 		Detector.Register((paths: Node[]) => {
 			formatUI.ToggleActivateClass(button, IsDetected(format.Tag, paths));
 
-			const figure = self.DOM.Element.Figure.GetClosest(paths[0]);
-			const bDisable = !!figure && formats.BlockFormatTags.Figures.has(self.DOM.GetAttr(figure, 'type') ?? '');
+			const figure = DOM.Element.Figure.GetClosest(paths[0]);
+			const bDisable = !!figure && formats.BlockFormatTags.Figures.has(DOM.GetAttr(figure, 'type') ?? '');
 			formatUI.ToggleDisable(button, bDisable);
 		});
-	};
 
 	return {
 		IsDetected,

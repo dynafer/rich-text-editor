@@ -1,18 +1,18 @@
 import Editor from '../../../Editor';
 
 interface IFakeFigure {
-	Figure: HTMLElement,
-	Media: HTMLElement,
+	readonly Figure: HTMLElement,
+	readonly Media: HTMLElement,
 }
 
 const getComputedMargin = (editor: Editor, selector: HTMLElement, type: 'left' | 'top'): number =>
 	parseFloat(editor.DOM.GetStyle(selector, `margin-${type}`, true));
 
-const getOriginalPosition = (editor: Editor, fakeFigure: IFakeFigure, type: 'left' | 'top') =>
+const getOriginalPosition = (editor: Editor, fakeFigure: IFakeFigure, type: 'left' | 'top'): number =>
 	(type === 'left' ? fakeFigure.Figure.offsetLeft : fakeFigure.Figure.offsetTop)
 	- getComputedMargin(editor, fakeFigure.Figure, type);
 
-const getOriginalMediaPosition = (editor: Editor, fakeFigure: IFakeFigure, type: 'left' | 'top') =>
+const getOriginalMediaPosition = (editor: Editor, fakeFigure: IFakeFigure, type: 'left' | 'top'): number =>
 	getComputedMargin(editor, fakeFigure.Media, type);
 
 export const CreateFakeFigure = (editor: Editor, figure: HTMLElement, figureElement: HTMLElement): IFakeFigure => {
@@ -27,9 +27,7 @@ export const CreateFakeFigure = (editor: Editor, figure: HTMLElement, figureElem
 	});
 
 	const Media = DOM.Create('div', {
-		attrs: {
-			dataFake: ''
-		}
+		attrs: ['data-fake']
 	});
 
 	DOM.SetStyles(Media, {

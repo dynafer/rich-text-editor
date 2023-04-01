@@ -15,12 +15,11 @@ const SelectTableCell = (editor: Editor, event: MouseEvent) => {
 	const { Table, Row, Cell } = DOM.Element.Table.Find(event.composedPath()[0]);
 	if (!Table || !Row || !Cell) return;
 
-	const rows = DOM.SelectAll(DOM.Element.Table.RowSelector, Table);
+	const rows = DOM.Element.Table.GetAllOwnRows(Table);
 
 	const startRowNum = Arr.Find(rows, Row);
 
 	const { Grid, TargetCellIndex } = DOM.Element.Table.GetTableGridWithIndex(Table, Cell);
-
 	if (TargetCellIndex === -1) return;
 
 	const mouseMoveEvent = (e: MouseEvent) => {
@@ -30,13 +29,12 @@ const SelectTableCell = (editor: Editor, event: MouseEvent) => {
 			if (!bDragged) return;
 
 			self.Utils.Caret.CleanRanges();
-			DOM.SetAttr(Cell, Options.ATTRIBUTE_SELECTED, '');
-			Arr.Each(DOM.SelectAll({ attrs: [Options.ATTRIBUTE_SELECTED] }, Table), cell => {
+			DOM.SetAttr(Cell, Options.ATTRIBUTE_SELECTED);
+			return Arr.Each(DOM.SelectAll({ attrs: [Options.ATTRIBUTE_SELECTED] }, Table), cell => {
 				if (cell === Cell) return;
 
 				DOM.RemoveAttr(cell, Options.ATTRIBUTE_SELECTED);
 			});
-			return;
 		}
 
 		self.Utils.Caret.CleanRanges();
@@ -64,7 +62,7 @@ const SelectTableCell = (editor: Editor, event: MouseEvent) => {
 				const cell = row[cellIndex];
 				const bCellInRange = bRowInRange && cellIndex >= minCellNum && cellIndex <= maxCellNum;
 				const toggle = bCellInRange ? DOM.SetAttr : DOM.RemoveAttr;
-				toggle(cell, Options.ATTRIBUTE_SELECTED, '');
+				toggle(cell, Options.ATTRIBUTE_SELECTED);
 			}
 		}
 	};

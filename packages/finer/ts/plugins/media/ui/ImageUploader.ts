@@ -56,7 +56,6 @@ const ImageUploader = (editor: Editor, ui: IPluginMediaUI) => {
 		fileInput.value = '';
 
 		if (!Type.IsFunction(uploadCallback)) return;
-
 		uploadCallback(files);
 	});
 
@@ -74,7 +73,7 @@ const ImageUploader = (editor: Editor, ui: IPluginMediaUI) => {
 				mediaFormat.OnLoadAndErrorEvents(figureElement);
 			};
 
-			const { OptionWrapper, Input } = ui.CreateInputWrap({
+			const { OptionWrapper, Input } = formatUI.CreateInputWrapWithOptionList({
 				uiName,
 				placeholder: bUpdatable ? 'Update the image URL' : 'Insert an image via URL',
 				bUpdatable,
@@ -87,18 +86,12 @@ const ImageUploader = (editor: Editor, ui: IPluginMediaUI) => {
 			Input.focus();
 		};
 
-	const Create = () => {
-		const iconWrap = ui.CreateFormatButton(uiFormat);
+	const iconWrap = ui.CreateFormatButton(uiFormat);
 
-		ui.BindClickEvent(() => fileInput.click(), iconWrap.Button);
-		formatUI.BindOptionListEvent(self, uiName, iconWrap.Wrapper, iconWrap.Helper, createOptionList(iconWrap.Wrapper));
+	ui.BindClickEvent(() => fileInput.click(), iconWrap.Button);
+	formatUI.BindOptionListEvent(self, uiName, iconWrap.Wrapper, iconWrap.Helper, createOptionList(iconWrap.Wrapper));
 
-		self.Toolbar.Add('Image', iconWrap.Wrapper);
-	};
-
-	return {
-		Create
-	};
+	self.Toolbar.Add(uiName, iconWrap.Wrapper);
 };
 
 export default ImageUploader;

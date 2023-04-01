@@ -27,6 +27,7 @@ export interface IDOMUtils {
 	IsImage: (selector: Node | null) => selector is HTMLImageElement,
 	IsIFrame: (selector: Node | null) => selector is HTMLIFrameElement,
 	IsVideo: (selector: Node | null) => selector is HTMLVideoElement,
+	IsAnchor: (selector: Node | null) => selector is HTMLAnchorElement,
 	CreateStyleVariable: (name: string, value: string) => string,
 	WrapTagHTML: (tagName: string, text: string) => string,
 	IsChildOf: (child: Node, parent: Node) => boolean,
@@ -57,16 +58,16 @@ const DOMUtils = (): IDOMUtils => {
 
 	const GetEmptyString = (): string => EMPTY_HEX_CODE;
 
-	const IsParagraph = (selector: Node | null): selector is HTMLParagraphElement => Str.LowerCase(selector?.nodeName ?? '') === 'p' ?? false;
-
 	const GetNodeName = (selector: Node | null): string => Str.LowerCase(selector?.nodeName ?? '') ?? '';
 
 	const is = <T extends Element>(tagName: string) => (selector: Node | null): selector is T => GetNodeName(selector) === tagName;
 
+	const IsParagraph: (selector: Node | null) => selector is HTMLParagraphElement = is('p');
 	const IsBr: (selector: Node | null) => selector is HTMLBRElement = is('br');
 	const IsImage: (selector: Node | null) => selector is HTMLImageElement = is('img');
 	const IsIFrame: (selector: Node | null) => selector is HTMLIFrameElement = is('iframe');
 	const IsVideo: (selector: Node | null) => selector is HTMLVideoElement = is('video');
+	const IsAnchor: (selector: Node | null) => selector is HTMLAnchorElement = is('a');
 
 	const CreateStyleVariable = (name: string, value: string): string =>
 		Str.Join(' ',
@@ -111,7 +112,6 @@ const DOMUtils = (): IDOMUtils => {
 			});
 			return newValue;
 		}
-
 		if (Type.IsObject(target)) return mapCallback(target);
 
 		return '';
@@ -127,16 +127,13 @@ const DOMUtils = (): IDOMUtils => {
 
 		selector += createSelectorBy(attrs, CreateAttrSelector, CreateAttrSelectorFromMap);
 
-		if (Type.IsString(opts.class)) {
-			selector += Str.Merge('.', opts.class);
-		}
+		if (Type.IsString(opts.class)) selector += Str.Merge('.', opts.class);
 
-		if (Type.IsArray(opts.class)) {
+		if (Type.IsArray(opts.class))
 			Arr.Each(opts.class, className => {
 				if (!Type.IsString(className)) return;
 				selector += Str.Merge('.', className);
 			});
-		}
 
 		selector += createSelectorBy(styles, CreateStyleSelector, CreateStyleSelectorFromMap);
 
@@ -169,14 +166,14 @@ const DOMUtils = (): IDOMUtils => {
 	};
 
 	const GetFirstChild = (node: Node | null, bDeep: boolean = false): Node | null => {
-		if (!node) return null;
+		if (!NodeType.IsNode(node)) return null;
 		if (!bDeep) return isDOMTools(node.firstChild) ? null : node.firstChild;
 
 		return getDeepestChild(node, true);
 	};
 
 	const GetLastChild = (node: Node | null, bDeep: boolean = false): Node | null => {
-		if (!node) return null;
+		if (!NodeType.IsNode(node)) return null;
 		if (!bDeep) return isDOMTools(node.lastChild) ? node.lastChild.previousElementSibling : node.lastChild;
 
 		return getDeepestChild(node, false);
@@ -192,6 +189,7 @@ const DOMUtils = (): IDOMUtils => {
 		IsImage,
 		IsIFrame,
 		IsVideo,
+		IsAnchor,
 		CreateStyleVariable,
 		WrapTagHTML,
 		IsChildOf,

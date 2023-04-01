@@ -74,9 +74,7 @@ const MediaMenu = (editor: Editor, ui: IPluginMediaUI): IMediaMenu => {
 
 	const Create: IDOMToolsPartAttacher = (): HTMLElement | null => {
 		const mediaMenu = DOM.Create('div', {
-			attrs: {
-				dataMediaMenu: ''
-			}
+			attrs: ['data-media-menu']
 		});
 
 		Obj.Values(uiFormats, formats => DOM.Insert(mediaMenu, createGroup(mediaMenu, formats)));

@@ -79,8 +79,15 @@ export const Compare = <T>(array: T[], compare: T[]): boolean => {
 
 export const Part = <T>(array: T[], start: number, end: number): T[] => array.slice(start, end);
 
-export const Remove = <T>(array: T[], target: T, offset?: number) => {
-	const index = offset ?? Find(array, target);
+export const FindAndRemove = <T>(array: T[], target: T): T[] | undefined => {
+	const index = Find(array, target);
 	if (index === -1) return undefined;
 	return array.splice(index, 1);
 };
+
+export const Remove = <T>(array: T[], offset: number): T[] | undefined => {
+	if (offset < 0 || offset >= array.length) return undefined;
+	return array.splice(offset, 1);
+};
+
+export const Convert = <T>(array: ArrayLike<T> | Iterable<T>): T[] => Array.from(array);

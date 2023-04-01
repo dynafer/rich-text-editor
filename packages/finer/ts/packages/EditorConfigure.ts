@@ -22,25 +22,23 @@ export interface IEditorConfiguration {
 }
 
 export interface IConfiguration {
-	Id: string,
-	Selector: HTMLElement,
-	Mode: EModeEditor,
-	Width: string,
-	Height: string,
-	Toolbar: string[],
-	ToolbarGroup: Record<string, string[]>,
-	ToolbarStyle: string,
-	Plugins: string[],
-	Skin: string,
-	[key: string]: TConfigurationKey,
+	readonly Id: string,
+	readonly Selector: HTMLElement,
+	readonly Mode: EModeEditor,
+	readonly Width: string,
+	readonly Height: string,
+	readonly Toolbar: string[],
+	readonly ToolbarGroup: Record<string, string[]>,
+	readonly ToolbarStyle: string,
+	readonly Plugins: string[],
+	readonly Skin: string,
+	readonly [key: Capitalize<string>]: TConfigurationKey,
 }
 
 const Configure = (config: IEditorConfiguration): IConfiguration => {
 	const defaultConfigs: string[] = ['selector', 'mode', 'width', 'height', 'plugins', 'toolbar', 'toolbarGroup', 'toolbarStyle', 'skin'];
 
-	if (!config.selector || !Instance.IsElement(config.selector)) {
-		throw new Error('Configuration: selector must be an provided.');
-	}
+	if (!config.selector || !Instance.IsElement(config.selector)) throw new Error('Configuration: selector must be an provided.');
 
 	const Id = DOM.Utils.CreateUEID();
 
@@ -48,9 +46,8 @@ const Configure = (config: IEditorConfiguration): IConfiguration => {
 	DOM.Hide(Selector);
 
 	const mode: string = Str.LowerCase(config.mode ?? EModeEditor.classic);
-	if (!Type.IsString(mode) || !EModeEditor[mode as EModeEditor]) {
+	if (!Type.IsString(mode) || !EModeEditor[mode as EModeEditor])
 		throw new Error(`Configuration: ${mode} mode doesn't exist.`);
-	}
 
 	const Mode = EModeEditor[mode as EModeEditor];
 
@@ -59,22 +56,16 @@ const Configure = (config: IEditorConfiguration): IConfiguration => {
 	const Height = config.height ?? defaultHeight;
 
 	const Plugins: string[] = config.plugins ?? [];
-	if (!Type.IsArray(Plugins)) {
-		throw new Error('Configuration: Plugins must be an array.');
-	}
+	if (!Type.IsArray(Plugins)) throw new Error('Configuration: Plugins must be an array.');
 
 	let Toolbar: string[];
 	let ToolbarGroup: Record<string, string[]>;
 	if (config.toolbar) {
 		Toolbar = config.toolbar;
-		if (!Type.IsArray(Toolbar)) {
-			throw new Error('Configuration: Toolbar must be an array.');
-		}
+		if (!Type.IsArray(Toolbar)) throw new Error('Configuration: Toolbar must be an array.');
 
 		ToolbarGroup = config.toolbarGroup ?? {};
-		if (ToolbarGroup && !Type.IsObject(ToolbarGroup)) {
-			throw new Error('Configuration: Toolbar Group must be an object.');
-		}
+		if (ToolbarGroup && !Type.IsObject(ToolbarGroup)) throw new Error('Configuration: Toolbar Group must be an object.');
 	} else {
 		Toolbar = ['styles', 'basic', 'script', 'font', 'color', 'alignment', 'indentation'];
 		ToolbarGroup = {

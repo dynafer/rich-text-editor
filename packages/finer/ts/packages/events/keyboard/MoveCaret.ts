@@ -62,10 +62,7 @@ const MoveCaret = (editor: Editor, event: KeyboardEvent) => {
 
 		if (DOM.Element.Table.IsTable(FigureElement)) return false;
 
-		if (
-			(bLeft && caret.Start.Offset !== 0)
-			|| (bRight && caret.Start.Offset !== 1)
-		) {
+		if ((bLeft && caret.Start.Offset !== 0) || (bRight && caret.Start.Offset !== 1)) {
 			moveUtils.UpdateRange(Figure, bLeft ? 0 : 1);
 			return true;
 		}

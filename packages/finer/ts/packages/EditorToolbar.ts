@@ -53,12 +53,12 @@ const EditorToolbar = (editor: Editor): IEditorToolbar => {
 	const LoadAll = () => {
 		Arr.Each(ToolbarSet, toolbar => {
 			if (self.Formatter.Registry.IsAvailable(toolbar)) return self.Formatter.Register(toolbar);
-			if (!ToolbarGroup[toolbar]) return self.Plugin.Get(toolbar)(toolbar);
+			if (!ToolbarGroup[toolbar]) return self.Plugin.Get(toolbar)?.(toolbar);
 
 			Arr.Each(ToolbarGroup[toolbar], groupItem => {
 				if (self.Formatter.Registry.IsAvailable(groupItem)) return self.Formatter.Register(groupItem);
 				if (!self.Plugin.Has(groupItem)) return;
-				self.Plugin.Get(groupItem)(groupItem);
+				self.Plugin.Get(groupItem)?.(groupItem);
 			});
 		});
 
@@ -77,8 +77,7 @@ const EditorToolbar = (editor: Editor): IEditorToolbar => {
 		DOM.Remove(items[Str.LowerCase(name)], true);
 	};
 
-	const RemoveAll = () =>
-		Obj.Keys(items, name => Remove(name));
+	const RemoveAll = () => Obj.Keys(items, name => Remove(name));
 
 	return {
 		Has,

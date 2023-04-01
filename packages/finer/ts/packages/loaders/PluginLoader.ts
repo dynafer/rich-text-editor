@@ -22,14 +22,12 @@ const PluginLoader = (): IPluginLoader => {
 	};
 
 	const Attach = (editor: Editor, name: string): Promise<void> =>
-		new Promise((resolve) => {
+		new Promise(resolve => {
 			try {
-				attached[name](editor);
-				resolve();
+				resolve(attached[name](editor));
 			} catch (error) {
 				console.error(error);
-				editor.Notify(ENotificationStatus.WARNING, `Plugin: ${name} runs inappropriately`);
-				resolve();
+				resolve(editor.Notify(ENotificationStatus.ERROR, `Plugin: ${name} runs inappropriately.`));
 			}
 		});
 

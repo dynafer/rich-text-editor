@@ -1,5 +1,4 @@
 import { Str } from '@dynafer/utils';
-import { IDOMFactory } from '../dom/DOMFactory';
 import { IUISchemaMap } from '../types/UISchema';
 import { IUISettingMap } from '../types/UISetting';
 import Sketcher from './Sketcher';
@@ -20,7 +19,7 @@ const Input = (setting: IUISettingMap['Input']): IUISchemaMap['Input'] => {
 		]
 	});
 
-	const input = schema.GetChildren()[1] as IDOMFactory<HTMLInputElement>;
+	const input = schema.GetChildren<HTMLInputElement>()[1];
 
 	const GetValue = (): string => input.Self.value;
 	const SetValue = (val: string): string => input.Self.value = val;

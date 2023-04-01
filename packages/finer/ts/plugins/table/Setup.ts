@@ -16,8 +16,8 @@ const Setup = (editor: Editor) => {
 		if (!formatUtils.HasFormatName(name as string, formatNames)) return;
 		const uiName = formatUtils.GetFormatName(name as string, formatNames);
 		switch (uiName) {
-			case 'Table':
-				Table(self, ui).Create();
+			case formatNames[0]:
+				Table(self, ui);
 				break;
 		}
 	};

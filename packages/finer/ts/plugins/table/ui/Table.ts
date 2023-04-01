@@ -24,7 +24,7 @@ const Table = (editor: Editor, ui: IPluginTableUI) => {
 		DOM.SetHTML(navigation, `${row + add} × ${cell + add}`);
 
 	const bindCellMouseEnterEvent = (navigation: HTMLElement, cellItem: HTMLElement, row: number, cell: number) =>
-		DOM.On(cellItem, 'mouseenter', () => {
+		DOM.On(cellItem, Finer.NativeEventMap.mouseenter, () => {
 			if (!cellItem.parentElement?.parentElement) return;
 
 			for (let rowIndex = 0; rowIndex < numCells; ++rowIndex) {
@@ -93,32 +93,26 @@ const Table = (editor: Editor, ui: IPluginTableUI) => {
 			setNavigationText(navigation, 1, 1, 0);
 
 			DOM.Insert(navigationWrapper, navigation);
-			DOM.On(navigationWrapper, 'mouseover', removeAllHovered(navigation, navigationWrapper.parentElement));
+			DOM.On(navigationWrapper, Finer.NativeEventMap.mouseover, removeAllHovered(navigation, navigationWrapper.parentElement));
 
 			const items: HTMLElement[] = createRowsAndCells(navigation);
 			Arr.Push(items, navigationWrapper);
 
 			const tableList = formatUI.CreateOptionList(uiName, items);
 			DOM.SetAttr(tableList, DOM.Element.Table.Selector, 'true');
-			DOM.On(tableList, 'mouseleave', removeAllHovered(navigation, tableList));
+			DOM.On(tableList, Finer.NativeEventMap.mouseleave, removeAllHovered(navigation, tableList));
 
 			DOM.Insert(self.Frame.Root, tableList);
 			formatUI.SetOptionListCoordinate(self, uiName, wrapper, tableList);
 		};
 
-	const Create = () => {
-		const iconWrap = ui.CreateIconWrap(uiFormat);
+	const iconWrap = ui.CreateIconWrap(uiFormat);
 
-		DOM.SetAttr(iconWrap.Button, 'no-border', '');
+	DOM.SetAttr(iconWrap.Button, 'no-border');
 
-		formatUI.BindOptionListEvent(self, uiName, iconWrap.Wrapper, iconWrap.Wrapper, createOptionList(iconWrap.Wrapper));
+	formatUI.BindOptionListEvent(self, uiName, iconWrap.Wrapper, iconWrap.Wrapper, createOptionList(iconWrap.Wrapper));
 
-		self.Toolbar.Add('Table', iconWrap.Wrapper);
-	};
-
-	return {
-		Create
-	};
+	self.Toolbar.Add(uiName, iconWrap.Wrapper);
 };
 
 export default Table;

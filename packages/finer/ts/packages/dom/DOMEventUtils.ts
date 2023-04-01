@@ -30,7 +30,7 @@ const DOMEventUtils = (): IDOMEventUtils => {
 
 	const getElementBoundaryId = (target: TEventTarget): string => {
 		const boundaryId = Obj.GetProperty<string>(target, propertyName) ?? createBoundaryId();
-		if (!Obj.HasProperty(target, propertyName)) Object.assign(target)[propertyName] = boundaryId;
+		if (!Obj.HasProperty(target, propertyName)) Obj.SetProperty(target, propertyName, boundaryId);
 		return boundaryId;
 	};
 
@@ -53,19 +53,17 @@ const DOMEventUtils = (): IDOMEventUtils => {
 
 		let index = Arr.Find(events, event);
 		while (index !== -1) {
-			Arr.Remove(events, event, index);
+			Arr.Remove(events, index);
 			target.removeEventListener(eventName, event);
 			index = Arr.Find(events, event);
 		}
 	};
 
-	const unbindRecursive = (target: TEventTarget, eventName: string, events?: EventListener[]): void => {
-		if (!Type.IsArray(events)) return;
-
+	const unbindRecursive = (target: TEventTarget, eventName: string, events: EventListener[]): void => {
 		const event = Arr.Shift(events);
 		if (!Type.IsFunction(event)) return;
 		target.removeEventListener(eventName, event);
-		return unbindRecursive(target, eventName, events);
+		unbindRecursive(target, eventName, events);
 	};
 
 	const UnbindAll = (target: TEventTarget, eventName?: string) => {

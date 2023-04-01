@@ -51,7 +51,7 @@ const ToolsManager = (editor: Editor): IToolsManager => {
 				currentAttacher = Arr.Shift(attachers);
 				if (!currentAttacher) continue;
 
-				Arr.Remove(attachedPartTools[name], currentAttacher);
+				Arr.FindAndRemove(attachedPartTools[name], currentAttacher);
 			}
 		}
 
@@ -63,7 +63,7 @@ const ToolsManager = (editor: Editor): IToolsManager => {
 			currentListeners = Arr.Shift(listeners);
 			if (!currentListeners) continue;
 
-			Arr.Remove(partListeners, currentListeners);
+			Arr.FindAndRemove(partListeners, currentListeners);
 		}
 	};
 

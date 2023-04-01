@@ -57,7 +57,6 @@ const FormatUnwrapper = (editor: Editor): IFormatUnwrapper => {
 			const nextSwitch = DOM.Closest(current.parentElement, switchableSelector);
 			unwrapFormat(current);
 			current = nextSwitch;
-			continue;
 		}
 
 		return true;
@@ -125,7 +124,7 @@ const FormatUnwrapper = (editor: Editor): IFormatUnwrapper => {
 				const tempWrapped = wrapNeedless(child);
 				Obj.Keys(Styles, styleName => DOM.RemoveStyle(tempWrapped, styleName));
 
-				if (Str.IsEmpty(DOM.GetAttr(tempWrapped, 'style'))) {
+				if (Str.IsEmpty(DOM.GetStyleText(tempWrapped))) {
 					Arr.Push(replacedNodes, child);
 					toUnwrap = child;
 					continue;

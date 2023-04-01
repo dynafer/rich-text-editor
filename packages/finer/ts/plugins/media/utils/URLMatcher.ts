@@ -10,10 +10,10 @@ export interface IURLMatcherOptions {
 }
 
 export interface IURLMatachedResult {
-	url: string,
-	format: string | null,
-	width: number | null,
-	height: number | null,
+	URL: string,
+	Format: string | null,
+	Width: number | null,
+	Height: number | null,
 }
 
 const URLMatcher = () => {
@@ -64,19 +64,19 @@ const URLMatcher = () => {
 
 	const Match = (url: string): IURLMatachedResult => {
 		const matched: IURLMatachedResult = {
-			url,
-			format: null,
-			width: null,
-			height: null,
+			URL: url,
+			Format: null,
+			Width: null,
+			Height: null,
 		};
 
 		Arr.Each(matchers, (matcher, exit) => {
 			if (!matcher.pattern.test(url)) return;
 
-			if (Type.IsFunction<string>(matcher.convert)) matched.url = matcher.convert(matched.url);
-			matched.format = matcher.format;
-			matched.width = matcher.width;
-			matched.height = matcher.height;
+			if (Type.IsFunction<string>(matcher.convert)) matched.URL = matcher.convert(matched.URL);
+			matched.Format = matcher.format;
+			matched.Width = matcher.width;
+			matched.Height = matcher.height;
 
 			exit();
 		});

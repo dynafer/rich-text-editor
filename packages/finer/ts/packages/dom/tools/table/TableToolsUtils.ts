@@ -30,9 +30,7 @@ export const MoveToCurrentPoint = (editor: Editor, table: HTMLElement, point: TC
 		const firstCell = DOM.SelectAll(DOM.Element.Table.CellSelector, table)[0];
 		if (!firstCell) return;
 
-		let firstChild: Node | null = DOM.Utils.GetFirstChild(firstCell, true);
-		if (DOM.Utils.IsBr(firstChild)) firstChild = firstChild.parentNode;
-
+		const firstChild = DOM.Utils.GetFirstChild(firstCell, true);
 		if (!firstChild) return;
 
 		const newRange = self.Utils.Range();
@@ -41,14 +39,14 @@ export const MoveToCurrentPoint = (editor: Editor, table: HTMLElement, point: TC
 	}
 
 	if (Type.IsArray(point)) {
-		Arr.Each(point, cell => DOM.SetAttr(cell, Options.ATTRIBUTE_SELECTED, ''));
+		Arr.Each(point, cell => DOM.SetAttr(cell, Options.ATTRIBUTE_SELECTED));
 		point = undefined;
 		return;
 	}
 
 	const newRange = self.Utils.Range();
-	newRange.SetStart(point.Start.Node, point.Start.Offset);
-	newRange.SetEnd(point.End.Node, point.End.Offset);
+	newRange.SetStart(point.Start.Node, DOM.Utils.IsBr(point.Start.Node) ? 0 : point.Start.Offset);
+	newRange.SetEnd(point.End.Node, DOM.Utils.IsBr(point.End.Node) ? 0 : point.End.Offset);
 	CaretUtils.UpdateRanges(newRange);
 };
 

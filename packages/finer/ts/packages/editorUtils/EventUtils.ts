@@ -29,10 +29,9 @@ const EventUtils = (): IEventUtils => {
 
 		let deletedCount = 0;
 		for (let index = 0, length = events[eventName].length; index < length; ++index) {
-			if (events[eventName][index - deletedCount] === event) {
-				events[eventName].splice(index - deletedCount, 1);
-				++deletedCount;
-			}
+			if (events[eventName][index - deletedCount] !== event) continue;
+			Arr.Remove(events[eventName], index - deletedCount);
+			++deletedCount;
 		}
 	};
 

@@ -1,5 +1,5 @@
 import ColorPicker from '@dynafer/colorpicker';
-import { Arr, Str } from '@dynafer/utils';
+import { Arr, Obj, Str } from '@dynafer/utils';
 import DOM from '../../dom/DOM';
 import Editor from '../../Editor';
 import { Formats, ListItemSelector } from '../Format';
@@ -40,7 +40,7 @@ const InlineColor = (editor: Editor, detector: IFormatDetector): IFormatUIRegist
 		},
 	};
 
-	const UINames = Object.keys(ColorFormats);
+	const UINames = Obj.Keys(ColorFormats);
 
 	// color, lighter 40%, lighter 30%, lighter 20%, lighter 10%, darker 10%, darker 20%, darker 30%
 	const STANDARD_PALETTE: TRGBArray[][] = [
@@ -60,7 +60,7 @@ const InlineColor = (editor: Editor, detector: IFormatDetector): IFormatUIRegist
 			const toggler = ToggleInline(self, format);
 			toggler.ToggleFromCaret(bActive as boolean, bActive ? rgb as string : undefined);
 			DOM.SetStyle(navigation, 'background-color', rgb as string);
-			DOM.Dispatch(navigation, 'color:change');
+			DOM.Dispatch(navigation, 'Color:Change');
 		};
 
 	const createPaletteGradients = (uiName: string, colors: TRGBArray[][], bVertical: boolean = true): HTMLElement[] => {
@@ -170,7 +170,7 @@ const InlineColor = (editor: Editor, detector: IFormatDetector): IFormatUIRegist
 		const command = createCommand(uiFormat.Format, colorNavigation);
 		FormatUI.RegisterCommand(self, uiName, command);
 
-		DOM.On(colorNavigation, 'color:change', () => {
+		DOM.On(colorNavigation, 'Color:Change', () => {
 			if (uiFormat.LastPicked.length >= 5) Arr.Shift(uiFormat.LastPicked);
 			const color = ColorPicker.Utils.RGBA.FromString(DOM.GetStyle(colorNavigation, 'background-color'));
 			Arr.Push(uiFormat.LastPicked, color as TRGBArray);
@@ -190,10 +190,9 @@ const InlineColor = (editor: Editor, detector: IFormatDetector): IFormatUIRegist
 		DOM.Insert(button, colorNavigation);
 		DOM.Insert(wrapper, button, helper);
 
-		Detector.Register((paths: Node[]) => {
-			const node = FormatUtils.GetParentIfText(paths[0]);
-			FormatUI.IsNearDisableList(self, uiFormat.Format.DisableList, wrapper, node);
-		});
+		Detector.Register((paths: Node[]) =>
+			FormatUI.IsNearDisableList(self, uiFormat.Format.DisableList, wrapper, FormatUtils.GetParentIfText(paths[0]))
+		);
 
 		return wrapper;
 	};

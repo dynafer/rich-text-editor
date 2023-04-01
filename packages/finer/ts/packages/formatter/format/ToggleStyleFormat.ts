@@ -1,4 +1,4 @@
-import { Arr, Type } from '@dynafer/utils';
+import { Arr, Obj, Type } from '@dynafer/utils';
 import Editor from '../../Editor';
 import { ICaretData } from '../../editorUtils/caret/CaretUtils';
 import { IStyleFormat } from '../FormatType';
@@ -26,7 +26,7 @@ const ToggleStyleFormat = (editor: Editor, formats: IStyleFormat | IStyleFormat[
 
 	const tableProcessor = (bWrap: boolean, value?: string): boolean => {
 		const cells = DOM.Element.Table.GetSelectedCells(self);
-		if (cells.length === 0) return false;
+		if (Arr.IsEmpty(cells)) return false;
 
 		Arr.Each(cells, cell => Toggler.ToggleRecursive(bWrap, formats, cell, { value }));
 
@@ -72,7 +72,8 @@ const ToggleStyleFormat = (editor: Editor, formats: IStyleFormat | IStyleFormat[
 	const calculateRange = (caret: ICaretData, styleName: string, calculateValue: number) => {
 		const lines = DOM.GetChildren(self.GetBody());
 
-		const toggleStyle = (element: Element) => {
+		const toggleStyle = (element: Element | null) => {
+			if (!element) return;
 			const styleValue = DOM.GetStyle(element, styleName, true);
 			const calculated = parseFloat(styleValue) + calculateValue;
 
@@ -83,8 +84,6 @@ const ToggleStyleFormat = (editor: Editor, formats: IStyleFormat | IStyleFormat[
 		const cells = DOM.Element.Table.GetSelectedCells(self);
 		if (!Arr.IsEmpty(cells)) {
 			const { Figure } = DOM.Element.Figure.Find<HTMLElement>(cells[0]);
-			if (!Figure) return;
-
 			return toggleStyle(Figure);
 		}
 
@@ -107,7 +106,7 @@ const ToggleStyleFormat = (editor: Editor, formats: IStyleFormat | IStyleFormat[
 	const CalculateFromCaret = (value: string, bSubtract?: boolean) => {
 		const format = Type.IsArray(formats) ? formats[0] : formats;
 		const { Styles } = format;
-		const styleName = Object.keys(Styles)[0];
+		const styleName = Obj.Keys(Styles)[0];
 		const calculateValue = bSubtract ? -1 * parseFloat(value) : parseFloat(value);
 
 		Arr.Each(CaretUtils.Get(), caret => calculateRange(caret, styleName, calculateValue));

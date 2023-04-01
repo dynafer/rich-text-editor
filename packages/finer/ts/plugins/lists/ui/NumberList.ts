@@ -18,7 +18,7 @@ const NumberList = (editor: Editor, ui: IPluginListUI) => {
 
 	ui.RegisterDetector(button, uiFormat.Format);
 
-	self.Toolbar.Add('NumberList', button);
+	self.Toolbar.Add(uiName, button);
 };
 
 export default NumberList;

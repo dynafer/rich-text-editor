@@ -14,9 +14,7 @@ const AdjustableEdge = (editor: Editor, table: HTMLElement): HTMLElement => {
 	const DOM = self.DOM;
 
 	const adjustableEdgeGroup = DOM.Create('div', {
-		attrs: {
-			dataAdjustableEdgeGroup: '',
-		},
+		attrs: ['data-adjustable-edge-group'],
 	});
 
 	const createCommonEdge = (type: 'west' | 'east', bLeft: boolean, bTop: boolean): HTMLElement =>
@@ -48,13 +46,13 @@ const AdjustableEdge = (editor: Editor, table: HTMLElement): HTMLElement => {
 
 		const adjustItem = event.target as HTMLElement;
 
+		let startOffsetX = event.clientX;
+		let startOffsetY = event.clientY;
+
 		const { Figure, FigureElement } = DOM.Element.Figure.Find<HTMLElement>(adjustItem);
 		if (!Figure || !FigureElement) return;
 
 		let savedPoint = CreateCurrentPoint(self, FigureElement);
-
-		let startOffsetX = event.clientX;
-		let startOffsetY = event.clientY;
 
 		const bLeft = adjustItem === leftTopEdge || adjustItem === leftBottomEdge;
 		const bTop = adjustItem === leftTopEdge || adjustItem === rightTopEdge;
@@ -163,12 +161,13 @@ const AdjustableEdge = (editor: Editor, table: HTMLElement): HTMLElement => {
 
 				if (bHorizontal) bUpdatableX = true;
 				else bUpdatableY = true;
-			} else {
-				if (calculated < 0 && offsetDifference <= 0 && adjustDifference <= 0) {
-					if (bHorizontal) bUpdatableX = false;
-					else bUpdatableY = false;
-					return false;
-				}
+				return calculated;
+			}
+
+			if (calculated < 0 && offsetDifference <= 0 && adjustDifference <= 0) {
+				if (bHorizontal) bUpdatableX = false;
+				else bUpdatableY = false;
+				return false;
 			}
 
 			return calculated;
@@ -193,15 +192,14 @@ const AdjustableEdge = (editor: Editor, table: HTMLElement): HTMLElement => {
 					const cellSizePercent = cellSizePercents[rowIndex][cellIndex];
 					const newStyle: Record<string, string> = {};
 
-					if (!Type.IsBoolean(calculatedX)) {
-						const addableWidth = Formula.RoundDecimal(calculatedX * cellSizePercent[0]);
-						if (addableWidth !== 0) newStyle.width = `${GetClientSize(self, cell, 'width') + addableWidth}px`;
-					}
+					const addStyle = (type: 'width' | 'height', calculated: number) => {
+						const bWidth = type === 'width';
+						const addableSize = Formula.RoundDecimal(calculated * cellSizePercent[bWidth ? 0 : 1]);
+						if (addableSize !== 0) newStyle[type] = `${GetClientSize(self, cell, type) + addableSize}px`;
+					};
 
-					if (!Type.IsBoolean(calculatedY)) {
-						const addableHeight = Formula.RoundDecimal(calculatedY * cellSizePercent[1]);
-						if (addableHeight !== 0) newStyle.height = `${GetClientSize(self, cell, 'height') + addableHeight}px`;
-					}
+					if (!Type.IsBoolean(calculatedX)) addStyle('width', calculatedX);
+					if (!Type.IsBoolean(calculatedY)) addStyle('height', calculatedY);
 
 					Arr.Push(applyStyles, [cell, newStyle]);
 				}
@@ -238,22 +236,19 @@ const AdjustableEdge = (editor: Editor, table: HTMLElement): HTMLElement => {
 				Arr.Each(row, cell => {
 					const newCellWidth = Formula.RoundDecimal(widthDifference * cell.offsetWidth / oldWidth);
 					const newCellHeight = Formula.RoundDecimal(heightDifference * cell.offsetHeight / oldHeight);
+					const styles = {
+						width: `${cell.offsetWidth + newCellWidth}px`,
+						height: `${cell.offsetHeight + newCellHeight}px`,
+					};
 
-					Arr.Push(cellStyles, {
-						cell,
-						styles: {
-							width: `${cell.offsetWidth + newCellWidth}px`,
-							height: `${cell.offsetHeight + newCellHeight}px`,
-						}
-					});
+					Arr.Push(cellStyles, { cell, styles });
 				});
 
 				Arr.Push(cellGridStyles, cellStyles);
 			});
 
-			Arr.Each(cellGridStyles, gridStyles =>
-				Arr.Each(gridStyles, ({ cell, styles }) => DOM.SetStyles(cell, styles))
-			);
+			Arr.Each(cellGridStyles, gridStyles => Arr.Each(gridStyles, ({ cell, styles }) => DOM.SetStyles(cell, styles)));
+			Arr.Clean(cellGridStyles);
 
 			DOM.Show(movable);
 

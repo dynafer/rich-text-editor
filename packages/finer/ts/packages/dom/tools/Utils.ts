@@ -2,38 +2,33 @@ import { Arr } from '@dynafer/utils';
 import Options from '../../../Options';
 import Editor from '../../Editor';
 import { ENativeEvents } from '../../events/EventSetupUtils';
+import { TEventListener } from '../DOM';
 
 export const MOVABLE_ADDABLE_SIZE = 16;
 export const ADJUSTABLE_EDGE_ADDABLE_SIZE = -6;
 export const ADJUSTABLE_LINE_HALF_SIZE = 3;
-export const ADJUSTABLE_LINE_ADDABLE_SIZE = -2;
+export const ADJUSTABLE_LINE_ADDABLE_SIZE = ADJUSTABLE_LINE_HALF_SIZE - (ADJUSTABLE_LINE_HALF_SIZE * 2);
 
-export const GetClientSize = (editor: Editor, target: HTMLElement, type: 'width' | 'height'): number => editor.DOM.GetRect(target)?.[type] ?? 0;
+const getSizeWithPixel = (size: number, bWithPixel: boolean) => bWithPixel ? `${size}px` : size;
+
+export const GetClientSize = (editor: Editor,
+	target: HTMLElement, type: 'width' | 'height'): number => editor.DOM.GetRect(target)?.[type] ?? 0;
 
 export const CreateMovableHorizontalSize = <T extends boolean = false>(size: number, bWithPixel: T | false = false): T extends false ? number : string =>
-	(bWithPixel
-		? `${size - MOVABLE_ADDABLE_SIZE / 2}px`
-		: size - MOVABLE_ADDABLE_SIZE / 2
-	) as T extends false ? number : string;
+	getSizeWithPixel(size - MOVABLE_ADDABLE_SIZE / 2, bWithPixel) as T extends false ? number : string;
 
 export const CreateAdjustableEdgeSize = <T extends boolean = false>(size: number, bWithPixel: T | false = false): T extends false ? number : string =>
-	(bWithPixel
-		? `${size + ADJUSTABLE_EDGE_ADDABLE_SIZE}px`
-		: size + ADJUSTABLE_EDGE_ADDABLE_SIZE
-	) as T extends false ? number : string;
+	getSizeWithPixel(size + ADJUSTABLE_EDGE_ADDABLE_SIZE, bWithPixel) as T extends false ? number : string;
 
 export const CreateAdjustableLineSize = <T extends boolean = false>(size: number, bWithPixel: T | false = false): T extends false ? number : string =>
-	(bWithPixel
-		? `${size + ADJUSTABLE_LINE_ADDABLE_SIZE}px`
-		: size + ADJUSTABLE_LINE_ADDABLE_SIZE
-	) as T extends false ? number : string;
+	getSizeWithPixel(size + ADJUSTABLE_LINE_ADDABLE_SIZE, bWithPixel) as T extends false ? number : string;
 
-export const RegisterAdjustingEvents = (editor: Editor, target: HTMLElement, adjustCallback: (event: MouseEvent) => void, finishCallback: (event: MouseEvent) => void) => {
+export const RegisterAdjustingEvents = (editor: Editor, target: HTMLElement, adjustCallback: TEventListener<'mousemove'>, finishCallback: TEventListener<'mouseup'>) => {
 	const self = editor;
 	const DOM = self.DOM;
 
-	DOM.SetAttr(self.GetBody(), Options.ATTRIBUTE_ADJUSTING, '');
-	self.Dispatch('adjust:start', target);
+	DOM.SetAttr(self.GetBody(), Options.ATTRIBUTE_ADJUSTING);
+	self.Dispatch('Adjust:Start', target);
 
 	const boundEvents: [boolean, (Window & typeof globalThis), ENativeEvents, EventListener][] = [];
 
@@ -44,7 +39,7 @@ export const RegisterAdjustingEvents = (editor: Editor, target: HTMLElement, adj
 		});
 
 	const adjust = (event: MouseEvent) => {
-		self.Dispatch('adjust:move', target);
+		self.Dispatch('Adjust:Move', target);
 		adjustCallback(event);
 	};
 
@@ -52,7 +47,7 @@ export const RegisterAdjustingEvents = (editor: Editor, target: HTMLElement, adj
 		finishCallback(event);
 		removeEvents();
 		DOM.RemoveAttr(self.GetBody(), Options.ATTRIBUTE_ADJUSTING);
-		self.Dispatch('adjust:finish', target);
+		self.Dispatch('Adjust:Finish', target);
 		self.Tools.DOM.ChangePositions();
 	};
 
@@ -94,8 +89,8 @@ export const ChangeAllPositions = (editor: Editor) => {
 					const bWidth = lineType === 'width';
 					styles.width = `${bWidth ? ADJUSTABLE_LINE_HALF_SIZE * 2 - 1 : FigureElement.offsetWidth}px`;
 					styles.height = `${bWidth ? FigureElement.offsetHeight : ADJUSTABLE_LINE_HALF_SIZE * 2 - 1}px`;
-					styles.left = `${bWidth ? 0 : FigureElement.offsetLeft}px`;
-					styles.top = `${bWidth ? FigureElement.offsetTop : 0}px`;
+					if (!bWidth) styles.left = `${FigureElement.offsetLeft}px`;
+					if (bWidth) styles.top = `${FigureElement.offsetTop}px`;
 					break;
 				case 'media':
 					const bHorizontal = lineType === 'left' || lineType === 'right';

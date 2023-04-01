@@ -1,12 +1,12 @@
-import { NodeType } from '@dynafer/dom-control';
+import { Attribute, NodeType } from '@dynafer/dom-control';
 import { Arr, Obj, Str } from '@dynafer/utils';
 import DOMUtils from '../DOMUtils';
 import Table from './Table';
 
 interface IFoundFigure<T extends Element> {
-	Figure: HTMLElement | null,
-	FigureType: string | null,
-	FigureElement: T | null,
+	readonly Figure: HTMLElement | null,
+	readonly FigureType: string | null,
+	readonly FigureElement: T | null,
 }
 
 export interface IFigure {
@@ -41,7 +41,7 @@ const Figure = (): IFigure => {
 	};
 
 	const FindType = (type: string): string => {
-		if (Arr.Contains(Object.keys(FigureTypeMap), type)) return type;
+		if (Arr.Contains(Obj.Keys(FigureTypeMap), type)) return type;
 
 		let foundType = type;
 		Obj.Entries(FigureTypeSetMap, (typeKey, typeSet, exit) => {
@@ -55,33 +55,31 @@ const Figure = (): IFigure => {
 
 	const Create = (type: string): HTMLElement => {
 		const figure = document.createElement(Selector);
-		figure.setAttribute('type', FindType(type));
-		figure.contentEditable = 'false';
+		Attribute.SetMultiple(figure, {
+			type: FindType(type),
+			contenteditable: 'false',
+		});
 		return figure;
 	};
 
 	const SelectFigureElement = <T extends Element>(selector: EventTarget | Node | null): T | null => {
 		if (!selector || !NodeType.IsElement(selector)) return null;
-		const figureType = selector.getAttribute('type');
+		const figureType = Attribute.Get(selector, 'type');
 		if (!figureType) return null;
 
 		return selector.querySelector<T>(!FigureTypeMap[figureType] ? figureType : FigureTypeMap[figureType]);
 	};
 
 	const Find = <T extends Element>(from: EventTarget | Node): IFoundFigure<T> => {
-		const found: IFoundFigure<T> = {
-			Figure: null,
-			FigureType: null,
-			FigureElement: null,
+		const figure = NodeType.IsElement(from) ? from.closest(Selector) : null;
+		const figureType = Attribute.Get(figure, 'type');
+		const figureElement = SelectFigureElement<T>(figure);
+
+		return {
+			Figure: figure,
+			FigureType: figureType,
+			FigureElement: figureElement,
 		};
-
-		if (!NodeType.IsElement(from)) return found;
-
-		found.Figure = from.closest(Selector);
-		found.FigureType = found.Figure?.getAttribute('type') ?? null;
-		found.FigureElement = SelectFigureElement<T>(found.Figure);
-
-		return found;
 	};
 
 	const IsFigure = (selector?: Node | EventTarget | null): selector is HTMLElement =>

@@ -10,14 +10,11 @@ const EnterEvent = (editor: Editor, event: KeyboardEvent) => {
 	if (event.key !== EKeyCode.Enter && event.code !== EKeyCode.Enter) return;
 
 	const caret = CaretUtils.Get()[0];
-	if (!caret || caret.IsRange()) return CaretUtils.Clean();
-
-	if (!DOM.Element.Figure.IsFigure(caret.Start.Node)) return CaretUtils.Clean();
-
-	const figure = caret.Start.Node;
-	if (!figure) return CaretUtils.Clean();
+	if (!caret || caret.IsRange() || !DOM.Element.Figure.IsFigure(caret.Start.Node)) return CaretUtils.Clean();
 
 	PreventEvent(event);
+
+	const figure = caret.Start.Node;
 
 	const bPrevious = caret.Start.Offset === 0;
 	const toggle = bPrevious ? DOM.InsertBefore : DOM.InsertAfter;

@@ -6,7 +6,7 @@ import { IHue } from './Hue';
 import { IPalette } from './Palette';
 
 export interface INavigation extends IDOMFactory {
-	GetRGB: (bArray: boolean) => string | number[] | null,
+	GetRGB: <T extends boolean>(bArray: T) => T extends true ? number[] : (string | null),
 	UpdateRGB: (rgb: IRGBA) => void,
 }
 
@@ -51,7 +51,7 @@ const Navigation = (palette: IPalette, hue: IHue): INavigation => {
 		toggle('error');
 	};
 
-	const GetRGB = (bArray: boolean): string | number[] | null => {
+	const GetRGB = <T extends boolean>(bArray: T): T extends true ? number[] : (string | null) => {
 		const rgb: number[] = [];
 		Obj.Values(rgbElements, inputSchema => {
 			if (Str.IsEmpty(inputSchema.GetValue())) {
@@ -67,7 +67,7 @@ const Navigation = (palette: IPalette, hue: IHue): INavigation => {
 			toggleError(inputSchema, false);
 		});
 
-		return bArray ? rgb : RGBA.ToRGB(...rgb);
+		return (bArray ? rgb : RGBA.ToRGB(...rgb)) as T extends true ? number[] : (string | null);
 	};
 
 	const rgbKeyEvent = () => {

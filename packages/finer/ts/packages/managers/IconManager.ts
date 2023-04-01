@@ -14,15 +14,13 @@ const IconManager = () => {
 	const Get = (icon: string): string => Has(icon) ? icons[icon] : icon;
 
 	const Register = (keyOrMap: string | Record<string, string>, value?: string) => {
-		if (Type.IsString(keyOrMap)) {
-			if (Str.IsEmpty(keyOrMap) || !Type.IsString(value) || Str.IsEmpty(value)) return;
-			icons[keyOrMap] = value;
-			return;
-		}
+		if (!Type.IsString(keyOrMap))
+			return Obj.Entries(keyOrMap, (key, icon) => {
+				icons[key] = icon;
+			});
 
-		Obj.Entries(keyOrMap, (key, icon) => {
-			icons[key] = icon;
-		});
+		if (Str.IsEmpty(keyOrMap) || !Type.IsString(value) || Str.IsEmpty(value)) return;
+		icons[keyOrMap] = value;
 	};
 
 	return {

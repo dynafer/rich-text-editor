@@ -3,9 +3,9 @@ import Editor from '../../packages/Editor';
 import { IPluginsTableFormatUI } from './Type';
 
 interface IPluginsIconWrapReturn {
-	Wrapper: HTMLElement,
-	Button: HTMLElement,
-	Helper: HTMLElement,
+	readonly Wrapper: HTMLElement,
+	readonly Button: HTMLElement,
+	readonly Helper: HTMLElement,
 }
 
 export interface IPluginTableUI {

@@ -14,7 +14,7 @@ const MediaStyles = (editor: Editor, format: IPluginMediaMenuFormatUI) => {
 
 		Arr.Each(SameStyles, sameStyle => DOM.RemoveStyle(figure, sameStyle));
 		const toggleAttr = bAsText ? DOM.SetAttr : DOM.RemoveAttr;
-		toggleAttr(figure, ATTRIBUTE_AS_TEXT, '');
+		toggleAttr(figure, ATTRIBUTE_AS_TEXT);
 
 		DOM.SetStyles(figure, Styles);
 

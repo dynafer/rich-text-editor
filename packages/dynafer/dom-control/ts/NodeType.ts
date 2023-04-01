@@ -1,3 +1,5 @@
+import { Obj } from '@dynafer/utils';
+
 enum ENodeTypeMap {
 	UNKNOWN = 0,
 	ELEMENT = 1,
@@ -14,7 +16,7 @@ enum ENodeTypeMap {
 	NOTATION = 12,
 }
 
-const getNodeType = (value: unknown): number => Object.assign(value ?? {})?.nodeType ?? ENodeTypeMap.UNKNOWN;
+const getNodeType = (value: unknown): number => Obj.GetProperty(value, 'nodeType') ?? ENodeTypeMap.UNKNOWN;
 
 const is = <T>(type: ENodeTypeMap) => (value: unknown): value is T => getNodeType(value) === type;
 

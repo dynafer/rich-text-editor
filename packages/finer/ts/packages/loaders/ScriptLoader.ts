@@ -25,13 +25,10 @@ const ScriptLoader = (loaderName: string): IScriptLoader => {
 
 			script.onload = () => {
 				if (!Has(name)) Arr.Push(loaded, name);
-				DOM.Remove(script);
-				resolve();
+				resolve(DOM.Remove(script));
 			};
 
-			script.onerror = () => {
-				reject(`${loaderName}: ${name} is failed to load scripts`);
-			};
+			script.onerror = () => reject(`${loaderName}: ${name} is failed to load scripts.`);
 
 			DOM.Insert(DOM.Doc.head, script);
 		});
@@ -42,8 +39,8 @@ const ScriptLoader = (loaderName: string): IScriptLoader => {
 			Arr.Each(names, name => Arr.Push(load, Load(name)));
 
 			Promise.all(load)
-				.catch(error => reject(error))
-				.finally(() => resolve());
+				.catch(reject)
+				.finally(resolve);
 		});
 
 	return {

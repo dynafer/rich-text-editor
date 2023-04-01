@@ -1,4 +1,4 @@
-import { Arr, Type } from '@dynafer/utils';
+import { Arr, Obj, Type } from '@dynafer/utils';
 import Editor from '../../Editor';
 import { Formats } from '../Format';
 import ToggleInline from '../format/ToggleInline';
@@ -32,7 +32,7 @@ const Inline = (editor: Editor, detector: IFormatDetector): IFormatUIRegistryUni
 		Code: { Format: Formats.Code as IInlineFormat, Title: 'Code', Icon: 'Code' },
 	};
 
-	const UINames = Object.keys(InlineFormats);
+	const UINames = Obj.Keys(InlineFormats);
 
 	const isDetected = (format: IInlineFormat, nodes: Node[]): boolean => {
 		const { Tag, Styles } = format;

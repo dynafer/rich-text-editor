@@ -10,9 +10,7 @@ const AdjustableLine = (editor: Editor, media: HTMLElement): HTMLElement => {
 	const DOM = self.DOM;
 
 	const adjustableLineGroup = DOM.Create('div', {
-		attrs: {
-			dataAdjustableLineGroup: '',
-		},
+		attrs: ['data-adjustable-line-group'],
 	});
 
 	const createAdjustableLine = (type: 'left' | 'top' | 'right' | 'bottom'): HTMLElement => {
@@ -55,6 +53,9 @@ const AdjustableLine = (editor: Editor, media: HTMLElement): HTMLElement => {
 
 		const adjustItem = event.target as HTMLElement;
 
+		let startOffsetX = event.clientX;
+		let startOffsetY = event.clientY;
+
 		const { Figure, FigureElement } = DOM.Element.Figure.Find<HTMLElement>(adjustItem);
 		if (!Figure || !FigureElement) return;
 
@@ -74,9 +75,6 @@ const AdjustableLine = (editor: Editor, media: HTMLElement): HTMLElement => {
 
 		const getPosition = (element: HTMLElement): number => bWidth ? element.offsetLeft : element.offsetTop;
 		const getSize = (element: HTMLElement): number => bWidth ? element.offsetWidth : element.offsetHeight;
-
-		let startOffsetX = event.clientX;
-		let startOffsetY = event.clientY;
 
 		const oldSize = getSize(figureElement);
 		const oldPosition = getPosition(figureElement);
@@ -145,24 +143,29 @@ const AdjustableLine = (editor: Editor, media: HTMLElement): HTMLElement => {
 
 			const offsetDifference = bPosition ? savedOffsetPosition - currentOffset : currentOffset - savedOffsetPosition;
 
+			const finish = () => {
+				const newStyle: Record<string, string> = {};
+				const newSize = getSize(figureElement) + calculated;
+				newStyle[sizeStyleName] = `${newSize}px`;
+				if (bPosition) newStyle[positionStyleName] = `${minPosition + minSize - newSize}px`;
+
+				DOM.SetStyles(figureElement, newStyle);
+				setAdjustableSizeAndPosition(figureElement);
+			};
+
 			if (!bUpdatable) {
 				if (calculated < 0 || offsetDifference <= 0) return setMinimumSize();
 
 				bUpdatable = true;
-			} else {
-				if (calculated < 0 && offsetDifference <= 0) {
-					bUpdatable = false;
-					return setMinimumSize();
-				}
+				return finish();
 			}
 
-			const newStyle: Record<string, string> = {};
-			const newSize = getSize(figureElement) + calculated;
-			newStyle[sizeStyleName] = `${newSize}px`;
-			if (bPosition) newStyle[positionStyleName] = `${minPosition + minSize - newSize}px`;
+			if (calculated < 0 && offsetDifference <= 0) {
+				bUpdatable = false;
+				return setMinimumSize();
+			}
 
-			DOM.SetStyles(figureElement, newStyle);
-			setAdjustableSizeAndPosition(figureElement);
+			finish();
 		};
 
 		const finishAdjusting = (e: MouseEvent) => {
@@ -183,7 +186,7 @@ const AdjustableLine = (editor: Editor, media: HTMLElement): HTMLElement => {
 
 			DOM.Show(edgeGroup);
 
-			navigation.Remove();
+			navigation.Destory();
 		};
 
 		RegisterAdjustingEvents(self, FigureElement, adjust, finishAdjusting);

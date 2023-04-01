@@ -1,4 +1,4 @@
-import { Arr, Str, Type } from '@dynafer/utils';
+import { Arr, Obj, Str, Type } from '@dynafer/utils';
 import DOM from '../../dom/DOM';
 import Editor from '../../Editor';
 import { AllDisableList, Formats } from '../Format';
@@ -50,7 +50,7 @@ const Block = (editor: Editor, detector: IFormatDetector): IFormatUIRegistryUnit
 		},
 	};
 
-	const UINames = Object.keys(BlockFormats);
+	const UINames = Obj.Keys(BlockFormats);
 
 	const createCommandName = (uiName: string, title: string): string => Str.Merge(uiName, ':', title);
 
@@ -66,11 +66,10 @@ const Block = (editor: Editor, detector: IFormatDetector): IFormatUIRegistryUnit
 
 	const isDetectedByCaret = (tagName: string, nodes?: Node[]): boolean => {
 		const caretNodes: Node[] = Type.IsArray(nodes) ? nodes : [];
-		if (Arr.IsEmpty(caretNodes)) {
+		if (Arr.IsEmpty(caretNodes))
 			Arr.Each(self.Utils.Caret.Get(), caret =>
 				Arr.Push(caretNodes, FormatUtils.GetParentIfText(caret.Start.Node), FormatUtils.GetParentIfText(caret.End.Node))
 			);
-		}
 
 		return isDetected(tagName, caretNodes);
 	};
@@ -113,10 +112,8 @@ const Block = (editor: Editor, detector: IFormatDetector): IFormatUIRegistryUnit
 		const uiFormat = BlockFormats[uiName];
 
 		const selection = FormatUI.CreateSelection(Str.CapitalToSpace(uiName));
-		const setLabelText = (value?: string) => {
-			if (!value || Str.IsEmpty(value)) return DOM.SetText(selection.Label, uiFormat.Items[0].Title);
-			DOM.SetText(selection.Label, value);
-		};
+		const setLabelText = (value?: string) =>
+			DOM.SetText(selection.Label, !value || Str.IsEmpty(value) ? uiFormat.Items[0].Title : value);
 		setLabelText();
 
 		Arr.Each(uiFormat.Items, format => {

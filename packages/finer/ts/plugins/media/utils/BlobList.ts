@@ -22,7 +22,7 @@ const BlobList = (list: FileList) => {
 	const GetTotalSize = (type: string = 'auto'): IFileSize => {
 		let bytes = 0;
 		Arr.Each(files, file => {
-			bytes += file.GetSize('byte').size;
+			bytes += file.GetSize('byte').Size;
 		});
 
 		return CalculateFileSize(type, bytes);

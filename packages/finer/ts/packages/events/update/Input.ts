@@ -33,20 +33,18 @@ const Input = (editor: Editor) => {
 		Arr.Each(styleElements, styleElement => {
 			const editorStyle = DOM.GetAttr(styleElement, Options.ATTRIBUTE_EDITOR_STYLE) ?? '';
 			if (!Str.IsEmpty(editorStyle)) return DOM.SetStyleText(styleElement, editorStyle);
-
 			if (DOM.Utils.GetNodeName(styleElement) !== 'span') return DOM.RemoveAttr(styleElement, 'style');
-
 			if (!styleElement.parentNode) return;
 
 			const children = DOM.GetChildNodes(styleElement);
 
-			if (Arr.IsEmpty(children)) {
-				if (!styleElement.parentElement) return;
-				return DOM.Remove(Str.IsEmpty(DOM.GetText(styleElement.parentElement)) ? styleElement.parentElement : styleElement);
+			if (!Arr.IsEmpty(children)) {
+				styleElement.parentNode.replaceChild(children[0], styleElement);
+				return DOM.InsertAfter(children[0], ...children.slice(1, children.length));
 			}
 
-			styleElement.parentNode.replaceChild(children[0], styleElement);
-			DOM.InsertAfter(children[0], ...children.slice(1, children.length));
+			if (!styleElement.parentElement) return;
+			DOM.Remove(Str.IsEmpty(DOM.GetText(styleElement.parentElement)) ? styleElement.parentElement : styleElement);
 		});
 	};
 
@@ -98,7 +96,7 @@ const Input = (editor: Editor) => {
 		if (!caret) return CaretUtils.Clean();
 
 		fakeFragment = caret.Range.Extract();
-		return CaretUtils.Clean();
+		CaretUtils.Clean();
 	};
 
 	const insertFromDropEvent = (event: InputEvent) =>
@@ -113,8 +111,7 @@ const Input = (editor: Editor) => {
 	const setLastChildName = () => {
 		const root: Node = CaretUtils.Get()[0]?.SameRoot;
 		let current: Node | null = FormatUtils.GetParentIfText(root);
-		while (current && current !== self.GetBody()) {
-			if (current.parentNode && current.parentNode === self.GetBody()) break;
+		while (current && current.parentNode !== self.GetBody()) {
 			current = current.parentNode;
 		}
 		lastChildName = DOM.Utils.GetNodeName(current);
@@ -143,9 +140,7 @@ const Input = (editor: Editor) => {
 			case EInputEventType.deleteByDrag:
 				return deleteByDragEvent(event);
 			case EInputEventType.insertFromDrop:
-				if (!fakeFragment) return processWithDataTransfer(event);
-
-				return runWithCaret(insertFromDropEvent(event));
+				return !fakeFragment ? processWithDataTransfer(event) : runWithCaret(insertFromDropEvent(event));
 			case EInputEventType.insertParagraph:
 				return setLastChildName();
 			default:
@@ -167,9 +162,8 @@ const Input = (editor: Editor) => {
 			return clean();
 
 		const caret = CaretUtils.Get()[0];
-		if (!caret) return clean();
-
-		if (caret.SameRoot.parentNode !== self.GetBody() || DOM.Utils.IsParagraph(caret.SameRoot)) return clean();
+		if (!caret || caret.SameRoot.parentNode !== self.GetBody() || DOM.Utils.IsParagraph(caret.SameRoot))
+			return clean();
 
 		const paragraph = self.CreateEmptyParagraph();
 

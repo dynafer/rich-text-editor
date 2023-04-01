@@ -35,7 +35,7 @@ export interface IStyleFormat {
 }
 
 export interface IFormatUIRegistryUnit {
-	UINames: string[],
+	readonly UINames: string[],
 	Create: (name: string) => HTMLElement,
 }
 

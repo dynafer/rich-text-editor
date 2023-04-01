@@ -83,11 +83,9 @@ const Unwrapper = (editor: Editor, format: IPluginListFormat) => {
 		if (!node) return;
 		const target = formatUtils.GetParentIfText(node);
 
-		const table = DOM.Element.Table.GetClosest(target);
-		if (!!table) return;
-
 		const oldList = DOM.Closest(target, Tag);
-		if (!oldList) return;
+		const table = DOM.Element.Table.GetClosest(target);
+		if (!oldList || !!table) return;
 
 		const children = DOM.GetChildNodes(oldList);
 		const startChild = !bFromFirst ? node : children[0];

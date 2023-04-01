@@ -10,8 +10,8 @@ export const ATTRIBUTE_AS_TEXT = 'data-as-text';
 
 export const CalculateFileSize = (type: string = 'auto', size: number = 0) => {
 	const fileSize: IFileSize = {
-		size,
-		unit: FILE_SIZE_UNITS[0]
+		Size: size,
+		Unit: FILE_SIZE_UNITS[0]
 	};
 
 	switch (Str.LowerCase(type)) {
@@ -20,15 +20,15 @@ export const CalculateFileSize = (type: string = 'auto', size: number = 0) => {
 		case 'gb':
 		case 'tb':
 			const power = Math.min(Math.floor(Math.log(size) / Math.log(MAX_BYTES)), FILE_SIZE_UNITS.length - 1);
-			fileSize.size = size / (MAX_BYTES ** power);
-			fileSize.unit = FILE_SIZE_UNITS[power];
+			fileSize.Size = size / (MAX_BYTES ** power);
+			fileSize.Unit = FILE_SIZE_UNITS[power];
 			break;
 		case 'auto':
 			for (let index = 0, length = FILE_SIZE_UNITS.length; index < length; ++index) {
 				const currentSize = size / (MAX_BYTES ** index);
 				if (Math.floor(currentSize * 10) < 1) break;
-				fileSize.size = currentSize;
-				fileSize.unit = FILE_SIZE_UNITS[index];
+				fileSize.Size = currentSize;
+				fileSize.Unit = FILE_SIZE_UNITS[index];
 			}
 			break;
 	}

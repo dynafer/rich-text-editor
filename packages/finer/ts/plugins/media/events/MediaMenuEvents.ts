@@ -37,8 +37,8 @@ const MediaMenuEvents = (editor: Editor) => {
 		});
 
 	const Register = () => {
-		self.On('adjust:start', getAdjustEvent('start'));
-		self.On('adjust:finish', getAdjustEvent('finish'));
+		self.On('Adjust:Start', getAdjustEvent('start'));
+		self.On('Adjust:Finish', getAdjustEvent('finish'));
 		DOM.On(DOM.Win, Finer.NativeEventMap.scroll, scrollEvent);
 	};
 

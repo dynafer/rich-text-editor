@@ -16,7 +16,7 @@ const AdjustingNavigation = (editor: Editor, media: HTMLElement, fakeMedia: HTML
 		class: DOM.Utils.CreateUEID('media-size-navigation', false),
 	});
 
-	const getOriginalSize = (type: 'width' | 'height') => {
+	const getOriginalSize = (type: 'width' | 'height'): number => {
 		const bWidth = type === 'width';
 		if (DOM.Utils.IsImage(media)) return bWidth ? media.naturalWidth : media.naturalHeight;
 		if (DOM.Utils.IsVideo(media)) return bWidth ? media.videoWidth : media.videoHeight;
@@ -52,11 +52,11 @@ const AdjustingNavigation = (editor: Editor, media: HTMLElement, fakeMedia: HTML
 
 	DOM.Insert(DOM.Doc.body, navigation);
 
-	const Remove = () => DOM.Remove(navigation);
+	const Destory = () => DOM.Remove(navigation);
 
 	return {
 		Update,
-		Remove,
+		Destory,
 	};
 };
 

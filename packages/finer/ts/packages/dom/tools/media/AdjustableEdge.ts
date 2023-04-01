@@ -10,9 +10,7 @@ const AdjustableEdge = (editor: Editor, media: HTMLElement): HTMLElement => {
 	const DOM = self.DOM;
 
 	const adjustableEdgeGroup = DOM.Create('div', {
-		attrs: {
-			dataAdjustableEdgeGroup: '',
-		},
+		attrs: ['data-adjustable-edge-group'],
 	});
 
 	const createCommonEdge = (type: 'west' | 'east', bLeft: boolean, bTop: boolean): HTMLElement =>
@@ -51,6 +49,9 @@ const AdjustableEdge = (editor: Editor, media: HTMLElement): HTMLElement => {
 
 		const adjustItem = event.target as HTMLElement;
 
+		let startOffsetX = event.clientX;
+		let startOffsetY = event.clientY;
+
 		const { Figure, FigureElement } = DOM.Element.Figure.Find<HTMLElement>(adjustItem);
 		if (!Figure || !FigureElement) return;
 
@@ -61,9 +62,6 @@ const AdjustableEdge = (editor: Editor, media: HTMLElement): HTMLElement => {
 			DOM.InsertAfter(FigureElement, figureElement);
 			DOM.Hide(FigureElement);
 		}
-
-		let startOffsetX = event.clientX;
-		let startOffsetY = event.clientY;
 
 		const bLeft = adjustItem === leftTopEdge || adjustItem === leftBottomEdge;
 		const bTop = adjustItem === leftTopEdge || adjustItem === rightTopEdge;
@@ -112,13 +110,11 @@ const AdjustableEdge = (editor: Editor, media: HTMLElement): HTMLElement => {
 		const bFigureRight = DOM.HasStyle(Figure, 'float', 'right')
 			|| (DOM.HasStyle(Figure, 'margin-left', 'auto') && !DOM.HasStyle(Figure, 'margin-right', 'auto'));
 
-		const startWidthDifference = bLeft ? 0 : (minWidth - oldWidth);
-		const adjustLeftDifference = minLeft - oldLeft + startWidthDifference;
+		const adjustLeftDifference = minLeft - oldLeft + (bLeft ? 0 : (minWidth - oldWidth));
 		const minimumOffsetX = startOffsetX + adjustLeftDifference;
 		const minimumAdjustPositionX = adjustItem.offsetLeft + adjustLeftDifference;
 
-		const startHeightDifference = bTop ? 0 : (minHeight - oldHeight);
-		const adjustTopDifference = minTop - oldTop + startHeightDifference;
+		const adjustTopDifference = minTop - oldTop + (bTop ? 0 : (minHeight - oldHeight));
 		const minimumOffsetY = startOffsetY + adjustTopDifference;
 		const minimumAdjustPositionY = adjustItem.offsetTop + adjustTopDifference;
 
@@ -148,12 +144,13 @@ const AdjustableEdge = (editor: Editor, media: HTMLElement): HTMLElement => {
 
 				if (bHorizontal) bUpdatableX = true;
 				else bUpdatableY = true;
-			} else {
-				if (calculated < 0 && offsetDifference <= 0 && adjustDifference <= 0) {
-					if (bHorizontal) bUpdatableX = false;
-					else bUpdatableY = false;
-					return false;
-				}
+				return calculated;
+			}
+
+			if (calculated < 0 && offsetDifference <= 0 && adjustDifference <= 0) {
+				if (bHorizontal) bUpdatableX = false;
+				else bUpdatableY = false;
+				return false;
 			}
 
 			return calculated;
@@ -161,6 +158,7 @@ const AdjustableEdge = (editor: Editor, media: HTMLElement): HTMLElement => {
 
 		const adjust = (e: MouseEvent) => {
 			PreventEvent(e);
+
 			const currentOffsetX = e.clientX;
 			const currentOffsetY = e.clientY;
 
@@ -173,16 +171,18 @@ const AdjustableEdge = (editor: Editor, media: HTMLElement): HTMLElement => {
 
 			const newStyle: Record<string, string> = {};
 
-			if (!Type.IsBoolean(calculatedX)) {
-				const newWidth = figureElement.offsetWidth + calculatedX;
-				newStyle.width = `${newWidth}px`;
-				if (bLeft && !bFigureRight) newStyle.left = `${minLeft + minWidth - newWidth}px`;
-			}
-			if (!Type.IsBoolean(calculatedY)) {
-				const newHeight = figureElement.offsetHeight + calculatedY;
-				newStyle.height = `${newHeight}px`;
-				if (bTop) newStyle.top = `${minTop + minHeight - newHeight}px`;
-			}
+			const updateSize = (type: 'width' | 'height', calculated: number, bUpdatePosition: boolean) => {
+				const bWidth = type === 'width';
+				const newSize = (bWidth ? figureElement.offsetWidth : figureElement.offsetHeight) + calculated;
+				newStyle[type] = `${newSize}px`;
+				if (!bUpdatePosition) return;
+
+				const minPosition = (bWidth ? minLeft : minTop) + (bWidth ? minWidth : minHeight);
+				newStyle[bWidth ? 'left' : 'top'] = `${minPosition - newSize}px`;
+			};
+
+			if (!Type.IsBoolean(calculatedX)) updateSize('width', calculatedX, bLeft && !bFigureRight);
+			if (!Type.IsBoolean(calculatedY)) updateSize('height', calculatedY, bTop);
 
 			DOM.SetStyles(figureElement, newStyle);
 
@@ -213,7 +213,7 @@ const AdjustableEdge = (editor: Editor, media: HTMLElement): HTMLElement => {
 
 			DOM.Show(lineGroup);
 
-			navigation.Remove();
+			navigation.Destory();
 		};
 
 		RegisterAdjustingEvents(self, FigureElement, adjust, finishAdjusting);

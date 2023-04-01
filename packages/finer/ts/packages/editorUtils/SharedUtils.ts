@@ -4,8 +4,8 @@ import Editor from '../Editor';
 import FormatUtils from '../formatter/FormatUtils';
 
 interface ISplitedLines {
-	StartBlock: Node | null,
-	EndBlock: Node | null,
+	readonly StartBlock: Node | null,
+	readonly EndBlock: Node | null,
 }
 
 export interface ISharedUtils {
@@ -22,23 +22,21 @@ const SharedUtils = (editor: Editor): ISharedUtils => {
 
 		const carets = self.Utils.Caret.Get();
 
-		if (
-			(newPaths.length === 1 || !!DOM.Select(DOM.Element.Table.Selector, newPaths[0]))
-			&& carets[0]
-		) Arr.Push(newPaths, ...Arr.MergeUnique(carets[0].Start.Path, carets[0].End.Path));
+		if (carets[0] && (newPaths.length === 1 || !!DOM.Select(DOM.Element.Table.Selector, newPaths[0])))
+			Arr.Push(newPaths, ...Arr.MergeUnique(carets[0].Start.Path, carets[0].End.Path));
 
-		if (!Arr.IsEmpty(newPaths)) return self.Dispatch('caret:change', newPaths);
+		if (!Arr.IsEmpty(newPaths)) return self.Dispatch('Caret:Change', newPaths);
 
 		if (!Arr.IsEmpty(carets)) {
 			Arr.Push(newPaths, ...Arr.Reverse(Arr.MergeUnique(carets[0].Start.Path, carets[0].End.Path)));
-			return self.Dispatch('caret:change', newPaths);
+			return self.Dispatch('Caret:Change', newPaths);
 		}
 
 		const selectedCells = DOM.Element.Table.GetSelectedCells(self);
-		if (Arr.IsEmpty(selectedCells)) return self.Dispatch('caret:change', newPaths);
+		if (Arr.IsEmpty(selectedCells)) return self.Dispatch('Caret:Change', newPaths);
 
 		Arr.Push(newPaths, ...DOM.GetChildren(selectedCells[0]));
-		self.Dispatch('caret:change', newPaths);
+		self.Dispatch('Caret:Change', newPaths);
 	};
 
 	const SplitLines = (node: Node, offset: number): ISplitedLines => {
@@ -73,11 +71,8 @@ const SharedUtils = (editor: Editor): ISharedUtils => {
 				currentParent.removeChild(savedNode);
 			}
 
-			if (DOM.GetChildNodes(parentBlock).length >= 1) {
-				if (currentParent !== nextTextParent
-					|| (currentParent === nextTextParent && nextText.length !== 0)
-				) EndBlock = parentBlock;
-			}
+			const bEndBlock = currentParent !== nextTextParent || (currentParent === nextTextParent && nextText.length !== 0);
+			if (DOM.GetChildNodes(parentBlock).length >= 1 && bEndBlock) EndBlock = parentBlock;
 
 			if (currentParent.parentNode === until) StartBlock = currentParent;
 

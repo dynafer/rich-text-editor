@@ -1,20 +1,20 @@
-import { Insert } from '@dynafer/dom-control';
+import { Inserter } from '@dynafer/dom-control';
 import { Sketcher } from '@dynafer/sketcher';
 import Footer from './ui/Footer';
 import Form from './ui/Form';
 import { Hex, HSV, IHexUtils, IHSVUtils, IRGBAUtils, NAME, RGBA } from './utils/Utils';
 
 export interface IColorPickerSetting {
-	Icons: Record<string, string>,
+	readonly Icons: Record<string, string>,
 	Pick: (rgb: string) => void,
 }
 
 export interface IColorPicker {
 	Create: (setting: IColorPickerSetting) => void,
-	Utils: {
-		RGBA: IRGBAUtils,
-		Hex: IHexUtils,
-		HSV: IHSVUtils,
+	readonly Utils: {
+		readonly RGBA: IRGBAUtils,
+		readonly Hex: IHexUtils,
+		readonly HSV: IHSVUtils,
 	},
 }
 
@@ -28,11 +28,9 @@ const ColorPicker = (): IColorPicker => {
 			Icons: setting.Icons,
 			Body: form.Form,
 			Footer: Footer(
+				() => schema.Schema.Destroy(),
 				() => {
-					schema.Schema.Destroy();
-				},
-				() => {
-					const rgbString = form.Navigation.GetRGB(false) as string | null;
+					const rgbString = form.Navigation.GetRGB(false);
 					if (!rgbString) return;
 
 					setting.Pick(rgbString);
@@ -41,7 +39,7 @@ const ColorPicker = (): IColorPicker => {
 			),
 		});
 
-		Insert.AfterInner(schema.Schema.GetBody(), schema.Schema.Self);
+		Inserter.AfterInner(document, schema.Schema.GetBody(), schema.Schema.Self);
 	};
 
 	return {

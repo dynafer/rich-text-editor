@@ -13,11 +13,13 @@ const Movable = (editor: Editor, table: HTMLElement): HTMLElement => {
 	const CaretUtils = self.Utils.Caret;
 
 	const movable = DOM.Create('div', {
-		attrs: {
-			dataMovable: '',
-			draggable: 'true',
-			title: 'Move a table',
-		},
+		attrs: [
+			'data-movable',
+			{
+				draggable: 'true',
+				title: 'Move a table',
+			},
+		],
 		styles: {
 			left: CreateMovableHorizontalSize(table.offsetLeft + table.offsetWidth / 2, true),
 		},
@@ -29,9 +31,9 @@ const Movable = (editor: Editor, table: HTMLElement): HTMLElement => {
 		if (!Figure || !FigureElement) return;
 
 		const cells = DOM.SelectAll(DOM.Element.Table.CellSelector, FigureElement);
-		Arr.Each(cells, cell => DOM.SetAttr(cell, Options.ATTRIBUTE_SELECTED, ''));
+		Arr.Each(cells, cell => DOM.SetAttr(cell, Options.ATTRIBUTE_SELECTED));
 
-		DOM.SetAttr(Figure, Options.ATTRIBUTE_FOCUSED, '');
+		DOM.SetAttr(Figure, Options.ATTRIBUTE_FOCUSED);
 
 		self.Utils.Shared.DispatchCaretChange();
 	});
@@ -51,9 +53,9 @@ const Movable = (editor: Editor, table: HTMLElement): HTMLElement => {
 		};
 
 		const cells = DOM.SelectAll(DOM.Element.Table.CellSelector, FigureElement);
-		Arr.Each(cells, cell => DOM.SetAttr(cell, Options.ATTRIBUTE_SELECTED, ''));
+		Arr.Each(cells, cell => DOM.SetAttr(cell, Options.ATTRIBUTE_SELECTED));
 
-		DOM.SetAttr(Figure, Options.ATTRIBUTE_FOCUSED, '');
+		DOM.SetAttr(Figure, Options.ATTRIBUTE_FOCUSED);
 
 		const stopDragEvent = (e: InputEvent) => {
 			PreventEvent(e);

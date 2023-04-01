@@ -1,4 +1,4 @@
-import { Attribute, NodeType, Style } from '@dynafer/dom-control';
+import { Attribute, Inserter, NodeType, Style } from '@dynafer/dom-control';
 import { Arr, Obj, Str, Type } from '@dynafer/utils';
 import Options from '../../Options';
 import DOMElement, { IDOMElement } from './DOMElement';
@@ -6,12 +6,15 @@ import DOMEventUtils, { IDOMEventUtils, TEventTarget } from './DOMEventUtils';
 import DOMUtils, { ESCAPE_EMPTY_TEXT_REGEX, ICreateSelectorOption, IDOMUtils } from './DOMUtils';
 
 export type TElement = Node | Element | null;
-export type TCreateOption = Record<string, string> | string[] | string | TElement[] | (string | TElement)[];
+export type TCreateOption = Attribute.TAttributeSetter | string | TElement[] | (string | TElement)[];
 export type TEventListener<K extends keyof GlobalEventHandlersEventMap> = (event: GlobalEventHandlersEventMap[K]) => void;
 
 export interface IDom {
 	readonly Win: Window & typeof globalThis,
 	readonly Doc: Document,
+	readonly Utils: IDOMUtils,
+	readonly EventUtils: IDOMEventUtils,
+	readonly Element: IDOMElement,
 	New: (win: Window & typeof globalThis, doc: Document, bEditor: boolean) => IDom,
 	GetRoot: () => HTMLElement,
 	CreateFragment: () => DocumentFragment,
@@ -25,8 +28,8 @@ export interface IDom {
 		(selector: string | ICreateSelectorOption, parent?: TElement): HTMLElement[],
 	},
 	GetAttr: (selector: TElement, attr: string) => string | null,
-	SetAttr: (selector: TElement, attr: string, value: string) => void,
-	SetAttrs: (selector: TElement, attrs: Record<string, string>) => void,
+	SetAttr: (selector: TElement, attr: string, value?: string) => void,
+	SetAttrs: (selector: TElement, attrs: Attribute.TAttributeSetter) => void,
 	HasAttr: (selector: TElement, attr: string, value?: string) => boolean,
 	RemoveAttr: (selector: TElement, attr: string) => void,
 	RemoveAttrs: (selector: TElement, ...attrs: string[]) => void,
@@ -50,9 +53,9 @@ export interface IDom {
 	GetRect: (selector: HTMLElement | null) => DOMRect | null,
 	GetText: (selector: TElement) => string,
 	GetHTML: (selector: TElement) => string,
+	GetOuterHTML: (selector: TElement) => string,
 	SetText: (selector: TElement, text: string) => void,
 	SetHTML: (selector: TElement, html: string) => void,
-	GetOuterHTML: (selector: TElement) => string,
 	SetOuterHTML: (selector: TElement, html: string) => void,
 	InsertBefore: (selector: TElement, ...insertions: (string | TElement)[]) => void,
 	Insert: (selector: TElement, ...insertions: (string | TElement)[]) => void,
@@ -79,7 +82,6 @@ export interface IDom {
 		<K extends keyof GlobalEventHandlersEventMap>(selector: TEventTarget, eventName: K, event: TEventListener<K>): void;
 		(selector: TEventTarget, eventName: string, event: EventListener): void;
 	},
-	OffAll: (selector: TEventTarget) => void,
 	Dispatch: {
 		<K extends keyof GlobalEventHandlersEventMap>(selector: TEventTarget, eventName: K): void;
 		(selector: TEventTarget, eventName: string): void;
@@ -93,9 +95,6 @@ export interface IDom {
 	},
 	RemoveChildren: (selector: TElement, bBubble?: boolean) => void,
 	Remove: (selector: TElement, bBubble?: boolean) => void,
-	readonly Utils: IDOMUtils,
-	readonly EventUtils: IDOMEventUtils,
-	readonly Element: IDOMElement,
 }
 
 const DOM = (_win: Window & typeof globalThis = window, _doc: Document = document, bFromEditor: boolean = false): IDom => {
@@ -110,7 +109,6 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 	const GetRoot = (): HTMLElement => Doc.documentElement;
 
 	const CreateFragment = (): DocumentFragment => Doc.createDocumentFragment();
-
 	const CreateTextNode = (text: string): Text => Doc.createTextNode(text);
 
 	const Select = (selector: string | ICreateSelectorOption, parent?: TElement): HTMLElement | null =>
@@ -119,36 +117,17 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 			: Doc.querySelector(Type.IsString(selector) ? selector : Utils.CreateSelector(selector));
 
 	const SelectAll = (selector: string | ICreateSelectorOption, parent?: TElement): HTMLElement[] =>
-		Array.from(NodeType.IsElement(parent) || NodeType.IsDocumentFragment(parent)
+		Arr.Convert(NodeType.IsElement(parent) || NodeType.IsDocumentFragment(parent)
 			? parent.querySelectorAll(Type.IsString(selector) ? selector : Utils.CreateSelector(selector))
 			: Doc.querySelectorAll(Type.IsString(selector) ? selector : Utils.CreateSelector(selector))
 		);
 
-	const GetAttr = (selector: TElement, attr: string): string | null =>
-		!NodeType.IsElement(selector) || !Type.IsString(attr) ? null : Attribute.Get(selector, attr);
-
-	const SetAttr = (selector: TElement, attr: string, value: string) => {
-		if (!NodeType.IsElement(selector) || !Type.IsString(attr) || !Type.IsString(value)) return;
-		Attribute.Set(selector, attr, value);
-	};
-
-	const SetAttrs = (selector: TElement, attrs: Record<string, string>) => {
-		if (!NodeType.IsElement(selector)) return;
-		Obj.Entries(attrs, (attr, value) => SetAttr(selector, attr, value));
-	};
-
-	const HasAttr = (selector: TElement, attr: string, value?: string): boolean =>
-		!NodeType.IsElement(selector) ? false : Attribute.Has(selector, attr, value);
-
-	const RemoveAttr = (selector: TElement, attr: string) => {
-		if (!NodeType.IsElement(selector) || !Type.IsString(attr)) return;
-		Attribute.Remove(selector, attr);
-	};
-
-	const RemoveAttrs = (selector: TElement, ...attrs: string[]) => {
-		if (!NodeType.IsElement(selector)) return;
-		Arr.Each(attrs, attr => RemoveAttr(selector, attr));
-	};
+	const GetAttr = (selector: TElement, attr: string): string | null => Attribute.Get(selector, attr);
+	const SetAttr = (selector: TElement, attr: string, value?: string) => Attribute.Set(selector, attr, value);
+	const SetAttrs = (selector: TElement, attrs: Attribute.TAttributeSetter) => Attribute.SetMultiple(selector, attrs);
+	const HasAttr = (selector: TElement, attr: string, value?: string): boolean => Attribute.Has(selector, attr, value);
+	const RemoveAttr = (selector: TElement, attr: string) => Attribute.Remove(selector, attr);
+	const RemoveAttrs = (selector: TElement, ...attrs: string[]) => Arr.Each(attrs, attr => RemoveAttr(selector, attr));
 
 	const AddClass = (selector: TElement, ...classes: string[]) => {
 		if (!NodeType.IsElement(selector)) return;
@@ -166,109 +145,41 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 		selector.classList.remove(...classes);
 	};
 
-	const GetStyleText = (selector: TElement): string =>
-		!NodeType.IsElement(selector) ? '' : Style.GetText(selector);
-
-	const GetStyles = (selector: TElement): Record<string, string> =>
-		!NodeType.IsElement(selector) ? {} : Style.GetAsMap(selector);
-
-	const GetStyle = (selector: TElement, name: string, bComputed?: boolean): string =>
-		!NodeType.IsElement(selector) ? '' : Style.Get(selector, name, bComputed);
-
-	const SetStyleText = (selector: TElement, styleText: string) => {
-		if (!NodeType.IsElement(selector) || !Type.IsString(styleText)) return;
-		Style.SetText(selector, styleText);
-	};
-
+	const GetStyleText = (selector: TElement): string => Style.GetText(selector);
+	const GetStyles = (selector: TElement): Record<string, string> => Style.GetAsMap(selector);
+	const GetStyle = (selector: TElement, name: string, bComputed?: boolean): string => Style.Get(Win, selector, name, bComputed);
+	const SetStyleText = (selector: TElement, styleText: string) => Style.SetText(selector, styleText);
 	const SetStyle = (selector: TElement, name: string, value: string) => {
-		if (!NodeType.IsElement(selector) || !Type.IsString(name) || !Type.IsString(value)) return;
 		Style.Set(selector, name, value);
 		if (bFromEditor) SetAttr(selector, Options.ATTRIBUTE_EDITOR_STYLE, GetStyleText(selector));
 	};
-
 	const SetStyles = (selector: TElement, styles: Record<string, string>) => {
-		if (!NodeType.IsElement(selector)) return;
 		Style.SetAsMap(selector, styles);
 		if (bFromEditor) SetAttr(selector, Options.ATTRIBUTE_EDITOR_STYLE, GetStyleText(selector));
 	};
-
 	const RemoveStyle = (selector: TElement, name: string) => {
-		if (!NodeType.IsElement(selector) || !Type.IsString(name)) return;
 		Style.Remove(selector, name);
 		if (!bFromEditor) return;
-
 		if (Str.IsEmpty(GetStyleText(selector))) return RemoveAttr(selector, Options.ATTRIBUTE_EDITOR_STYLE);
 		SetAttr(selector, Options.ATTRIBUTE_EDITOR_STYLE, GetStyleText(selector));
 	};
-
 	const HasStyle = (selector: TElement, name: string, compareValue?: string): boolean =>
 		!NodeType.IsElement(selector) || !Type.IsString(name) ? false : Style.Has(selector, name, compareValue);
 
-	const GetRect = ((selector: TElement): DOMRect | null =>
-		!NodeType.IsElement(selector) ? null : selector.getClientRects()[0]);
+	const GetRect = ((selector: TElement): DOMRect | null => !NodeType.IsElement(selector) ? null : selector.getClientRects()[0]);
 
-	const GetText = (selector: TElement): string =>
-		decodeURI(encodeURI(Obj.GetProperty(selector, 'innerText') ?? '').replace(ESCAPE_EMPTY_TEXT_REGEX, ''));
+	const removeEmptyText = (text: string): string => decodeURI(encodeURI(text).replace(ESCAPE_EMPTY_TEXT_REGEX, ''));
 
-	const GetHTML = (selector: TElement): string =>
-		decodeURI(encodeURI(Obj.GetProperty(selector, 'innerHTML') ?? '').replace(ESCAPE_EMPTY_TEXT_REGEX, ''));
+	const GetText = (selector: TElement): string => removeEmptyText(Obj.GetProperty(selector, 'innerText') ?? '');
+	const GetHTML = (selector: TElement): string => removeEmptyText(Obj.GetProperty(selector, 'innerHTML') ?? '');
+	const GetOuterHTML = (selector: TElement): string => removeEmptyText(Obj.GetProperty(selector, 'outerHTML') ?? '');
+	const SetText = (selector: TElement, text: string) => Obj.SetProperty(selector, 'innerText', text);
+	const SetHTML = (selector: TElement, text: string) => Obj.SetProperty(selector, 'innerHTML', text);
+	const SetOuterHTML = (selector: TElement, text: string) => Obj.SetProperty(selector, 'outerHTML', text);
 
-	const SetText = (selector: TElement, text: string) => {
-		if (!NodeType.IsElement(selector) || !Obj.HasProperty<HTMLElement>(selector, 'innerText')) return;
-		selector.innerText = text;
-	};
-
-	const SetHTML = (selector: TElement, html: string) => {
-		if (!NodeType.IsElement(selector)) return;
-		selector.innerHTML = html;
-	};
-
-	const GetOuterHTML = (selector: TElement): string =>
-		!NodeType.IsElement(selector) ? '' : decodeURI(encodeURI(selector.outerHTML).replace(ESCAPE_EMPTY_TEXT_REGEX, ''));
-
-	const SetOuterHTML = (selector: TElement, html: string) => {
-		if (!NodeType.IsElement(selector)) return;
-		selector.outerHTML = html;
-	};
-
-	const InsertBefore = (selector: TElement, ...insertions: (string | TElement)[]) => {
-		if (!NodeType.IsElement(selector) && !NodeType.IsNode(selector)) return;
-
-		Arr.Each(insertions, insertion => {
-			if (!insertion) return;
-
-			if (NodeType.IsElement(selector) && Type.IsString(insertion))
-				return selector.insertAdjacentHTML('beforebegin', insertion);
-
-			(selector as ChildNode).before(insertion);
-		});
-	};
-
-	const Insert = (selector: TElement, ...insertions: (string | TElement)[]) => {
-		if ((!NodeType.IsElement(selector) && !NodeType.IsNode(selector))) return;
-
-		Arr.Each(insertions, insertion => {
-			if (!insertion) return;
-
-			if (NodeType.IsElement(selector) && Type.IsString(insertion))
-				return selector.insertAdjacentHTML('beforeend', insertion);
-
-			selector.appendChild(Type.IsString(insertion) ? CreateTextNode(insertion) : insertion);
-		});
-	};
-
-	const InsertAfter = (selector: TElement, ...insertions: (string | TElement)[]) => {
-		if (!NodeType.IsElement(selector) && !NodeType.IsNode(selector)) return;
-
-		Arr.Each(insertions, insertion => {
-			if (!insertion) return;
-
-			if (NodeType.IsElement(selector) && Type.IsString(insertion))
-				return selector.insertAdjacentHTML('afterend', insertion);
-
-			(selector as ChildNode).after(insertion);
-		});
-	};
+	const InsertBefore = (selector: TElement, ...insertions: (string | TElement)[]) => Inserter.BeforeOuter(selector, ...insertions);
+	const Insert = (selector: TElement, ...insertions: (string | TElement)[]) => Inserter.AfterInner(Doc, selector, ...insertions);
+	const InsertAfter = (selector: TElement, ...insertions: (string | TElement)[]) => Inserter.AfterOuter(selector, ...insertions);
 
 	const Clone = <T extends Element>(selector: T | NonNullable<TElement>, bDeep?: boolean): T | Node => selector.cloneNode(bDeep);
 
@@ -288,15 +199,10 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 		return closest;
 	};
 
-	const ClosestByStyle = (selector: TElement, styles: string | (string | Record<string, string>)[] | Record<string, string>): Element | null => {
-		if (!NodeType.IsElement(selector)) return null;
-
-		if (!Type.IsString(styles) && !Type.IsArray(styles) && !Type.IsObject(styles)) return null;
-
-		return Closest(selector, Utils.CreateSelector({
-			styles,
-		}));
-	};
+	const ClosestByStyle = (selector: TElement, styles: string | (string | Record<string, string>)[] | Record<string, string>): Element | null =>
+		!Type.IsString(styles) && !Type.IsArray(styles) && !Type.IsObject(styles)
+			? null
+			: Closest(selector, Utils.CreateSelector({ styles }));
 
 	const IsEditable = (selector: Node): boolean => HasAttr(selector, 'contenteditable', 'true');
 
@@ -321,7 +227,7 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 		if (!selector) return ([] as Node[]) as T extends true ? Node[] : NodeListOf<Node>;
 
 		return (bArray === true
-			? Array.from(selector.childNodes)
+			? Arr.Convert(selector.childNodes)
 			: selector.childNodes as NodeListOf<Node>
 		) as T extends true ? Node[] : NodeListOf<Node>;
 	};
@@ -330,19 +236,13 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 		if (!NodeType.IsElement(selector)) return ([] as Element[]) as T extends true ? Element[] : HTMLCollection;
 
 		return (bArray === true
-			? Array.from(selector.children)
+			? Arr.Convert(selector.children)
 			: selector.children
 		) as T extends true ? Element[] : HTMLCollection;
 	};
 
-	const On = (selector: TEventTarget, eventName: string, event: EventListener) =>
-		EventUtils.Bind(selector, eventName, event);
-
-	const Off = (selector: TEventTarget, eventName: string, event: EventListener) =>
-		EventUtils.Unbind(selector, eventName, event);
-
-	const OffAll = (selector: TEventTarget) =>
-		EventUtils.UnbindAll(selector);
+	const On = (selector: TEventTarget, eventName: string, event: EventListener) => EventUtils.Bind(selector, eventName, event);
+	const Off = (selector: TEventTarget, eventName: string, event: EventListener) => EventUtils.Unbind(selector, eventName, event);
 
 	const Dispatch = (selector: TEventTarget, eventName: string) => {
 		if ((selector !== Win && selector !== Doc && !NodeType.IsElement(selector)) || !Type.IsString(eventName)) return;
@@ -351,25 +251,18 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 		selector.dispatchEvent(customEvent);
 	};
 
-	const Show = (selector: TElement, displayType?: string) => {
-		if (!NodeType.IsElement(selector)) return;
-		if (!Type.IsString(displayType)) return RemoveStyle(selector, 'display');
-		SetStyle(selector, 'display', displayType);
-	};
-
-	const Hide = (selector: TElement) => {
-		if (!NodeType.IsElement(selector)) return;
-		SetStyle(selector, 'display', 'none');
-	};
-
-	const IsHidden = (selector: TElement): boolean =>
-		!NodeType.IsElement(selector) ? false : GetStyle(selector, 'display') === 'none';
+	const Show = (selector: TElement, displayType?: string) =>
+		!Type.IsString(displayType) ? RemoveStyle(selector, 'display') : SetStyle(selector, 'display', displayType);
+	const Hide = (selector: TElement) => SetStyle(selector, 'display', 'none');
+	const IsHidden = (selector: TElement): boolean => GetStyle(selector, 'display') === 'none';
 
 	const Create = (tagName: string, option?: Record<string, TCreateOption>): HTMLElement => {
 		const newElement = Doc.createElement(tagName);
 		if (!option) return newElement;
 
-		if (option.attrs && Type.IsObject(option.attrs)) SetAttrs(newElement, option.attrs as Record<string, string>);
+		if (option.attrs && (Type.IsArray(option.attrs) || Type.IsObject(option.attrs)))
+			SetAttrs(newElement, option.attrs as Record<string, string>);
+
 		if (option.styles && Type.IsObject(option.styles)) SetStyles(newElement, option.styles as Record<string, string>);
 		else if (option.styles && Type.IsString(option.styles)) SetStyleText(newElement, option.styles);
 
@@ -377,21 +270,17 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 		else if (option.class && Type.IsArray(option.class)) AddClass(newElement, ...option.class as string[]);
 
 		if (option.html && Type.IsString(option.html)) SetHTML(newElement, option.html);
-		if (option.children && Type.IsArray(option.children)) {
-			Arr.Each(option.children, child => {
-				if (!NodeType.IsElement(child) && !NodeType.IsNode(child) && !Type.IsString(child)) return;
-				Insert(newElement, child);
-			});
-		}
+
+		if (option.children && Type.IsArray(option.children))
+			Arr.Each(option.children as TElement[] | (string | TElement)[], child => Insert(newElement, child));
 
 		return newElement;
 	};
 
 	const RemoveChildren = (selector: TElement, bBubble: boolean = false) => {
-		if (!NodeType.IsElement(selector)) return;
 		const children = GetChildren(selector);
 		if (Arr.IsEmpty(children)) return;
-		Arr.Each(children, child => OffAll(child));
+		Arr.Each(children, child => EventUtils.UnbindAll(child));
 
 		if (!bBubble) return;
 
@@ -403,7 +292,7 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 
 	const Remove = (selector: TElement, bBubble: boolean = false) => {
 		if (!NodeType.IsElement(selector)) return;
-		OffAll(selector);
+		EventUtils.UnbindAll(selector);
 
 		if (bBubble) RemoveChildren(selector, bBubble);
 
@@ -413,6 +302,9 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 	return {
 		Win,
 		Doc,
+		Utils,
+		EventUtils,
+		Element: DOMElement,
 		New,
 		GetRoot,
 		Select,
@@ -437,9 +329,9 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 		GetRect,
 		GetText,
 		GetHTML,
+		GetOuterHTML,
 		SetText,
 		SetHTML,
-		GetOuterHTML,
 		SetOuterHTML,
 		InsertBefore,
 		Insert,
@@ -454,7 +346,6 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 		GetChildren,
 		On,
 		Off,
-		OffAll,
 		Dispatch,
 		Show,
 		Hide,
@@ -464,9 +355,6 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 		Create,
 		RemoveChildren,
 		Remove,
-		Utils,
-		EventUtils,
-		Element: DOMElement,
 	};
 };
 
