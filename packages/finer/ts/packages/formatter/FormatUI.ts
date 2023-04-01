@@ -8,14 +8,27 @@ import ToggleInline from './format/ToggleInline';
 import { IInlineFormat } from './FormatType';
 
 export interface IFormatUISelection {
-	Label: HTMLElement,
-	Selection: HTMLElement,
+	readonly Label: HTMLElement,
+	readonly Selection: HTMLElement,
 }
 
 export interface IFormatUIInputWrap {
-	Wrapper: HTMLElement,
-	Input: HTMLInputElement,
-	Placeholder: HTMLElement,
+	readonly Wrapper: HTMLElement,
+	readonly Input: HTMLInputElement,
+	readonly Placeholder: HTMLElement,
+}
+
+export interface IFormatUIInputWrapOptions {
+	uiName: string,
+	placeholder: string,
+	bUpdatable: boolean,
+	createCallback: (input: HTMLInputElement) => void,
+	src?: string,
+}
+
+export interface IFormatUIInputWrapWithOptionList {
+	readonly OptionWrapper: HTMLElement,
+	readonly Input: HTMLInputElement,
 }
 
 export interface IFormatUI {
@@ -32,6 +45,7 @@ export interface IFormatUI {
 	CreateIconWrap: (title: string) => HTMLElement,
 	CreateHelper: (title: string) => HTMLElement,
 	CreateInputWrap: (placeholder?: string) => IFormatUIInputWrap,
+	CreateInputWrapWithOptionList: (opts: IFormatUIInputWrapOptions) => IFormatUIInputWrapWithOptionList,
 	ToggleActivateClass: (selector: HTMLElement, bActive: boolean) => void,
 	HasActiveClass: (selector: HTMLElement) => boolean,
 	ToggleDisable: (selector: HTMLElement, bDisable: boolean) => void,
@@ -146,10 +160,10 @@ const FormatUI = (): IFormatUI => {
 		});
 
 		const Input = DOM.Create('input', {
-			attrs: {
-				type: 'text',
-				required: ''
-			}
+			attrs: [
+				{ type: 'text' },
+				'required'
+			]
 		});
 
 		const Placeholder = Create({
@@ -167,6 +181,54 @@ const FormatUI = (): IFormatUI => {
 		};
 	};
 
+	const CreateInputWrapWithOptionList = (opts: IFormatUIInputWrapOptions): IFormatUIInputWrapWithOptionList => {
+		const { uiName, placeholder, bUpdatable, createCallback, src } = opts;
+		const OptionWrapper = CreateOptionList(uiName);
+		DOM.SetAttr(OptionWrapper, 'media-url', 'true');
+		DOM.On(OptionWrapper, Finer.NativeEventMap.click, event => Finer.PreventEvent(event));
+
+		const { Wrapper, Input } = CreateInputWrap(placeholder);
+		if (src) Input.value = src;
+
+		const callback = () => {
+			createCallback(Input);
+			DOM.Doc.body.click();
+		};
+
+		DOM.On(Input, Finer.NativeEventMap.keyup, e => {
+			const event = e as KeyboardEvent;
+			if (event.key !== Finer.KeyCode.Enter && event.code !== Finer.KeyCode.Enter) return;
+			callback();
+		});
+
+		const buttonGroup = Create({
+			tagName: 'div',
+			type: 'button-group'
+		});
+
+		const cancelButton = Create({
+			tagName: 'button',
+			title: 'Cancel',
+			html: 'Cancel'
+		});
+		DOM.On(cancelButton, Finer.NativeEventMap.click, () => DOM.Doc.body.click());
+
+		const insertButton = Create({
+			tagName: 'button',
+			title: !bUpdatable ? 'Insert' : 'Update',
+			html: !bUpdatable ? 'Insert' : 'Update'
+		});
+		DOM.On(insertButton, Finer.NativeEventMap.click, callback);
+
+		DOM.Insert(buttonGroup, cancelButton, insertButton);
+		DOM.Insert(OptionWrapper, Wrapper, buttonGroup);
+
+		return {
+			OptionWrapper,
+			Input,
+		};
+	};
+
 	const ToggleActivateClass = (selector: HTMLElement, bActive: boolean) => {
 		const toggle = bActive ? DOM.AddClass : DOM.RemoveClass;
 		toggle(selector, ACTIVE_CLASS);
@@ -175,9 +237,8 @@ const FormatUI = (): IFormatUI => {
 	const HasActiveClass = (selector: HTMLElement): boolean => DOM.HasClass(selector, ACTIVE_CLASS);
 
 	const ToggleDisable = (selector: HTMLElement, bDisable: boolean) => {
-		if (bDisable) return DOM.SetAttr(selector, DISABLED_ATTRIBUTE, DISABLED_ATTRIBUTE);
-
-		DOM.RemoveAttr(selector, DISABLED_ATTRIBUTE);
+		const toggle = bDisable ? DOM.SetAttr : DOM.RemoveAttr;
+		toggle(selector, DISABLED_ATTRIBUTE, DISABLED_ATTRIBUTE);
 	};
 
 	const IsDisabled = (selector: HTMLElement): boolean =>
@@ -345,6 +406,7 @@ const FormatUI = (): IFormatUI => {
 		CreateIconWrap,
 		CreateHelper,
 		CreateInputWrap,
+		CreateInputWrapWithOptionList,
 		ToggleActivateClass,
 		HasActiveClass,
 		ToggleDisable,

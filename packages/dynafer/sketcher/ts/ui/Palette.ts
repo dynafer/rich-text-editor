@@ -1,5 +1,4 @@
 import { Arr, Type } from '@dynafer/utils';
-import { IDOMFactory } from '../dom/DOMFactory';
 import { IUISchemaMap } from '../types/UISchema';
 import { IUISettingMap } from '../types/UISetting';
 import { GetLimitation } from '../utils/UIUtils';
@@ -8,7 +7,7 @@ import Sketcher from './Sketcher';
 const Palette = (setting: IUISettingMap['Palette']): IUISchemaMap['Palette'] | undefined => {
 	const { Width, Height, Events } = setting;
 
-	const schema = Sketcher.SketchOne({
+	const schema = Sketcher.SketchOne<HTMLCanvasElement>({
 		TagName: 'canvas',
 		Attributes: {
 			width: Width.toString(),
@@ -16,7 +15,7 @@ const Palette = (setting: IUISettingMap['Palette']): IUISchemaMap['Palette'] | u
 			draggable: 'false',
 		},
 		Events,
-	}) as IDOMFactory<HTMLCanvasElement>;
+	});
 
 	const canvas = schema.Self;
 

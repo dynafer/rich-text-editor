@@ -13,7 +13,7 @@ interface IInlineFormatFontUI {
 	Title: string,
 	DefaultOptions: string[] | Record<string, string>,
 	bPreview: boolean,
-	ConfigName: string,
+	ConfigName: Capitalize<string>,
 	Options: Record<string, string>,
 }
 
@@ -53,7 +53,7 @@ const InlineFont = (editor: Editor, detector: IFormatDetector): IFormatUIRegistr
 		},
 	};
 
-	const UINames = Object.keys(FontFormats);
+	const UINames = Obj.Keys(FontFormats);
 
 	const getFirstValue = (value: string): string => value.split(',')[0].replace(/["`';]/gi, '');
 
@@ -62,7 +62,7 @@ const InlineFont = (editor: Editor, detector: IFormatDetector): IFormatUIRegistr
 		if (!Styles) return false;
 
 		const selector = FormatUtils.GetStyleSelectorMap(Styles);
-		const styleName = Object.keys(Styles)[0];
+		const styleName = Obj.Keys(Styles)[0];
 
 		const bNumber = Str.Contains(value, FONT_SIZE_REGEXP);
 
@@ -74,10 +74,8 @@ const InlineFont = (editor: Editor, detector: IFormatDetector): IFormatUIRegistr
 			if (!element) return false;
 			const detectedValue = getFirstValue(self.DOM.GetStyle(element, styleName, bBody));
 
-			if (Str.LowerCase(detectedValue) === Str.LowerCase(convertedValue.toString())) return true;
-			if (parseFloat(detectedValue) === convertedValue) return true;
-
-			return false;
+			return Str.LowerCase(detectedValue) === Str.LowerCase(convertedValue.toString())
+				|| parseFloat(detectedValue) === convertedValue;
 		};
 
 		for (let index = 0, length = nodes.length; index < length; ++index) {
@@ -85,9 +83,7 @@ const InlineFont = (editor: Editor, detector: IFormatDetector): IFormatUIRegistr
 			const detected = self.DOM.ClosestByStyle(FormatUtils.GetParentIfText(node), selector);
 			if (checkDetected(detected)) return true;
 
-			if (node === self.GetBody()) {
-				return checkDetected(self.GetBody(), true);
-			}
+			if (node === self.GetBody()) return checkDetected(self.GetBody(), true);
 		}
 
 		return false;
@@ -105,7 +101,7 @@ const InlineFont = (editor: Editor, detector: IFormatDetector): IFormatUIRegistr
 		const { Format, bPreview, Options } = uiFormat;
 		const optionElements: HTMLElement[] = [];
 
-		const styleName = !Format.Styles ? '' : Object.keys(Format.Styles)[0];
+		const styleName = !Format.Styles ? '' : Obj.Keys(Format.Styles)[0];
 
 		Obj.Entries(Options, (label, value) => {
 			const html = bPreview ? DOM.Utils.WrapTagHTML('span', label) : label;
@@ -155,10 +151,8 @@ const InlineFont = (editor: Editor, detector: IFormatDetector): IFormatUIRegistr
 		const systemStyle = getCurrentStyle(uiFormat.Format, uiFormat.Options, [self.GetBody()]);
 		const defaultValue = uiName === 'FontFamily' ? 'Default Font' : systemStyle;
 
-		const setLabelText = (value?: string) => {
-			if (!value || Str.IsEmpty(value) || value === systemStyle) return DOM.SetText(selection.Label, defaultValue);
-			DOM.SetText(selection.Label, value);
-		};
+		const setLabelText = (value?: string) =>
+			DOM.SetText(selection.Label, (!value || Str.IsEmpty(value) || value === systemStyle) ? defaultValue : value);
 
 		FormatUI.BindOptionListEvent(self, uiName, selection.Selection, selection.Selection, () => {
 			const optionElements = createOptionElements(uiName, uiFormat, DOM.GetText(selection.Label), setLabelText);

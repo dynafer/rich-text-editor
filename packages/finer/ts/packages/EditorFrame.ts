@@ -4,12 +4,12 @@ import DOM from './dom/DOM';
 import { IConfiguration } from './EditorConfigure';
 
 export interface IEditorFrame {
-	Root: HTMLElement,
-	Toolbar: HTMLElement,
-	Notification: HTMLElement,
-	Wrapper: HTMLElement,
-	Container: HTMLElement | HTMLIFrameElement,
-	Loading: HTMLElement,
+	readonly Root: HTMLElement,
+	readonly Toolbar: HTMLElement,
+	readonly Notification: HTMLElement,
+	readonly Wrapper: HTMLElement,
+	readonly Container: HTMLElement | HTMLIFrameElement,
+	readonly Loading: HTMLElement,
 }
 
 const EditorFrame = (config: IConfiguration): IEditorFrame => {

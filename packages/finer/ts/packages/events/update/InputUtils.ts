@@ -26,7 +26,7 @@ const InputUtils = (editor: Editor) => {
 		currentFigure = undefined;
 
 		const figureElements = DOM.SelectAll<HTMLElement>({
-			tagName: Array.from(FigureElementFormats)
+			tagName: Arr.Convert(FigureElementFormats)
 		}, fragment);
 
 		let currentElement: HTMLElement | undefined = undefined;
@@ -41,11 +41,9 @@ const InputUtils = (editor: Editor) => {
 			}
 
 			const figure = DOM.Element.Figure.Create(tagName);
-
 			DOM.CloneAndInsert(figure, true, currentElement);
 
 			const tools = self.Tools.DOM.Manager.SelectTools(true, figure);
-
 			Arr.Each(tools, tableTool => DOM.Remove(tableTool, true));
 
 			currentElement.parentNode?.replaceChild(figure, currentElement);
@@ -160,10 +158,7 @@ const InputUtils = (editor: Editor) => {
 
 		const listItems: Node[] = [];
 		Arr.Each(DOM.GetChildNodes(endList), child => {
-			if (
-				NodeType.IsText(child)
-				|| (!DOM.Select('br', child) && Str.IsEmpty(DOM.GetText(child)))
-			) return;
+			if (NodeType.IsText(child) || (!DOM.Select('br', child) && Str.IsEmpty(DOM.GetText(child)))) return;
 
 			Arr.Push(listItems, child);
 		});
@@ -173,7 +168,7 @@ const InputUtils = (editor: Editor) => {
 
 	const InsertFragment = (caret: ICaretData, fragment: DocumentFragment) => {
 		const blockElements = DOM.SelectAll({
-			tagName: Array.from(AllBlockFormats)
+			tagName: Arr.Convert(AllBlockFormats)
 		}, fragment);
 
 		if (Arr.IsEmpty(blockElements)) return caret.Range.Insert(fragment);

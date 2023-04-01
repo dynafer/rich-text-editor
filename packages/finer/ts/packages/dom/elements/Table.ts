@@ -1,19 +1,19 @@
-import { NodeType } from '@dynafer/dom-control';
+import { Attribute, NodeType } from '@dynafer/dom-control';
 import { Arr, Str } from '@dynafer/utils';
 import Options from '../../../Options';
 import Editor from '../../Editor';
 import DOMUtils from '../DOMUtils';
 
 interface IFoundTable {
-	Table: HTMLTableElement | null,
-	Row: HTMLTableRowElement | null,
-	Cell: HTMLTableCellElement | null,
+	readonly Table: HTMLTableElement | null,
+	readonly Row: HTMLTableRowElement | null,
+	readonly Cell: HTMLTableCellElement | null,
 }
 
 export interface ITableGrid {
-	Grid: HTMLElement[][],
-	TargetCellRowIndex: number,
-	TargetCellIndex: number,
+	readonly Grid: HTMLElement[][],
+	readonly TargetCellRowIndex: number,
+	readonly TargetCellIndex: number,
 }
 
 export interface ITable {
@@ -41,23 +41,20 @@ const Table = (): ITable => {
 	const CellSelector = Str.Join(',', ...CellSet);
 
 	const Find = (from: EventTarget | Node): IFoundTable => {
-		const found: IFoundTable = {
-			Table: null,
-			Row: null,
-			Cell: null,
+		const bElement = NodeType.IsElement(from);
+		const table = bElement ? from.closest(Selector) : null;
+		const row = bElement ? from.closest(RowSelector) : null;
+		const cell = bElement ? from.closest<HTMLTableCellElement>(CellSelector) : null;
+
+		return {
+			Table: table,
+			Row: row,
+			Cell: cell,
 		};
-
-		if (!NodeType.IsElement(from)) return found;
-
-		found.Table = from.closest(Selector);
-		found.Row = from.closest(RowSelector);
-		found.Cell = from.closest(CellSelector);
-
-		return found;
 	};
 
 	const GetAllOwnRows = (table: Element): HTMLTableRowElement[] => {
-		const allRows = Array.from(table.querySelectorAll(RowSelector));
+		const allRows = Arr.Convert(table.querySelectorAll(RowSelector));
 		const rows: HTMLTableRowElement[] = [];
 
 		let currentRow: HTMLTableRowElement | undefined;
@@ -74,7 +71,7 @@ const Table = (): ITable => {
 		const parent = row ?? table;
 		const selector = !!row ? RowSelector : Selector;
 
-		const allCells = Array.from(parent.querySelectorAll<HTMLTableCellElement>(CellSelector));
+		const allCells = Arr.Convert(parent.querySelectorAll<HTMLTableCellElement>(CellSelector));
 		const cells: HTMLTableCellElement[] = [];
 
 		let currentCell: HTMLTableCellElement | undefined;
@@ -110,8 +107,8 @@ const Table = (): ITable => {
 			const cells: Element[] = [];
 			for (let cellIndex = 0, cellLength = cellsInRow.length; cellIndex < cellLength; ++cellIndex) {
 				const cell = cellsInRow[cellIndex];
-				const colspan = parseInt(cell.getAttribute('colspan') ?? '0');
-				const rowspan = parseInt(cell.getAttribute('rowspan') ?? '0');
+				const colspan = parseInt(Attribute.Get(cell, 'colspan') ?? '0');
+				const rowspan = parseInt(Attribute.Get(cell, 'rowspan') ?? '0');
 
 				if (!colspan || colspan <= 1) {
 					Arr.Push(cells, cell);

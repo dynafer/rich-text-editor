@@ -5,8 +5,8 @@ import Navigation, { INavigation } from './Navigation';
 import Palette, { IPalette } from './Palette';
 
 export interface IColorPickerForm {
-	Form: IDOMFactory,
-	Navigation: INavigation,
+	readonly Form: IDOMFactory,
+	readonly Navigation: INavigation,
 }
 
 const Form = (): IColorPickerForm | undefined => {

@@ -26,9 +26,9 @@ const MediaInserter = (editor: Editor, ui: IPluginMediaUI) => {
 				const mediaFormat = Media(self);
 
 				const matchedURL = URLMatcher.Match(input.value);
-				const format = matchedURL.format ?? 'video';
-				const width = matchedURL.width ?? 640;
-				const height = matchedURL.height ?? 360;
+				const format = matchedURL.Format ?? 'video';
+				const width = matchedURL.Width ?? 640;
+				const height = matchedURL.Height ?? 360;
 
 				const loadCallback = (media: HTMLElement) => {
 					if (DOM.Utils.IsVideo(media)) {
@@ -46,26 +46,26 @@ const MediaInserter = (editor: Editor, ui: IPluginMediaUI) => {
 					});
 				};
 
-				if (!bUpdatable) return mediaFormat.CreateViaURL(matchedURL.url, {
+				if (!bUpdatable) return mediaFormat.CreateViaURL(matchedURL.URL, {
 					tagName: format,
 					loadCallback
 				});
 
 				if (DOM.Utils.GetNodeName(figureElement) === format) {
-					figureElement.src = matchedURL.url;
+					figureElement.src = matchedURL.URL;
 					return mediaFormat.OnLoadAndErrorEvents(figureElement, loadCallback);
 				}
 
 				mediaFormat.ChangeFigure(figure, {
 					tagName: format,
 					attrs: {
-						src: matchedURL.url
+						src: matchedURL.URL
 					},
 					loadCallback
 				});
 			};
 
-			const { OptionWrapper, Input } = ui.CreateInputWrap({
+			const { OptionWrapper, Input } = formatUI.CreateInputWrapWithOptionList({
 				uiName,
 				placeholder: bUpdatable ? 'Update the media URL' : 'Insert an media via URL',
 				bUpdatable,
@@ -78,19 +78,13 @@ const MediaInserter = (editor: Editor, ui: IPluginMediaUI) => {
 			Input.focus();
 		};
 
-	const Create = () => {
-		const iconWrap = ui.CreateFormatButton(uiFormat);
+	const iconWrap = ui.CreateFormatButton(uiFormat);
 
-		DOM.SetAttr(iconWrap.Button, 'no-border', '');
+	DOM.SetAttr(iconWrap.Button, 'no-border');
 
-		formatUI.BindOptionListEvent(self, uiName, iconWrap.Wrapper, iconWrap.Wrapper, createOptionList(iconWrap.Wrapper));
+	formatUI.BindOptionListEvent(self, uiName, iconWrap.Wrapper, iconWrap.Wrapper, createOptionList(iconWrap.Wrapper));
 
-		self.Toolbar.Add('Media', iconWrap.Wrapper);
-	};
-
-	return {
-		Create
-	};
+	self.Toolbar.Add(uiName, iconWrap.Wrapper);
 };
 
 export default MediaInserter;

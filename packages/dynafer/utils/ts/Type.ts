@@ -12,7 +12,7 @@ const getType = (value: unknown = undefined): string => {
 
 const isType = <T>(type: string) => (value: unknown): value is T => getType(value) === type;
 
-export const IsArray: (value: unknown) => value is unknown[] = isType('array');
+export const IsArray: <T>(value: unknown) => value is T[] = isType('array');
 export const IsNumber: (value: unknown) => value is number = isType('number');
 export const IsObject: (value: unknown) => value is object = isType('object');
 export const IsString: (value: unknown) => value is string = isType('string');

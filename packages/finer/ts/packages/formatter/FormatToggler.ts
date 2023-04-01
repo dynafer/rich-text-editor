@@ -50,8 +50,7 @@ const FormatToggler = (editor: Editor): IFormatToggler => {
 					const bRemovedFromChild = trimEndBr(childNextSibling);
 					if (bRemovedFromChild) return;
 
-					trimEndBr(endNodeNextSibling);
-					return;
+					return trimEndBr(endNodeNextSibling);
 				}
 			}
 
@@ -61,13 +60,12 @@ const FormatToggler = (editor: Editor): IFormatToggler => {
 				processRecursive(bWrap, formats, child, toggleOption);
 			}
 
-			if (endNode && ((!bInline && DOM.Utils.IsChildOf(endNode, child)) || (bInline && child === endNode))) {
-				const bRemovedFromChild = trimEndBr(childNextSibling);
-				if (bRemovedFromChild) return;
+			const bFinish = endNode && ((!bInline && DOM.Utils.IsChildOf(endNode, child)) || (bInline && child === endNode));
+			if (!bFinish) continue;
 
-				trimEndBr(endNodeNextSibling);
-				return;
-			}
+			if (trimEndBr(childNextSibling)) return;
+
+			return trimEndBr(endNodeNextSibling);
 		}
 	};
 

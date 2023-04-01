@@ -42,7 +42,7 @@ const CaretChange = (editor: Editor) => {
 
 	const wrapFigure = () => {
 		const figureElements = DOM.SelectAll<HTMLElement>({
-			tagName: Array.from(FigureElementFormats)
+			tagName: Arr.Convert(FigureElementFormats)
 		}, self.GetBody());
 
 		let currentElement: HTMLElement | undefined = undefined;
@@ -88,12 +88,12 @@ const CaretChange = (editor: Editor) => {
 				if (caret.Start.Node !== Figure || caret.End.Node !== Figure) return;
 
 				caret.Range.SetStartToEnd(Figure, caret.Start.Offset, caret.Start.Offset);
-				return Arr.Push(newRanges, caret.Range.Clone());
+				Arr.Push(newRanges, caret.Range.Clone());
 			});
 
 		if (!Arr.IsEmpty(newRanges)) CaretUtils.UpdateRanges(newRanges);
 
-		if (!DOM.HasAttr(Figure, Options.ATTRIBUTE_FOCUSED)) DOM.SetAttr(Figure, Options.ATTRIBUTE_FOCUSED, '');
+		if (!DOM.HasAttr(Figure, Options.ATTRIBUTE_FOCUSED)) DOM.SetAttr(Figure, Options.ATTRIBUTE_FOCUSED);
 		DOMTools.ChangePositions();
 	};
 
@@ -105,7 +105,7 @@ const CaretChange = (editor: Editor) => {
 			setFocusFigure();
 		};
 
-	self.On('caret:change', listener());
+	self.On('Caret:Change', listener());
 };
 
 export default CaretChange;

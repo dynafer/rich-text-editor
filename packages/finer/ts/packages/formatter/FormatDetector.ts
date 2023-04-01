@@ -15,7 +15,7 @@ const FormatDetector = (editor: Editor): IFormatDetector => {
 	const CaretUtils = self.Utils.Caret;
 	const detections: IDetection[] = [];
 
-	self.On('caret:change', (paths: Node[]) => {
+	self.On('Caret:Change', (paths: Node[]) => {
 		const promises: Promise<void>[] = [];
 		Arr.Each(detections, detection => Arr.Push(promises, detection(paths)));
 

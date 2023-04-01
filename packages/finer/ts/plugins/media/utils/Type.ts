@@ -17,6 +17,6 @@ export interface IPluginMediaMenuFormatUI {
 }
 
 export interface IFileSize {
-	size: number,
-	unit: string,
+	Size: number,
+	Unit: string,
 }

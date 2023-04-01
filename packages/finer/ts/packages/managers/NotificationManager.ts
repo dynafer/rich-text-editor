@@ -12,20 +12,20 @@ export enum ENotificationStatus {
 interface INotificationManager {
 	Show: () => void,
 	Hide: () => void,
-	Dispatch: (type: ENotificationStatus, text: string) => void,
+	Dispatch: (type: ENotificationStatus, text: string, bDestroy?: boolean) => void,
 }
 
 const NotificationManager = (editor: Editor): INotificationManager => {
 	const self = editor;
 	const notification = self.Frame.Notification;
 	const stacks: Element[] = [];
-	let status = ENotificationStatus.DEFAULT;
 
 	const Show = () => DOM.Show(notification);
-
 	const Hide = () => DOM.Hide(notification);
 
-	const Dispatch = (type: ENotificationStatus, text: string) => {
+	const createName = (name: string): string => DOM.Utils.CreateUEID(`notification-${name}`, false);
+
+	const Dispatch = (type: ENotificationStatus, text: string, bDestroy?: boolean) => {
 		if (self.IsDestroyed()) return;
 		Show();
 
@@ -35,52 +35,44 @@ const NotificationManager = (editor: Editor): INotificationManager => {
 				break;
 			case ENotificationStatus.ERROR:
 				console.error(text);
-				self.Destroy();
-				return;
+				if (bDestroy) return self.Destroy();
+				break;
 			default:
 				break;
 		}
 
-		if (type > status) status = type;
-
 		const wrapper = DOM.Create('div', {
 			attrs: {
-				id: DOM.Utils.CreateUEID('message')
+				id: createName('message')
 			},
 			class: [
-				DOM.Utils.CreateUEID('notification-message', false),
-				DOM.Utils.CreateUEID(`notification-message-${ENotificationStatus[type]}`, false)
+				createName('message'),
+				createName(`message-${ENotificationStatus[type]}`),
 			],
 			children: [
 				DOM.Create('div', {
-					class: DOM.Utils.CreateUEID('notification-message-text', false),
+					class: createName('message-text'),
 					html: text
 				})
 			]
 		});
 
 		const closeButton = DOM.Create('button', {
-			class: DOM.Utils.CreateUEID('notification-message-icon', false),
+			class: createName('message-icon'),
 			html: Finer.Icons.Get('Close')
 		});
 
-		DOM.On(closeButton, ENativeEvents.click, () => {
-			DOM.Dispatch(wrapper, 'Notification:Close');
-		});
+		DOM.On(closeButton, ENativeEvents.click, () => DOM.Dispatch(wrapper, 'Notification:Close'));
 
 		DOM.Insert(wrapper, closeButton);
 
 		DOM.On(wrapper, 'Notification:Close', () => {
 			const index: number = stacks.indexOf(wrapper);
-			if (index !== -1) {
-				stacks.splice(index, 1);
-			}
+			Arr.Remove(stacks, index);
 
 			DOM.Remove(wrapper, true);
 
-			if (status !== ENotificationStatus.ERROR && stacks.length === 0) {
-				Hide();
-			}
+			Hide();
 		});
 
 		DOM.Insert(notification, wrapper);

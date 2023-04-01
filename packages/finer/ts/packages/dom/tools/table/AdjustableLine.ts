@@ -1,4 +1,5 @@
 import { Arr } from '@dynafer/utils';
+import Options from '../../../../Options';
 import Editor from '../../../Editor';
 import { ENativeEvents, PreventEvent } from '../../../events/EventSetupUtils';
 import { ADJUSTABLE_LINE_HALF_SIZE, GetClientSize, RegisterAdjustingEvents } from '../Utils';
@@ -9,9 +10,7 @@ const AdjustableLine = (editor: Editor, table: HTMLElement): HTMLElement => {
 	const DOM = self.DOM;
 
 	const adjustableLineGroup = DOM.Create('div', {
-		attrs: {
-			dataAdjustableLineGroup: '',
-		},
+		attrs: ['data-adjustable-line-group'],
 	});
 
 	const createAdjustableLine = (type: 'width' | 'height'): HTMLElement =>
@@ -32,12 +31,12 @@ const AdjustableLine = (editor: Editor, table: HTMLElement): HTMLElement => {
 
 	const setAdjustableSize = () => {
 		DOM.SetStyles(adjustableWidth, {
-			width: `${ADJUSTABLE_LINE_HALF_SIZE * 2 - 1}px`,
+			width: `${ADJUSTABLE_LINE_HALF_SIZE * 2}px`,
 			height: `${GetClientSize(self, table, 'height')}px`,
 		});
 		DOM.SetStyles(adjustableHeight, {
 			width: `${GetClientSize(self, table, 'width')}px`,
-			height: `${ADJUSTABLE_LINE_HALF_SIZE * 2 - 1}px`,
+			height: `${ADJUSTABLE_LINE_HALF_SIZE * 2}px`,
 		});
 	};
 
@@ -52,12 +51,12 @@ const AdjustableLine = (editor: Editor, table: HTMLElement): HTMLElement => {
 
 		const adjustItem = bWidth ? adjustableWidth : adjustableHeight;
 
+		let startOffset = bWidth ? event.clientX : event.clientY;
+
 		const { FigureElement } = DOM.Element.Figure.Find<HTMLElement>(adjustItem);
 		if (!FigureElement) return;
 
-		let startOffset = bWidth ? event.clientX : event.clientY;
-
-		DOM.SetAttr(adjustItem, 'data-adjusting', '');
+		DOM.SetAttr(adjustItem, Options.ATTRIBUTE_ADJUSTING);
 
 		const tableGrid = DOM.Element.Table.GetTableGridWithIndex(FigureElement);
 
@@ -72,8 +71,6 @@ const AdjustableLine = (editor: Editor, table: HTMLElement): HTMLElement => {
 		const getPosition = (element: HTMLElement): number => bWidth ? element.offsetLeft : element.offsetTop;
 
 		const getMinimumSize = (cell: HTMLElement): number => {
-			self.SaveScrollPosition();
-
 			DOM.SetStyles(fakeTable, {
 				width: '0px',
 				height: '0px',
@@ -107,8 +104,6 @@ const AdjustableLine = (editor: Editor, table: HTMLElement): HTMLElement => {
 				height: `${FigureElement.offsetHeight}px`,
 			});
 
-			self.ScrollSavedPosition();
-
 			return size;
 		};
 
@@ -141,15 +136,13 @@ const AdjustableLine = (editor: Editor, table: HTMLElement): HTMLElement => {
 				}
 
 				const cellRightPosition = cellPosition + GetClientSize(self, cell, sizeStyleName);
+				if (cellRightPosition < adjustableLeft || cellRightPosition > adjustableRight) return;
 
-				if (cellRightPosition >= adjustableLeft && cellRightPosition <= adjustableRight) {
-					Arr.Push(adjustableCells, cell);
-					if (minimumSize !== -1) return;
+				Arr.Push(adjustableCells, cell);
+				if (minimumSize !== -1) return;
 
-					minimumSize = getMinimumSize(cell);
-					minimumDifference = GetClientSize(self, cell, sizeStyleName) - minimumSize;
-					return;
-				}
+				minimumSize = getMinimumSize(cell);
+				minimumDifference = GetClientSize(self, cell, sizeStyleName) - minimumSize;
 			})
 		);
 

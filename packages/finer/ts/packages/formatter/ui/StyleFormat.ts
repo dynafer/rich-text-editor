@@ -1,4 +1,4 @@
-import { Arr, Str, Type } from '@dynafer/utils';
+import { Arr, Obj, Str, Type } from '@dynafer/utils';
 import DOM from '../../dom/DOM';
 import Editor from '../../Editor';
 import { Formats } from '../Format';
@@ -18,7 +18,7 @@ interface IStyleFormatUIItem {
 }
 
 interface IStyleFormatUI {
-	ConfigName?: string,
+	ConfigName?: Capitalize<string>,
 	DefaultValue?: string,
 	bCalculate?: boolean,
 	Items: IStyleFormatUIItem[],
@@ -50,14 +50,13 @@ const StyleFormat = (editor: Editor, detector: IFormatDetector): IFormatUIRegist
 		}
 	};
 
-	const UINames = Object.keys(StyleFormats);
+	const UINames = Obj.Keys(StyleFormats);
 
 	const createAlignmentDetector = (formats: IStyleFormat | IStyleFormat[], button: HTMLElement, bDetector: boolean): TFormatDetectCallback => {
 		const detect = (format: IStyleFormat, node: Node): boolean => {
 			const { StrictFormats, Styles } = format;
 			const closest = self.DOM.ClosestByStyle(node, FormatUtils.GetStyleSelectorMap(Styles));
-			const bDetected = !!closest && StrictFormats.has(DOM.Utils.GetNodeName(closest));
-			return bDetected;
+			return !!closest && StrictFormats.has(DOM.Utils.GetNodeName(closest));
 		};
 
 		return (paths: Node[]) => {
@@ -87,7 +86,7 @@ const StyleFormat = (editor: Editor, detector: IFormatDetector): IFormatUIRegist
 
 	const createIndentationDetector = (format: IStyleFormat, button: HTMLElement, bDetector: boolean): TFormatDetectCallback => {
 		const { StrictFormats, Styles } = format;
-		const styleName = Object.keys(Styles)[0];
+		const styleName = Obj.Keys(Styles)[0];
 
 		return (paths: Node[]) => {
 			const node = FormatUtils.GetParentIfText(paths[0]);
@@ -165,9 +164,9 @@ const StyleFormat = (editor: Editor, detector: IFormatDetector): IFormatUIRegist
 		if (Str.Contains(defaultValue, 'px')) return defaultValue;
 
 		const float = parseFloat(defaultValue);
-		if (Str.Contains(defaultValue, 'pt')) return FormatUtils.GetPixelString(FormatUtils.ConvertPointsToPixel(float));
+		const convert = Str.Contains(defaultValue, 'pt') ? FormatUtils.ConvertPointsToPixel : FormatUtils.MultiplyPixelSize;
 
-		return FormatUtils.GetPixelString(FormatUtils.MultiplyPixelSize(float));
+		return FormatUtils.GetPixelString(convert(float));
 	};
 
 	const Create = (name: string): HTMLElement => {

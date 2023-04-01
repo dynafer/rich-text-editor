@@ -37,26 +37,25 @@ const RGBA = (): IRGBAUtils => {
 		);
 
 	const ToHSV = (rgb: IRGBA): IHSV => {
-		const r = rgb.Red / 255;
-		const g = rgb.Green / 255;
-		const b = rgb.Blue / 255;
-		const min = Math.min(r, g, b);
-		const max = Math.max(r, g, b);
+		const red = rgb.Red / 255;
+		const green = rgb.Green / 255;
+		const blue = rgb.Blue / 255;
+		const min = Math.min(red, green, blue);
+		const max = Math.max(red, green, blue);
 
 		if (min === max) return HSV.ToMap(0, 0, min * 100);
 
-		const d = r === min
-			? g - b
-			: (b === min ? r - g : b - r);
-		const h = 60 * (
-			(r === min
-				? 3
-				: (b === min ? 1 : 5)
-			) - d / (max - min));
-		const s = (max - min) / max;
-		const v = max;
+		const degrees = red === min
+			? green - blue
+			: (blue === min ? red - green : blue - red);
+		const hueDiff = red === min
+			? 3
+			: (blue === min ? 1 : 5);
+		const hue = 60 * (hueDiff - degrees / (max - min));
+		const saturation = (max - min) / max;
+		const value = max;
 
-		return HSV.ToMap(Math.round(h), Math.round(s * 100), Math.round(v * 100));
+		return HSV.ToMap(Math.round(hue), Math.round(saturation * 100), Math.round(value * 100));
 	};
 
 	const FromHexToMap = (hex: string): IRGBA | null => {
@@ -85,27 +84,26 @@ const RGBA = (): IRGBAUtils => {
 
 	const mapToArray = (rgba: IRGBA): number[] => [rgba.Red, rgba.Green, rgba.Blue, rgba.Alpha ?? 1];
 
+	const getColorType = (str: string): string | null => {
+		if (Str.Contains(str, '#')) return 'hex';
+		if (Str.Contains(str, 'rgb')) return 'rgba';
+		return null;
+	};
+
 	const FromString = (str: string): number[] => {
-		let type: string;
-		if (str.includes('#')) {
-			type = 'hex';
-		} else if (str.includes('rgb')) {
-			type = 'rgba';
-		} else {
-			return [];
-		}
+		const type = getColorType(str);
+		if (!type) return [];
 
 		switch (type) {
 			case 'hex':
 				const converted = FromHexToMap(str);
-				if (!converted) return [];
-				return mapToArray(converted);
+				return !converted ? [] : mapToArray(converted);
 			case 'rgba':
 				const array = str.replace(/[^\d,]/gi, '').split(',');
 				const result: number[] = [];
 				Arr.Each(array, part => Arr.Push(result, parseInt(part)));
-
 				if (result.length <= 3) Arr.Push(result, 1);
+
 				return result;
 			default:
 				return [];

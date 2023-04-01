@@ -18,7 +18,7 @@ const BulletList = (editor: Editor, ui: IPluginListUI) => {
 
 	ui.RegisterDetector(button, uiFormat.Format);
 
-	self.Toolbar.Add('BulletList', button);
+	self.Toolbar.Add(uiName, button);
 };
 
 export default BulletList;

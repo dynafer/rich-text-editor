@@ -5,10 +5,10 @@ import EventUtils, { IEventUtils } from './EventUtils';
 import SharedUtils, { ISharedUtils } from './SharedUtils';
 
 export interface IEditorUtils {
-	Caret: ICaretUtils,
+	readonly Caret: ICaretUtils,
 	Range: (range?: Range) => IRangeUtils,
-	Event: IEventUtils,
-	Shared: ISharedUtils,
+	readonly Event: IEventUtils,
+	readonly Shared: ISharedUtils,
 }
 
 const EditorUtils = (editor: Editor): IEditorUtils => ({

@@ -88,10 +88,7 @@ const EditorSetup = (editor: Editor): Promise<void> => {
 
 		Finer.Loaders.Plugin.LoadParallel(config.Plugins)
 			.then(() => self.Plugin.AttachPlugin())
-			.then(() => {
-				self.Toolbar.LoadAll();
-				resolve();
-			})
+			.then(() => resolve(self.Toolbar.LoadAll()))
 			.catch(error => reject(error));
 	});
 };

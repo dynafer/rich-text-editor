@@ -1,5 +1,5 @@
 import Options from '../../../Options';
-import { ADJUSTABLE_LINE_HALF_SIZE, CreateAdjustableLineSize } from '../../dom/tools/Utils';
+import { CreateAdjustableLineSize } from '../../dom/tools/Utils';
 import Editor from '../../Editor';
 
 const MoveInTable = (editor: Editor, event: MouseEvent) => {
@@ -28,20 +28,23 @@ const MoveInTable = (editor: Editor, event: MouseEvent) => {
 	const bTargetHelper = target === adjustableWidth || target === adjustableHeight;
 	if (bTargetHelper) return;
 
-	const { offsetX, offsetY } = event;
+	const { pageX, pageY } = event;
 
 	const left = FigureElement.offsetLeft + targetCell.offsetLeft;
 	const top = FigureElement.offsetTop + targetCell.offsetTop;
 
-	if (offsetX <= ADJUSTABLE_LINE_HALF_SIZE) {
+	const leftWithFigure = Figure.offsetLeft + left;
+	const topWithFigure = Figure.offsetTop + top;
+
+	if (pageX - leftWithFigure <= targetCell.offsetWidth / 2) {
 		DOM.SetStyle(adjustableWidth, 'left', CreateAdjustableLineSize(left, true));
-	} else if (offsetX >= targetCell.offsetWidth - ADJUSTABLE_LINE_HALF_SIZE) {
+	} else if (pageX - leftWithFigure > targetCell.offsetWidth / 2) {
 		DOM.SetStyle(adjustableWidth, 'left', CreateAdjustableLineSize(left + targetCell.offsetWidth, true));
 	}
 
-	if (offsetY <= ADJUSTABLE_LINE_HALF_SIZE) {
+	if (pageY - topWithFigure <= targetCell.offsetHeight / 2) {
 		DOM.SetStyle(adjustableHeight, 'top', CreateAdjustableLineSize(top, true));
-	} else if (offsetY >= targetCell.offsetHeight - ADJUSTABLE_LINE_HALF_SIZE) {
+	} else if (pageY - topWithFigure > targetCell.offsetHeight / 2) {
 		DOM.SetStyle(adjustableHeight, 'top', CreateAdjustableLineSize(top + targetCell.offsetHeight, true));
 	}
 };

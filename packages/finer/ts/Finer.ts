@@ -11,15 +11,15 @@ declare global {
 }
 
 interface IFiner {
-	Loaders: {
-		Icon: IScriptLoader,
-		Plugin: IPluginLoader,
+	readonly Loaders: {
+		readonly Icon: IScriptLoader,
+		readonly Plugin: IPluginLoader,
 	},
-	Icons: IIconManager,
-	Options: IOptions,
-	NativeEventMap: Record<ENativeEvents, ENativeEvents>,
-	KeyCode: Record<EKeyCode, EKeyCode>,
-	PreventEvent: (event: Event) => void,
+	readonly Icons: IIconManager,
+	readonly Options: IOptions,
+	readonly NativeEventMap: Record<ENativeEvents, ENativeEvents>,
+	readonly KeyCode: Record<EKeyCode, EKeyCode>,
+	PreventEvent: EventListener,
 	Init: IEditorInit,
 }
 

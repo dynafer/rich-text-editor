@@ -42,7 +42,7 @@ const FormatWrapper = (editor: Editor): IFormatWrapper => {
 		const { Tag, Switchable, AddInside } = format;
 		let current: Node | null = node;
 		let parent: Node | null = node;
-		while (parent && (parent !== self.GetBody())) {
+		while (parent && parent !== self.GetBody()) {
 			const nodeName = DOM.Utils.GetNodeName(parent);
 			const bSkipCurrent = (!Switchable.has(nodeName) && !AddInside.has(nodeName))
 				|| (Switchable.has(nodeName) && AddInside.has(DOM.Utils.GetNodeName(parent.parentNode)));
@@ -72,10 +72,9 @@ const FormatWrapper = (editor: Editor): IFormatWrapper => {
 			return wrapFormat(node, Tag);
 		}
 
-		const closestStyle = DOM.Closest(elementForCheck, DOM.Utils.CreateAttrSelector('style')) as Node | null;
-
 		const styles = createStyleMap(Styles, value);
 
+		const closestStyle = DOM.Closest(elementForCheck, DOM.Utils.CreateAttrSelector('style')) as Node | null;
 		if (!closestStyle) return wrapFormat(node, Tag, styles);
 
 		let currentChild = closestStyle;
@@ -114,10 +113,7 @@ const FormatWrapper = (editor: Editor): IFormatWrapper => {
 			case EFormatType.INLINE:
 				return wrapInline(format, node, value);
 			case EFormatType.STYLE:
-				if (!Type.IsArray(formats)) {
-					wrapStyleFormat(format, node, value);
-					return;
-				}
+				if (!Type.IsArray(formats)) return wrapStyleFormat(format, node, value);
 
 				return Arr.Each(formats, (styleFormat, exit) => {
 					if (styleFormat.Type !== EFormatType.STYLE) return;

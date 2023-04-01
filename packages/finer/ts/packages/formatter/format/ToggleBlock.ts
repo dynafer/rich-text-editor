@@ -29,7 +29,7 @@ const ToggleBlock = (editor: Editor, format: IBlockFormat): IToggleBlock => {
 
 	const tableProcessor = (bWrap: boolean): boolean => {
 		const cells = DOM.Element.Table.GetSelectedCells(self);
-		if (cells.length === 0) return false;
+		if (Arr.IsEmpty(cells)) return false;
 
 		Arr.Each(cells, cell => Toggler.ToggleRecursive(bWrap, format, cell));
 
@@ -41,9 +41,8 @@ const ToggleBlock = (editor: Editor, format: IBlockFormat): IToggleBlock => {
 
 		const startElement = FormatUtils.GetParentIfText(caret.Start.Node);
 
-		if (
-			(!DOM.Element.Table.GetClosest(startElement) && !DOM.Closest(startElement, addInsideSelector))
-			|| caret.Start.Node === caret.End.Node
+		if (caret.Start.Node === caret.End.Node
+			|| (!DOM.Element.Table.GetClosest(startElement) && !DOM.Closest(startElement, addInsideSelector))
 		) {
 			Toggler.Toggle(bWrap, format, DOM.GetChildNodes(caret.Start.Node, false)[0] ?? caret.Start.Node);
 			return true;

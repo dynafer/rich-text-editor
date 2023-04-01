@@ -1,8 +1,8 @@
 import { IDOMFactory } from '../dom/DOMFactory';
 
-export interface IUISchemaBase<K> {
-	Schema: IDOMFactory,
-	Self: IDOMFactory<K>,
+export interface IUISchemaBase<K extends HTMLElement> {
+	readonly Schema: IDOMFactory,
+	readonly Self: IDOMFactory<K>,
 }
 
 export interface IInputSchema extends IUISchemaBase<HTMLInputElement> {
@@ -11,13 +11,13 @@ export interface IInputSchema extends IUISchemaBase<HTMLInputElement> {
 }
 
 export interface IModalSchema extends IUISchemaBase<HTMLElement> {
-	Header: IDOMFactory,
-	Body: IDOMFactory,
-	Footer: IDOMFactory,
+	readonly Header: IDOMFactory,
+	readonly Body: IDOMFactory,
+	readonly Footer: IDOMFactory,
 }
 
 export interface IPaletteSchema extends IUISchemaBase<HTMLElement> {
-	Self: IDOMFactory<HTMLCanvasElement>,
+	readonly Self: IDOMFactory<HTMLCanvasElement>,
 	CreateGradient: (x0: number, y0: number, x1: number, y1: number) => CanvasGradient,
 	ColorStop: (gradient: CanvasGradient, stops: [number, string][]) => void,
 	Fill: (style: string | CanvasGradient | CanvasPattern) => void,
@@ -32,8 +32,8 @@ export interface IPaletteGuideSchema extends IUISchemaBase<HTMLElement> {
 }
 
 export interface IUISchemaMap {
-	Input: IInputSchema,
-	Modal: IModalSchema,
-	Palette: IPaletteSchema,
-	PaletteGuide: IPaletteGuideSchema,
+	readonly Input: IInputSchema,
+	readonly Modal: IModalSchema,
+	readonly Palette: IPaletteSchema,
+	readonly PaletteGuide: IPaletteGuideSchema,
 }

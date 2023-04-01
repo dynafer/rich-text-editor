@@ -11,15 +11,15 @@ export type TConfigOption = string | string[] | Record<string, string>;
 export type TFormatProcessor = (bWrap: boolean, caret: ICaretData, value?: string) => boolean;
 
 export type TCaretPath = {
-	bRange: false,
-	Marker: string,
-	Offset: number,
+	readonly bRange: false,
+	readonly Marker: string,
+	readonly Offset: number,
 } | {
-	bRange: true,
-	StartMarker: string,
-	StartOffset: number,
-	EndMarker: string,
-	EndOffset: number,
+	readonly bRange: true,
+	readonly StartMarker: string,
+	readonly StartOffset: number,
+	readonly EndMarker: string,
+	readonly EndOffset: number,
 };
 
 export interface IProcessorOption {
@@ -41,7 +41,7 @@ export interface IFormatUtils {
 	MultiplyPixelSize: (value: number) => number,
 	GetFormatName: (finder: string, names: string[]) => string,
 	HasFormatName: (finder: string, names: string[]) => boolean,
-	GetFormatConfig: (editor: Editor, defaultOptions: TConfigOption, configName: string) => TConfigOption,
+	GetFormatConfig: (editor: Editor, defaultOptions: TConfigOption, configName: Capitalize<string>) => TConfigOption,
 	LabelConfigArray: (config: string[]) => Record<string, string>,
 	GetParentIfText: (node: Node) => Element,
 	RunFormatting: (editor: Editor, toggle: () => void) => void,
@@ -81,7 +81,7 @@ const FormatUtils = (): IFormatUtils => {
 		return false;
 	};
 
-	const GetFormatConfig = (editor: Editor, defaultOptions: TConfigOption, configName: string): TConfigOption => {
+	const GetFormatConfig = (editor: Editor, defaultOptions: TConfigOption, configName: Capitalize<string>): TConfigOption => {
 		const self = editor;
 
 		if (!!self.Config[configName]) return self.Config[configName] as TConfigOption;
@@ -209,15 +209,13 @@ const FormatUtils = (): IFormatUtils => {
 
 			const sibling = bPrevious ? marker.previousSibling : marker.nextSibling;
 
-			if (sibling) {
-				const siblingName = DOM.Utils.GetNodeName(sibling);
-				if (BlockFormatTags.Figures.has(siblingName)) {
-					if (!DOM.Element.Figure.IsFigure(sibling) && sibling.parentNode) return sibling.parentNode;
-					return sibling;
-				}
+			const getRelativeNode = (node: Node): Node => {
+				if (!BlockFormatTags.Figures.has(DOM.Utils.GetNodeName(node))) return getTextOrBrNode(node);
+				if (node.parentNode && !DOM.Element.Figure.IsFigure(node)) return node.parentNode;
+				return node;
+			};
 
-				return getTextOrBrNode(sibling);
-			}
+			if (sibling) return getRelativeNode(sibling);
 
 			let current: Node | null = marker;
 			while (current && current !== self.GetBody()) {
@@ -230,13 +228,7 @@ const FormatUtils = (): IFormatUtils => {
 				current = current.parentNode;
 			}
 
-			const currentName = DOM.Utils.GetNodeName(current);
-			if (current && BlockFormatTags.Figures.has(currentName)) {
-				if (!DOM.Element.Figure.IsFigure(current) && current.parentNode) return current.parentNode;
-				return current;
-			}
-
-			return getTextOrBrNode(!current ? marker : current);
+			return !current ? getTextOrBrNode(marker) : getRelativeNode(current);
 		};
 
 		Arr.Each(markers, marker => {
@@ -315,13 +307,14 @@ const FormatUtils = (): IFormatUtils => {
 		const createdSelector: (string | Record<string, string>)[] = [];
 		const selectorMap: Record<string, string> = {};
 		Obj.Entries(styles, (styleName, styleValue) => {
-			if (styleValue === '{{value}}') {
-				if (!!value) selectorMap[styleName] = value;
-				else Arr.Push(createdSelector, styleName);
+			if (styleValue !== '{{value}}') {
+				selectorMap[styleName] = styleValue;
 				return;
 			}
 
-			selectorMap[styleName] = styleValue;
+			if (!value) return Arr.Push(createdSelector, styleName);
+
+			selectorMap[styleName] = value;
 		});
 		Arr.Push(createdSelector, selectorMap);
 
@@ -399,8 +392,8 @@ const FormatUtils = (): IFormatUtils => {
 		const self = editor;
 
 		const followingItemsSelector = Str.Join(',', ...BlockFormatTags.FollowingItems);
-		const startBlock = self.DOM.Closest(GetParentIfText(caret.Start.Node), followingItemsSelector) ?? caret.Start.Path[0];
-		const endBlock = self.DOM.Closest(GetParentIfText(caret.End.Node), followingItemsSelector) ?? caret.End.Path[0];
+		const startBlock = DOM.Closest(GetParentIfText(caret.Start.Node), followingItemsSelector) ?? caret.Start.Path[0];
+		const endBlock = DOM.Closest(GetParentIfText(caret.End.Node), followingItemsSelector) ?? caret.End.Path[0];
 		const children: Node[] = [];
 
 		const caretNodes = [
@@ -408,26 +401,28 @@ const FormatUtils = (): IFormatUtils => {
 			...self.DOM.SelectAll({ attrs: 'caret' }, endBlock)
 		];
 
-		if (!DOM.Element.Figure.IsFigure(startBlock)) Arr.Push(children, ...self.DOM.GetChildNodes(startBlock));
-		if (!DOM.Element.Figure.IsFigure(endBlock)) Arr.Push(children, ...self.DOM.GetChildNodes(endBlock));
+		if (!DOM.Element.Figure.IsFigure(startBlock)) Arr.Push(children, ...DOM.GetChildNodes(startBlock));
+		if (!DOM.Element.Figure.IsFigure(endBlock)) Arr.Push(children, ...DOM.GetChildNodes(endBlock));
 
 		const isNodeEmpty = (target: Node): boolean =>
-			(NodeType.IsText(target) && Str.IsEmpty(target.textContent)) || (!NodeType.IsText(target) && Str.IsEmpty(self.DOM.GetText(target)));
+			(NodeType.IsText(target) && Str.IsEmpty(target.textContent)) || (!NodeType.IsText(target) && Str.IsEmpty(DOM.GetText(target)));
+
+		const isSkippable = (target: Node | null): boolean =>
+			!target
+			|| !isNodeEmpty(target)
+			|| DOM.Utils.IsBr(target)
+			|| (DOM.Utils.IsBr(DOM.GetChildNodes(target)[0]))
+			|| DOM.HasAttr(target, 'caret')
+			|| DOM.HasAttr(target, 'marker')
+			|| DOM.Element.Figure.IsFigure(target);
 
 		Arr.Each(children, child => {
-			if (!child
-				|| !isNodeEmpty(child)
-				|| self.DOM.Utils.IsBr(child)
-				|| (self.DOM.Utils.IsBr(self.DOM.GetChildNodes(child)[0]))
-				|| self.DOM.HasAttr(child, 'caret')
-				|| self.DOM.HasAttr(child, 'marker')
-				|| DOM.Element.Figure.IsFigure(child)
-			) return;
+			if (isSkippable(child)) return;
 
 			let bSkip = false;
 
 			Arr.Each(caretNodes, (caretNode, exit) => {
-				if (!self.DOM.Utils.IsChildOf(caretNode, child)) return;
+				if (!DOM.Utils.IsChildOf(caretNode, child)) return;
 				bSkip = true;
 				exit();
 			});
@@ -435,7 +430,7 @@ const FormatUtils = (): IFormatUtils => {
 			if (bSkip) return;
 
 			if (NodeType.IsText(child)) return child.remove();
-			self.DOM.Remove(child, false);
+			DOM.Remove(child, false);
 		});
 	};
 

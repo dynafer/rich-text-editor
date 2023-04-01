@@ -37,10 +37,10 @@ const Setup = (editor: Editor) => {
 
 		switch (uiName) {
 			case formatNames[0]:
-				ImageUploader(self, ui).Create();
+				ImageUploader(self, ui);
 				break;
 			case formatNames[1]:
-				MediaInserter(self, ui).Create();
+				MediaInserter(self, ui);
 				break;
 		}
 	};

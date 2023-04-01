@@ -1,17 +1,17 @@
 import { IDOMFactory } from '../dom/DOMFactory';
 
-export interface ISketcherSetting {
+export interface ISketcherSetting<T extends HTMLElement = HTMLElement> {
 	TagName: string,
 	Attributes?: Record<string, string>,
 	Events?: [string, EventListener][],
-	Elements?: (string | IDOMFactory | ISketcherSetting)[],
+	Elements?: (string | IDOMFactory<T> | ISketcherSetting)[],
 }
 
-export interface IModalSetting extends Pick<ISketcherSetting, 'Events'> {
+export interface IModalSetting<T extends HTMLElement = HTMLElement> extends Pick<ISketcherSetting, 'Events'> {
 	Title: string,
 	Icons: Record<string, string>,
-	Body?: IDOMFactory | IDOMFactory[],
-	Footer?: IDOMFactory | IDOMFactory[],
+	Body?: IDOMFactory<T> | IDOMFactory[],
+	Footer?: IDOMFactory<T> | IDOMFactory[],
 }
 
 export interface IInputSetting extends Pick<ISketcherSetting, 'Events'> {

@@ -5,18 +5,18 @@ import { AllBlockFormats, BlockFormatTags } from '../../formatter/Format';
 import RangeUtils, { IRangeUtils } from './RangeUtils';
 
 interface ILineData {
-	Node: Node,
-	Offset: number,
-	Path: Node[],
-	Line: number;
+	readonly Node: Node,
+	readonly Offset: number,
+	readonly Path: Node[],
+	readonly Line: number,
 }
 
 export interface ICaretData {
 	IsRange: () => boolean,
-	Start: ILineData,
-	End: ILineData,
-	SameRoot: Node,
-	Range: IRangeUtils,
+	readonly Start: ILineData,
+	readonly End: ILineData,
+	readonly SameRoot: Node,
+	readonly Range: IRangeUtils,
 }
 
 export interface ICaretUtils {

@@ -39,7 +39,7 @@ const ToggleInline = (editor: Editor, formats: IInlineFormat | IInlineFormat[]):
 
 	const tableProcessor = (bWrap: boolean, value?: string): boolean => {
 		const cells = DOM.Element.Table.GetSelectedCells(self);
-		if (cells.length === 0) return false;
+		if (Arr.IsEmpty(cells)) return false;
 
 		Arr.Each(cells, cell => Toggler.ToggleRecursive(bWrap, formats, cell, { value }));
 
@@ -68,10 +68,8 @@ const ToggleInline = (editor: Editor, formats: IInlineFormat | IInlineFormat[]):
 		const element = FormatUtils.GetParentIfText(node);
 
 		const bFormat = hasFormat(element, value);
-		if ((bWrap && bFormat) || (!bWrap && !bFormat)) return node;
-
 		const text = node.textContent;
-		if (!text) return node;
+		if ((bWrap && bFormat) || (!bWrap && !bFormat) || !text) return node;
 
 		const splitedTextNode = FormatUtils.SplitTextNode(self, node,
 			bPrevious ? offset : 0,

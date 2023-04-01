@@ -1,22 +1,23 @@
 import { Attribute } from '@dynafer/dom-control';
-import { Arr, Type } from '@dynafer/utils';
+import { Arr, Obj, Type } from '@dynafer/utils';
 import DOMFactory, { IDOMFactory } from '../dom/DOMFactory';
 import { ISketcherSetting } from '../types/UISetting';
 
 export interface ISketcher {
-	SketchOne: (setting: ISketcherSetting) => IDOMFactory,
+	SketchOne: <T extends HTMLElement>(setting: ISketcherSetting<T>) => IDOMFactory<T>,
 	Sketch: (settings: ISketcherSetting[]) => IDOMFactory[],
 }
 
 const Sketcher = (): ISketcher => {
-	const SketchOne = (setting: ISketcherSetting): IDOMFactory => {
+	const SketchOne = <T extends HTMLElement>(setting: ISketcherSetting<T>): IDOMFactory<T> => {
 		const { TagName, Elements, Events, Attributes } = setting;
 		const sketch = DOMFactory(TagName);
 
 		if (Type.IsArray(Elements)) {
 			Arr.Each(Elements, element => {
 				if (Type.IsString(element)) return sketch.InsertHtml(element);
-				sketch.Insert(!!(element as IDOMFactory).Doc ? element as IDOMFactory : SketchOne(element as ISketcherSetting));
+				const bFactory = Obj.HasProperty<IDOMFactory<T>>(element, 'Doc');
+				sketch.Insert(bFactory ? element : SketchOne(element));
 			});
 		}
 
@@ -24,7 +25,7 @@ const Sketcher = (): ISketcher => {
 
 		if (Type.IsObject(Attributes)) Attribute.SetMultiple(sketch.Self, Attributes);
 
-		return sketch;
+		return sketch as IDOMFactory<T>;
 	};
 
 	const Sketch = (settings: ISketcherSetting[]): IDOMFactory[] => {

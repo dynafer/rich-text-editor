@@ -7,17 +7,17 @@ import FormatUtils, { IFormatUtils } from './FormatUtils';
 import FormatRegistry, { IFormatRegistry } from './ui/FormatRegistry';
 
 export interface IFormatter {
-	Formats: {
-		ListItemSelector: string,
-		ListSet: Set<string>,
-		ListSelector: string,
-		BlockFormatTags: Record<string, Set<string>>,
+	readonly Formats: {
+		readonly ListItemSelector: string,
+		readonly ListSet: Set<string>,
+		readonly ListSelector: string,
+		readonly BlockFormatTags: Record<string, Set<string>>,
 	},
-	UI: IFormatUI,
-	Utils: IFormatUtils,
-	Toggler: IFormatToggler,
-	Detector: IFormatDetector,
-	Registry: IFormatRegistry,
+	readonly UI: IFormatUI,
+	readonly Utils: IFormatUtils,
+	readonly Toggler: IFormatToggler,
+	readonly Detector: IFormatDetector,
+	readonly Registry: IFormatRegistry,
 	Register: (name: string) => void,
 }
 

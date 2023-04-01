@@ -21,7 +21,7 @@ enum ELoadingStatus {
 }
 
 interface IEditorTools {
-	DOM: IDOMTools,
+	readonly DOM: IDOMTools,
 }
 
 export interface IEditorConstructor {
@@ -29,16 +29,16 @@ export interface IEditorConstructor {
 }
 
 class Editor {
-	public Id: string;
-	public Config: IConfiguration;
-	public Frame: IEditorFrame;
-	public Notification: INotificationManager;
+	public readonly Id: string;
+	public readonly Config: IConfiguration;
+	public readonly Frame: IEditorFrame;
+	public readonly Notification: INotificationManager;
 	public Plugin!: IPluginManager;
 	public DOM: IDom = DOM.New(window, document, true);
-	public Commander: ICommander = Commander();
+	public readonly Commander: ICommander = Commander();
 	public Utils!: IEditorUtils;
 	public Formatter!: IFormatter;
-	public Toolbar: IEditorToolbar;
+	public readonly Toolbar: IEditorToolbar;
 	public Tools!: IEditorTools;
 
 	private mBody!: HTMLElement;
@@ -57,11 +57,11 @@ class Editor {
 
 		EditorSetup(this)
 			.then(() => this.setLoading(ELoadingStatus.HIDE))
-			.catch(error => this.Notify(ENotificationStatus.ERROR, error as string));
+			.catch(error => this.Notify(ENotificationStatus.ERROR, error, true));
 	}
 
-	public Notify(type: ENotificationStatus, text: string) {
-		this.Notification.Dispatch(type, text);
+	public Notify(type: ENotificationStatus, text: string, bDestroy?: boolean) {
+		this.Notification.Dispatch(type, text, bDestroy);
 	}
 
 	public On<K extends keyof GlobalEventHandlersEventMap>(eventName: K, event: TEventListener<K>): void;
@@ -78,11 +78,9 @@ class Editor {
 	}
 
 	public Dispatch(eventName: string, ...params: unknown[]) {
-		if (!ENativeEvents[eventName as ENativeEvents]) {
-			this.Utils.Event.Dispatch(eventName, ...params);
-		} else {
-			this.DOM.Dispatch(this.GetBody(), eventName);
-		}
+		if (!ENativeEvents[eventName as ENativeEvents])
+			return this.Utils.Event.Dispatch(eventName, ...params);
+		this.DOM.Dispatch(this.GetBody(), eventName);
 	}
 
 	public IsDestroyed(): boolean {
@@ -150,8 +148,8 @@ class Editor {
 	}
 
 	public SetContent(html: string) {
-		if (Str.IsEmpty(html)) this.InitContent();
-		if (!Str.IsEmpty(html)) this.InitContent(html);
+		if (Str.IsEmpty(html)) return this.InitContent();
+		this.InitContent(html);
 	}
 
 	private setLoading(status: ELoadingStatus) {
