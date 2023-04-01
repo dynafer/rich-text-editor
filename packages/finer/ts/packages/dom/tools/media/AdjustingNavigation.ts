@@ -20,7 +20,7 @@ const AdjustingNavigation = (editor: Editor, media: HTMLElement, fakeMedia: HTML
 		const bWidth = type === 'width';
 		if (DOM.Utils.IsImage(media)) return bWidth ? media.naturalWidth : media.naturalHeight;
 		if (DOM.Utils.IsVideo(media)) return bWidth ? media.videoWidth : media.videoHeight;
-		return parseFloat(self.DOM.GetAttr(media, `data-original-${type}`) ?? '0');
+		return parseFloat(DOM.GetAttr(media, `data-original-${type}`) ?? '0');
 	};
 
 	const originalWidth = getOriginalSize('width');

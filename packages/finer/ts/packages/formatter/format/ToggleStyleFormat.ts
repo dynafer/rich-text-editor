@@ -109,9 +109,10 @@ const ToggleStyleFormat = (editor: Editor, formats: IStyleFormat | IStyleFormat[
 		const styleName = Obj.Keys(Styles)[0];
 		const calculateValue = bSubtract ? -1 * parseFloat(value) : parseFloat(value);
 
-		Arr.Each(CaretUtils.Get(), caret => calculateRange(caret, styleName, calculateValue));
+		const caret = CaretUtils.Get();
+		if (!caret) return;
 
-		CaretUtils.Clean();
+		calculateRange(caret, styleName, calculateValue);
 	};
 
 	return {

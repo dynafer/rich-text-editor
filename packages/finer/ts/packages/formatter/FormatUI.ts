@@ -57,7 +57,7 @@ export interface IFormatUI {
 	RegisterCommand: (editor: Editor, name: string, command: <T>(...args: T[]) => void) => void,
 	RunCommand: <T>(editor: Editor, name: string, ...args: T[]) => void,
 	RegisterKeyboardEvent: (editor: Editor, combinedKeys: string, callback: (editor: Editor, event: Event) => void) => void,
-	IsNearDisableList: (editor: Editor, disableList: Set<string> | undefined, selector: HTMLElement, path: Node) => boolean,
+	IsNearDisableList: (disableList: Set<string> | undefined, selector: HTMLElement, path: Node) => boolean,
 }
 
 const FormatUI = (): IFormatUI => {
@@ -373,15 +373,13 @@ const FormatUI = (): IFormatUI => {
 		if (keyCode) SetupWith(self, ENativeEvents.keydown, keyCode, keyOptions, callback);
 	};
 
-	const IsNearDisableList = (editor: Editor, disableList: Set<string> | undefined, selector: HTMLElement, path: Node): boolean => {
-		const self = editor;
-
+	const IsNearDisableList = (disableList: Set<string> | undefined, selector: HTMLElement, path: Node): boolean => {
 		if (!disableList) {
 			ToggleDisable(selector, false);
 			return false;
 		}
 		const disableListSelector = Str.Join(',', ...disableList);
-		const figure = self.DOM.Closest(path, disableListSelector);
+		const figure = DOM.Closest(path, disableListSelector);
 		if (!figure) {
 			ToggleDisable(selector, false);
 			return false;

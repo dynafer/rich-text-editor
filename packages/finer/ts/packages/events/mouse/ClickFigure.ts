@@ -14,7 +14,7 @@ const ClickFigure = (editor: Editor, event: MouseEvent) => {
 	if (FigureType === 'media') {
 		const newRange = self.Utils.Range();
 		newRange.SetStartToEnd(Figure, 0, 0);
-		self.Utils.Caret.UpdateRanges(newRange);
+		self.Utils.Caret.UpdateRange(newRange);
 		self.Utils.Shared.DispatchCaretChange([Figure]);
 	}
 

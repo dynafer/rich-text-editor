@@ -5,9 +5,32 @@ import DOMElement, { IDOMElement } from './DOMElement';
 import DOMEventUtils, { IDOMEventUtils, TEventTarget } from './DOMEventUtils';
 import DOMUtils, { ESCAPE_EMPTY_TEXT_REGEX, ICreateSelectorOption, IDOMUtils } from './DOMUtils';
 
+export type TDOMCreateOption = IDOMCreateOption | IDOMCreateOptionFromEditor | IDOMCreateOptionFromEditorIFrame;
+
 export type TElement = Node | Element | null;
 export type TCreateOption = Attribute.TAttributeSetter | string | TElement[] | (string | TElement)[];
 export type TEventListener<K extends keyof GlobalEventHandlersEventMap> = (event: GlobalEventHandlersEventMap[K]) => void;
+
+interface IDOMCreateOption {
+	window?: Window & typeof globalThis | null,
+	document?: Document | null,
+	bEditor: false,
+}
+
+interface IDOMCreateOptionFromEditor {
+	window?: Window & typeof globalThis | null,
+	document?: Document | null,
+	bEditor: true,
+	bSelfBody: false,
+	body: HTMLElement;
+}
+
+interface IDOMCreateOptionFromEditorIFrame {
+	window?: Window & typeof globalThis | null,
+	document?: Document | null,
+	bEditor: true,
+	bSelfBody: true,
+}
 
 export interface IDom {
 	readonly Win: Window & typeof globalThis,
@@ -15,7 +38,7 @@ export interface IDom {
 	readonly Utils: IDOMUtils,
 	readonly EventUtils: IDOMEventUtils,
 	readonly Element: IDOMElement,
-	New: (win: Window & typeof globalThis, doc: Document, bEditor: boolean) => IDom,
+	New: (options: TDOMCreateOption) => IDom,
 	GetRoot: () => HTMLElement,
 	CreateFragment: () => DocumentFragment,
 	CreateTextNode: (text: string) => Text,
@@ -97,30 +120,31 @@ export interface IDom {
 	Remove: (selector: TElement, bBubble?: boolean) => void,
 }
 
-const DOM = (_win: Window & typeof globalThis = window, _doc: Document = document, bFromEditor: boolean = false): IDom => {
-	const Win: Window & typeof globalThis = _win;
-	const Doc: Document = _doc;
+const DOM = (opts: TDOMCreateOption): IDom => {
+	const Win: Window & typeof globalThis = opts.window ?? window;
+	const Doc: Document = opts.document ?? document;
 	const Utils: IDOMUtils = DOMUtils;
 
 	const EventUtils: IDOMEventUtils = DOMEventUtils();
 
-	const New = (win: Window & typeof globalThis, doc: Document, bEditor: boolean): IDom => DOM(win, doc, bEditor);
+	const New = (options: TDOMCreateOption): IDom => DOM(options);
 
 	const GetRoot = (): HTMLElement => Doc.documentElement;
 
 	const CreateFragment = (): DocumentFragment => Doc.createDocumentFragment();
 	const CreateTextNode = (text: string): Text => Doc.createTextNode(text);
 
+	const getFromSelector = (parent?: TElement): Element | Document | DocumentFragment => {
+		if (NodeType.IsElement(parent) || NodeType.IsDocumentFragment(parent)) return parent;
+		if (opts.bEditor) return !opts.bSelfBody ? opts.body : Doc.body;
+		return Doc;
+	};
+
 	const Select = (selector: string | ICreateSelectorOption, parent?: TElement): HTMLElement | null =>
-		NodeType.IsElement(parent) || NodeType.IsDocumentFragment(parent)
-			? parent.querySelector(Type.IsString(selector) ? selector : Utils.CreateSelector(selector))
-			: Doc.querySelector(Type.IsString(selector) ? selector : Utils.CreateSelector(selector));
+		getFromSelector(parent).querySelector(Type.IsString(selector) ? selector : Utils.CreateSelector(selector));
 
 	const SelectAll = (selector: string | ICreateSelectorOption, parent?: TElement): HTMLElement[] =>
-		Arr.Convert(NodeType.IsElement(parent) || NodeType.IsDocumentFragment(parent)
-			? parent.querySelectorAll(Type.IsString(selector) ? selector : Utils.CreateSelector(selector))
-			: Doc.querySelectorAll(Type.IsString(selector) ? selector : Utils.CreateSelector(selector))
-		);
+		Arr.Convert(getFromSelector(parent).querySelectorAll(Type.IsString(selector) ? selector : Utils.CreateSelector(selector)));
 
 	const GetAttr = (selector: TElement, attr: string): string | null => Attribute.Get(selector, attr);
 	const SetAttr = (selector: TElement, attr: string, value?: string) => Attribute.Set(selector, attr, value);
@@ -151,15 +175,15 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 	const SetStyleText = (selector: TElement, styleText: string) => Style.SetText(selector, styleText);
 	const SetStyle = (selector: TElement, name: string, value: string) => {
 		Style.Set(selector, name, value);
-		if (bFromEditor) SetAttr(selector, Options.ATTRIBUTE_EDITOR_STYLE, GetStyleText(selector));
+		if (opts.bEditor) SetAttr(selector, Options.ATTRIBUTE_EDITOR_STYLE, GetStyleText(selector));
 	};
 	const SetStyles = (selector: TElement, styles: Record<string, string>) => {
 		Style.SetAsMap(selector, styles);
-		if (bFromEditor) SetAttr(selector, Options.ATTRIBUTE_EDITOR_STYLE, GetStyleText(selector));
+		if (opts.bEditor) SetAttr(selector, Options.ATTRIBUTE_EDITOR_STYLE, GetStyleText(selector));
 	};
 	const RemoveStyle = (selector: TElement, name: string) => {
 		Style.Remove(selector, name);
-		if (!bFromEditor) return;
+		if (!opts.bEditor) return;
 		if (Str.IsEmpty(GetStyleText(selector))) return RemoveAttr(selector, Options.ATTRIBUTE_EDITOR_STYLE);
 		SetAttr(selector, Options.ATTRIBUTE_EDITOR_STYLE, GetStyleText(selector));
 	};
@@ -358,4 +382,4 @@ const DOM = (_win: Window & typeof globalThis = window, _doc: Document = documen
 	};
 };
 
-export default DOM();
+export default DOM({ bEditor: false });

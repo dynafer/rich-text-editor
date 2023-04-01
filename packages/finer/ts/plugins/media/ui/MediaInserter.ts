@@ -36,11 +36,11 @@ const MediaInserter = (editor: Editor, ui: IPluginMediaUI) => {
 						return;
 					}
 
-					self.DOM.SetAttrs(media, {
+					DOM.SetAttrs(media, {
 						dataOriginalWidth: width.toString(),
 						dataOriginalHeight: height.toString(),
 					});
-					self.DOM.SetStyles(media, {
+					DOM.SetStyles(media, {
 						width: `${width}px`,
 						height: `${height}px`,
 					});

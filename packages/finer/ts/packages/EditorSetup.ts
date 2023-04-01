@@ -23,11 +23,12 @@ const EditorSetup = (editor: Editor): Promise<void> => {
 	const createIframe = (): HTMLElement => {
 		const container = frame.Container as HTMLIFrameElement;
 
-		self.DOM = DOM.New(
-			container.contentWindow as Window & typeof globalThis,
-			container.contentDocument ?? document,
-			true
-		);
+		self.DOM = DOM.New({
+			window: container.contentWindow as Window & typeof globalThis,
+			document: container.contentDocument,
+			bEditor: true,
+			bSelfBody: true,
+		});
 
 		const iframeHTML = Str.Merge('<!DOCTYPE html>',
 			'<html>',
@@ -47,6 +48,12 @@ const EditorSetup = (editor: Editor): Promise<void> => {
 				id: bodyId,
 				contenteditable: 'true'
 			}
+		});
+
+		self.DOM = DOM.New({
+			bEditor: true,
+			bSelfBody: false,
+			body: containerBody,
 		});
 
 		DOM.Insert(frame.Container, containerBody);

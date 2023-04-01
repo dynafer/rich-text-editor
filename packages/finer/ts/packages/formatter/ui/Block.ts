@@ -57,7 +57,7 @@ const Block = (editor: Editor, detector: IFormatDetector): IFormatUIRegistryUnit
 	const isDetected = (tagName: string, nodes: Node[]): boolean => {
 		for (let index = 0, length = nodes.length; index < length; ++index) {
 			const node = nodes[index];
-			if (!self.DOM.Closest(node, tagName)) continue;
+			if (!DOM.Closest(node, tagName)) continue;
 
 			return true;
 		}
@@ -66,10 +66,9 @@ const Block = (editor: Editor, detector: IFormatDetector): IFormatUIRegistryUnit
 
 	const isDetectedByCaret = (tagName: string, nodes?: Node[]): boolean => {
 		const caretNodes: Node[] = Type.IsArray(nodes) ? nodes : [];
-		if (Arr.IsEmpty(caretNodes))
-			Arr.Each(self.Utils.Caret.Get(), caret =>
-				Arr.Push(caretNodes, FormatUtils.GetParentIfText(caret.Start.Node), FormatUtils.GetParentIfText(caret.End.Node))
-			);
+
+		const caret = self.Utils.Caret.Get();
+		if (caret) Arr.Push(caretNodes, FormatUtils.GetParentIfText(caret.Start.Node), FormatUtils.GetParentIfText(caret.End.Node));
 
 		return isDetected(tagName, caretNodes);
 	};
@@ -86,10 +85,9 @@ const Block = (editor: Editor, detector: IFormatDetector): IFormatUIRegistryUnit
 	const createOptionsList = (selection: IFormatUISelection, uiName: string, uiFormat: IBlockFormatUI) => {
 		const optionElements: HTMLElement[] = [];
 		const caretNodes: Node[] = [];
-		Arr.Each(self.Utils.Caret.Get(), caret =>
-			Arr.Push(caretNodes, FormatUtils.GetParentIfText(caret.Start.Node), FormatUtils.GetParentIfText(caret.End.Node))
-		);
-		self.Utils.Caret.Clean();
+
+		const caret = self.Utils.Caret.Get();
+		if (caret) Arr.Push(caretNodes, FormatUtils.GetParentIfText(caret.Start.Node), FormatUtils.GetParentIfText(caret.End.Node));
 
 		Arr.Each(uiFormat.Items, format => {
 			const { Format, Title } = format;
@@ -133,7 +131,7 @@ const Block = (editor: Editor, detector: IFormatDetector): IFormatUIRegistryUnit
 
 		Detector.Register((paths: Node[]) => {
 			const node = FormatUtils.GetParentIfText(paths[0]);
-			const bNearDisableList = FormatUI.IsNearDisableList(self, uiFormat.DisableList, selection.Selection, node);
+			const bNearDisableList = FormatUI.IsNearDisableList(uiFormat.DisableList, selection.Selection, node);
 			if (bNearDisableList) return;
 
 			for (let index = 0, length = uiFormat.Items.length; index < length; ++index) {

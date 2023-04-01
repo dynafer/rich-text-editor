@@ -72,7 +72,7 @@ const InlineFont = (editor: Editor, detector: IFormatDetector): IFormatUIRegistr
 
 		const checkDetected = (element: Element | null, bBody: boolean = false): boolean => {
 			if (!element) return false;
-			const detectedValue = getFirstValue(self.DOM.GetStyle(element, styleName, bBody));
+			const detectedValue = getFirstValue(DOM.GetStyle(element, styleName, bBody));
 
 			return Str.LowerCase(detectedValue) === Str.LowerCase(convertedValue.toString())
 				|| parseFloat(detectedValue) === convertedValue;
@@ -80,7 +80,7 @@ const InlineFont = (editor: Editor, detector: IFormatDetector): IFormatUIRegistr
 
 		for (let index = 0, length = nodes.length; index < length; ++index) {
 			const node = nodes[index];
-			const detected = self.DOM.ClosestByStyle(FormatUtils.GetParentIfText(node), selector);
+			const detected = DOM.ClosestByStyle(FormatUtils.GetParentIfText(node), selector);
 			if (checkDetected(detected)) return true;
 
 			if (node === self.GetBody()) return checkDetected(self.GetBody(), true);
@@ -165,7 +165,7 @@ const InlineFont = (editor: Editor, detector: IFormatDetector): IFormatUIRegistr
 			setLabelText(getCurrentStyle(uiFormat.Format, uiFormat.Options, paths));
 
 			const node = FormatUtils.GetParentIfText(paths[0]);
-			FormatUI.IsNearDisableList(self, uiFormat.Format.DisableList, selection.Selection, node);
+			FormatUI.IsNearDisableList(uiFormat.Format.DisableList, selection.Selection, node);
 		});
 
 		return selection.Selection;

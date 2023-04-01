@@ -9,8 +9,8 @@ const EnterEvent = (editor: Editor, event: KeyboardEvent) => {
 
 	if (event.key !== EKeyCode.Enter && event.code !== EKeyCode.Enter) return;
 
-	const caret = CaretUtils.Get()[0];
-	if (!caret || caret.IsRange() || !DOM.Element.Figure.IsFigure(caret.Start.Node)) return CaretUtils.Clean();
+	const caret = CaretUtils.Get();
+	if (!caret || caret.IsRange() || !DOM.Element.Figure.IsFigure(caret.Start.Node)) return;
 
 	PreventEvent(event);
 
@@ -22,11 +22,11 @@ const EnterEvent = (editor: Editor, event: KeyboardEvent) => {
 
 	toggle(figure, newParagraph);
 
-	if (bPrevious) return CaretUtils.Clean();
+	if (bPrevious) return;
 
 	const newRange = self.Utils.Range();
 	newRange.SetStartToEnd(DOM.Utils.GetFirstChild(newParagraph), 0, 0);
-	CaretUtils.UpdateRanges(newRange);
+	CaretUtils.UpdateRange(newRange);
 
 	self.Tools.DOM.ChangePositions();
 	self.Utils.Shared.DispatchCaretChange([newParagraph]);

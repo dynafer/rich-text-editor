@@ -3,14 +3,14 @@ import Options from '../../../../Options';
 import Editor from '../../../Editor';
 import { ICaretData } from '../../../editorUtils/caret/CaretUtils';
 
-type TCurrentPoint = ICaretData | HTMLElement[] | undefined;
+type TCurrentPoint = ICaretData | HTMLElement[] | null | undefined;
 
 export const CreateCurrentPoint = (editor: Editor, table: HTMLElement): TCurrentPoint => {
 	const self = editor;
 	const DOM = self.DOM;
 	const CaretUtils = self.Utils.Caret;
 
-	let point: TCurrentPoint = CaretUtils.Get()[0];
+	let point: TCurrentPoint = CaretUtils.Get();
 	CaretUtils.CleanRanges();
 
 	if (!point) point = DOM.Element.Table.GetSelectedCells(self, table);
@@ -35,7 +35,7 @@ export const MoveToCurrentPoint = (editor: Editor, table: HTMLElement, point: TC
 
 		const newRange = self.Utils.Range();
 		newRange.SetStartToEnd(firstChild, 0, 0);
-		return CaretUtils.UpdateRanges(newRange);
+		return CaretUtils.UpdateRange(newRange);
 	}
 
 	if (Type.IsArray(point)) {
@@ -47,7 +47,7 @@ export const MoveToCurrentPoint = (editor: Editor, table: HTMLElement, point: TC
 	const newRange = self.Utils.Range();
 	newRange.SetStart(point.Start.Node, DOM.Utils.IsBr(point.Start.Node) ? 0 : point.Start.Offset);
 	newRange.SetEnd(point.End.Node, DOM.Utils.IsBr(point.End.Node) ? 0 : point.End.Offset);
-	CaretUtils.UpdateRanges(newRange);
+	CaretUtils.UpdateRange(newRange);
 };
 
 export const CreateFakeTable = (editor: Editor, table: HTMLElement): HTMLElement => {

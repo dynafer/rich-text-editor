@@ -1,4 +1,3 @@
-import { Arr } from '@dynafer/utils';
 import Editor from '../../../packages/Editor';
 import { IPluginListFormat } from '../Type';
 import Unwrapper from './Unwrapper';
@@ -15,9 +14,10 @@ const Toggler = (editor: Editor, format: IPluginListFormat) => {
 	const ToggleFromCaret = (bWrap: boolean) => {
 		const toggle = bWrap ? wrapper.WrapFromCaret : unwrapper.UnwrapFromCaret;
 
-		Arr.Each(CaretUtils.Get(), caret => formatUtils.RunFormatting(self, () => toggle(caret)));
+		const caret = CaretUtils.Get();
+		if (!caret) return;
 
-		CaretUtils.Clean();
+		formatUtils.RunFormatting(self, () => toggle(caret));
 	};
 
 	return {

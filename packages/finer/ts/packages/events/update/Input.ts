@@ -48,12 +48,12 @@ const Input = (editor: Editor) => {
 		});
 	};
 
-	const runWithCaret = (callback: (caret: ICaretData) => void) => {
-		callback(CaretUtils.Get()[0]);
-		if (!fakeFragment) return CaretUtils.Clean();
+	const runWithCaret = (callback: (caret: ICaretData | null) => void) => {
+		callback(CaretUtils.Get());
+		if (!fakeFragment) return;
 
-		const caret = CaretUtils.Get()[0];
-		if (!caret) return CaretUtils.Clean();
+		const caret = CaretUtils.Get();
+		if (!caret) return;
 
 		const newRange = self.Utils.Range();
 		const lastChild = DOM.Utils.GetLastChild(fakeFragment, true);
@@ -71,7 +71,7 @@ const Input = (editor: Editor) => {
 			}
 		}
 		FormatUtils.CleanDirty(self, caret);
-		CaretUtils.UpdateRanges(newRange);
+		CaretUtils.UpdateRange(newRange);
 		fakeFragment = null;
 
 		DOMTools.ChangePositions();
@@ -79,7 +79,8 @@ const Input = (editor: Editor) => {
 	};
 
 	const getAsStringCallback = (html: string) =>
-		(caret: ICaretData) => {
+		(caret: ICaretData | null) => {
+			if (!caret) return;
 			caret.Range.DeleteContents();
 			const fragment = DOM.Create('fragment');
 			DOM.SetHTML(fragment, Str.Contains(html, '<!--StartFragment-->') ? html.split('StartFragment-->')[1].split('<!--EndFragment')[0] : html);
@@ -92,11 +93,10 @@ const Input = (editor: Editor) => {
 
 	const deleteByDragEvent = (event: InputEvent) => {
 		PreventEvent(event);
-		const caret = CaretUtils.Get()[0];
-		if (!caret) return CaretUtils.Clean();
+		const caret = CaretUtils.Get();
+		if (!caret) return;
 
 		fakeFragment = caret.Range.Extract();
-		CaretUtils.Clean();
 	};
 
 	const insertFromDropEvent = (event: InputEvent) =>
@@ -109,13 +109,12 @@ const Input = (editor: Editor) => {
 		};
 
 	const setLastChildName = () => {
-		const root: Node = CaretUtils.Get()[0]?.SameRoot;
-		let current: Node | null = FormatUtils.GetParentIfText(root);
+		const root: Node | null = CaretUtils.Get()?.SameRoot ?? null;
+		let current: Node | null = root ? FormatUtils.GetParentIfText(root) : null;
 		while (current && current.parentNode !== self.GetBody()) {
 			current = current.parentNode;
 		}
 		lastChildName = DOM.Utils.GetNodeName(current);
-		CaretUtils.Clean();
 	};
 
 	const processWithDataTransfer = (event: InputEvent) => {
@@ -155,13 +154,12 @@ const Input = (editor: Editor) => {
 		const clean = () => {
 			DOMTools.ChangePositions();
 			lastChildName = null;
-			CaretUtils.Clean();
 		};
 
 		if (event.inputType !== EInputEventType.insertParagraph || !lastChildName || !BlockFormatTags.List.has(lastChildName))
 			return clean();
 
-		const caret = CaretUtils.Get()[0];
+		const caret = CaretUtils.Get();
 		if (!caret || caret.SameRoot.parentNode !== self.GetBody() || DOM.Utils.IsParagraph(caret.SameRoot))
 			return clean();
 
@@ -172,7 +170,7 @@ const Input = (editor: Editor) => {
 		const newRange = self.Utils.Range();
 		newRange.SetStartToEnd(paragraph, 0, 0);
 
-		CaretUtils.UpdateRanges(newRange);
+		CaretUtils.UpdateRange(newRange);
 		clean();
 	};
 

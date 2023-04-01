@@ -55,14 +55,14 @@ const StyleFormat = (editor: Editor, detector: IFormatDetector): IFormatUIRegist
 	const createAlignmentDetector = (formats: IStyleFormat | IStyleFormat[], button: HTMLElement, bDetector: boolean): TFormatDetectCallback => {
 		const detect = (format: IStyleFormat, node: Node): boolean => {
 			const { StrictFormats, Styles } = format;
-			const closest = self.DOM.ClosestByStyle(node, FormatUtils.GetStyleSelectorMap(Styles));
+			const closest = DOM.ClosestByStyle(node, FormatUtils.GetStyleSelectorMap(Styles));
 			return !!closest && StrictFormats.has(DOM.Utils.GetNodeName(closest));
 		};
 
 		return (paths: Node[]) => {
 			const node = FormatUtils.GetParentIfText(paths[0]);
 			if (!Type.IsArray(formats)) {
-				const bNearDisableList = FormatUI.IsNearDisableList(self, formats.DisableList, button, node);
+				const bNearDisableList = FormatUI.IsNearDisableList(formats.DisableList, button, node);
 				if (bNearDisableList || !bDetector) return;
 
 				return FormatUI.ToggleActivateClass(button, detect(formats, node));
@@ -71,7 +71,7 @@ const StyleFormat = (editor: Editor, detector: IFormatDetector): IFormatUIRegist
 			for (let index = 0, length = formats.length; index < length; ++index) {
 				const format = formats[index];
 
-				const bNearDisableList = FormatUI.IsNearDisableList(self, format.DisableList, button, node);
+				const bNearDisableList = FormatUI.IsNearDisableList(format.DisableList, button, node);
 				if (bNearDisableList || !bDetector) return;
 
 				const bActivate = detect(format, node);
@@ -91,7 +91,7 @@ const StyleFormat = (editor: Editor, detector: IFormatDetector): IFormatUIRegist
 		return (paths: Node[]) => {
 			const node = FormatUtils.GetParentIfText(paths[0]);
 
-			const bNearDisableList = FormatUI.IsNearDisableList(self, format.DisableList, button, node);
+			const bNearDisableList = FormatUI.IsNearDisableList(format.DisableList, button, node);
 			if (bNearDisableList || !bDetector) return;
 
 			let blockNode: Node | null = node;
@@ -101,7 +101,7 @@ const StyleFormat = (editor: Editor, detector: IFormatDetector): IFormatUIRegist
 
 			if (!blockNode || !StrictFormats.has(DOM.Utils.GetNodeName(blockNode))) return;
 
-			const detectedValue = self.DOM.GetStyle(blockNode, styleName);
+			const detectedValue = DOM.GetStyle(blockNode, styleName);
 			FormatUI.ToggleDisable(button, Str.IsEmpty(detectedValue) || parseFloat(detectedValue) === 0);
 		};
 	};

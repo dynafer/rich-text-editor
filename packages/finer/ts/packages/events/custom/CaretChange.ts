@@ -3,7 +3,7 @@ import Options from '../../../Options';
 import Editor from '../../Editor';
 import { IRangeUtils } from '../../editorUtils/caret/RangeUtils';
 import { IEvent } from '../../editorUtils/EventUtils';
-import { FigureElementFormats } from '../../formatter/Format';
+import { BlockFormatTags, FigureElementFormats } from '../../formatter/Format';
 import FormatUtils from '../../formatter/FormatUtils';
 
 const CaretChange = (editor: Editor) => {
@@ -15,7 +15,7 @@ const CaretChange = (editor: Editor) => {
 	const removeCaretPointers = (paths: Node[]) => {
 		const caretPointers = DOM.SelectAll({
 			attrs: 'caret'
-		}, self.GetBody());
+		});
 		if (Arr.IsEmpty(caretPointers)) return;
 
 		const currentCarets: Node[] = [];
@@ -26,14 +26,18 @@ const CaretChange = (editor: Editor) => {
 		Arr.Each(caretPointers, caretPointer => {
 			if (Arr.Contains(currentCarets, caretPointer)) return;
 
-			if (!Str.IsEmpty(DOM.GetText(caretPointer))) {
-				DOM.SetOuterHTML(caretPointer, DOM.GetHTML(caretPointer));
-				return;
-			}
+			if (!Str.IsEmpty(DOM.GetText(caretPointer))) return DOM.SetOuterHTML(caretPointer, DOM.GetHTML(caretPointer));
+
+			const until = DOM.Closest(caretPointer, Str.Join(',', ...BlockFormatTags.Block))
+				?? DOM.Closest(caretPointer, Str.Join(',', ...BlockFormatTags.FollowingItems))
+				?? self.GetBody();
 
 			const parents = DOM.GetParents(caretPointer, true);
 			Arr.Each(parents, (parent, exit) => {
-				if (!Str.IsEmpty(DOM.GetText(parent))) return exit();
+				if (!Str.IsEmpty(DOM.GetText(parent)) || parent === until) {
+					if (!DOM.Utils.HasChildNodes(parent)) DOM.Insert(parent, DOM.Create('br'));
+					return exit();
+				}
 
 				DOM.Remove(parent, true);
 			});
@@ -43,7 +47,7 @@ const CaretChange = (editor: Editor) => {
 	const wrapFigure = () => {
 		const figureElements = DOM.SelectAll<HTMLElement>({
 			tagName: Arr.Convert(FigureElementFormats)
-		}, self.GetBody());
+		});
 
 		let currentElement: HTMLElement | undefined = undefined;
 		while (!Arr.IsEmpty(figureElements)) {
@@ -71,27 +75,26 @@ const CaretChange = (editor: Editor) => {
 	const setFocusFigure = () => {
 		if (DOM.HasAttr(self.GetBody(), Options.ATTRIBUTE_ADJUSTING)) return;
 
-		const carets = CaretUtils.Get();
-		const node = FormatUtils.GetParentIfText(carets[0]?.Start.Node);
+		const caret = CaretUtils.Get();
+		if (!caret) return;
+
+		const node = FormatUtils.GetParentIfText(caret.Start.Node);
 
 		const { Figure, FigureElement } = DOM.Element.Figure.Find(node);
 
 		DOMTools.UnsetAllFocused(Figure);
 
-		const bNotNodeFigure = !!Figure && !!carets[0]?.IsRange() && DOM.Element.Figure.GetClosest(node) !== Figure;
-		if (!Figure || !FigureElement || bNotNodeFigure) return CaretUtils.Clean();
+		const bNotNodeFigure = !!Figure && !!caret?.IsRange() && DOM.Element.Figure.GetClosest(node) !== Figure;
+		if (!Figure || !FigureElement || bNotNodeFigure) return;
 
-		const newRanges: IRangeUtils[] = [];
+		let newRange: IRangeUtils | null = null;
 
-		if (!DOM.Element.Table.IsTable(FigureElement))
-			Arr.Each(carets, caret => {
-				if (caret.Start.Node !== Figure || caret.End.Node !== Figure) return;
+		if (!DOM.Element.Table.IsTable(FigureElement) && (caret.Start.Node === Figure || caret.End.Node === Figure)) {
+			caret.Range.SetStartToEnd(Figure, caret.Start.Offset, caret.Start.Offset);
+			newRange = caret.Range.Clone();
+		}
 
-				caret.Range.SetStartToEnd(Figure, caret.Start.Offset, caret.Start.Offset);
-				Arr.Push(newRanges, caret.Range.Clone());
-			});
-
-		if (!Arr.IsEmpty(newRanges)) CaretUtils.UpdateRanges(newRanges);
+		if (newRange) CaretUtils.UpdateRange(newRange);
 
 		if (!DOM.HasAttr(Figure, Options.ATTRIBUTE_FOCUSED)) DOM.SetAttr(Figure, Options.ATTRIBUTE_FOCUSED);
 		DOMTools.ChangePositions();

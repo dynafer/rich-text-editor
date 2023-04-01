@@ -86,10 +86,8 @@ const ToolsManager = (editor: Editor): IToolsManager => {
 	const SelectTools = <T extends boolean>(bAll: T, parent?: Element): T extends true ? HTMLElement[] : (HTMLElement | null) => {
 		const selectOption = { attrs: { dataFixed: 'dom-tool' } };
 
-		const parentSelector = parent ?? self.GetBody();
-
 		if (!bAll && !!parent) {
-			const allTools = DOM.SelectAll(selectOption, parentSelector);
+			const allTools = DOM.SelectAll(selectOption, parent);
 			const figure = DOM.Element.Figure.IsFigure(parent)
 				? parent
 				: (DOM.Element.Figure.GetClosest(parent) ?? DOM.Select(DOM.Element.Figure.Selector, parent));
@@ -105,7 +103,7 @@ const ToolsManager = (editor: Editor): IToolsManager => {
 
 		const select = bAll ? DOM.SelectAll : DOM.Select;
 
-		return select(selectOption, parentSelector) as T extends true ? HTMLElement[] : (HTMLElement | null);
+		return select(selectOption, parent) as T extends true ? HTMLElement[] : (HTMLElement | null);
 	};
 
 	const IsTools = (selector?: Node | EventTarget | null): boolean =>

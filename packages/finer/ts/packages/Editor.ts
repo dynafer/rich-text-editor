@@ -1,4 +1,5 @@
 import { Arr, Instance, Str } from '@dynafer/utils';
+import Options from '../Options';
 import Commander, { ICommander } from './commander/Commander';
 import DOM, { IDom, TEventListener } from './dom/DOM';
 import { IDOMTools } from './dom/DOMTools';
@@ -34,7 +35,7 @@ class Editor {
 	public readonly Frame: IEditorFrame;
 	public readonly Notification: INotificationManager;
 	public Plugin!: IPluginManager;
-	public DOM: IDom = DOM.New(window, document, true);
+	public DOM!: IDom;
 	public readonly Commander: ICommander = Commander();
 	public Utils!: IEditorUtils;
 	public Formatter!: IFormatter;
@@ -114,21 +115,26 @@ class Editor {
 
 	public Focus() {
 		this.SaveScrollPosition();
-		const carets = this.Utils.Caret.Get();
-		const copiedRanges: IRangeUtils[] = [];
-		Arr.Each(carets, caret => Arr.Push(copiedRanges, caret.Range.Clone()));
+		const caret = this.Utils.Caret.Get();
+		let copiedRange: IRangeUtils | null = caret?.Range.Clone() ?? null;
 
-		if (Arr.IsEmpty(copiedRanges)) {
+		const cells = DOM.Element.Table.GetSelectedCells(this);
+		if (!Arr.IsEmpty(cells)) {
+			Arr.Each(cells, cell => DOM.SetAttr(cell, Options.ATTRIBUTE_SELECTED));
+			return this.ScrollSavedPosition();
+		}
+
+		if (!copiedRange) {
 			const newRange = this.Utils.Range();
 			const firstLine = DOM.Utils.GetFirstChild(this.GetBody());
 			let firstNode = DOM.Utils.GetFirstChild(firstLine, true);
 			if (DOM.Utils.IsBr(firstNode)) firstNode = firstNode.parentNode;
 			newRange.SetStartToEnd(firstNode ?? this.GetBody(), 0, 0);
-			Arr.Push(copiedRanges, newRange);
+			copiedRange = newRange;
 		}
 
 		this.GetBody().focus();
-		this.Utils.Caret.UpdateRanges(copiedRanges);
+		this.Utils.Caret.UpdateRange(copiedRange);
 		this.ScrollSavedPosition();
 	}
 
