@@ -44,12 +44,12 @@ export interface IFormatUtils {
 	GetFormatConfig: (editor: Editor, defaultOptions: TConfigOption, configName: Capitalize<string>) => TConfigOption,
 	LabelConfigArray: (config: string[]) => Record<string, string>,
 	GetParentIfText: (node: Node) => Element,
+	CleanDirty: (editor: Editor, caret: ICaretData | null) => void,
 	RunFormatting: (editor: Editor, toggle: () => void) => void,
 	SplitTextNode: (editor: Editor, node: Node, start: number, end: number) => Node | null,
 	GetStyleSelectorMap: (styles: Record<string, string>, value?: string) => (string | Record<string, string>)[],
 	ExceptNodes: (editor: Editor, node: Node, root: Node, bPrevious?: boolean) => Node[],
 	SerialiseWithProcessors: (editor: Editor, options: IProcessorOption) => void,
-	CleanDirty: (editor: Editor, caret: ICaretData | null) => void,
 }
 
 const FormatUtils = (): IFormatUtils => {
@@ -99,6 +99,54 @@ const FormatUtils = (): IFormatUtils => {
 	};
 
 	const GetParentIfText = (node: Node): Element => (NodeType.IsText(node) ? node.parentElement : node) as Element;
+
+	const CleanDirty = (editor: Editor, caret: ICaretData | null) => {
+		if (!caret) return;
+
+		const self = editor;
+
+		const followingItemsSelector = Str.Join(',', ...BlockFormatTags.FollowingItems);
+		const startBlock = DOM.Closest(GetParentIfText(caret.Start.Node), followingItemsSelector) ?? caret.Start.Path[0];
+		const endBlock = DOM.Closest(GetParentIfText(caret.End.Node), followingItemsSelector) ?? caret.End.Path[0];
+		const children: Node[] = [];
+
+		const caretNodes = [
+			...self.DOM.SelectAll({ attrs: 'caret' }, startBlock),
+			...self.DOM.SelectAll({ attrs: 'caret' }, endBlock)
+		];
+
+		if (!DOM.Element.Figure.IsFigure(startBlock)) Arr.Push(children, ...DOM.GetChildNodes(startBlock));
+		if (!DOM.Element.Figure.IsFigure(endBlock)) Arr.Push(children, ...DOM.GetChildNodes(endBlock));
+
+		const isNodeEmpty = (target: Node): boolean =>
+			(NodeType.IsText(target) && Str.IsEmpty(target.textContent)) || (!NodeType.IsText(target) && Str.IsEmpty(DOM.GetText(target)));
+
+		const isSkippable = (target: Node | null): boolean =>
+			!target
+			|| !isNodeEmpty(target)
+			|| DOM.Utils.IsBr(target)
+			|| DOM.Utils.IsBr(DOM.Utils.GetFirstChild(target, true))
+			|| DOM.HasAttr(target, 'caret')
+			|| DOM.HasAttr(target, 'marker')
+			|| DOM.Element.Figure.IsFigure(target);
+
+		Arr.Each(children, child => {
+			if (isSkippable(child)) return;
+
+			let bSkip = false;
+
+			Arr.Each(caretNodes, (caretNode, exit) => {
+				if (!DOM.Utils.IsChildOf(caretNode, child)) return;
+				bSkip = true;
+				exit();
+			});
+
+			if (bSkip) return;
+
+			if (NodeType.IsText(child)) return child.remove();
+			DOM.Remove(child, false);
+		});
+	};
 
 	const createMarker = (editor: Editor): TMarkerPath | null => {
 		const self = editor;
@@ -185,9 +233,11 @@ const FormatUtils = (): IFormatUtils => {
 		const getTextOrBrNode = (parent: Node): Node => {
 			if (NodeType.IsText(parent)) return parent;
 
-			let node = parent;
+			let node: Node | null = parent;
 			while (node && !NodeType.IsText(node) && !DOM.Utils.IsBr(node)) {
-				node = DOM.GetChildNodes(node, false)[0];
+				const firstChild = DOM.Utils.GetFirstChild(node);
+				if (!firstChild) break;
+				node = firstChild;
 			}
 
 			return node;
@@ -259,6 +309,8 @@ const FormatUtils = (): IFormatUtils => {
 		toggle();
 
 		applyCaretsByMarker(self, marker);
+
+		CleanDirty(self, self.Utils.Caret.Get());
 	};
 
 	const SplitTextNode = (editor: Editor, node: Node, start: number, end: number): Node | null => {
@@ -371,54 +423,6 @@ const FormatUtils = (): IFormatUtils => {
 		if (Type.IsFunction(afterProcessors)) afterProcessors(caret);
 	};
 
-	const CleanDirty = (editor: Editor, caret: ICaretData | null) => {
-		if (!caret) return;
-
-		const self = editor;
-
-		const followingItemsSelector = Str.Join(',', ...BlockFormatTags.FollowingItems);
-		const startBlock = DOM.Closest(GetParentIfText(caret.Start.Node), followingItemsSelector) ?? caret.Start.Path[0];
-		const endBlock = DOM.Closest(GetParentIfText(caret.End.Node), followingItemsSelector) ?? caret.End.Path[0];
-		const children: Node[] = [];
-
-		const caretNodes = [
-			...self.DOM.SelectAll({ attrs: 'caret' }, startBlock),
-			...self.DOM.SelectAll({ attrs: 'caret' }, endBlock)
-		];
-
-		if (!DOM.Element.Figure.IsFigure(startBlock)) Arr.Push(children, ...DOM.GetChildNodes(startBlock));
-		if (!DOM.Element.Figure.IsFigure(endBlock)) Arr.Push(children, ...DOM.GetChildNodes(endBlock));
-
-		const isNodeEmpty = (target: Node): boolean =>
-			(NodeType.IsText(target) && Str.IsEmpty(target.textContent)) || (!NodeType.IsText(target) && Str.IsEmpty(DOM.GetText(target)));
-
-		const isSkippable = (target: Node | null): boolean =>
-			!target
-			|| !isNodeEmpty(target)
-			|| DOM.Utils.IsBr(target)
-			|| DOM.Utils.IsBr(DOM.Utils.GetFirstChild(target, true))
-			|| DOM.HasAttr(target, 'caret')
-			|| DOM.HasAttr(target, 'marker')
-			|| DOM.Element.Figure.IsFigure(target);
-
-		Arr.Each(children, child => {
-			if (isSkippable(child)) return;
-
-			let bSkip = false;
-
-			Arr.Each(caretNodes, (caretNode, exit) => {
-				if (!DOM.Utils.IsChildOf(caretNode, child)) return;
-				bSkip = true;
-				exit();
-			});
-
-			if (bSkip) return;
-
-			if (NodeType.IsText(child)) return child.remove();
-			DOM.Remove(child, false);
-		});
-	};
-
 	return {
 		GetPixelString,
 		GetPixcelFromRoot,
@@ -430,12 +434,12 @@ const FormatUtils = (): IFormatUtils => {
 		GetFormatConfig,
 		LabelConfigArray,
 		GetParentIfText,
+		CleanDirty,
 		RunFormatting,
 		SplitTextNode,
 		GetStyleSelectorMap,
 		ExceptNodes,
 		SerialiseWithProcessors,
-		CleanDirty,
 	};
 };
 

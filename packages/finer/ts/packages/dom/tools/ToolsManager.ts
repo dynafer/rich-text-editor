@@ -46,25 +46,13 @@ const ToolsManager = (editor: Editor): IToolsManager => {
 		if (IsAttached(name)) {
 			const attachers = Type.IsArray(partAttachers) ? [...partAttachers] : [partAttachers];
 
-			let currentAttacher;
-			while (!Arr.IsEmpty(attachers)) {
-				currentAttacher = Arr.Shift(attachers);
-				if (!currentAttacher) continue;
-
-				Arr.FindAndRemove(attachedPartTools[name], currentAttacher);
-			}
+			Arr.WhileShift(attachers, attacher => Arr.FindAndRemove(attachedPartTools[name], attacher));
 		}
 
 		if (!partPositionListeners) return;
 		const listeners = Type.IsArray(partPositionListeners) ? [...partPositionListeners] : [partPositionListeners];
 
-		let currentListeners;
-		while (!Arr.IsEmpty(listeners)) {
-			currentListeners = Arr.Shift(listeners);
-			if (!currentListeners) continue;
-
-			Arr.FindAndRemove(partListeners, currentListeners);
-		}
+		Arr.WhileShift(listeners, listener => Arr.FindAndRemove(partListeners, listener));
 	};
 
 	const Create = (name: string, element: HTMLElement): HTMLElement => {

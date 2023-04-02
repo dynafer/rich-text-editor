@@ -18,6 +18,18 @@ export const Pop = <T>(array: T[]): T | undefined => array.pop();
 export const Unshift = <T>(array: T[], ...items: T[]): number => array.unshift(...items);
 export const Shift = <T>(array: T[]): T | undefined => array.shift();
 
+export const WhileShift = <T>(array: T[], callback: (value: T, exit: () => void) => void) => {
+	let currentItem: T | undefined;
+	let bBreak: boolean = false;
+	const exit = () => { bBreak = true; };
+	while (!IsEmpty(array)) {
+		currentItem = Shift(array);
+		if (!currentItem) continue;
+		callback(currentItem, exit);
+		if (bBreak) break;
+	}
+};
+
 export const MergeUnique = <T>(...arrays: T[][]): T[] => {
 	let newArray: T[] = [];
 	Each(arrays, array => {

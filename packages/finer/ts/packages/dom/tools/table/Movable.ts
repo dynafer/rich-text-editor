@@ -63,7 +63,9 @@ const Movable = (editor: Editor, table: HTMLElement): HTMLElement => {
 
 			if (e.target === self.GetBody()) return moveToSavedPoint();
 
+			Arr.Each(cells, cell => DOM.RemoveAttr(cell, Options.ATTRIBUTE_SELECTED));
 			const caret = CaretUtils.Get();
+			Arr.Each(cells, cell => DOM.SetAttr(cell, Options.ATTRIBUTE_SELECTED));
 			if (!caret) return moveToSavedPoint();
 
 			const closestTable = DOM.Element.Table.GetClosest(FormatUtils.GetParentIfText(caret.Start.Node));

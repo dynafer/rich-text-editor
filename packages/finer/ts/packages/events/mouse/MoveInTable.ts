@@ -1,4 +1,3 @@
-import Options from '../../../Options';
 import { CreateAdjustableLineSize } from '../../dom/tools/Utils';
 import Editor from '../../Editor';
 
@@ -6,7 +5,7 @@ const MoveInTable = (editor: Editor, event: MouseEvent) => {
 	const self = editor;
 	const DOM = self.DOM;
 
-	if (DOM.HasAttr(self.GetBody(), Options.ATTRIBUTE_ADJUSTING)) return;
+	if (self.IsAdjusting()) return;
 
 	const target = event.target as Element;
 

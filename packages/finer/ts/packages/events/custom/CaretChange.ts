@@ -49,31 +49,28 @@ const CaretChange = (editor: Editor) => {
 			tagName: Arr.Convert(FigureElementFormats)
 		});
 
-		let currentElement: HTMLElement | undefined = undefined;
-		while (!Arr.IsEmpty(figureElements)) {
-			currentElement = Arr.Shift(figureElements);
-			if (!currentElement?.parentElement || !DOM.Element.Figure.IsFigure(currentElement)) continue;
+		Arr.WhileShift(figureElements, element => {
+			if (!element.parentElement || !DOM.Element.Figure.IsFigure(element)) return;
 
-			const currentFigure = DOM.Element.Figure.GetClosest(currentElement);
+			const currentFigure = DOM.Element.Figure.GetClosest(element);
 
-			const figureType = DOM.Element.Figure.FindType(DOM.Utils.GetNodeName(currentElement));
+			const figureType = DOM.Element.Figure.FindType(DOM.Utils.GetNodeName(element));
 			const figure = currentFigure ?? DOM.Element.Figure.Create(figureType);
 
 			if (!currentFigure) {
-				DOM.InsertAfter(currentElement, figure);
-				DOM.Insert(figure, currentElement);
+				DOM.InsertAfter(element, figure);
+				DOM.Insert(figure, element);
 			}
 
-			if (!!DOMTools.Manager.SelectTools(false, figure)) continue;
+			if (!!DOMTools.Manager.SelectTools(false, figure)) return;
 
-			const tools = DOMTools.Create(figureType, currentElement);
+			const tools = DOMTools.Create(figureType, element);
 			DOM.Insert(figure, tools);
-		}
-		currentElement = undefined;
+		});
 	};
 
 	const setFocusFigure = () => {
-		if (DOM.HasAttr(self.GetBody(), Options.ATTRIBUTE_ADJUSTING)) return;
+		if (self.IsAdjusting()) return;
 
 		const caret = CaretUtils.Get();
 		if (!caret) return;
@@ -101,7 +98,7 @@ const CaretChange = (editor: Editor) => {
 	};
 
 	const setFocusInline = () => {
-		if (DOM.HasAttr(self.GetBody(), Options.ATTRIBUTE_ADJUSTING)) return;
+		if (self.IsAdjusting()) return;
 
 		const caret = CaretUtils.Get();
 		if (!caret) return;

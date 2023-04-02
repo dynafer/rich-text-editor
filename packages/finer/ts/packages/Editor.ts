@@ -44,6 +44,7 @@ class Editor {
 
 	private mBody!: HTMLElement;
 	private mbDestroyed: boolean = false;
+	private mbAdjusting: boolean = false;
 	private mScrollX: number = -1;
 	private mScrollY: number = -1;
 
@@ -87,6 +88,12 @@ class Editor {
 	public IsDestroyed(): boolean {
 		return this.mbDestroyed;
 	}
+
+	public IsAdjusting(): boolean {
+		return this.mbAdjusting;
+	}
+
+	public SetAdjusting(bAdjusting: boolean) { this.mbAdjusting = bAdjusting; }
 
 	public IsIFrame(): boolean {
 		return Instance.Is(this.Frame.Container, HTMLIFrameElement);

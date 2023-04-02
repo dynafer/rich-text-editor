@@ -15,8 +15,6 @@ const ToggleInline = (editor: Editor, formats: IInlineFormat | IInlineFormat[]):
 	const DOM = self.DOM;
 	const Toggler = self.Formatter.Toggler;
 
-	const cleanDirty = (caret: ICaretData) => FormatUtils.CleanDirty(self, caret);
-
 	const hasFormat = (node: Node, value?: string): boolean => {
 		const checkFormat = (format: IInlineFormat): boolean => {
 			const { Tag, Styles } = format;
@@ -202,7 +200,6 @@ const ToggleInline = (editor: Editor, formats: IInlineFormat | IInlineFormat[]):
 				{ processor: sameNodeProcessor },
 				{ processor: rangeProcessor },
 			],
-			afterProcessors: cleanDirty
 		});
 
 	return {

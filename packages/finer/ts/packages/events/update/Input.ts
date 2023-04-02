@@ -3,7 +3,7 @@ import { Arr, Str } from '@dynafer/utils';
 import Options from '../../../Options';
 import Editor from '../../Editor';
 import { ICaretData } from '../../editorUtils/caret/CaretUtils';
-import { BlockFormatTags } from '../../formatter/Format';
+import { BlockFormatTags, ListItemSelector } from '../../formatter/Format';
 import FormatUtils from '../../formatter/FormatUtils';
 import { EInputEventType, PreventEvent } from '../EventSetupUtils';
 import InputUtils from './InputUtils';
@@ -96,7 +96,33 @@ const Input = (editor: Editor) => {
 		const caret = CaretUtils.Get();
 		if (!caret) return;
 
-		fakeFragment = caret.Range.Extract();
+		const escape = () => {
+			fakeFragment = caret.Range.Extract();
+		};
+
+		if (caret.Start.Node !== caret.End.Node || !NodeType.IsText(caret.Start.Node)) return escape();
+
+		const until = DOM.Closest(FormatUtils.GetParentIfText(caret.Start.Node), Str.Join(',', ...BlockFormatTags.Block))
+			?? DOM.Closest(FormatUtils.GetParentIfText(caret.Start.Node), ListItemSelector);
+		const startNode = caret.Start.Node.parentNode;
+
+		if (!until || !startNode) return escape();
+
+		const fragment = DOM.CreateFragment();
+
+		let current: Node | null = startNode.parentNode;
+		let nodeStack: Node | null = DOM.Clone(startNode);
+		DOM.Insert(nodeStack, caret.Range.Extract());
+
+		while (current && current !== until) {
+			const stack = DOM.Clone(current);
+			DOM.Insert(stack, nodeStack);
+			nodeStack = stack;
+			current = current.parentNode;
+		}
+
+		DOM.Insert(fragment, nodeStack);
+		fakeFragment = fragment;
 	};
 
 	const insertFromDropEvent = (event: InputEvent) =>

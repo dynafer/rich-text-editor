@@ -148,7 +148,7 @@ const AdjustableLine = (editor: Editor, table: HTMLElement): HTMLElement => {
 
 		const commonFinishAdjusting = () => {
 			DOM.Remove(fakeTable);
-			DOM.RemoveAttr(adjustItem, 'data-adjusting');
+			DOM.RemoveAttr(adjustItem, Options.ATTRIBUTE_ADJUSTING);
 
 			MoveToCurrentPoint(self, FigureElement, savedPoint);
 			savedPoint = undefined;
