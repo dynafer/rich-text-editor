@@ -73,11 +73,17 @@ const ImageUploader = (editor: Editor, ui: IPluginMediaUI) => {
 				mediaFormat.OnLoadAndErrorEvents(figureElement);
 			};
 
+			const removeImage = () => {
+				if (!figureElement) return;
+				DOM.Remove(figureElement.parentElement);
+			};
+
 			const { OptionWrapper, Input } = formatUI.CreateInputWrapWithOptionList({
 				uiName,
 				placeholder: bUpdatable ? 'Update the image URL' : 'Insert an image via URL',
 				bUpdatable,
 				createCallback: createImage,
+				removeCallback: removeImage,
 				src: bUpdatable ? figureElement.src : undefined,
 			});
 

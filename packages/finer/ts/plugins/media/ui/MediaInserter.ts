@@ -22,7 +22,7 @@ const MediaInserter = (editor: Editor, ui: IPluginMediaUI) => {
 			const figureElement = DOM.Element.Figure.SelectFigureElement<HTMLIFrameElement>(figure);
 			const bUpdatable = DOM.Element.Figure.IsFigure(figure) && (DOM.Utils.IsIFrame(figureElement) || DOM.Utils.IsVideo(figureElement));
 
-			const createVideo = (input: HTMLInputElement) => {
+			const createMedia = (input: HTMLInputElement) => {
 				const mediaFormat = Media(self);
 
 				const matchedURL = URLMatcher.Match(input.value);
@@ -65,11 +65,17 @@ const MediaInserter = (editor: Editor, ui: IPluginMediaUI) => {
 				});
 			};
 
+			const removeMedia = () => {
+				if (!figure) return;
+				DOM.Remove(figure);
+			};
+
 			const { OptionWrapper, Input } = formatUI.CreateInputWrapWithOptionList({
 				uiName,
 				placeholder: bUpdatable ? 'Update the media URL' : 'Insert an media via URL',
 				bUpdatable,
-				createCallback: createVideo,
+				createCallback: createMedia,
+				removeCallback: removeMedia,
 				src: bUpdatable ? figureElement.src : undefined
 			});
 
