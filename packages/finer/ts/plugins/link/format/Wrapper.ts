@@ -23,18 +23,14 @@ const Wrapper = (editor: Editor, utils: IAnchorUtils) => {
 
 	const mergeAnchors = () => {
 		const anchors = DOM.SelectAll<HTMLAnchorElement>('a', self.GetBody());
-		let anchor: HTMLAnchorElement | undefined;
 
-		while (!Arr.IsEmpty(anchors)) {
-			anchor = Arr.Shift(anchors);
-			if (!anchor) continue;
-
+		Arr.WhileShift(anchors, anchor => {
 			const previous = anchor.previousElementSibling;
-			if (!DOM.Utils.IsAnchor(previous) || previous.href !== anchor.href) continue;
+			if (!DOM.Utils.IsAnchor(previous) || previous.href !== anchor.href) return;
 
 			DOM.Insert(previous, ...DOM.GetChildNodes(anchor));
 			anchor.remove();
-		}
+		});
 	};
 
 	const wrapRecursive = (node: Node, url: string): void => {

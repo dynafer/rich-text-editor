@@ -15,40 +15,26 @@ const InputUtils = (editor: Editor) => {
 			tagName: DOM.Element.Figure.Selector
 		}, fragment);
 
-		let currentFigure: HTMLElement | undefined = undefined;
-		while (!Arr.IsEmpty(figures)) {
-			currentFigure = Arr.Shift(figures);
-			if (!currentFigure) continue;
-
-			const figureType = DOM.GetAttr(currentFigure, 'type');
-			if (!figureType || !FigureElementFormats.has(figureType)) currentFigure.remove();
-		}
-		currentFigure = undefined;
+		Arr.WhileShift(figures, figure => {
+			const figureType = DOM.GetAttr(figure, 'type');
+			if (!figureType || !FigureElementFormats.has(figureType)) figure.remove();
+		});
 
 		const figureElements = DOM.SelectAll<HTMLElement>({
 			tagName: Arr.Convert(FigureElementFormats)
 		}, fragment);
 
-		let currentElement: HTMLElement | undefined = undefined;
-		while (!Arr.IsEmpty(figureElements)) {
-			currentElement = Arr.Shift(figureElements);
-			if (!currentElement || !!DOM.Element.Figure.GetClosest(currentElement)) continue;
+		Arr.WhileShift(figureElements, element => {
+			if (!!DOM.Element.Figure.GetClosest(element)) return;
 
-			const tagName = DOM.Utils.GetNodeName(currentElement);
-			if (!FigureElementFormats.has(tagName)) {
-				currentElement.remove();
-				continue;
-			}
-
-			const figure = DOM.Element.Figure.Create(tagName);
-			DOM.CloneAndInsert(figure, true, currentElement);
+			const figure = DOM.Element.Figure.Create(DOM.Utils.GetNodeName(element));
+			DOM.CloneAndInsert(figure, true, element);
 
 			const tools = self.Tools.DOM.Manager.SelectTools(true, figure);
-			Arr.Each(tools, tableTool => DOM.Remove(tableTool, true));
+			Arr.Each(tools, tool => DOM.Remove(tool, true));
 
-			currentElement.parentNode?.replaceChild(figure, currentElement);
-		}
-		currentElement = undefined;
+			element.parentNode?.replaceChild(figure, element);
+		});
 	};
 
 	const insertBlocks = (caret: ICaretData, fragment: DocumentFragment) => {
@@ -58,7 +44,6 @@ const InputUtils = (editor: Editor) => {
 
 		let bStopInlineNodes = false;
 		let bInList = false;
-		let node: TElement = null;
 		let previousNode: TElement = null;
 
 		const insert = (insertion: Node) => {
@@ -87,16 +72,10 @@ const InputUtils = (editor: Editor) => {
 			});
 		};
 
-		while (!Arr.IsEmpty(nodes)) {
-			node = Arr.Shift(nodes) ?? null;
-			if (!node) continue;
-
+		Arr.WhileShift(nodes, node => {
 			const nodeName = DOM.Utils.GetNodeName(node);
 
-			if (bStopInlineNodes || !AllBlockFormats.has(nodeName)) {
-				insert(node);
-				continue;
-			}
+			if (bStopInlineNodes || !AllBlockFormats.has(nodeName)) return insert(node);
 
 			if (nodeName === ListItemSelector) {
 				const listFromCaret = DOM.Closest(FormatUtils.GetParentIfText(caret.Start.Node), ListSelector);
@@ -104,17 +83,15 @@ const InputUtils = (editor: Editor) => {
 					previousNode = listFromCaret;
 
 				if (previousNode && !!DOM.Closest(previousNode, ListSelector)) {
-					const previousList = DOM.Closest(previousNode, ListSelector);
-					DOM.Insert(previousList, node);
 					bInList = true;
-					continue;
+					const previousList = DOM.Closest(previousNode, ListSelector);
+					return DOM.Insert(previousList, node);
 				}
 
 				const newNode = DOM.Create('p');
 				DOM.Insert(newNode, ...DOM.GetChildNodes(node));
 				node.parentNode?.replaceChild(newNode, node);
-				insert(newNode);
-				continue;
+				return insert(newNode);
 			}
 
 			if (!BlockFormatTags.Block.has(nodeName) || previousNode) {
@@ -124,20 +101,19 @@ const InputUtils = (editor: Editor) => {
 				previousNode = DOM.Closest(parentIfText, ListItemSelector)
 					?? DOM.Closest(parentIfText, Str.Join(',', ...BlockFormatTags.Block))
 					?? caret.Start.Path[0];
-				insert(node);
-				continue;
+				return insert(node);
 			}
 
 			const children = DOM.GetChildNodes(node);
-			if (Arr.IsEmpty(children)) continue;
-			for (let index = 0, length = children.length; index < length; ++index) {
-				const child = children[index];
+			if (Arr.IsEmpty(children)) return;
+
+			Arr.Each(children, child => {
 				if (!previousNode) caret.Range.Insert(child);
 				else DOM.InsertAfter(previousNode, child);
 
 				previousNode = child;
-			}
-		}
+			});
+		});
 
 		if (!EndBlock || !previousNode) return;
 

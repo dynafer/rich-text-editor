@@ -1,4 +1,4 @@
-import { Arr, Obj, Type } from '@dynafer/utils';
+import { Arr, Obj, Type, Utils } from '@dynafer/utils';
 
 export type TEventTarget = (Window & typeof globalThis) | Document | Element;
 
@@ -19,17 +19,8 @@ const DOMEventUtils = (): IDOMEventUtils => {
 
 	const propertyName = 'finer-boundary-id';
 
-	const createBoundaryId = () => {
-		let date = new Date().getTime();
-		return 'xxxxyxxx-xxxx-yxxx'.replace(/[xy]/g, char => {
-			const r = (date + Math.random() * 16) % 16 | 0;
-			date = Math.floor(date / 16);
-			return (char === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
-		});
-	};
-
 	const getElementBoundaryId = (target: TEventTarget): string => {
-		const boundaryId = Obj.GetProperty<string>(target, propertyName) ?? createBoundaryId();
+		const boundaryId = Obj.GetProperty<string>(target, propertyName) ?? Utils.CreateUUID();
 		if (!Obj.HasProperty(target, propertyName)) Obj.SetProperty(target, propertyName, boundaryId);
 		return boundaryId;
 	};

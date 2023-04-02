@@ -317,7 +317,10 @@ const DOM = (opts: TDOMCreateOption): IDom => {
 	};
 
 	const Remove = (selector: TElement, bBubble: boolean = false) => {
-		if (!NodeType.IsElement(selector)) return;
+		if (!NodeType.IsElement(selector)) {
+			if (Obj.HasProperty<Element>(selector, 'remove')) selector.remove();
+			return;
+		}
 		EventUtils.UnbindAll(selector);
 
 		if (bBubble) RemoveChildren(selector, bBubble);

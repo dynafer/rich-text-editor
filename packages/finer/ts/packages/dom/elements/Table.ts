@@ -57,12 +57,10 @@ const Table = (): ITable => {
 		const allRows = Arr.Convert(table.querySelectorAll(RowSelector));
 		const rows: HTMLTableRowElement[] = [];
 
-		let currentRow: HTMLTableRowElement | undefined;
-		while (!Arr.IsEmpty(allRows)) {
-			currentRow = Arr.Shift(allRows);
-			if (!currentRow || currentRow.closest(Selector) !== table) continue;
-			Arr.Push(rows, currentRow);
-		}
+		Arr.WhileShift(allRows, row => {
+			if (!row || row.closest(Selector) !== table) return;
+			Arr.Push(rows, row);
+		});
 
 		return rows;
 	};
@@ -74,12 +72,10 @@ const Table = (): ITable => {
 		const allCells = Arr.Convert(parent.querySelectorAll<HTMLTableCellElement>(CellSelector));
 		const cells: HTMLTableCellElement[] = [];
 
-		let currentCell: HTMLTableCellElement | undefined;
-		while (!Arr.IsEmpty(allCells)) {
-			currentCell = Arr.Shift(allCells);
-			if (!currentCell || currentCell.closest(selector) !== parent) continue;
-			Arr.Push(cells, currentCell);
-		}
+		Arr.WhileShift(allCells, cell => {
+			if (!cell || cell.closest(selector) !== parent) return;
+			Arr.Push(cells, row);
+		});
 
 		return cells;
 	};

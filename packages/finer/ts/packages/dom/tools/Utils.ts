@@ -1,5 +1,4 @@
 import { Arr } from '@dynafer/utils';
-import Options from '../../../Options';
 import Editor from '../../Editor';
 import { ENativeEvents } from '../../events/EventSetupUtils';
 import { TEventListener } from '../DOM';
@@ -27,7 +26,7 @@ export const RegisterAdjustingEvents = (editor: Editor, target: HTMLElement, adj
 	const self = editor;
 	const DOM = self.DOM;
 
-	DOM.SetAttr(self.GetBody(), Options.ATTRIBUTE_ADJUSTING);
+	self.SetAdjusting(true);
 	self.Dispatch('Adjust:Start', target);
 
 	const boundEvents: [boolean, (Window & typeof globalThis), ENativeEvents, EventListener][] = [];
@@ -46,7 +45,7 @@ export const RegisterAdjustingEvents = (editor: Editor, target: HTMLElement, adj
 	const finish = (event: MouseEvent) => {
 		finishCallback(event);
 		removeEvents();
-		DOM.RemoveAttr(self.GetBody(), Options.ATTRIBUTE_ADJUSTING);
+		self.SetAdjusting(false);
 		self.Dispatch('Adjust:Finish', target);
 		self.Tools.DOM.ChangePositions();
 	};

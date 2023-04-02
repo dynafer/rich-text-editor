@@ -1,5 +1,4 @@
 import { Arr } from '@dynafer/utils';
-import Options from '../../../Options';
 import Editor from '../../Editor';
 
 const HoverFigure = (editor: Editor, event: MouseEvent) => {
@@ -7,7 +6,7 @@ const HoverFigure = (editor: Editor, event: MouseEvent) => {
 	const DOM = self.DOM;
 	const DOMTools = self.Tools.DOM;
 
-	if (DOM.HasAttr(self.GetBody(), Options.ATTRIBUTE_ADJUSTING)) return;
+	if (self.IsAdjusting()) return;
 
 	const caret = self.Utils.Caret.Get();
 	if (caret?.IsRange()) return DOMTools.HideAll();
