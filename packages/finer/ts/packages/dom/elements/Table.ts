@@ -74,7 +74,7 @@ const Table = (): ITable => {
 
 		Arr.WhileShift(allCells, cell => {
 			if (!cell || cell.closest(selector) !== parent) return;
-			Arr.Push(cells, row);
+			Arr.Push(cells, cell);
 		});
 
 		return cells;
