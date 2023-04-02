@@ -8,10 +8,11 @@ import FormatRegistry, { IFormatRegistry } from './ui/FormatRegistry';
 
 export interface IFormatter {
 	readonly Formats: {
+		readonly AllBlockFormats: Set<string>,
+		readonly BlockFormatTags: Record<string, Set<string>>,
 		readonly ListItemSelector: string,
 		readonly ListSet: Set<string>,
 		readonly ListSelector: string,
-		readonly BlockFormatTags: Record<string, Set<string>>,
 	},
 	readonly UI: IFormatUI,
 	readonly Utils: IFormatUtils,
@@ -36,10 +37,11 @@ const Formatter = (editor: Editor): IFormatter => {
 
 	return {
 		Formats: {
+			AllBlockFormats: Format.AllBlockFormats,
+			BlockFormatTags: Format.BlockFormatTags,
 			ListItemSelector: Format.ListItemSelector,
 			ListSet: Format.ListSet,
 			ListSelector: Format.ListSelector,
-			BlockFormatTags: Format.BlockFormatTags,
 		},
 		UI: FormatUI,
 		Utils: FormatUtils,

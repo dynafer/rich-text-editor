@@ -1,13 +1,14 @@
 import { IDOMFactory, Sketcher } from '@dynafer/sketcher';
+import { Str } from '@dynafer/utils';
 
-const Footer = (cancel: () => void, pick: () => void): IDOMFactory[] => {
+const Footer = (icons: Record<string, string>, cancel: () => void, pick: () => void): IDOMFactory[] => {
 	const footer = Sketcher.Sketch([
 		{
 			TagName: 'button',
 			Attributes: {
 				type: 'button'
 			},
-			Elements: ['Cancel'],
+			Elements: [Str.Merge(icons.Close, 'Cancel')],
 			Events: [
 				['click', cancel]
 			]
@@ -17,7 +18,7 @@ const Footer = (cancel: () => void, pick: () => void): IDOMFactory[] => {
 			Attributes: {
 				type: 'button'
 			},
-			Elements: ['Confirm'],
+			Elements: [Str.Merge(icons.Check, 'Confirm')],
 			Events: [
 				['click', pick]
 			]

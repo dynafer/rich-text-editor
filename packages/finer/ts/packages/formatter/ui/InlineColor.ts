@@ -129,6 +129,7 @@ const InlineColor = (editor: Editor, detector: IFormatDetector): IFormatUIRegist
 		FormatUI.BindClickEvent(moreButton, () =>
 			ColorPicker.Create({
 				Icons: {
+					Check: Finer.Icons.Get('Check'),
 					Close: Finer.Icons.Get('Close')
 				},
 				Pick: (rgb: string) => FormatUI.RunCommand<boolean | string>(self, uiName, true, rgb),

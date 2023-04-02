@@ -124,35 +124,14 @@ colorpicker-modal {
 			text-align: right;
 
 			button {
-				@include round(getVar(button-radius));
-				@include all-margin(0.25rem);
-				@include padding(rem, 0.25, 0.4, 0.25, 0.4);
-				@include font(1rem);
-				display: inline-block;
-				cursor: pointer;
+				@include common-button;
 
 				&:first-child {
-					@include all-border(getVar(button-cancel-border));
-					@include font($color: getVar(button-cancel-font));
-					background-color: getVar(button-cancel-bg);
-
-					&:hover {
-						@include all-border(getVar(button-cancel-hover-border));
-						@include font($color: getVar(button-cancel-hover-font));
-						background-color: getVar(button-cancel-hover-bg);
-					}
+					@include cancel-button;
 				}
 
 				&:last-child {
-					@include all-border(getVar(button-border));
-					@include font($color: getVar(button-font));
-					background-color: getVar(button-bg);
-
-					&:hover {
-						@include all-border(getVar(button-hover-border));
-						@include font($color: getVar(button-hover-font));
-						background-color: getVar(button-hover-bg);
-					}
+					@include success-button;
 				}
 			}
 		}

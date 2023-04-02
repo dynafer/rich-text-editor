@@ -15,6 +15,7 @@ export const BlockFormatTags = {
 	Block: new Set(['p', 'div', 'blockquote', 'pre', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6']),
 	List: new Set([ListItemSelector, ...ListSet]),
 	FollowingItems: new Set([ListItemSelector, ...Table.CellSet]),
+	Focusable: new Set(['code', 'a']),
 };
 
 export const AllDisableList = new Set([FigureNotTableSelector, ...Figure.FigureTypeSetMap.media]);

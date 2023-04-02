@@ -4,7 +4,7 @@
 		@include width(fit-content, $min: 120px);
 		@include margin($top: -1);
 		@include round(getVar(toolbar-item-radius));
-		@include all-border(getVar(toolbar-item-select-border));
+		@include all-border(getVar(toolbar-item-option-border));
 		user-select: none;
 		background-color: getVar(toolbar-item-option-bg);
 		z-index: 9999;
@@ -36,11 +36,11 @@
 
 				.#{getClassName(option-item)} {
 					@include square(1.2rem);
-					@include border($bottom: getVar(toolbar-item-select-border));
+					@include border($bottom: getVar(toolbar-item-option-select-border));
 					cursor: pointer;
 
 					&:not(:last-child) {
-						@include border($right: getVar(toolbar-item-select-border));
+						@include border($right: getVar(toolbar-item-option-select-border));
 					}
 
 					&:not(:first-child) {
@@ -48,6 +48,7 @@
 					}
 
 					&.hover {
+						@include all-border(getVar(toolbar-item-hover-border));
 						background-color: getVar(toolbar-item-hover-bg);
 					}
 				}
@@ -63,8 +64,9 @@
 		&[palette='true'] {
 			& > .#{getClassName(option-item)}:first-child {
 				@include flex(center, center);
-				@include border($bottom: getVar(toolbar-item-select-border));
+				@include border($bottom: getVar(toolbar-item-option-select-border));
 				@include margin(rem, $bottom: 0.5);
+				@include height(2.4rem);
 
 				div {
 					@include square(1.2rem);
@@ -79,8 +81,9 @@
 
 			& > .#{getClassName(option-item)}:last-child {
 				@include flex(space-between, center);
-				@include border(getVar(toolbar-item-select-border));
+				@include border(getVar(toolbar-item-option-select-border));
 				@include margin(rem, 0.5);
+				@include height(2.2rem);
 			}
 
 			& > .#{getClassName(option-item)} {
@@ -91,7 +94,7 @@
 					@include round(getVar(toolbar-item-radius));
 					@include all-border(none);
 					@include padding(rem, 0.3, 0.6, 0.3, 0.6);
-					@include font($color: getVar(toolbar-item-text));
+					@include font($color: getVar(toolbar-item-font));
 					background-color: getVar(toolbar-item-option-bg);
 					cursor: pointer;
 
@@ -106,7 +109,8 @@
 					}
 
 					&:hover {
-						@include font($color: getVar(toolbar-item-hover-text));
+						@include font($color: getVar(toolbar-item-hover-font));
+						@include all-border(getVar(toolbar-item-hover-border));
 						background-color: getVar(toolbar-item-hover-bg);
 
 						svg {
@@ -150,31 +154,33 @@
 			}
 		}
 
-		&[media-url='true'] {
+		&[url-input='true'] {
+			@include width(auto);
 			@include all-padding(0.75rem);
 
 			.#{getClassName(input-wrap)} {
 				@include position(relative);
-				@include width(12rem);
+				@include width(100%);
 
 				input {
-					@include width(100%);
+					@include width(calc(100% - 4px));
 					@include all-padding(0.5rem);
 					@include round(0.4rem);
-					@include all-border(getVar(toolbar-item-select-border));
-					@include margin(px, 2, $bottom: 2);
+					@include all-border(getVar(toolbar-input-border));
+					@include all-margin(2px);
 					outline: none;
 
 					&:focus {
+						@include width(100%);
 						@include all-border(getVar(toolbar-input-focus-border), 3px);
-						@include margin(px, 0, $bottom: 0);
+						@include all-margin(0);
 					}
 				}
 
 				.#{getClassName(input-placeholder)} {
 					@include position(absolute, 0.6rem, 0.5rem);
 					@include flex($align: center);
-					@include font($color: getVar(toolbar-input-placeholder-text));
+					@include font($color: getVar(toolbar-input-placeholder-font));
 					background: none;
 					pointer-events: none;
 					transition: all 0.2s;
@@ -193,35 +199,18 @@
 				@include margin(rem, 0.5);
 
 				button {
-					@include round(getVar(button-radius));
-					@include all-margin(0.25rem);
-					@include padding(rem, 0.25, 0.4, 0.25, 0.4);
-					@include font(1rem);
-					display: inline-block;
-					cursor: pointer;
+					@include common-button;
 
 					&:first-child {
-						@include all-border(getVar(button-cancel-border));
-						@include font($color: getVar(button-cancel-font));
-						background-color: getVar(button-cancel-bg);
-
-						&:hover {
-							@include all-border(getVar(button-cancel-hover-border));
-							@include font($color: getVar(button-cancel-hover-font));
-							background-color: getVar(button-cancel-hover-bg);
-						}
+						@include cancel-button;
 					}
 
-					&:last-child {
-						@include all-border(getVar(button-border));
-						@include font($color: getVar(button-font));
-						background-color: getVar(button-bg);
+					&:nth-child(2) {
+						@include success-button;
+					}
 
-						&:hover {
-							@include all-border(getVar(button-hover-border));
-							@include font($color: getVar(button-hover-font));
-							background-color: getVar(button-hover-bg);
-						}
+					&:last-child:not(:nth-child(2)) {
+						@include remove-button;
 					}
 				}
 			}
@@ -236,12 +225,13 @@
 			}
 		}
 
-		&:not([palette='true'], [table='true'], [media-url='true']) {
+		&:not([palette='true'], [table='true'], [url-input='true']) {
 			.#{getClassName(option-item)} {
 				@include flex($align: center);
 				@include all-padding(0.4rem);
 				@include height(2rem);
-				@include font($color: getVar(toolbar-item-text));
+				@include all-border(getVar(toolbar-item-border));
+				@include font($color: getVar(toolbar-item-font));
 				cursor: pointer;
 
 				svg {
@@ -251,7 +241,7 @@
 				}
 
 				&.active svg {
-					@include font($color: getVar(toolbar-item-active-text));
+					@include font($color: getVar(toolbar-item-active-font));
 					display: block;
 					fill: getVar(toolbar-item-active-icon-fill);
 				}
@@ -265,7 +255,8 @@
 				}
 
 				&:hover {
-					@include font($color: getVar(toolbar-item-hover-text));
+					@include all-border(getVar(toolbar-item-hover-border));
+					@include font($color: getVar(toolbar-item-hover-font));
 					background-color: getVar(toolbar-item-hover-bg);
 					fill: getVar(toolbar-item-hover-icon-fill);
 				}

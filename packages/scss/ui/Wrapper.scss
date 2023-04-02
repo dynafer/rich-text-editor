@@ -13,7 +13,7 @@
 				@include font(1.15rem);
 				background-color: rgba(220, 213, 150, 1);
 
-				.#{getClassName(notification-message-text)} {
+				.#{getClassName(notification-message-font)} {
 					@include padding(rem, $right: 0.5);
 				}
 

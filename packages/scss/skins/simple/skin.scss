@@ -1,23 +1,51 @@
 @import '../../_function';
 
+@mixin make-button-variables($type: null, $bg, $border, $font, $icon) {
+	@if $type == null {
+		$type: '';
+	} @else {
+		$type: #{$type}-;
+	}
+
+	#{getVarName(button-#{$type}bg)}: $bg;
+	#{getVarName(button-#{$type}border)}: $border;
+	#{getVarName(button-#{$type}font)}: $font;
+	#{getVarName(button-#{$type}icon-fill)}: $icon;
+}
+
+$hoverDefault: rgba(116, 195, 255, 0.7);
+$activeDefault: rgba(88, 183, 255, 0.7);
+
 * {
 	#{getVarName(toolbar-bg)}: transparent;
 	#{getVarName(toolbar-border)}: #ececec;
+
 	#{getVarName(toolbar-item-bg)}: transparent;
-	#{getVarName(toolbar-item-hover-bg)}: rgba(116, 195, 255, 0.7);
-	#{getVarName(toolbar-item-active-bg)}: rgba(88, 183, 255, 0.7);
+	#{getVarName(toolbar-item-border)}: transparent;
+	#{getVarName(toolbar-item-font)}: #000;
 	#{getVarName(toolbar-item-icon-fill)}: #000;
-	#{getVarName(toolbar-item-text)}: #000;
+
+	#{getVarName(toolbar-item-hover-bg)}: $hoverDefault;
+	#{getVarName(toolbar-item-hover-border)}: $hoverDefault;
+	#{getVarName(toolbar-item-hover-font)}: #000;
 	#{getVarName(toolbar-item-hover-icon-fill)}: #000;
-	#{getVarName(toolbar-item-hover-text)}: #000;
+
+	#{getVarName(toolbar-item-active-bg)}: $activeDefault;
+	#{getVarName(toolbar-item-active-border)}: $activeDefault;
+	#{getVarName(toolbar-item-active-font)}: #000;
 	#{getVarName(toolbar-item-active-icon-fill)}: #000;
-	#{getVarName(toolbar-item-active-text)}: #000;
+
 	#{getVarName(toolbar-item-option-bg)}: #fff;
+	#{getVarName(toolbar-item-option-border)}: #afafaf;
+	#{getVarName(toolbar-item-option-select-border)}: #afafaf;
+
 	#{getVarName(toolbar-item-select-border)}: #afafaf;
 	#{getVarName(toolbar-item-radius)}: 0.25rem;
 	#{getVarName(toolbar-item-disabled-icon-fill)}: #aeaeae;
-	#{getVarName(toolbar-input-focus-border)}: rgba(88, 183, 255, 0.7);
-	#{getVarName(toolbar-input-placeholder-text)}: #434343;
+
+	#{getVarName(toolbar-input-border)}: #afafaf;
+	#{getVarName(toolbar-input-focus-border)}: $activeDefault;
+	#{getVarName(toolbar-input-placeholder-font)}: #434343;
 
 	#{getVarName(editor-bg)}: transparent;
 	#{getVarName(editor-border)}: #ececec;
@@ -26,24 +54,25 @@
 	#{getVarName(modal-border)}: #c9c9c9;
 
 	#{getVarName(button-radius)}: 0.25rem;
-	#{getVarName(button-bg)}: #2c8ed8;
-	#{getVarName(button-border)}: #2c8ed8;
-	#{getVarName(button-font)}: #fff;
-	#{getVarName(button-hover-bg)}: #3486c5;
-	#{getVarName(button-hover-border)}: #3486c5;
-	#{getVarName(button-hover-font)}: #fff;
-	#{getVarName(button-cancel-bg)}: #7e7e7e;
-	#{getVarName(button-cancel-border)}: #7e7e7e;
-	#{getVarName(button-cancel-font)}: #fff;
-	#{getVarName(button-cancel-hover-bg)}: #6b6b6b;
-	#{getVarName(button-cancel-hover-border)}: #6b6b6b;
-	#{getVarName(button-cancel-hover-font)}: #fff;
+
+	@include make-button-variables(null, #2c8ed8, #2c8ed8, #fff, #fff);
+	@include make-button-variables(hover, #3486c5, #3486c5, #fff, #fff);
+
+	@include make-button-variables(success, transparent, transparent, rgb(67, 206, 45), rgb(67, 206, 45));
+	@include make-button-variables(success-hover, $hoverDefault, $hoverDefault, rgb(61, 188, 42), rgb(61, 188, 42));
+
+	@include make-button-variables(cancel, transparent, transparent, #cf3939, #cf3939);
+	@include make-button-variables(cancel-hover, $hoverDefault, $hoverDefault, #b83232, #b83232);
+
+	@include make-button-variables(remove, transparent, transparent, #cf3939, #cf3939);
+	@include make-button-variables(remove-hover, $hoverDefault, $hoverDefault, #b83232, #b83232);
+
 	#{getVarName(button-disabled-bg)}: #737b81;
 	#{getVarName(button-disabled-border)}: #737b81;
 	#{getVarName(button-disabled-font)}: #fff;
 
-	#{getVarName(selected-color)}: rgba(116, 195, 255, 0.7);
-	#{getVarName(tool-default-color)}: rgba(116, 195, 255, 0.7);
+	#{getVarName(selected-color)}: $hoverDefault;
+	#{getVarName(tool-default-color)}: $hoverDefault;
 
 	#{getVarName(media-size-navigation-bg)}: rgba(0, 0, 0, 0.6);
 	#{getVarName(media-size-navigation-font)}: #fff;
@@ -56,6 +85,11 @@
 	#{getVarName(media-menu-item-border)}: #ececec;
 	#{getVarName(media-menu-item-icon-fill)}: #000;
 	#{getVarName(media-menu-item-radius)}: 0.25rem;
-	#{getVarName(media-menu-item-hover-bg)}: rgba(116, 195, 255, 0.7);
-	#{getVarName(media-menu-item-active-bg)}: rgba(88, 183, 255, 0.7);
+	#{getVarName(media-menu-item-hover-bg)}: $hoverDefault;
+	#{getVarName(media-menu-item-active-bg)}: $activeDefault;
+
+	#{getVarName(format-code-hover-bg)}: $hoverDefault;
+	#{getVarName(format-code-focused-bg)}: $activeDefault;
+	#{getVarName(format-anchor-hover-bg)}: $hoverDefault;
+	#{getVarName(format-anchor-focused-bg)}: $activeDefault;
 }
