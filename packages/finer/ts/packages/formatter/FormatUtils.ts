@@ -8,6 +8,7 @@ import { BlockFormatTags } from './Format';
 export type TConfigOption = string | string[] | Record<string, string>;
 
 export type TFormatProcessor = (bWrap: boolean, caret: ICaretData, value?: string) => boolean;
+export type TFormatProcessorWithValue = (bWrap: boolean, caret: ICaretData, value: string) => boolean;
 
 export type TMarkerPath = {
 	readonly bRange: false,

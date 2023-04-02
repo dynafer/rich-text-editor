@@ -28,6 +28,7 @@ const ColorPicker = (): IColorPicker => {
 			Icons: setting.Icons,
 			Body: form.Form,
 			Footer: Footer(
+				setting.Icons,
 				() => schema.Schema.Destroy(),
 				() => {
 					const rgbString = form.Navigation.GetRGB(false);

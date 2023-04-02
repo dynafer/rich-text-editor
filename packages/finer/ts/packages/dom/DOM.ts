@@ -81,6 +81,7 @@ export interface IDom {
 	SetHTML: (selector: TElement, html: string) => void,
 	SetOuterHTML: (selector: TElement, html: string) => void,
 	InsertBefore: (selector: TElement, ...insertions: (string | TElement)[]) => void,
+	InsertFirst: (selector: TElement, ...insertions: (string | TElement)[]) => void,
 	Insert: (selector: TElement, ...insertions: (string | TElement)[]) => void,
 	InsertAfter: (selector: TElement, ...insertions: (string | TElement)[]) => void,
 	Clone: {
@@ -202,6 +203,7 @@ const DOM = (opts: TDOMCreateOption): IDom => {
 	const SetOuterHTML = (selector: TElement, text: string) => Obj.SetProperty(selector, 'outerHTML', text);
 
 	const InsertBefore = (selector: TElement, ...insertions: (string | TElement)[]) => Inserter.BeforeOuter(selector, ...insertions);
+	const InsertFirst = (selector: TElement, ...insertions: (string | TElement)[]) => Inserter.BeforeInner(Doc, selector, ...insertions);
 	const Insert = (selector: TElement, ...insertions: (string | TElement)[]) => Inserter.AfterInner(Doc, selector, ...insertions);
 	const InsertAfter = (selector: TElement, ...insertions: (string | TElement)[]) => Inserter.AfterOuter(selector, ...insertions);
 
@@ -358,6 +360,7 @@ const DOM = (opts: TDOMCreateOption): IDom => {
 		SetHTML,
 		SetOuterHTML,
 		InsertBefore,
+		InsertFirst,
 		Insert,
 		InsertAfter,
 		Clone,

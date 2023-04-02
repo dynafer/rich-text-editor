@@ -23,6 +23,7 @@ export interface IFormatUIInputWrapOptions {
 	placeholder: string,
 	bUpdatable: boolean,
 	createCallback: (input: HTMLInputElement) => void,
+	removeCallback?: () => void,
 	src?: string,
 }
 
@@ -182,17 +183,19 @@ const FormatUI = (): IFormatUI => {
 	};
 
 	const CreateInputWrapWithOptionList = (opts: IFormatUIInputWrapOptions): IFormatUIInputWrapWithOptionList => {
-		const { uiName, placeholder, bUpdatable, createCallback, src } = opts;
+		const { uiName, placeholder, bUpdatable, createCallback, removeCallback, src } = opts;
 		const OptionWrapper = CreateOptionList(uiName);
-		DOM.SetAttr(OptionWrapper, 'media-url', 'true');
+		DOM.SetAttr(OptionWrapper, 'url-input', 'true');
 		DOM.On(OptionWrapper, Finer.NativeEventMap.click, event => Finer.PreventEvent(event));
 
 		const { Wrapper, Input } = CreateInputWrap(placeholder);
 		if (src) Input.value = src;
 
 		const callback = () => {
-			createCallback(Input);
+			if (Str.IsEmpty(Input.value)) return Input.focus();
+
 			DOM.Doc.body.click();
+			createCallback(Input);
 		};
 
 		DOM.On(Input, Finer.NativeEventMap.keyup, e => {
@@ -206,21 +209,38 @@ const FormatUI = (): IFormatUI => {
 			type: 'button-group'
 		});
 
+		const buttons: HTMLElement[] = [];
+
 		const cancelButton = Create({
 			tagName: 'button',
 			title: 'Cancel',
-			html: 'Cancel'
+			html: Str.Merge(Finer.Icons.Get('Close'), 'Cancel')
 		});
 		DOM.On(cancelButton, Finer.NativeEventMap.click, () => DOM.Doc.body.click());
+		Arr.Push(buttons, cancelButton);
 
 		const insertButton = Create({
 			tagName: 'button',
 			title: !bUpdatable ? 'Insert' : 'Update',
-			html: !bUpdatable ? 'Insert' : 'Update'
+			html: Str.Merge(Finer.Icons.Get('Check'), !bUpdatable ? 'Insert' : 'Update')
 		});
 		DOM.On(insertButton, Finer.NativeEventMap.click, callback);
+		Arr.Push(buttons, insertButton);
 
-		DOM.Insert(buttonGroup, cancelButton, insertButton);
+		if (bUpdatable && Type.IsFunction(removeCallback)) {
+			const removeButton = Create({
+				tagName: 'button',
+				title: 'Remove',
+				html: Str.Merge(Finer.Icons.Get('Trash'), 'Remove')
+			});
+			DOM.On(removeButton, Finer.NativeEventMap.click, () => {
+				DOM.Doc.body.click();
+				removeCallback();
+			});
+			Arr.Push(buttons, removeButton);
+		}
+
+		DOM.Insert(buttonGroup, ...buttons);
 		DOM.Insert(OptionWrapper, Wrapper, buttonGroup);
 
 		return {

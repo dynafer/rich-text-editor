@@ -145,3 +145,55 @@
 		@content;
 	}
 }
+
+@mixin common-button {
+	@include round(getVar(button-radius));
+	@include all-margin(0.25rem);
+	@include padding(rem, 0.25, 0.4, 0.25, 0.4);
+	@include font(1rem);
+	@include flex(space-between, center, $inline: true);
+	cursor: pointer;
+
+	svg {
+		@include square(1rem);
+		@include margin(rem, $right: 0.25);
+	}
+}
+
+@mixin make-button($type: null) {
+	@if $type == null {
+		$type: '';
+	} @else {
+		$type: #{$type}-;
+	}
+
+	@include all-border(getVar(button-#{$type}border));
+	@include font($color: getVar(button-#{$type}font));
+	background-color: getVar(button-#{$type}bg);
+
+	svg {
+		fill: getVar(button-#{$type}icon-fill);
+	}
+
+	&:hover {
+		@include all-border(getVar(button-#{$type}hover-border));
+		@include font($color: getVar(button-#{$type}hover-font));
+		background-color: getVar(button-#{$type}hover-bg);
+
+		svg {
+			fill: getVar(button-#{$type}hover-icon-fill);
+		}
+	}
+}
+
+@mixin success-button {
+	@include make-button(success);
+}
+
+@mixin cancel-button {
+	@include make-button(cancel);
+}
+
+@mixin remove-button {
+	@include make-button(remove);
+}

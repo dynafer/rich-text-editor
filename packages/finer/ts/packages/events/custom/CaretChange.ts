@@ -100,12 +100,40 @@ const CaretChange = (editor: Editor) => {
 		DOMTools.ChangePositions();
 	};
 
+	const setFocusInline = () => {
+		if (DOM.HasAttr(self.GetBody(), Options.ATTRIBUTE_ADJUSTING)) return;
+
+		const caret = CaretUtils.Get();
+		if (!caret) return;
+
+		const focusableSet = self.Formatter.Formats.BlockFormatTags.Focusable;
+
+		Arr.Each(DOM.SelectAll(Str.Join(',', ...focusableSet)), focused => DOM.RemoveAttr(focused, Options.ATTRIBUTE_FOCUSED));
+
+		const node = FormatUtils.GetParentIfText(caret.Start.Node);
+
+		let focusableNode: Node | null = null;
+
+		Arr.Each(Arr.Convert(focusableSet), selector => {
+			const closest = DOM.Closest(node, selector);
+			if (!focusableNode) {
+				focusableNode = closest;
+				return;
+			}
+
+			if (closest && DOM.Utils.IsChildOf(closest, focusableNode)) focusableNode = closest;
+		});
+
+		if (focusableNode) DOM.SetAttr(focusableNode, Options.ATTRIBUTE_FOCUSED);
+	};
+
 	const listener = (): IEvent<Node[]> =>
 		(paths: Node[]) => {
 			DOMTools.ChangePositions();
 			removeCaretPointers(paths);
 			wrapFigure();
 			setFocusFigure();
+			setFocusInline();
 		};
 
 	self.On('Caret:Change', listener());
