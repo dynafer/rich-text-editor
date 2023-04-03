@@ -3,7 +3,7 @@ import { Arr, Obj, Str, Type } from '@dynafer/utils';
 import Options from '../../Options';
 import DOMElement, { IDOMElement } from './DOMElement';
 import DOMEventUtils, { IDOMEventUtils, TEventTarget } from './DOMEventUtils';
-import DOMUtils, { ESCAPE_EMPTY_TEXT_REGEX, ICreateSelectorOption, IDOMUtils } from './DOMUtils';
+import DOMUtils, { ICreateSelectorOption, IDOMUtils, REGEX_EMPTY_TEXT } from './DOMUtils';
 
 export type TDOMCreateOption = IDOMCreateOption | IDOMCreateOptionFromEditor | IDOMCreateOptionFromEditorIFrame;
 
@@ -193,7 +193,7 @@ const DOM = (opts: TDOMCreateOption): IDom => {
 
 	const GetRect = ((selector: TElement): DOMRect | null => !NodeType.IsElement(selector) ? null : selector.getClientRects()[0]);
 
-	const removeEmptyText = (text: string): string => decodeURI(encodeURI(text).replace(ESCAPE_EMPTY_TEXT_REGEX, ''));
+	const removeEmptyText = (text: string): string => decodeURI(encodeURI(text).replace(REGEX_EMPTY_TEXT, ''));
 
 	const GetText = (selector: TElement): string => removeEmptyText(Obj.GetProperty(selector, 'innerText') ?? '');
 	const GetHTML = (selector: TElement): string => removeEmptyText(Obj.GetProperty(selector, 'innerHTML') ?? '');

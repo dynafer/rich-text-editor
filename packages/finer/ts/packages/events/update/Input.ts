@@ -3,7 +3,7 @@ import { Arr, Str } from '@dynafer/utils';
 import Options from '../../../Options';
 import Editor from '../../Editor';
 import { ICaretData } from '../../editorUtils/caret/CaretUtils';
-import { BlockFormatTags, ListItemSelector } from '../../formatter/Format';
+import { BlockFormatTags } from '../../formatter/Format';
 import FormatUtils from '../../formatter/FormatUtils';
 import { EInputEventType, PreventEvent } from '../EventSetupUtils';
 import InputUtils from './InputUtils';
@@ -78,14 +78,21 @@ const Input = (editor: Editor) => {
 		self.Utils.Shared.DispatchCaretChange();
 	};
 
+	const escapeUselessTags = (html: string): string =>
+		DOM.Utils.EscapeComments(html)
+			.replace(/<\/?html.*?>/gs, '')
+			.replace(/<\/?body.*?>/gs, '')
+			.replace(/(\r\n|\n|\r)/gm, '');
+
 	const getAsStringCallback = (html: string) =>
 		(caret: ICaretData | null) => {
 			if (!caret) return;
 			caret.Range.DeleteContents();
 			const fragment = DOM.Create('fragment');
-			DOM.SetHTML(fragment, Str.Contains(html, '<!--StartFragment-->') ? html.split('StartFragment-->')[1].split('<!--EndFragment')[0] : html);
+			DOM.SetHTML(fragment, escapeUselessTags(html));
 			fakeFragment = DOM.CreateFragment();
 			DOM.Insert(fakeFragment, ...DOM.GetChildNodes(fragment, false));
+			fragment.remove();
 
 			inputUtils.EditFigures(fakeFragment);
 			cleanUnusable(fakeFragment);
@@ -96,33 +103,12 @@ const Input = (editor: Editor) => {
 		const caret = CaretUtils.Get();
 		if (!caret) return;
 
-		const escape = () => {
+		if (!NodeType.IsText(caret.Start.Node)) {
 			fakeFragment = caret.Range.Extract();
-		};
-
-		if (caret.Start.Node !== caret.End.Node || !NodeType.IsText(caret.Start.Node)) return escape();
-
-		const until = DOM.Closest(FormatUtils.GetParentIfText(caret.Start.Node), Str.Join(',', ...BlockFormatTags.Block))
-			?? DOM.Closest(FormatUtils.GetParentIfText(caret.Start.Node), ListItemSelector);
-		const startNode = caret.Start.Node.parentNode;
-
-		if (!until || !startNode) return escape();
-
-		const fragment = DOM.CreateFragment();
-
-		let current: Node | null = startNode.parentNode;
-		let nodeStack: Node | null = DOM.Clone(startNode);
-		DOM.Insert(nodeStack, caret.Range.Extract());
-
-		while (current && current !== until) {
-			const stack = DOM.Clone(current);
-			DOM.Insert(stack, nodeStack);
-			nodeStack = stack;
-			current = current.parentNode;
+			return;
 		}
 
-		DOM.Insert(fragment, nodeStack);
-		fakeFragment = fragment;
+		fakeFragment = inputUtils.GetProcessedFragment(caret, true);
 	};
 
 	const insertFromDropEvent = (event: InputEvent) =>

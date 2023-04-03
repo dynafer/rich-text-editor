@@ -59,7 +59,7 @@ const AdjustableEdge = (editor: Editor, table: HTMLElement): HTMLElement => {
 
 		self.SaveScrollPosition();
 
-		const tableGrid = DOM.Element.Table.GetTableGridWithIndex(FigureElement);
+		const tableGrid = DOM.Element.Table.GetGridWithIndex(FigureElement);
 
 		const fakeTable = CreateFakeTable(self, FigureElement);
 		DOM.Insert(adjustableEdgeGroup, fakeTable);
@@ -69,7 +69,7 @@ const AdjustableEdge = (editor: Editor, table: HTMLElement): HTMLElement => {
 		const oldLeft = fakeTable.offsetLeft;
 		const oldTop = fakeTable.offsetTop;
 
-		const fakeTableGrid = DOM.Element.Table.GetTableGridWithIndex(fakeTable);
+		const fakeTableGrid = DOM.Element.Table.GetGridWithIndex(fakeTable);
 		const cellSizePercents: [number, number][][] = [];
 
 		Arr.Each(fakeTableGrid.Grid, row => {

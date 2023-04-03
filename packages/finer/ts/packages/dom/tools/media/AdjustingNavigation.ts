@@ -2,6 +2,9 @@ import { Formula } from '@dynafer/utils';
 import Editor from '../../../Editor';
 import DOM from '../../DOM';
 
+const STANDARD_IFRAME_WIDTH = 560;
+const STANDARD_IFRAME_HEIGHT = 315;
+
 const AdjustingNavigation = (editor: Editor, media: HTMLElement, fakeMedia: HTMLElement) => {
 	const self = editor;
 
@@ -20,7 +23,9 @@ const AdjustingNavigation = (editor: Editor, media: HTMLElement, fakeMedia: HTML
 		const bWidth = type === 'width';
 		if (DOM.Utils.IsImage(media)) return bWidth ? media.naturalWidth : media.naturalHeight;
 		if (DOM.Utils.IsVideo(media)) return bWidth ? media.videoWidth : media.videoHeight;
-		return parseFloat(DOM.GetAttr(media, `data-original-${type}`) ?? '0');
+		const standard = bWidth ? STANDARD_IFRAME_WIDTH : STANDARD_IFRAME_HEIGHT;
+		const originalSize = parseFloat(DOM.GetAttr(media, `data-original-${type}`) ?? '0');
+		return originalSize === 0 ? standard : originalSize;
 	};
 
 	const originalWidth = getOriginalSize('width');

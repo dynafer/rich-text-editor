@@ -40,7 +40,7 @@ const MediaInserter = (editor: Editor, ui: IPluginMediaUI) => {
 						dataOriginalWidth: width.toString(),
 						dataOriginalHeight: height.toString(),
 					});
-					DOM.SetStyles(media, {
+					self.DOM.SetStyles(media, {
 						width: `${width}px`,
 						height: `${height}px`,
 					});

@@ -7,7 +7,7 @@ const Backspace = (editor: Editor) => {
 	const DOM = self.DOM;
 	const CaretUtils = self.Utils.Caret;
 
-	const lines = DOM.GetChildren(self.GetBody(), false);
+	const lines = self.GetLines(false);
 	const caret = CaretUtils.Get();
 	if (!caret) return;
 

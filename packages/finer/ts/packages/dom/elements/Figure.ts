@@ -13,6 +13,7 @@ export interface IFigure {
 	readonly Selector: string,
 	readonly FigureTypeSetMap: Record<string, Set<string>>,
 	readonly FigureTypeMap: Record<string, string>,
+	HasType: (type: string) => boolean,
 	FindType: (type: string) => string,
 	Create: (type: string) => HTMLElement,
 	SelectFigureElement: {
@@ -40,8 +41,10 @@ const Figure = (): IFigure => {
 		table: Table.Selector,
 	};
 
+	const HasType = (type: string): boolean => Arr.Contains(Obj.Keys(FigureTypeMap), type);
+
 	const FindType = (type: string): string => {
-		if (Arr.Contains(Obj.Keys(FigureTypeMap), type)) return type;
+		if (HasType(type)) return type;
 
 		let foundType = type;
 		Obj.Entries(FigureTypeSetMap, (typeKey, typeSet, exit) => {
@@ -92,6 +95,7 @@ const Figure = (): IFigure => {
 		Selector,
 		FigureTypeSetMap,
 		FigureTypeMap,
+		HasType,
 		FindType,
 		Create,
 		SelectFigureElement,

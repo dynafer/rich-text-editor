@@ -17,7 +17,7 @@ const InputUtils = (editor: Editor) => {
 
 		Arr.WhileShift(figures, figure => {
 			const figureType = DOM.GetAttr(figure, 'type');
-			if (!figureType || !FigureElementFormats.has(figureType)) figure.remove();
+			if (!figureType || !DOM.Element.Figure.HasType(figureType)) figure.remove();
 		});
 
 		const figureElements = DOM.SelectAll<HTMLElement>({
@@ -29,9 +29,6 @@ const InputUtils = (editor: Editor) => {
 
 			const figure = DOM.Element.Figure.Create(DOM.Utils.GetNodeName(element));
 			DOM.CloneAndInsert(figure, true, element);
-
-			const tools = self.Tools.DOM.Manager.SelectTools(true, figure);
-			Arr.Each(tools, tool => DOM.Remove(tool, true));
 
 			element.parentNode?.replaceChild(figure, element);
 		});
@@ -117,16 +114,22 @@ const InputUtils = (editor: Editor) => {
 
 		if (!EndBlock || !previousNode) return;
 
-		if (!bInList || !BlockFormatTags.List.has(DOM.Utils.GetNodeName(EndBlock))) {
-			const blockNode = DOM.Closest(previousNode, Str.Join(',', ...BlockFormatTags.Block))
-				?? DOM.Closest(previousNode, ListSelector)
-				?? DOM.Element.Figure.GetClosest(previousNode)
-				?? DOM.GetParents(previousNode)[0];
+		const getBlock = (node: Node | null) =>
+			DOM.Closest(node, Str.Join(',', ...BlockFormatTags.Block))
+			?? DOM.Closest(node, ListSelector)
+			?? DOM.Element.Figure.GetClosest(node)
+			?? DOM.GetParents(node)[0];
 
-			return DOM.InsertAfter(blockNode, EndBlock);
+		if (!bInList || !BlockFormatTags.List.has(DOM.Utils.GetNodeName(EndBlock))) {
+			const blockNode = getBlock(previousNode)
+				?? getBlock((previousNode as Node).previousSibling);
+
+			const insertBlock = !blockNode ? DOM.Insert : DOM.InsertAfter;
+			const from = blockNode ?? self.GetBody();
+			return insertBlock(from, EndBlock);
 		}
 
-		const previousList = DOM.Closest(FormatUtils.GetParentIfText(previousNode), ListSelector);
+		const previousList = DOM.Closest(previousNode, ListSelector);
 		const endList = DOM.Closest(FormatUtils.GetParentIfText(EndBlock), ListSelector);
 
 		if (DOM.Utils.GetNodeName(endList) !== DOM.Utils.GetNodeName(previousList))
@@ -153,9 +156,47 @@ const InputUtils = (editor: Editor) => {
 		insertBlocks(caret, fragment);
 	};
 
+	const GetProcessedFragment = (caret: ICaretData, bExtract: boolean): DocumentFragment => {
+		const extractOrClone = (): DocumentFragment => bExtract ? caret.Range.Extract() : caret.Range.CloneContents();
+
+		let fragment: DocumentFragment;
+		if (caret.Start.Node !== caret.End.Node) {
+			const closestAnchor = DOM.Closest(FormatUtils.GetParentIfText(caret.SameRoot), 'a');
+			if (caret.SameRoot === self.GetBody() || !closestAnchor) return extractOrClone();
+			fragment = extractOrClone();
+			const clonedAnchor = DOM.Clone(closestAnchor);
+			DOM.Insert(clonedAnchor, ...DOM.GetChildNodes(fragment));
+			DOM.Insert(fragment, clonedAnchor);
+			return fragment;
+		}
+
+		const until = DOM.Closest(FormatUtils.GetParentIfText(caret.Start.Node), Str.Join(',', ...BlockFormatTags.Block))
+			?? DOM.Closest(FormatUtils.GetParentIfText(caret.Start.Node), ListItemSelector);
+		const startNode = caret.Start.Node.parentNode;
+
+		if (!until || !startNode) return extractOrClone();
+
+		fragment = DOM.CreateFragment();
+
+		let current: Node | null = startNode.parentNode;
+		let nodeStack: Node | null = DOM.Clone(startNode);
+		DOM.Insert(nodeStack, extractOrClone());
+
+		while (current && current !== until) {
+			const stack = DOM.Clone(current);
+			DOM.Insert(stack, nodeStack);
+			nodeStack = stack;
+			current = current.parentNode;
+		}
+
+		DOM.Insert(fragment, nodeStack);
+		return fragment;
+	};
+
 	return {
 		EditFigures,
 		InsertFragment,
+		GetProcessedFragment,
 	};
 };
 

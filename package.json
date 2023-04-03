@@ -6,8 +6,8 @@
     "packages/**/*"
   ],
   "devDependencies": {
-    "@dynafer/build-toolkit": "^1.0.41",
-    "@finer-group/eslint-plugin": "^0.0.7",
+    "@dynafer/build-toolkit": "^1.0.5",
+    "@finer-group/eslint-plugin": "^0.0.8",
     "@rollup/plugin-node-resolve": "^15.0.1",
     "@types/node": "^18.15.11",
     "eslint": "^8.37.0",

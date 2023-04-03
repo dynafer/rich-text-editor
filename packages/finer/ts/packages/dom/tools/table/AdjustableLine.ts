@@ -58,12 +58,12 @@ const AdjustableLine = (editor: Editor, table: HTMLElement): HTMLElement => {
 
 		DOM.SetAttr(adjustItem, Options.ATTRIBUTE_ADJUSTING);
 
-		const tableGrid = DOM.Element.Table.GetTableGridWithIndex(FigureElement);
+		const tableGrid = DOM.Element.Table.GetGridWithIndex(FigureElement);
 
 		const fakeTable = CreateFakeTable(self, FigureElement);
 		DOM.Insert(adjustableLineGroup, fakeTable);
 
-		const fakeTableGrid = DOM.Element.Table.GetTableGridWithIndex(fakeTable);
+		const fakeTableGrid = DOM.Element.Table.GetGridWithIndex(fakeTable);
 
 		const sizeStyleName = bWidth ? 'width' : 'height';
 		const positionStyleName = bWidth ? 'left' : 'top';

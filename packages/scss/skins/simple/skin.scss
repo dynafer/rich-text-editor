@@ -16,7 +16,8 @@
 $hoverDefault: rgba(116, 195, 255, 0.7);
 $activeDefault: rgba(88, 183, 255, 0.7);
 
-* {
+.#{getClassName(toolbar)},
+.#{getClassName(toolbar)} * {
 	#{getVarName(toolbar-bg)}: transparent;
 	#{getVarName(toolbar-border)}: #ececec;
 
@@ -46,7 +47,9 @@ $activeDefault: rgba(88, 183, 255, 0.7);
 	#{getVarName(toolbar-input-border)}: #afafaf;
 	#{getVarName(toolbar-input-focus-border)}: $activeDefault;
 	#{getVarName(toolbar-input-placeholder-font)}: #434343;
+}
 
+:root {
 	#{getVarName(editor-bg)}: transparent;
 	#{getVarName(editor-border)}: #ececec;
 

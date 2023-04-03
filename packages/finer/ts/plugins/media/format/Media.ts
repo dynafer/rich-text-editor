@@ -31,7 +31,7 @@ const Media = (editor: Editor): IFormatMedia => {
 		formatter.Utils.CleanDirty(self, CaretUtils.Get());
 
 		const caret = CaretUtils.Get();
-		const lines = DOM.GetChildren(self.GetBody());
+		const lines = self.GetLines();
 
 		const finish = () => {
 			const newRange = self.Utils.Range();
