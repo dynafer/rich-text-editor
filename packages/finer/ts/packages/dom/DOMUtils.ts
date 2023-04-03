@@ -2,7 +2,8 @@ import { NodeType } from '@dynafer/dom-control';
 import { Arr, Obj, Str, Type, Utils } from '@dynafer/utils';
 import Options, { EModeEditor } from '../../Options';
 
-export const ESCAPE_EMPTY_TEXT_REGEX = /(%EF%BB%BF|%0A)/gi;
+export const REGEX_EMPTY_TEXT = /(%EF%BB%BF|%0A)/gi;
+export const REGEX_COMMENTS = /<!--.*?-->/gs;
 export const EMPTY_HEX_CODE = '&#xfeff;';
 
 type TSelectorOptionCommon = string | Record<string, string> | (string | Record<string, string>)[];
@@ -30,6 +31,7 @@ export interface IDOMUtils {
 	IsAnchor: (selector: Node | null) => selector is HTMLAnchorElement,
 	CreateStyleVariable: (name: string, value: string) => string,
 	WrapTagHTML: (tagName: string, text: string) => string,
+	EscapeComments: (html: string) => string,
 	IsChildOf: (child: Node, parent: Node) => boolean,
 	IsTextEmpty: (selector: Node | null) => boolean,
 	HasChildNodes: (selector: Node | null) => boolean,
@@ -77,11 +79,13 @@ const DOMUtils = (): IDOMUtils => {
 
 	const WrapTagHTML = (tagName: string, text: string): string => Str.Merge('<', tagName, '>', text, '</', tagName, '>');
 
+	const EscapeComments = (html: string): string => html.replace(REGEX_COMMENTS, '');
+
 	const IsChildOf = (child: Node, parent: Node): boolean =>
 		child === parent || parent.contains(child);
 
 	const IsTextEmpty = (selector: Node | null): boolean =>
-		!NodeType.IsText(selector) || Str.IsEmpty(decodeURI(encodeURI(selector.textContent ?? '').replace(ESCAPE_EMPTY_TEXT_REGEX, '')));
+		!NodeType.IsText(selector) || Str.IsEmpty(decodeURI(encodeURI(selector.textContent ?? '').replace(REGEX_EMPTY_TEXT, '')));
 
 	const HasChildNodes = (selector: Node | null): boolean => selector?.hasChildNodes() ?? false;
 
@@ -192,6 +196,7 @@ const DOMUtils = (): IDOMUtils => {
 		IsAnchor,
 		CreateStyleVariable,
 		WrapTagHTML,
+		EscapeComments,
 		IsChildOf,
 		IsTextEmpty,
 		HasChildNodes,

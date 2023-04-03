@@ -275,7 +275,7 @@ const Wrapper = (editor: Editor, format: IPluginListFormat) => {
 	const processRange = (caret: ICaretData) => {
 		if (caret.Start.Line === caret.End.Line) return;
 
-		const lines = DOM.GetChildren(self.GetBody());
+		const lines = self.GetLines();
 
 		wrapRange(caret.Start.Node);
 		for (let index = caret.Start.Line + 1; index < caret.End.Line; ++index) {

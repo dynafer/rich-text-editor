@@ -25,7 +25,7 @@ export interface ITable {
 	GetAllOwnRows: (table: Element) => HTMLTableRowElement[],
 	GetAllOwnCells: (table: Element, row?: Element) => HTMLTableCellElement[],
 	GetSelectedCells: (editor: Editor, table?: Element, bSelected?: boolean) => HTMLTableCellElement[],
-	GetTableGridWithIndex: (table: Element, targetCell?: Element) => ITableGrid,
+	GetGridWithIndex: (table: Element, targetCell?: Element) => ITableGrid,
 	IsTable: <T extends Node>(selector?: T | EventTarget | null) => boolean,
 	IsTableRow: <T extends Node>(selector?: T | EventTarget | null) => boolean,
 	IsTableCell: <T extends Node>(selector?: T | EventTarget | null) => boolean,
@@ -87,7 +87,7 @@ const Table = (): ITable => {
 			bNot: !bSelected,
 		}, table ?? editor.GetBody());
 
-	const GetTableGridWithIndex = (table: Element, targetCell?: Element): ITableGrid => {
+	const GetGridWithIndex = (table: Element, targetCell?: Element): ITableGrid => {
 		const Grid: HTMLTableCellElement[][] = [];
 		const rowspans: [number, number, number][] = [];
 
@@ -168,7 +168,7 @@ const Table = (): ITable => {
 		GetAllOwnRows,
 		GetAllOwnCells,
 		GetSelectedCells,
-		GetTableGridWithIndex,
+		GetGridWithIndex,
 		IsTable,
 		IsTableRow,
 		IsTableCell,

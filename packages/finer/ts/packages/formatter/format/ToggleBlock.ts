@@ -63,7 +63,7 @@ const ToggleBlock = (editor: Editor, format: IBlockFormat): IToggleBlock => {
 	const rangeProcessor = (bWrap: boolean, caret: ICaretData): boolean => {
 		if (caret.Start.Line === caret.End.Line) return false;
 
-		const lines = DOM.GetChildren(self.GetBody());
+		const lines = self.GetLines();
 
 		toggleRangeEdge(bWrap, caret.Start.Node, lines[caret.Start.Line], true);
 		for (let index = caret.Start.Line + 1; index < caret.End.Line; ++index) {

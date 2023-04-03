@@ -16,7 +16,7 @@ export interface IToolsManager {
 	Attach: <T = unknown>(opts: IDOMToolsOption<T>) => void,
 	Detach: <T = unknown>(opts: IDOMToolsOption<T>) => void,
 	Create: (name: string, element: HTMLElement) => HTMLElement,
-	SelectTools: <T extends boolean>(bAll: T, parent?: Element) => T extends true ? HTMLElement[] : (HTMLElement | null),
+	SelectTools: <T extends boolean>(bAll: T, parent?: Node) => T extends true ? HTMLElement[] : (HTMLElement | null),
 	IsTools: (selector?: Node | EventTarget | null) => boolean,
 	ChangePositions: () => void,
 }
@@ -71,7 +71,7 @@ const ToolsManager = (editor: Editor): IToolsManager => {
 		return tools;
 	};
 
-	const SelectTools = <T extends boolean>(bAll: T, parent?: Element): T extends true ? HTMLElement[] : (HTMLElement | null) => {
+	const SelectTools = <T extends boolean>(bAll: T, parent?: Node): T extends true ? HTMLElement[] : (HTMLElement | null) => {
 		const selectOption = { attrs: { dataFixed: 'dom-tool' } };
 
 		if (!bAll && !!parent) {

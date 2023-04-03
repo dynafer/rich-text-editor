@@ -165,6 +165,12 @@ class Editor {
 		this.InitContent(html);
 	}
 
+	public GetLines(bArray?: true): Element[];
+	public GetLines(bArray: false): HTMLCollection;
+	public GetLines<T extends boolean>(bArray: T | true = true): T extends true ? Element[] : HTMLCollection {
+		return this.DOM.GetChildren(this.GetBody(), bArray);
+	}
+
 	private setLoading(status: ELoadingStatus) {
 		const toggle = status === ELoadingStatus.HIDE ? DOM.Hide : DOM.Show;
 		toggle(this.Frame.Loading);

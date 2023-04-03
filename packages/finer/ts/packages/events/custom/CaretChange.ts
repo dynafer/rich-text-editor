@@ -50,7 +50,7 @@ const CaretChange = (editor: Editor) => {
 		});
 
 		Arr.WhileShift(figureElements, element => {
-			if (!element.parentElement || !DOM.Element.Figure.IsFigure(element)) return;
+			if (DOM.Element.Figure.IsFigure(element)) return;
 
 			const currentFigure = DOM.Element.Figure.GetClosest(element);
 

@@ -19,7 +19,7 @@ const SelectTableCell = (editor: Editor, event: MouseEvent) => {
 
 	const startRowNum = Arr.Find(rows, Row);
 
-	const { Grid, TargetCellIndex } = DOM.Element.Table.GetTableGridWithIndex(Table, Cell);
+	const { Grid, TargetCellIndex } = DOM.Element.Table.GetGridWithIndex(Table, Cell);
 	if (TargetCellIndex === -1) return;
 
 	const mouseMoveEvent = (e: MouseEvent) => {

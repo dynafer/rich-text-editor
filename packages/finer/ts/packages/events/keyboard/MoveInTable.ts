@@ -154,7 +154,7 @@ const MoveInTable = (editor: Editor, event: KeyboardEvent, caret: ICaretData): b
 	const { Table, Row, Cell } = DOM.Element.Table.Find(fromElement);
 	if (!Table || !Row || !Cell) return false;
 
-	const tableGrid = DOM.Element.Table.GetTableGridWithIndex(Table, Cell);
+	const tableGrid = DOM.Element.Table.GetGridWithIndex(Table, Cell);
 	if (tableGrid.TargetCellRowIndex === -1 || tableGrid.TargetCellIndex === -1) return false;
 
 	const bVertical = bUp || bDown;

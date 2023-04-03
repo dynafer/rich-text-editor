@@ -54,7 +54,7 @@ const CaretUtils = (editor: Editor): ICaretUtils => {
 	};
 
 	const getLine = (node: Node, offset: number, bRange: boolean, bStart: boolean): ILineData => {
-		const lines = DOM.GetChildren(self.GetBody());
+		const lines = self.GetLines();
 
 		if (node === self.GetBody()) {
 			const getChild = bStart ? DOM.Utils.GetFirstChild : DOM.Utils.GetLastChild;

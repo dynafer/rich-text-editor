@@ -3,6 +3,7 @@ export interface IRangeUtils {
 	GetRect: () => DOMRect,
 	Insert: (node: Node) => void,
 	Extract: () => DocumentFragment,
+	CloneContents: () => DocumentFragment,
 	DeleteContents: () => void,
 	Clone: () => IRangeUtils,
 	SetStart: (node: Node, offset: number) => void,
@@ -21,6 +22,7 @@ const RangeUtils = (range: Range = new Range()): IRangeUtils => {
 	const GetRect = (): DOMRect => range.getBoundingClientRect();
 	const Insert = (node: Node) => range.insertNode(node);
 	const Extract = (): DocumentFragment => range.extractContents();
+	const CloneContents = (): DocumentFragment => range.cloneContents();
 	const DeleteContents = () => range.deleteContents();
 	const Clone = (): IRangeUtils => RangeUtils(range.cloneRange());
 	const SetStart = (node: Node, offset: number) => range.setStart(node, offset);
@@ -42,6 +44,7 @@ const RangeUtils = (range: Range = new Range()): IRangeUtils => {
 		GetRect,
 		Insert,
 		Extract,
+		CloneContents,
 		DeleteContents,
 		Clone,
 		SetStart,
