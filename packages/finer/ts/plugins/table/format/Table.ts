@@ -42,7 +42,7 @@ const TableFormat = (editor: Editor) => {
 
 		self.Tools.DOM.UnsetAllFocused();
 		CaretUtils.Get()?.Range.DeleteContents();
-		formatter.Utils.CleanDirty(self, CaretUtils.Get());
+		formatter.Utils.CleanDirtyWithCaret(self, CaretUtils.Get());
 
 		const caret = CaretUtils.Get();
 		const lines = self.GetLines();

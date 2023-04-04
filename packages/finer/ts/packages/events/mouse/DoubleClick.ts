@@ -11,8 +11,7 @@ const DoubleClick = (editor: Editor, event: MouseEvent) => {
 	const blockNode = DOM.Closest(event.target as Element, Str.Join(',', ...BlockFormatTags.Block));
 	if (!blockNode) return;
 
-	const caret = self.Utils.Caret.Get();
-	if (caret) FormatUtils.CleanDirty(self, caret);
+	FormatUtils.CleanDirtyWithCaret(self, self.Utils.Caret.Get());
 
 	const firstChild = DOM.Utils.GetFirstChild(blockNode, true);
 	const lastChild = DOM.Utils.GetLastChild(blockNode, true);
