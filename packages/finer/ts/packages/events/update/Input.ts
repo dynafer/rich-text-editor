@@ -70,7 +70,7 @@ const Input = (editor: Editor) => {
 				newRange.SetStartToEnd(lastChild, offset, offset);
 			}
 		}
-		FormatUtils.CleanDirty(self, caret);
+		FormatUtils.CleanDirtyWithCaret(self, caret);
 		CaretUtils.UpdateRange(newRange);
 		fakeFragment = null;
 
@@ -88,9 +88,12 @@ const Input = (editor: Editor) => {
 		(caret: ICaretData | null) => {
 			if (!caret) return;
 			caret.Range.DeleteContents();
+			FormatUtils.CleanDirtyWithCaret(self, caret);
+			CaretUtils.Refresh();
 			const fragment = DOM.Create('fragment');
 			DOM.SetHTML(fragment, escapeUselessTags(html));
 			fakeFragment = DOM.CreateFragment();
+			FormatUtils.CleanDirty(self, DOM.GetChildNodes(fragment));
 			DOM.Insert(fakeFragment, ...DOM.GetChildNodes(fragment, false));
 			fragment.remove();
 
@@ -105,7 +108,7 @@ const Input = (editor: Editor) => {
 
 		if (!NodeType.IsText(caret.Start.Node)) {
 			fakeFragment = caret.Range.Extract();
-			return;
+			return FormatUtils.CleanDirtyWithCaret(self, caret);
 		}
 
 		fakeFragment = inputUtils.GetProcessedFragment(caret, true);

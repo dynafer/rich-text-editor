@@ -168,7 +168,7 @@ const Unwrapper = (editor: Editor, utils: IAnchorUtils) => {
 		if (!caret) return;
 
 		const finish = () => {
-			formatUtils.CleanDirty(self, CaretUtils.Get() ?? caret);
+			formatUtils.CleanDirtyWithCaret(self, CaretUtils.Get() ?? caret);
 			self.Focus();
 		};
 

@@ -28,7 +28,7 @@ const Media = (editor: Editor): IFormatMedia => {
 
 		DOMTools.UnsetAllFocused();
 		CaretUtils.Get()?.Range.DeleteContents();
-		formatter.Utils.CleanDirty(self, CaretUtils.Get());
+		formatter.Utils.CleanDirtyWithCaret(self, CaretUtils.Get());
 
 		const caret = CaretUtils.Get();
 		const lines = self.GetLines();

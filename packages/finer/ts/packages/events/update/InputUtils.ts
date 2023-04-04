@@ -1,9 +1,7 @@
-import { NodeType } from '@dynafer/dom-control';
 import { Arr, Str } from '@dynafer/utils';
-import { TElement } from '../../dom/DOM';
 import Editor from '../../Editor';
 import { ICaretData } from '../../editorUtils/caret/CaretUtils';
-import { AllBlockFormats, BlockFormatTags, FigureElementFormats, ListItemSelector, ListSelector } from '../../formatter/Format';
+import { AllBlockFormats, BlockFormatTags, FigureElementFormats, ListItemSelector } from '../../formatter/Format';
 import FormatUtils from '../../formatter/FormatUtils';
 
 const InputUtils = (editor: Editor) => {
@@ -39,110 +37,53 @@ const InputUtils = (editor: Editor) => {
 
 		const { EndBlock } = self.Utils.Shared.SplitLines(caret.Start.Node, caret.Start.Offset);
 
-		let bStopInlineNodes = false;
-		let bInList = false;
-		let previousNode: TElement = null;
+		const startParent = FormatUtils.GetParentIfText(caret.Start.Node);
+		const listSelectors = Str.Join(',', ...BlockFormatTags.List);
 
-		const insert = (insertion: Node) => {
-			const previous = previousNode;
-			previousNode = insertion;
-
-			if (!bInList) return !previous
-				? caret.Range.Insert(insertion)
-				: DOM.InsertAfter(previous, insertion);
-
-			if (!bStopInlineNodes) return;
-
-			const previousList = DOM.Closest(previous, ListSelector);
-			const previousListName = DOM.Utils.GetNodeName(previousList);
-			const listName = DOM.Utils.GetNodeName(DOM.Closest(insertion, ListSelector));
-
-			if (previousListName !== listName) {
-				bInList = false;
-				return DOM.InsertAfter(previousList, insertion);
-			}
-
-			previousNode = previous;
-			Arr.Each(DOM.GetChildNodes(insertion), child => {
-				DOM.InsertAfter(previousNode, child);
-				previousNode = child;
-			});
-		};
-
+		let bFirst = true;
+		let previousBlock: Node = startParent;
 		Arr.WhileShift(nodes, node => {
-			const nodeName = DOM.Utils.GetNodeName(node);
+			const blockName = DOM.Utils.GetNodeName(node);
 
-			if (bStopInlineNodes || !AllBlockFormats.has(nodeName)) return insert(node);
-
-			if (nodeName === ListItemSelector) {
-				const listFromCaret = DOM.Closest(FormatUtils.GetParentIfText(caret.Start.Node), ListSelector);
-				if (!previousNode && !!listFromCaret)
-					previousNode = listFromCaret;
-
-				if (previousNode && !!DOM.Closest(previousNode, ListSelector)) {
-					bInList = true;
-					const previousList = DOM.Closest(previousNode, ListSelector);
-					return DOM.Insert(previousList, node);
+			if (bFirst) {
+				bFirst = false;
+				if (BlockFormatTags.Block.has(blockName)) {
+					const startBlock = DOM.Closest(startParent, Str.Join(',', ...BlockFormatTags.Block))
+						?? DOM.Closest(startParent, ListItemSelector);
+					if (startBlock) {
+						previousBlock = startBlock;
+						return DOM.Insert(startBlock, ...DOM.GetChildNodes(node));
+					}
 				}
-
-				const newNode = DOM.Create('p');
-				DOM.Insert(newNode, ...DOM.GetChildNodes(node));
-				node.parentNode?.replaceChild(newNode, node);
-				return insert(newNode);
 			}
 
-			if (!BlockFormatTags.Block.has(nodeName) || previousNode) {
-				const parentIfText = FormatUtils.GetParentIfText(caret.Start.Node);
-				bInList = !!DOM.Closest(parentIfText, ListItemSelector);
-				bStopInlineNodes = true;
-				previousNode = DOM.Closest(parentIfText, ListItemSelector)
-					?? DOM.Closest(parentIfText, Str.Join(',', ...BlockFormatTags.Block))
-					?? caret.Start.Path[0];
-				return insert(node);
+			if (BlockFormatTags.List.has(blockName)) {
+				const previousList = DOM.Closest(previousBlock, listSelectors);
+				if (previousList && blockName === DOM.Utils.GetNodeName(previousList)) {
+					previousBlock = previousList;
+					return DOM.Insert(previousList, ...DOM.GetChildNodes(node));
+				}
 			}
 
-			const children = DOM.GetChildNodes(node);
-			if (Arr.IsEmpty(children)) return;
-
-			Arr.Each(children, child => {
-				if (!previousNode) caret.Range.Insert(child);
-				else DOM.InsertAfter(previousNode, child);
-
-				previousNode = child;
-			});
+			DOM.InsertAfter(previousBlock, node);
+			previousBlock = node;
 		});
 
-		if (!EndBlock || !previousNode) return;
+		const previousName = DOM.Utils.GetNodeName(previousBlock);
 
-		const getBlock = (node: Node | null) =>
-			DOM.Closest(node, Str.Join(',', ...BlockFormatTags.Block))
-			?? DOM.Closest(node, ListSelector)
-			?? DOM.Element.Figure.GetClosest(node)
-			?? DOM.GetParents(node)[0];
+		const endBlock = EndBlock ?? previousBlock.nextSibling;
+		const endBlockName = DOM.Utils.GetNodeName(endBlock);
 
-		if (!bInList || !BlockFormatTags.List.has(DOM.Utils.GetNodeName(EndBlock))) {
-			const blockNode = getBlock(previousNode)
-				?? getBlock((previousNode as Node).previousSibling);
-
-			const insertBlock = !blockNode ? DOM.Insert : DOM.InsertAfter;
-			const from = blockNode ?? self.GetBody();
-			return insertBlock(from, EndBlock);
+		if (previousName === endBlockName && BlockFormatTags.List.has(previousName) && BlockFormatTags.List.has(endBlockName)) {
+			Arr.WhileShift(DOM.GetChildNodes(endBlock), listItem => {
+				if (DOM.Utils.IsTextEmpty(listItem) || Str.IsEmpty(DOM.GetText(listItem))) return DOM.Remove(listItem);
+				DOM.Insert(previousBlock, listItem);
+			});
+			return DOM.Remove(endBlock);
 		}
 
-		const previousList = DOM.Closest(previousNode, ListSelector);
-		const endList = DOM.Closest(FormatUtils.GetParentIfText(EndBlock), ListSelector);
-
-		if (DOM.Utils.GetNodeName(endList) !== DOM.Utils.GetNodeName(previousList))
-			return DOM.InsertAfter(previousList, endList);
-
-		const listItems: Node[] = [];
-		Arr.Each(DOM.GetChildNodes(endList), child => {
-			if (NodeType.IsText(child) || (!DOM.Select('br', child) && Str.IsEmpty(DOM.GetText(child)))) return;
-
-			Arr.Push(listItems, child);
-		});
-
-		DOM.InsertAfter(DOM.Utils.GetLastChild(previousList), ...listItems);
+		const insert = !endBlock ? DOM.Insert : DOM.InsertAfter;
+		insert(endBlock ?? self.GetBody(), endBlock);
 	};
 
 	const InsertFragment = (caret: ICaretData, fragment: DocumentFragment) => {
@@ -157,7 +98,12 @@ const InputUtils = (editor: Editor) => {
 	};
 
 	const GetProcessedFragment = (caret: ICaretData, bExtract: boolean): DocumentFragment => {
-		const extractOrClone = (): DocumentFragment => bExtract ? caret.Range.Extract() : caret.Range.CloneContents();
+		const extractOrClone = (): DocumentFragment => {
+			if (!bExtract) return caret.Range.CloneContents();
+			const fragment = caret.Range.Extract();
+			FormatUtils.CleanDirtyWithCaret(self, caret);
+			return fragment;
+		};
 
 		let fragment: DocumentFragment;
 		if (caret.Start.Node !== caret.End.Node) {

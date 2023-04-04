@@ -30,7 +30,7 @@ const MoveCaret = (editor: Editor, event: KeyboardEvent) => {
 
 	const bBackward = bUp || bLeft || bBackspace;
 
-	FormatUtils.CleanDirty(self, CaretUtils.Get());
+	FormatUtils.CleanDirtyWithCaret(self, CaretUtils.Get());
 
 	const caret = CaretUtils.Get();
 	if (!caret || caret.IsRange()) return;

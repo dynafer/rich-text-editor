@@ -17,7 +17,9 @@ $hoverDefault: rgba(116, 195, 255, 0.7);
 $activeDefault: rgba(88, 183, 255, 0.7);
 
 .#{getClassName(toolbar)},
-.#{getClassName(toolbar)} * {
+.#{getClassName(options)},
+.#{getClassName(toolbar)} *,
+.#{getClassName(options)} * {
 	#{getVarName(toolbar-bg)}: transparent;
 	#{getVarName(toolbar-border)}: #ececec;
 
