@@ -1,12 +1,16 @@
+import { NodeType } from '@dynafer/dom-control';
 import { Arr, Str } from '@dynafer/utils';
+import Options from '../../../Options';
 import Editor from '../../Editor';
 import { ICaretData } from '../../editorUtils/caret/CaretUtils';
-import { AllBlockFormats, BlockFormatTags, FigureElementFormats, ListItemSelector } from '../../formatter/Format';
+import { AllBlockFormats, BlockFormatTags, FigureElementFormats, ListItemSelector, ListSelector } from '../../formatter/Format';
 import FormatUtils from '../../formatter/FormatUtils';
 
 const InputUtils = (editor: Editor) => {
 	const self = editor;
 	const DOM = self.DOM;
+	const CaretUtils = self.Utils.Caret;
+	const DOMTools = self.Tools.DOM;
 
 	const EditFigures = (fragment: DocumentFragment) => {
 		const figures = DOM.SelectAll<HTMLElement>({
@@ -15,7 +19,7 @@ const InputUtils = (editor: Editor) => {
 
 		Arr.WhileShift(figures, figure => {
 			const figureType = DOM.GetAttr(figure, 'type');
-			if (!figureType || !DOM.Element.Figure.HasType(figureType)) figure.remove();
+			if (!figureType || !DOM.Element.Figure.HasType(figureType)) DOM.Remove(figure);
 		});
 
 		const figureElements = DOM.SelectAll<HTMLElement>({
@@ -32,13 +36,47 @@ const InputUtils = (editor: Editor) => {
 		});
 	};
 
-	const insertBlocks = (caret: ICaretData, fragment: DocumentFragment) => {
+	const CleanUnusable = (fragment: DocumentFragment) => {
+		const brElements = DOM.SelectAll({
+			tagName: 'br',
+			class: 'Apple-interchange-newline'
+		}, fragment);
+
+		Arr.Each(brElements, brElement => DOM.Remove(brElement));
+
+		const styleElements = DOM.SelectAll({
+			attrs: ['style']
+		}, fragment);
+
+		Arr.Each(styleElements, styleElement => {
+			const editorStyle = DOM.GetAttr(styleElement, Options.ATTRIBUTE_EDITOR_STYLE) ?? '';
+			const elementName = DOM.Utils.GetNodeName(styleElement);
+			if (!Str.IsEmpty(editorStyle)) return DOM.SetStyleText(styleElement, editorStyle);
+			if (!DOM.Utils.IsSpan(styleElement)) return DOM.RemoveAttr(styleElement, 'style');
+
+			const parent = styleElement.parentNode;
+			if (BlockFormatTags.Figures.has(elementName) || !parent) return;
+
+			const children = DOM.GetChildNodes(styleElement);
+
+			if (!Arr.IsEmpty(children)) {
+				parent.replaceChild(children[0], styleElement);
+				return DOM.InsertAfter(children[0], ...children.slice(1, children.length));
+			}
+
+			DOM.Remove(Str.IsEmpty(DOM.GetText(parent)) ? parent : styleElement);
+		});
+
+		EditFigures(fragment);
+	};
+
+	const insertBlocks = (caret: ICaretData, fragment: DocumentFragment): Node => {
 		const nodes = DOM.GetChildNodes(fragment);
 
 		const { EndBlock } = self.Utils.Shared.SplitLines(caret.Start.Node, caret.Start.Offset);
 
 		const startParent = FormatUtils.GetParentIfText(caret.Start.Node);
-		const listSelectors = Str.Join(',', ...BlockFormatTags.List);
+		const blockSelectors = Str.Join(',', ...BlockFormatTags.Block);
 
 		let bFirst = true;
 		let previousBlock: Node = startParent;
@@ -48,17 +86,32 @@ const InputUtils = (editor: Editor) => {
 			if (bFirst) {
 				bFirst = false;
 				if (BlockFormatTags.Block.has(blockName)) {
-					const startBlock = DOM.Closest(startParent, Str.Join(',', ...BlockFormatTags.Block))
+					const startBlock = DOM.Closest(startParent, blockSelectors)
 						?? DOM.Closest(startParent, ListItemSelector);
 					if (startBlock) {
 						previousBlock = startBlock;
 						return DOM.Insert(startBlock, ...DOM.GetChildNodes(node));
 					}
 				}
+
+				if (DOM.Element.Figure.IsFigure(startParent) && !DOM.Element.Table.IsTable(DOM.Element.Figure.SelectFigureElement(startParent))) {
+					previousBlock = node;
+					return DOM.InsertAfter(startParent, node);
+				}
+			}
+
+			if (BlockFormatTags.Figures.has(blockName)) {
+				const previous = DOM.Closest(previousBlock, ListSelector)
+					?? DOM.Closest(previousBlock, blockSelectors)
+					?? previousBlock;
+
+				previousBlock = node;
+				const insert = !!previous ? DOM.InsertAfter : DOM.Insert;
+				return insert(previous ?? self.GetBody(), node);
 			}
 
 			if (BlockFormatTags.List.has(blockName)) {
-				const previousList = DOM.Closest(previousBlock, listSelectors);
+				const previousList = DOM.Closest(previousBlock, ListSelector);
 				if (previousList && blockName === DOM.Utils.GetNodeName(previousList)) {
 					previousBlock = previousList;
 					return DOM.Insert(previousList, ...DOM.GetChildNodes(node));
@@ -79,22 +132,28 @@ const InputUtils = (editor: Editor) => {
 				if (DOM.Utils.IsTextEmpty(listItem) || Str.IsEmpty(DOM.GetText(listItem))) return DOM.Remove(listItem);
 				DOM.Insert(previousBlock, listItem);
 			});
-			return DOM.Remove(endBlock);
+			DOM.Remove(endBlock);
+			return previousBlock;
 		}
 
-		const insert = !endBlock ? DOM.Insert : DOM.InsertAfter;
-		insert(endBlock ?? self.GetBody(), endBlock);
+		const insert = !!previousBlock ? DOM.InsertAfter : DOM.Insert;
+		insert(previousBlock ?? self.GetBody(), endBlock);
+		return previousBlock;
 	};
 
-	const InsertFragment = (caret: ICaretData, fragment: DocumentFragment) => {
+	const InsertFragment = (caret: ICaretData, fragment: DocumentFragment): Node | null => {
 		const blockElements = DOM.SelectAll({
 			tagName: Arr.Convert(AllBlockFormats)
 		}, fragment);
 
-		if (Arr.IsEmpty(blockElements)) return caret.Range.Insert(fragment);
+		if (Arr.IsEmpty(blockElements)) {
+			const lastChild = DOM.Utils.GetLastChild(fragment, true);
+			caret.Range.Insert(fragment);
+			return lastChild;
+		}
 
 		Arr.Clean(blockElements);
-		insertBlocks(caret, fragment);
+		return DOM.Utils.GetLastChild(insertBlocks(caret, fragment), true);
 	};
 
 	const GetProcessedFragment = (caret: ICaretData, bExtract: boolean): DocumentFragment => {
@@ -139,10 +198,51 @@ const InputUtils = (editor: Editor) => {
 		return fragment;
 	};
 
+	const escapeUselessTags = (html: string): string =>
+		DOM.Utils.EscapeComments(html)
+			.replace(/<\/?html.*?>/gs, '')
+			.replace(/<\/?body.*?>/gs, '')
+			.replace(/(\r\n|\n|\r)/gm, '');
+
+	const ConvertHTMLToFragment = (html: string): DocumentFragment => {
+		const fakeFragment = DOM.Create('fragment');
+		DOM.SetHTML(fakeFragment, escapeUselessTags(html));
+		const fragment = DOM.CreateFragment();
+		DOM.Insert(fragment, ...DOM.GetChildNodes(fakeFragment, false));
+		DOM.Remove(fakeFragment);
+		return fragment;
+	};
+
+	const FinishInsertion = (caret: ICaretData, fragment: DocumentFragment) => {
+		const newRange = self.Utils.Range();
+		const lastChild = InsertFragment(caret, fragment);
+
+		if (lastChild) {
+			const childName = DOM.Utils.GetNodeName(lastChild);
+			if (BlockFormatTags.Figures.has(childName)) {
+				const child = DOM.Element.Figure.IsFigure(lastChild) ? lastChild : lastChild.parentElement as Node;
+				newRange.SetStartToEnd(child, 0, 0);
+			} else {
+				const offset = NodeType.IsText(lastChild) ? lastChild.length : 0;
+				newRange.SetStartToEnd(lastChild, offset, offset);
+			}
+
+			self.Scroll(FormatUtils.GetParentIfText(lastChild) as HTMLElement);
+		}
+		FormatUtils.CleanDirtyWithCaret(self, caret);
+		CaretUtils.UpdateRange(newRange);
+
+		DOMTools.ChangePositions();
+		self.Utils.Shared.DispatchCaretChange();
+	};
+
 	return {
 		EditFigures,
+		CleanUnusable,
 		InsertFragment,
 		GetProcessedFragment,
+		ConvertHTMLToFragment,
+		FinishInsertion,
 	};
 };
 

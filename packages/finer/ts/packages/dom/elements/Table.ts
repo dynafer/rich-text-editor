@@ -25,6 +25,8 @@ export interface ITable {
 	GetAllOwnRows: (table: Element) => HTMLTableRowElement[],
 	GetAllOwnCells: (table: Element, row?: Element) => HTMLTableCellElement[],
 	GetSelectedCells: (editor: Editor, table?: Element, bSelected?: boolean) => HTMLTableCellElement[],
+	ToggleSelectCell: (bSelected: boolean, cell: Element) => void,
+	ToggleSelectMultipleCells: (bSelected: boolean, cells: Element[]) => void,
 	GetGridWithIndex: (table: Element, targetCell?: Element) => ITableGrid,
 	IsTable: <T extends Node>(selector?: T | EventTarget | null) => boolean,
 	IsTableRow: <T extends Node>(selector?: T | EventTarget | null) => boolean,
@@ -86,6 +88,12 @@ const Table = (): ITable => {
 			attrs: [Options.ATTRIBUTE_SELECTED],
 			bNot: !bSelected,
 		}, table ?? editor.GetBody());
+
+	const ToggleSelectCell = (bSelected: boolean, cell: Element) =>
+		bSelected ? cell.setAttribute(Options.ATTRIBUTE_SELECTED, '') : cell.removeAttribute(Options.ATTRIBUTE_SELECTED);
+
+	const ToggleSelectMultipleCells = (bSelected: boolean, cells: Element[]) =>
+		Arr.Each(cells, cell => ToggleSelectCell(bSelected, cell));
 
 	const GetGridWithIndex = (table: Element, targetCell?: Element): ITableGrid => {
 		const Grid: HTMLTableCellElement[][] = [];
@@ -168,6 +176,8 @@ const Table = (): ITable => {
 		GetAllOwnRows,
 		GetAllOwnCells,
 		GetSelectedCells,
+		ToggleSelectCell,
+		ToggleSelectMultipleCells,
 		GetGridWithIndex,
 		IsTable,
 		IsTableRow,

@@ -29,7 +29,7 @@ const Wrapper = (editor: Editor, utils: IAnchorUtils) => {
 			if (!DOM.Utils.IsAnchor(previous) || previous.href !== anchor.href) return;
 
 			DOM.Insert(previous, ...DOM.GetChildNodes(anchor));
-			anchor.remove();
+			DOM.Remove(anchor);
 		});
 	};
 

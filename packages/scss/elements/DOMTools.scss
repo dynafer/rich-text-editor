@@ -1,6 +1,9 @@
 @mixin dom-tools {
 	[data-fixed='dom-tool'] {
-		z-index: 999999;
+		&,
+		* {
+			z-index: 999999;
+		}
 
 		[data-movable] {
 			@include position(absolute, calc(0px - 1rem), 0);

@@ -1,5 +1,5 @@
 import { NodeType } from '@dynafer/dom-control';
-import { Arr, Str } from '@dynafer/utils';
+import { Str } from '@dynafer/utils';
 import Options from '../../../../Options';
 import Editor from '../../../Editor';
 import { ENativeEvents, PreventEvent } from '../../../events/EventSetupUtils';
@@ -31,7 +31,7 @@ const Movable = (editor: Editor, table: HTMLElement): HTMLElement => {
 		if (!Figure || !FigureElement) return;
 
 		const cells = DOM.SelectAll(DOM.Element.Table.CellSelector, FigureElement);
-		Arr.Each(cells, cell => DOM.SetAttr(cell, Options.ATTRIBUTE_SELECTED));
+		DOM.Element.Table.ToggleSelectMultipleCells(true, cells);
 
 		DOM.SetAttr(Figure, Options.ATTRIBUTE_FOCUSED);
 
@@ -53,7 +53,7 @@ const Movable = (editor: Editor, table: HTMLElement): HTMLElement => {
 		};
 
 		const cells = DOM.SelectAll(DOM.Element.Table.CellSelector, FigureElement);
-		Arr.Each(cells, cell => DOM.SetAttr(cell, Options.ATTRIBUTE_SELECTED));
+		DOM.Element.Table.ToggleSelectMultipleCells(true, cells);
 
 		DOM.SetAttr(Figure, Options.ATTRIBUTE_FOCUSED);
 
@@ -63,9 +63,9 @@ const Movable = (editor: Editor, table: HTMLElement): HTMLElement => {
 
 			if (e.target === self.GetBody()) return moveToSavedPoint();
 
-			Arr.Each(cells, cell => DOM.RemoveAttr(cell, Options.ATTRIBUTE_SELECTED));
+			DOM.Element.Table.ToggleSelectMultipleCells(false, cells);
 			const caret = CaretUtils.Get();
-			Arr.Each(cells, cell => DOM.SetAttr(cell, Options.ATTRIBUTE_SELECTED));
+			DOM.Element.Table.ToggleSelectMultipleCells(true, cells);
 			if (!caret) return moveToSavedPoint();
 
 			const closestTable = DOM.Element.Table.GetClosest(FormatUtils.GetParentIfText(caret.Start.Node));

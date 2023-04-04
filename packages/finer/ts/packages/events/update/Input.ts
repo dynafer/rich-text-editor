@@ -1,6 +1,5 @@
 import { NodeType } from '@dynafer/dom-control';
 import { Arr, Str } from '@dynafer/utils';
-import Options from '../../../Options';
 import Editor from '../../Editor';
 import { ICaretData } from '../../editorUtils/caret/CaretUtils';
 import { BlockFormatTags } from '../../formatter/Format';
@@ -18,87 +17,34 @@ const Input = (editor: Editor) => {
 	let fakeFragment: DocumentFragment | null = null;
 	let lastChildName: string | null = null;
 
-	const cleanUnusable = (fragment: DocumentFragment) => {
-		const brElements = DOM.SelectAll({
-			tagName: 'br',
-			class: 'Apple-interchange-newline'
-		}, fragment);
-
-		Arr.Each(brElements, brElement => brElement.remove());
-
-		const styleElements = DOM.SelectAll({
-			attrs: ['style']
-		}, fragment);
-
-		Arr.Each(styleElements, styleElement => {
-			const editorStyle = DOM.GetAttr(styleElement, Options.ATTRIBUTE_EDITOR_STYLE) ?? '';
-			if (!Str.IsEmpty(editorStyle)) return DOM.SetStyleText(styleElement, editorStyle);
-			if (DOM.Utils.GetNodeName(styleElement) !== 'span') return DOM.RemoveAttr(styleElement, 'style');
-			if (!styleElement.parentNode) return;
-
-			const children = DOM.GetChildNodes(styleElement);
-
-			if (!Arr.IsEmpty(children)) {
-				styleElement.parentNode.replaceChild(children[0], styleElement);
-				return DOM.InsertAfter(children[0], ...children.slice(1, children.length));
-			}
-
-			if (!styleElement.parentElement) return;
-			DOM.Remove(Str.IsEmpty(DOM.GetText(styleElement.parentElement)) ? styleElement.parentElement : styleElement);
-		});
-	};
-
 	const runWithCaret = (callback: (caret: ICaretData | null) => void) => {
 		callback(CaretUtils.Get());
 		if (!fakeFragment) return;
+		FormatUtils.CleanDirty(self, DOM.GetChildNodes(fakeFragment));
 
-		const caret = CaretUtils.Get();
-		if (!caret) return;
+		let caret = CaretUtils.Get();
+		const cells = DOM.Element.Table.GetSelectedCells(self);
+		if (!caret && Arr.IsEmpty(cells)) return;
 
-		const newRange = self.Utils.Range();
-		const lastChild = DOM.Utils.GetLastChild(fakeFragment, true);
+		const node = !caret ? cells[0] : FormatUtils.GetParentIfText(caret.Start.Node);
+		if (!caret) {
+			const figure = DOM.Element.Figure.GetClosest(node);
+			if (!figure) return;
 
-		inputUtils.InsertFragment(caret, fakeFragment);
-
-		if (lastChild) {
-			const childName = DOM.Utils.GetNodeName(lastChild);
-			if (BlockFormatTags.Figures.has(childName)) {
-				const child = DOM.Element.Figure.IsFigure(lastChild) ? lastChild : lastChild.parentElement as Node;
-				newRange.SetStartToEnd(child, 0, 0);
-			} else {
-				const offset = NodeType.IsText(lastChild) ? lastChild.length : 0;
-				newRange.SetStartToEnd(lastChild, offset, offset);
-			}
+			caret = CaretUtils.CreateFake(figure, 0, figure, 0);
 		}
-		FormatUtils.CleanDirtyWithCaret(self, caret);
-		CaretUtils.UpdateRange(newRange);
-		fakeFragment = null;
 
-		DOMTools.ChangePositions();
-		self.Utils.Shared.DispatchCaretChange();
+		inputUtils.FinishInsertion(caret, fakeFragment);
 	};
-
-	const escapeUselessTags = (html: string): string =>
-		DOM.Utils.EscapeComments(html)
-			.replace(/<\/?html.*?>/gs, '')
-			.replace(/<\/?body.*?>/gs, '')
-			.replace(/(\r\n|\n|\r)/gm, '');
 
 	const getAsStringCallback = (html: string) =>
 		(caret: ICaretData | null) => {
 			if (!caret) return;
 			caret.Range.DeleteContents();
 			FormatUtils.CleanDirtyWithCaret(self, caret);
-			CaretUtils.Refresh();
-			const fragment = DOM.Create('fragment');
-			DOM.SetHTML(fragment, escapeUselessTags(html));
-			fakeFragment = DOM.CreateFragment();
-			FormatUtils.CleanDirty(self, DOM.GetChildNodes(fragment));
-			DOM.Insert(fakeFragment, ...DOM.GetChildNodes(fragment, false));
-			fragment.remove();
+			fakeFragment = inputUtils.ConvertHTMLToFragment(html);
 
-			inputUtils.EditFigures(fakeFragment);
-			cleanUnusable(fakeFragment);
+			inputUtils.CleanUnusable(fakeFragment);
 		};
 
 	const deleteByDragEvent = (event: InputEvent) => {
@@ -119,8 +65,7 @@ const Input = (editor: Editor) => {
 			PreventEvent(event);
 			if (!fakeFragment) return;
 
-			inputUtils.EditFigures(fakeFragment);
-			cleanUnusable(fakeFragment);
+			inputUtils.CleanUnusable(fakeFragment);
 		};
 
 	const setLastChildName = () => {

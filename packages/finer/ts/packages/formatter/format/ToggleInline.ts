@@ -127,7 +127,7 @@ const ToggleInline = (editor: Editor, formats: IInlineFormat | IInlineFormat[]):
 
 		if (Arr.IsEmpty(DOM.GetChildNodes(fragment))) {
 			caret.Range.SetEndAfter(existedCaret);
-			existedCaret.remove();
+			DOM.Remove(existedCaret);
 			return requiredWrapTag;
 		}
 
@@ -184,8 +184,8 @@ const ToggleInline = (editor: Editor, formats: IInlineFormat | IInlineFormat[]):
 		caret.Range.Insert(spliter);
 		caret.Range.SetStartToEnd(wrapped, 1, 1);
 
-		if (DOM.Utils.IsBr(spliter.previousSibling)) spliter.previousSibling.remove();
-		if (DOM.Utils.IsBr(spliter.nextSibling)) spliter.nextSibling.remove();
+		if (DOM.Utils.IsBr(spliter.previousSibling)) DOM.Remove(spliter.previousSibling);
+		if (DOM.Utils.IsBr(spliter.nextSibling)) DOM.Remove(spliter.nextSibling);
 
 		return true;
 	};

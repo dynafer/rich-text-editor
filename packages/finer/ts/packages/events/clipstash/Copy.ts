@@ -1,5 +1,4 @@
 import { Arr } from '@dynafer/utils';
-import Options from '../../../Options';
 import Editor from '../../Editor';
 import { ENativeEvents, PreventEvent } from '../EventSetupUtils';
 import InputUtils from '../update/InputUtils';
@@ -30,7 +29,7 @@ const Copy = (editor: Editor, event: ClipboardEvent) => {
 				if (index === -1) return;
 				const clonedCell = DOM.Clone(cell, true);
 				DOM.Insert(newRow, clonedCell);
-				DOM.RemoveAttr(clonedCell, Options.ATTRIBUTE_SELECTED);
+				DOM.Element.Table.ToggleSelectCell(false, clonedCell);
 				Arr.Remove(cells, index);
 			});
 			if (DOM.Utils.HasChildNodes(newRow)) DOM.Insert(table, newRow);
@@ -62,12 +61,12 @@ const Copy = (editor: Editor, event: ClipboardEvent) => {
 	const fragment = inputUtils.GetProcessedFragment(caret, bCut);
 
 	const tools = self.Tools.DOM.Manager.SelectTools(true, fragment);
-	Arr.Each(tools, tool => tool.remove());
+	Arr.Each(tools, tool => DOM.Remove(tool));
 
 	const dummyFragment = DOM.Create('fragment');
 	DOM.Insert(dummyFragment, ...DOM.GetChildNodes(fragment));
 	const html = DOM.GetHTML(dummyFragment);
-	dummyFragment.remove();
+	DOM.Remove(dummyFragment);
 
 	event.clipboardData.clearData();
 	event.clipboardData.setData('text/html', html);

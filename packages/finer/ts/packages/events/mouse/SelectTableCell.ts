@@ -1,5 +1,4 @@
 import { Arr } from '@dynafer/utils';
-import Options from '../../../Options';
 import Editor from '../../Editor';
 import { ENativeEvents } from '../EventSetupUtils';
 
@@ -9,8 +8,8 @@ const SelectTableCell = (editor: Editor, event: MouseEvent) => {
 	const rootDOM = self.GetRootDOM();
 	let bDragged = false;
 
-	const selected = DOM.Element.Table.GetSelectedCells(self);
-	Arr.Each(selected, cell => DOM.RemoveAttr(cell, Options.ATTRIBUTE_SELECTED));
+	const selectedCells = DOM.Element.Table.GetSelectedCells(self);
+	DOM.Element.Table.ToggleSelectMultipleCells(false, selectedCells);
 
 	const { Table, Row, Cell } = DOM.Element.Table.Find(event.composedPath()[0]);
 	if (!Table || !Row || !Cell) return;
@@ -29,11 +28,11 @@ const SelectTableCell = (editor: Editor, event: MouseEvent) => {
 			if (!bDragged) return;
 
 			self.Utils.Caret.CleanRanges();
-			DOM.SetAttr(Cell, Options.ATTRIBUTE_SELECTED);
-			return Arr.Each(DOM.SelectAll({ attrs: [Options.ATTRIBUTE_SELECTED] }, Table), cell => {
+			DOM.Element.Table.ToggleSelectCell(true, Cell);
+			return Arr.Each(DOM.Element.Table.GetSelectedCells(self, Table), cell => {
 				if (cell === Cell) return;
 
-				DOM.RemoveAttr(cell, Options.ATTRIBUTE_SELECTED);
+				DOM.Element.Table.ToggleSelectCell(false, cell);
 			});
 		}
 
@@ -61,8 +60,7 @@ const SelectTableCell = (editor: Editor, event: MouseEvent) => {
 			for (let cellIndex = 0, cellLength = row.length; cellIndex < cellLength; ++cellIndex) {
 				const cell = row[cellIndex];
 				const bCellInRange = bRowInRange && cellIndex >= minCellNum && cellIndex <= maxCellNum;
-				const toggle = bCellInRange ? DOM.SetAttr : DOM.RemoveAttr;
-				toggle(cell, Options.ATTRIBUTE_SELECTED);
+				DOM.Element.Table.ToggleSelectCell(bCellInRange, cell);
 			}
 		}
 	};

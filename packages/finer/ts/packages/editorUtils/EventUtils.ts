@@ -53,7 +53,7 @@ const EventUtils = (): IEventUtils => {
 		);
 
 		Promise.all(eventList)
-			.catch(() => { });
+			.catch(console.error);
 	};
 
 	const Get = (): Record<string, IEvent[]> => events;

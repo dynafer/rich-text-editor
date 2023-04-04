@@ -198,7 +198,7 @@ const AdjustableEdge = (editor: Editor, media: HTMLElement): HTMLElement => {
 		const finishAdjusting = (e: MouseEvent) => {
 			PreventEvent(e);
 
-			fakeFigure.Figure.remove();
+			DOM.Remove(fakeFigure.Figure);
 
 			ResetAbsolute(self, Figure, figureElement);
 
@@ -208,7 +208,7 @@ const AdjustableEdge = (editor: Editor, media: HTMLElement): HTMLElement => {
 					width: DOM.GetStyle(figureElement, 'width'),
 					height: DOM.GetStyle(figureElement, 'height'),
 				});
-				figureElement.remove();
+				DOM.Remove(figureElement);
 			}
 
 			DOM.Show(lineGroup);
