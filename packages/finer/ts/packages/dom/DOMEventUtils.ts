@@ -19,9 +19,11 @@ const DOMEventUtils = (): IDOMEventUtils => {
 
 	const propertyName = 'finer-boundary-id';
 
+	const hasElementBoundaryId = (target: TEventTarget): boolean => !Obj.HasProperty(target, propertyName);
+
 	const getElementBoundaryId = (target: TEventTarget): string => {
 		const boundaryId = Obj.GetProperty<string>(target, propertyName) ?? Utils.CreateUUID();
-		if (!Obj.HasProperty(target, propertyName)) Obj.SetProperty(target, propertyName, boundaryId);
+		if (!hasElementBoundaryId(target)) Obj.SetProperty(target, propertyName, boundaryId);
 		return boundaryId;
 	};
 
@@ -38,6 +40,8 @@ const DOMEventUtils = (): IDOMEventUtils => {
 	};
 
 	const Unbind = (target: TEventTarget, eventName: string, event: EventListener) => {
+		if (!hasElementBoundaryId(target)) return;
+
 		const boundaryId = getElementBoundaryId(target);
 		const events = boundEvents[boundaryId]?.eventMap[eventName];
 		if (!events) return;
@@ -58,6 +62,8 @@ const DOMEventUtils = (): IDOMEventUtils => {
 	};
 
 	const UnbindAll = (target: TEventTarget, eventName?: string) => {
+		if (!hasElementBoundaryId(target)) return;
+
 		const boundaryId = getElementBoundaryId(target);
 		const boundEvent = boundEvents[boundaryId];
 		if (!boundEvent) return;
@@ -82,4 +88,4 @@ const DOMEventUtils = (): IDOMEventUtils => {
 	};
 };
 
-export default DOMEventUtils;
+export default DOMEventUtils();

@@ -95,7 +95,7 @@ export interface IDom {
 	},
 	ClosestByStyle: (selector: TElement, styles: string | (string | Record<string, string>)[] | Record<string, string>) => Element | null,
 	IsEditable: (selector: Node) => boolean,
-	GetParents: (selector: TElement, bReverse?: boolean) => Node[],
+	GetParents: (selector: TElement, bReverse?: boolean) => Element[],
 	GetChildNodes: <T extends boolean = true>(selector: TElement, bArray?: T | true) => T extends true ? Node[] : NodeListOf<Node>,
 	GetChildren: <T extends boolean = true>(selector: TElement, bArray?: T | true) => T extends true ? Element[] : HTMLCollection,
 	On: {
@@ -126,7 +126,7 @@ const DOM = (opts: TDOMCreateOption): IDom => {
 	const Doc: Document = opts.document ?? document;
 	const Utils: IDOMUtils = DOMUtils;
 
-	const EventUtils: IDOMEventUtils = DOMEventUtils();
+	const EventUtils: IDOMEventUtils = DOMEventUtils;
 
 	const New = (options: TDOMCreateOption): IDom => DOM(options);
 
@@ -232,9 +232,9 @@ const DOM = (opts: TDOMCreateOption): IDom => {
 
 	const IsEditable = (selector: Node): boolean => HasAttr(selector, 'contenteditable', 'true');
 
-	const GetParents = (selector: TElement, bReverse: boolean = false): Node[] => {
+	const GetParents = (selector: TElement, bReverse: boolean = false): Element[] => {
 		if (!NodeType.IsNode(selector) || HasAttr(selector, 'id', Utils.CreateUEID('editor-body', false))) return [];
-		const parents: Node[] = [];
+		const parents: Element[] = [];
 		const add = bReverse ? Arr.Push : Arr.Unshift;
 		let parent: Node | null = selector;
 

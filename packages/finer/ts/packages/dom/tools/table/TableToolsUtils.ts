@@ -1,5 +1,4 @@
-import { Arr, Type } from '@dynafer/utils';
-import Options from '../../../../Options';
+import { Type } from '@dynafer/utils';
 import Editor from '../../../Editor';
 import { ICaretData } from '../../../editorUtils/caret/CaretUtils';
 
@@ -23,8 +22,8 @@ export const MoveToCurrentPoint = (editor: Editor, table: HTMLElement, point: TC
 	const DOM = self.DOM;
 	const CaretUtils = self.Utils.Caret;
 
-	const selected = DOM.Element.Table.GetSelectedCells(self, table);
-	Arr.Each(selected, cell => DOM.RemoveAttr(cell, Options.ATTRIBUTE_SELECTED));
+	const selectedCells = DOM.Element.Table.GetSelectedCells(self, table);
+	DOM.Element.Table.ToggleSelectMultipleCells(false, selectedCells);
 
 	if (!point) {
 		const firstCell = DOM.SelectAll(DOM.Element.Table.CellSelector, table)[0];
@@ -39,7 +38,7 @@ export const MoveToCurrentPoint = (editor: Editor, table: HTMLElement, point: TC
 	}
 
 	if (Type.IsArray(point)) {
-		Arr.Each(point, cell => DOM.SetAttr(cell, Options.ATTRIBUTE_SELECTED));
+		DOM.Element.Table.ToggleSelectMultipleCells(true, point);
 		point = undefined;
 		return;
 	}

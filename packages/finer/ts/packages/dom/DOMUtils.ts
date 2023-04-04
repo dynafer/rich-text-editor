@@ -23,12 +23,13 @@ export interface IDOMUtils {
 	GetModeTag: (mode: EModeEditor) => string,
 	GetEmptyString: () => string,
 	GetNodeName: (selector: Node | null) => string,
-	IsParagraph: (selector: Node | null) => selector is HTMLParagraphElement,
+	IsAnchor: (selector: Node | null) => selector is HTMLAnchorElement,
 	IsBr: (selector: Node | null) => selector is HTMLBRElement,
 	IsImage: (selector: Node | null) => selector is HTMLImageElement,
 	IsIFrame: (selector: Node | null) => selector is HTMLIFrameElement,
+	IsParagraph: (selector: Node | null) => selector is HTMLParagraphElement,
+	IsSpan: (selector: Node | null) => selector is HTMLSpanElement,
 	IsVideo: (selector: Node | null) => selector is HTMLVideoElement,
-	IsAnchor: (selector: Node | null) => selector is HTMLAnchorElement,
 	CreateStyleVariable: (name: string, value: string) => string,
 	WrapTagHTML: (tagName: string, text: string) => string,
 	EscapeComments: (html: string) => string,
@@ -60,16 +61,17 @@ const DOMUtils = (): IDOMUtils => {
 
 	const GetEmptyString = (): string => EMPTY_HEX_CODE;
 
-	const GetNodeName = (selector: Node | null): string => Str.LowerCase(selector?.nodeName ?? '') ?? '';
+	const GetNodeName = (selector: Node | null): string => Str.LowerCase(selector?.nodeName ?? '');
 
 	const is = <T extends Element>(tagName: string) => (selector: Node | null): selector is T => GetNodeName(selector) === tagName;
 
-	const IsParagraph: (selector: Node | null) => selector is HTMLParagraphElement = is('p');
-	const IsBr: (selector: Node | null) => selector is HTMLBRElement = is('br');
-	const IsImage: (selector: Node | null) => selector is HTMLImageElement = is('img');
-	const IsIFrame: (selector: Node | null) => selector is HTMLIFrameElement = is('iframe');
-	const IsVideo: (selector: Node | null) => selector is HTMLVideoElement = is('video');
 	const IsAnchor: (selector: Node | null) => selector is HTMLAnchorElement = is('a');
+	const IsBr: (selector: Node | null) => selector is HTMLBRElement = is('br');
+	const IsIFrame: (selector: Node | null) => selector is HTMLIFrameElement = is('iframe');
+	const IsImage: (selector: Node | null) => selector is HTMLImageElement = is('img');
+	const IsParagraph: (selector: Node | null) => selector is HTMLParagraphElement = is('p');
+	const IsSpan: (selector: Node | null) => selector is HTMLSpanElement = is('span');
+	const IsVideo: (selector: Node | null) => selector is HTMLVideoElement = is('video');
 
 	const CreateStyleVariable = (name: string, value: string): string =>
 		Str.Join(' ',
@@ -188,12 +190,13 @@ const DOMUtils = (): IDOMUtils => {
 		GetModeTag,
 		GetEmptyString,
 		GetNodeName,
-		IsParagraph,
-		IsBr,
-		IsImage,
-		IsIFrame,
-		IsVideo,
 		IsAnchor,
+		IsBr,
+		IsIFrame,
+		IsImage,
+		IsParagraph,
+		IsSpan,
+		IsVideo,
 		CreateStyleVariable,
 		WrapTagHTML,
 		EscapeComments,

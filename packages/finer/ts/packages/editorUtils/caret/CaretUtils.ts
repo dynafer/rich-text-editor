@@ -23,6 +23,7 @@ export interface ICaretUtils {
 	CleanRanges: () => void,
 	Refresh: () => void,
 	UpdateRange: (range: IRangeUtils) => void,
+	CreateFake: (startNode: Node, startOffset: number, endNode: Node, endOffset: number) => ICaretData,
 	Get: () => ICaretData | null,
 }
 
@@ -54,7 +55,7 @@ const CaretUtils = (editor: Editor): ICaretUtils => {
 	};
 
 	const getLine = (node: Node, offset: number, bRange: boolean, bStart: boolean): ILineData => {
-		const lines = self.GetLines();
+		const lines = self.GetLines(false);
 
 		if (node === self.GetBody()) {
 			const getChild = bStart ? DOM.Utils.GetFirstChild : DOM.Utils.GetLastChild;
@@ -137,6 +138,41 @@ const CaretUtils = (editor: Editor): ICaretUtils => {
 		Refresh();
 	};
 
+	const createFakeLineData = (node: Node, offset: number): ILineData => {
+		const lines = self.GetLines(false);
+
+		const Path = DOM.GetParents(node);
+		const Line = Arr.Find(lines, Path[0]);
+
+		return {
+			Node: node,
+			Offset: offset,
+			Path,
+			Line,
+		};
+	};
+
+	const CreateFake = (startNode: Node, startOffset: number, endNode: Node, endOffset: number): ICaretData => {
+		const Start = createFakeLineData(startNode, startOffset);
+		const End = createFakeLineData(endNode, endOffset);
+
+		let SameRoot: Node = startNode === endNode ? startNode : self.GetBody();
+		if (startNode !== endNode) {
+			for (let index = 0, length = Math.min(Start.Path.length, End.Path.length); index < length; ++index) {
+				if (Start.Path[index] !== End.Path[index]) break;
+				SameRoot = Start.Path[index];
+			}
+		}
+
+		return {
+			IsRange: () => startNode === endNode && startOffset === endOffset,
+			Start,
+			End,
+			Range: RangeUtils(),
+			SameRoot
+		};
+	};
+
 	const Get = (): ICaretData | null => {
 		Refresh();
 		return caret;
@@ -146,6 +182,7 @@ const CaretUtils = (editor: Editor): ICaretUtils => {
 		CleanRanges,
 		Refresh,
 		UpdateRange,
+		CreateFake,
 		Get,
 	};
 };

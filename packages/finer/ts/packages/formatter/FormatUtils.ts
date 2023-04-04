@@ -138,6 +138,17 @@ const FormatUtils = (): IFormatUtils => {
 			});
 
 		cleanRecursive(nodes);
+
+		const anchors = self.DOM.SelectAll<HTMLAnchorElement>('a');
+		Arr.WhileShift(anchors, anchor => {
+			const nextSibling = anchor.nextSibling;
+			if (!nextSibling || !DOM.Utils.IsAnchor(nextSibling) || nextSibling.href !== anchor.href) return;
+
+			DOM.Insert(anchor, ...DOM.GetChildNodes(nextSibling));
+			Arr.FindAndRemove(anchors, nextSibling);
+			DOM.Remove(nextSibling);
+			Arr.Unshift(anchors, anchor);
+		});
 	};
 
 	const CleanDirtyWithCaret = (editor: Editor, caret: ICaretData | null) => {

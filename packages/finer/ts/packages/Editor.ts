@@ -1,5 +1,4 @@
 import { Arr, Instance, Str } from '@dynafer/utils';
-import Options from '../Options';
 import Commander, { ICommander } from './commander/Commander';
 import DOM, { IDom, TEventListener } from './dom/DOM';
 import { IDOMTools } from './dom/DOMTools';
@@ -120,16 +119,43 @@ class Editor {
 		this.mScrollY = -1;
 	}
 
+	public Scroll(target: HTMLElement, duration: number = 800) {
+		const start = this.DOM.GetRoot().scrollTop;
+		const rect = this.DOM.GetRect(target);
+		const targetTop = rect?.top ?? target.offsetTop;
+		const targetHeight = rect?.height ?? target.offsetHeight;
+		const halfHeights = (this.DOM.Win.innerHeight / 2) - (targetHeight / 2);
+		const distance = targetTop - halfHeights;
+
+		let startTime: number | null = null;
+
+		const easeInOutQuad = (progress: number): number => {
+			const normalisedTime = progress / (duration / 2);
+			if (normalisedTime < 1) return 0.5 * normalisedTime * normalisedTime;
+			const adjustedTime = normalisedTime - 1;
+			return -0.5 * (adjustedTime * (adjustedTime - 2) - 1);
+		};
+
+		const animate = (currentTime: number) => {
+			if (startTime === null) startTime = currentTime;
+			const elapsedTime = currentTime - startTime;
+			const progress = easeInOutQuad(elapsedTime);
+			const scrollToPosition = start + distance * progress;
+			this.DOM.Win.scrollTo(0, scrollToPosition);
+
+			if (elapsedTime < duration) return this.DOM.Win.requestAnimationFrame(animate);
+		};
+
+		this.DOM.Win.requestAnimationFrame(animate);
+	}
+
 	public Focus() {
 		this.SaveScrollPosition();
 		const caret = this.Utils.Caret.Get();
 		let copiedRange: IRangeUtils | null = caret?.Range.Clone() ?? null;
 
 		const cells = DOM.Element.Table.GetSelectedCells(this);
-		if (!Arr.IsEmpty(cells)) {
-			Arr.Each(cells, cell => DOM.SetAttr(cell, Options.ATTRIBUTE_SELECTED));
-			return this.ScrollSavedPosition();
-		}
+		if (!Arr.IsEmpty(cells)) return this.ScrollSavedPosition();
 
 		if (!copiedRange) {
 			const newRange = this.Utils.Range();
