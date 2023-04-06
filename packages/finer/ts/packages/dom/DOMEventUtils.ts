@@ -19,11 +19,12 @@ const DOMEventUtils = (): IDOMEventUtils => {
 
 	const propertyName = 'finer-boundary-id';
 
-	const hasElementBoundaryId = (target: TEventTarget): boolean => !Obj.HasProperty(target, propertyName);
+	const hasElementBoundaryId = (target: TEventTarget): boolean => Obj.HasProperty(target, propertyName);
 
 	const getElementBoundaryId = (target: TEventTarget): string => {
+		const bHasId = hasElementBoundaryId(target);
 		const boundaryId = Obj.GetProperty<string>(target, propertyName) ?? Utils.CreateUUID();
-		if (!hasElementBoundaryId(target)) Obj.SetProperty(target, propertyName, boundaryId);
+		if (!bHasId) Obj.SetProperty(target, propertyName, boundaryId);
 		return boundaryId;
 	};
 

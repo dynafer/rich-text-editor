@@ -6,6 +6,7 @@ import Editor from './Editor';
 import EditorUtils from './editorUtils/EditorUtils';
 import EventSetup from './events/EventSetup';
 import Formatter from './formatter/Formatter';
+import { FooterManager } from './managers/FooterManager';
 import PluginManager from './managers/PluginManager';
 
 const EditorSetup = (editor: Editor): Promise<void> => {
@@ -90,8 +91,12 @@ const EditorSetup = (editor: Editor): Promise<void> => {
 
 		self.Utils = EditorUtils(self);
 		self.Plugin = PluginManager(self);
+		if (config.ShowFooter) self.Footer = FooterManager(self);
 		EventSetup(self);
 		self.Formatter = Formatter(self);
+		self.Footer?.UpdateCounter();
+
+		self.CleanDirty();
 
 		Finer.Loaders.Plugin.LoadParallel(config.Plugins)
 			.then(() => self.Plugin.AttachPlugin())

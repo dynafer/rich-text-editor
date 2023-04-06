@@ -156,7 +156,7 @@ const Table = (): ITable => {
 		!NodeType.IsNode(selector) ? false : DOMUtils.GetNodeName(selector) === RowSelector;
 
 	const IsTableCell = <T extends Node>(selector?: T | EventTarget | null): boolean =>
-		!NodeType.IsNode(selector) ? false : DOMUtils.GetNodeName(selector) === CellSelector;
+		!NodeType.IsNode(selector) ? false : CellSet.has(DOMUtils.GetNodeName(selector));
 
 	const GetClosest = <T extends Node>(selector?: T | EventTarget | null): HTMLTableElement | T | null =>
 		!NodeType.IsElement(selector) ? null : selector.closest(Selector);

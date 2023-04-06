@@ -7,7 +7,7 @@
 			transform: translateX(-50%);
 
 			.#{getClassName(notification-message)} {
-				@include flex(space-between);
+				@include flex($justify: space-between);
 				@include all-padding(0.5rem);
 				@include round(0.5rem);
 				@include font(1.15rem);
@@ -36,6 +36,10 @@
 			@include width(100%);
 			@include all-border(getVar(editor-border));
 			background-color: getVar(editor-bg);
+		}
+
+		& > iframe {
+			@include margin(rem, $bottom: -0.25);
 		}
 	}
 }

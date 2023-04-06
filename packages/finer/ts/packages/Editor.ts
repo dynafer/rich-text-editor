@@ -12,6 +12,8 @@ import { IEditorUtils } from './editorUtils/EditorUtils';
 import { IEvent } from './editorUtils/EventUtils';
 import { ENativeEvents } from './events/EventSetupUtils';
 import { IFormatter } from './formatter/Formatter';
+import FormatUtils from './formatter/FormatUtils';
+import { IFooterManager } from './managers/FooterManager';
 import { ENotificationStatus, INotificationManager, NotificationManager } from './managers/NotificationManager';
 import { IPluginManager } from './managers/PluginManager';
 
@@ -40,6 +42,7 @@ class Editor {
 	public Formatter!: IFormatter;
 	public readonly Toolbar: IEditorToolbar;
 	public Tools!: IEditorTools;
+	public Footer!: IFooterManager | null;
 
 	private mBody!: HTMLElement;
 	private mbDestroyed: boolean = false;
@@ -195,6 +198,11 @@ class Editor {
 	public GetLines(bArray: false): HTMLCollection;
 	public GetLines<T extends boolean>(bArray: T | true = true): T extends true ? Element[] : HTMLCollection {
 		return this.DOM.GetChildren(this.GetBody(), bArray);
+	}
+
+	public CleanDirty() {
+		const lines = this.GetLines(true);
+		Arr.WhileShift(lines, line => FormatUtils.CleanDirty(this, this.DOM.GetChildNodes(line)));
 	}
 
 	private setLoading(status: ELoadingStatus) {

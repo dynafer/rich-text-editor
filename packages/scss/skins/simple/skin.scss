@@ -54,14 +54,15 @@ $activeDefault: rgba(88, 183, 255, 0.7);
 :root {
 	#{getVarName(editor-bg)}: transparent;
 	#{getVarName(editor-border)}: #ececec;
+	#{getVarName(editor-opposite-bg)}: #000;
 
 	#{getVarName(modal-bg)}: #fff;
 	#{getVarName(modal-border)}: #c9c9c9;
 
 	#{getVarName(button-radius)}: 0.25rem;
 
-	@include make-button-variables(null, #2c8ed8, #2c8ed8, #fff, #fff);
-	@include make-button-variables(hover, #3486c5, #3486c5, #fff, #fff);
+	@include make-button-variables(null, transparent, transparent, #000, #000);
+	@include make-button-variables(hover, $hoverDefault, $hoverDefault, #000, #000);
 
 	@include make-button-variables(success, transparent, transparent, rgb(67, 206, 45), rgb(67, 206, 45));
 	@include make-button-variables(success-hover, $hoverDefault, $hoverDefault, rgb(61, 188, 42), rgb(61, 188, 42));

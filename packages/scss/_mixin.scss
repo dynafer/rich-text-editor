@@ -86,15 +86,15 @@
 	@include check-null(right, $right);
 }
 
-@mixin flex($justify: null, $align: null, $direction: null, $wrap: null, $inline: false) {
+@mixin flex($align: null, $justify: null, $direction: null, $wrap: null, $inline: false) {
 	@if $inline != false {
 		display: inline-flex;
 	} @else {
 		display: flex;
 	}
 
-	@include check-null(justify-content, $justify);
 	@include check-null(align-items, $align);
+	@include check-null(justify-content, $justify);
 	@include check-null(flex-direction, $direction);
 	@include check-null(flex-wrap, $wrap);
 }
@@ -151,7 +151,7 @@
 	@include all-margin(0.25rem);
 	@include padding(rem, 0.25, 0.4, 0.25, 0.4);
 	@include font(1rem);
-	@include flex(space-between, center, $inline: true);
+	@include flex(center, space-between, $inline: true);
 	cursor: pointer;
 
 	svg {

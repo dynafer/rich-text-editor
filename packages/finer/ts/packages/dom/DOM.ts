@@ -73,7 +73,7 @@ export interface IDom {
 	},
 	RemoveStyle: (selector: TElement, name: string) => void,
 	HasStyle: (selector: TElement, name: string, compareValue?: string) => boolean,
-	GetRect: (selector: HTMLElement | null) => DOMRect | null,
+	GetRect: (selector: TElement) => DOMRect | null,
 	GetText: (selector: TElement) => string,
 	GetHTML: (selector: TElement) => string,
 	GetOuterHTML: (selector: TElement) => string,

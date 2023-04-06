@@ -201,6 +201,7 @@ const InputUtils = (editor: Editor) => {
 	const escapeUselessTags = (html: string): string =>
 		DOM.Utils.EscapeComments(html)
 			.replace(/<\/?html.*?>/gs, '')
+			.replace(/<\/?head.*?>/gs, '')
 			.replace(/<\/?body.*?>/gs, '')
 			.replace(/(\r\n|\n|\r)/gm, '');
 

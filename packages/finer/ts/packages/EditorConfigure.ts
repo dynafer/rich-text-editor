@@ -6,7 +6,7 @@ import { EToolbarStyle } from './EditorToolbar';
 export type TConfigurationCallback<A, R> = ((...args: A[]) => R);
 export type TConfigurationCommon<A, R> = string | string[] | TConfigurationCallback<A, R> | RegExp | undefined;
 export type TConfigurationMap<A, R> = Record<string, TConfigurationCommon<A, R>>;
-type TConfigurationKey<A = unknown, R = unknown> = TConfigurationCommon<A, R> | TConfigurationMap<A, R> | TConfigurationMap<A, R>[] | HTMLElement | RegExp;
+type TConfigurationKey<A = unknown, R = unknown> = TConfigurationCommon<A, R> | TConfigurationMap<A, R> | TConfigurationMap<A, R>[] | HTMLElement | RegExp | boolean;
 
 export interface IEditorConfiguration {
 	selector?: HTMLElement,
@@ -32,11 +32,12 @@ export interface IConfiguration {
 	readonly ToolbarStyle: string,
 	readonly Plugins: string[],
 	readonly Skin: string,
+	readonly ShowFooter: boolean,
 	readonly [key: Capitalize<string>]: TConfigurationKey,
 }
 
 const Configure = (config: IEditorConfiguration): IConfiguration => {
-	const defaultConfigs: string[] = ['selector', 'mode', 'width', 'height', 'plugins', 'toolbar', 'toolbarGroup', 'toolbarStyle', 'skin'];
+	const defaultConfigs: string[] = ['selector', 'mode', 'width', 'height', 'plugins', 'toolbar', 'toolbarGroup', 'toolbarStyle', 'skin', 'showFooter'];
 
 	if (!config.selector || !Instance.IsElement(config.selector)) throw new Error('Configuration: selector must be an provided.');
 
@@ -89,6 +90,9 @@ const Configure = (config: IEditorConfiguration): IConfiguration => {
 	const skin = config.skin;
 	const Skin = skin && Type.IsString(skin) && !Str.IsEmpty(skin) ? skin : 'simple';
 
+	const showFooter = config.showFooter;
+	const ShowFooter = showFooter && Type.IsBoolean(showFooter) ? showFooter : true;
+
 	const configuration: IConfiguration = {
 		Id,
 		Selector,
@@ -100,6 +104,7 @@ const Configure = (config: IEditorConfiguration): IConfiguration => {
 		ToolbarGroup,
 		ToolbarStyle,
 		Skin,
+		ShowFooter,
 		...excludedDefaultConfiguration
 	};
 
