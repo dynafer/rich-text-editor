@@ -10,7 +10,7 @@
 		}
 
 		&[toolbar-style='float'] {
-			@include flex($align: center, $wrap: wrap);
+			@include flex(center, $wrap: wrap);
 			overflow: hidden;
 		}
 
@@ -111,7 +111,7 @@
 		}
 
 		.#{getClassName(toolbar-group)} {
-			@include flex($align: center, $inline: true);
+			@include flex(center, $inline: true);
 			@include margin(rem, $right: 0.6, $left: 0.6);
 			@include position(relative);
 
@@ -132,7 +132,7 @@
 		.#{getClassName(icon-group)} > *,
 		& > .#{getClassName(toolbar-group)} > *,
 		.#{getClassName(icon-wrap)} > .#{getClassName(icon-button)} {
-			@include flex($align: center, $inline: true);
+			@include flex(center, $inline: true);
 			@include round(getVar(toolbar-item-radius));
 			@include margin(rem, 0.2, 0.6, 0.2, 0.6);
 			@include all-padding(0.3rem);

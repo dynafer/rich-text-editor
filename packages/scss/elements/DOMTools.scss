@@ -94,12 +94,12 @@
 				@include round(getVar(media-menu-radius));
 				@include all-padding(0.2rem);
 				@include rectangle(9rem, 1.6rem);
-				@include flex(space-between, center);
+				@include flex(center, space-between);
 				background-color: getVar(media-menu-bg);
 
 				.#{getClassName(icon-group)} {
 					.#{getClassName(icon-button)} {
-						@include flex($align: center, $inline: true);
+						@include flex(center, $inline: true);
 						@include all-padding(0.2rem);
 						@include all-border(none);
 						@include round(getVar(media-menu-item-radius));

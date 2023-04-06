@@ -8,8 +8,9 @@ export interface IEditorInit {
 const EditorInit = (config: IEditorConfiguration): Promise<Editor> =>
 	new Promise((resolve, reject) => {
 		Finer.Loaders.Icon.Load('default')
+			.catch(() => reject('Can\'t find default icon pack.'))
 			.then(() => resolve(new Editor(config)))
-			.catch(() => reject('Can\'t find default icon pack.'));
+			.catch(console.error);
 	});
 
 export default EditorInit;

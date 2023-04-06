@@ -7,12 +7,13 @@ import RangeUtils, { IRangeUtils } from './RangeUtils';
 interface ILineData {
 	readonly Node: Node,
 	readonly Offset: number,
-	readonly Path: Node[],
+	readonly Path: Element[],
 	readonly Line: number,
 }
 
 export interface ICaretData {
 	IsRange: () => boolean,
+	IsBackward: () => boolean,
 	readonly Start: ILineData,
 	readonly End: ILineData,
 	readonly SameRoot: Node,
@@ -80,9 +81,9 @@ const CaretUtils = (editor: Editor): ICaretUtils => {
 			if (deepestChild) node = deepestChild;
 		}
 
-		const Path: Node[] = DOM.GetParents(node);
+		const Path = DOM.GetParents(node);
 
-		const Line: number = Arr.Find(lines, Path[0]);
+		const Line = Arr.Find(lines, Path[0]);
 
 		return {
 			Node: node,
@@ -118,11 +119,14 @@ const CaretUtils = (editor: Editor): ICaretUtils => {
 		if (!range || !DOM.Utils.IsChildOf(range.commonAncestorContainer, self.GetBody())) return;
 
 		const bRange = !range.collapsed;
+		const bBackward = selection.focusNode === range.startContainer;
 
 		const IsRange = (): boolean => bRange;
+		const IsBackward = () => bBackward;
 
 		caret = {
 			IsRange,
+			IsBackward,
 			Start: getLine(range.startContainer, range.startOffset, !range.collapsed, true),
 			End: getLine(range.endContainer, range.endOffset, !range.collapsed, false),
 			SameRoot: range.commonAncestorContainer,
@@ -166,6 +170,7 @@ const CaretUtils = (editor: Editor): ICaretUtils => {
 
 		return {
 			IsRange: () => startNode === endNode && startOffset === endOffset,
+			IsBackward: () => false,
 			Start,
 			End,
 			Range: RangeUtils(),

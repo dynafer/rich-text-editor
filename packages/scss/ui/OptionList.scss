@@ -80,7 +80,7 @@
 			}
 
 			& > .#{getClassName(option-item)}:last-child {
-				@include flex(space-between, center);
+				@include flex(center, space-between);
 				@include border(getVar(toolbar-item-option-select-border));
 				@include margin(rem, 0.5);
 				@include height(2.2rem);
@@ -90,7 +90,7 @@
 				@include all-padding(0.3rem);
 
 				button {
-					@include flex($align: center);
+					@include flex(center);
 					@include round(getVar(toolbar-item-radius));
 					@include all-border(none);
 					@include padding(rem, 0.3, 0.6, 0.3, 0.6);
@@ -179,7 +179,7 @@
 
 				.#{getClassName(input-placeholder)} {
 					@include position(absolute, 0.6rem, 0.5rem);
-					@include flex($align: center);
+					@include flex(center);
 					@include font($color: getVar(toolbar-input-placeholder-font));
 					background: none;
 					pointer-events: none;
@@ -195,7 +195,7 @@
 			}
 
 			.#{getClassName(button-group)} {
-				@include flex(center);
+				@include flex($justify: center);
 				@include margin(rem, 0.5);
 
 				button {
@@ -227,7 +227,7 @@
 
 		&:not([palette='true'], [table='true'], [url-input='true']) {
 			.#{getClassName(option-item)} {
-				@include flex($align: center);
+				@include flex(center);
 				@include all-padding(0.4rem);
 				@include height(2rem);
 				@include all-border(getVar(toolbar-item-border));

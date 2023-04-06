@@ -3,7 +3,7 @@ import { Arr, Obj, Str, Type } from '@dynafer/utils';
 import DOM from '../dom/DOM';
 import Editor from '../Editor';
 import { ICaretData } from '../editorUtils/caret/CaretUtils';
-import { BlockFormatTags } from './Format';
+import { AllBlockFormats, BlockFormatTags } from './Format';
 
 export type TConfigOption = string | string[] | Record<string, string>;
 
@@ -115,7 +115,8 @@ const FormatUtils = (): IFormatUtils => {
 				|| DOM.Utils.IsBr(DOM.Utils.GetFirstChild(target, true))
 				|| DOM.HasAttr(target, 'caret')
 				|| DOM.HasAttr(target, 'marker')
-				|| DOM.Element.Figure.IsFigure(target);
+				|| DOM.Element.Figure.IsFigure(target)
+				|| AllBlockFormats.has(DOM.Utils.GetNodeName(target));
 
 			if (!target) return result;
 

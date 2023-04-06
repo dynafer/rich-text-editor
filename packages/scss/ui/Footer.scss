@@ -1,0 +1,66 @@
+.#{$projectName} {
+	.#{getClassName(footer)} {
+		@include flex(center, space-between);
+		@include height(2rem);
+		@include all-border(getVar(editor-border));
+		@include margin(px, -1);
+		@include padding(rem, $right: 0.25, $left: 0.25);
+		background-color: getVar(editor-bg);
+
+		.#{getClassName(navigation)} {
+			@include flex(center);
+
+			button {
+				@include all-border(transparent);
+				@include font($color: getVar(editor-opposite-bg));
+				@include position(relative);
+				background-color: transparent;
+				cursor: pointer;
+
+				&:hover {
+					@include font($color: getVar(button-hover-font));
+					@include all-border(getVar(button-hover-border));
+					background-color: getVar(button-hover-bg);
+				}
+
+				&:not(:last-child) {
+					@include margin(px, $right: 1);
+
+					&:after {
+						@include position(absolute, 0px, $right: -2px);
+						@include rectangle(1px, 100%);
+						content: '';
+						background-color: getVar(editor-border);
+						z-index: 99999;
+					}
+				}
+			}
+		}
+
+		.#{getClassName(counter)} {
+			@include flex(center);
+
+			.#{getClassName(counter-wrap)} {
+				@include flex(center);
+
+				.#{getClassName(label)} {
+					@include margin(rem, $left: 0.5);
+				}
+
+				.#{getClassName(counter-word)},
+				.#{getClassName(counter-total)} {
+					@include margin(rem, $left: 0.1);
+					@include font($weight: bold);
+				}
+			}
+		}
+
+		@include mobile {
+			@include flex(center, flex-end);
+
+			.#{getClassName(navigation)} {
+				display: none;
+			}
+		}
+	}
+}
