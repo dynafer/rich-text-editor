@@ -1,0 +1,16 @@
+{
+	"extends": "../../../tsconfig.shared.json",
+	"references": [
+		{ "path": "../utils" }
+	],
+	"compilerOptions": {
+		"baseUrl": ".",
+		"rootDir": "ts",
+		"outDir": "build/lib",
+		"tsBuildInfoFile": "build/tsconfig.tsbuildinfo",
+		"paths": {
+			"@dynafer/utils": ["../utils/ts/Index"]
+		}
+	},
+	"include": ["ts/**/*.ts"]
+}

@@ -28,23 +28,23 @@ const Block = (editor: Editor, detector: IFormatDetector): IFormatUIRegistryUnit
 		HeadingStyle: {
 			bPreview: true,
 			Items: [
-				{ Format: Formats.Paragraph as IBlockFormat, Title: 'Normal' },
-				{ Format: Formats.Heading1 as IBlockFormat, Title: 'Heading1', Keys: 'Alt+Shift+1' },
-				{ Format: Formats.Heading2 as IBlockFormat, Title: 'Heading2', Keys: 'Alt+Shift+2' },
-				{ Format: Formats.Heading3 as IBlockFormat, Title: 'Heading3', Keys: 'Alt+Shift+3' },
-				{ Format: Formats.Heading4 as IBlockFormat, Title: 'Heading4', Keys: 'Alt+Shift+4' },
-				{ Format: Formats.Heading5 as IBlockFormat, Title: 'Heading5', Keys: 'Alt+Shift+5' },
-				{ Format: Formats.Heading6 as IBlockFormat, Title: 'Heading6', Keys: 'Alt+Shift+6' },
+				{ Format: Formats.Paragraph as IBlockFormat, Title: Finer.ILC.Get('format.normal') ?? 'Normal' },
+				{ Format: Formats.Heading1 as IBlockFormat, Title: Finer.ILC.Get('format.heading1') ?? 'Heading1', Keys: 'Alt+Shift+1' },
+				{ Format: Formats.Heading2 as IBlockFormat, Title: Finer.ILC.Get('format.heading2') ?? 'Heading2', Keys: 'Alt+Shift+2' },
+				{ Format: Formats.Heading3 as IBlockFormat, Title: Finer.ILC.Get('format.heading3') ?? 'Heading3', Keys: 'Alt+Shift+3' },
+				{ Format: Formats.Heading4 as IBlockFormat, Title: Finer.ILC.Get('format.heading4') ?? 'Heading4', Keys: 'Alt+Shift+4' },
+				{ Format: Formats.Heading5 as IBlockFormat, Title: Finer.ILC.Get('format.heading5') ?? 'Heading5', Keys: 'Alt+Shift+5' },
+				{ Format: Formats.Heading6 as IBlockFormat, Title: Finer.ILC.Get('format.heading6') ?? 'Heading6', Keys: 'Alt+Shift+6' },
 			],
 			DisableList: AllDisableList
 		},
 		BlockStyle: {
 			bPreview: false,
 			Items: [
-				{ Format: Formats.Paragraph as IBlockFormat, Title: 'Paragraph' },
-				{ Format: Formats.Div as IBlockFormat, Title: 'Div' },
-				{ Format: Formats.Blockquote as IBlockFormat, Title: 'Blockquote' },
-				{ Format: Formats.Pre as IBlockFormat, Title: 'Pre' },
+				{ Format: Formats.Paragraph as IBlockFormat, Title: Finer.ILC.Get('format.paragraph') ?? 'Paragraph' },
+				{ Format: Formats.Div as IBlockFormat, Title: Finer.ILC.Get('format.div') ?? 'Div' },
+				{ Format: Formats.Blockquote as IBlockFormat, Title: Finer.ILC.Get('format.blockquote') ?? 'Blockquote' },
+				{ Format: Formats.Pre as IBlockFormat, Title: Finer.ILC.Get('format.pre') ?? 'Pre' },
 			],
 			DisableList: AllDisableList
 		},

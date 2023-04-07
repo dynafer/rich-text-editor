@@ -1,3 +1,4 @@
+import Interlocaliser, { IInterlocaliser } from '@dynafer/interlocaliser';
 import Options, { IOptions } from './Options';
 import EditorInit, { IEditorInit } from './packages/EditorInit';
 import { ENativeEvents, PreventEvent } from './packages/events/EventSetupUtils';
@@ -13,12 +14,14 @@ declare global {
 interface IFiner {
 	readonly Loaders: {
 		readonly Icon: IScriptLoader,
+		readonly Language: IScriptLoader,
 		readonly Plugin: IPluginLoader,
 	},
 	readonly Icons: IIconManager,
 	readonly Options: IOptions,
 	readonly NativeEventMap: Record<ENativeEvents, ENativeEvents>,
 	readonly KeyCode: Record<EKeyCode, EKeyCode>,
+	readonly ILC: IInterlocaliser,
 	PreventEvent: EventListener,
 	Init: IEditorInit,
 }
@@ -26,13 +29,15 @@ interface IFiner {
 const Finer: IFiner = {
 	Loaders: {
 		Icon: ScriptLoader('Icon'),
+		Language: ScriptLoader('Language'),
 		Plugin: PluginLoader,
 	},
 	Icons: IconManager,
 	Options,
 	NativeEventMap: ENativeEvents,
 	KeyCode: EKeyCode,
-	PreventEvent: PreventEvent,
+	ILC: Interlocaliser,
+	PreventEvent,
 	Init: EditorInit,
 };
 

@@ -2,7 +2,6 @@ import { Str } from '@dynafer/utils';
 import { EModeEditor } from '../Options';
 import DOM from './dom/DOM';
 import { IConfiguration } from './EditorConfigure';
-import { CreateFooter } from './managers/FooterManager';
 
 export interface IEditorFrame {
 	readonly Root: HTMLElement,
@@ -10,7 +9,6 @@ export interface IEditorFrame {
 	readonly Notification: HTMLElement,
 	readonly Wrapper: HTMLElement,
 	readonly Container: HTMLElement | HTMLIFrameElement,
-	readonly Footer: HTMLElement | null,
 	readonly Loading: HTMLElement,
 }
 
@@ -61,8 +59,6 @@ const EditorFrame = (config: IConfiguration): IEditorFrame => {
 		class: DOM.Utils.CreateUEID(EModeEditor[config.Mode], false),
 	});
 
-	const Footer = config.ShowFooter ? CreateFooter() : null;
-
 	const loadingId = DOM.Utils.CreateUEID('loading', false);
 	const Loading = DOM.Create('div', {
 		attrs: {
@@ -74,7 +70,7 @@ const EditorFrame = (config: IConfiguration): IEditorFrame => {
 
 	DOM.Hide(Notification);
 
-	DOM.Insert(Wrapper, Notification, Container, Footer);
+	DOM.Insert(Wrapper, Notification, Container);
 	DOM.Insert(Root, Toolbar, Wrapper, Loading);
 	DOM.InsertAfter(config.Selector, Root);
 
@@ -84,7 +80,6 @@ const EditorFrame = (config: IConfiguration): IEditorFrame => {
 		Notification,
 		Wrapper,
 		Container,
-		Footer,
 		Loading,
 	};
 };

@@ -16,15 +16,22 @@ const MediaMenu = (editor: Editor, ui: IPluginMediaUI): IMediaMenu => {
 	const self = editor;
 	const DOM = self.DOM;
 
+	const floatLeft = Finer.ILC.Get('plugins.media.menu.floatLeft') ?? 'Align left with text wrapping';
+	const floatRight = Finer.ILC.Get('plugins.media.menu.floatRight') ?? 'Align right with text wrapping';
+
+	const alignLeft = Finer.ILC.Get('plugins.media.menu.alignLeft') ?? 'Align left with text break';
+	const alignCenter = Finer.ILC.Get('plugins.media.menu.alignCenter') ?? 'Align center with text break';
+	const alignRight = Finer.ILC.Get('plugins.media.menu.alignRight') ?? 'Align right with text break';
+
 	const uiFormats: Record<string, IPluginMediaMenuFormatUI[]> = {
 		Float: [
-			{ Name: 'Left', Title: 'Align left with text wrapping', Icon: 'MediaFloatLeft', Styles: { float: 'left' }, SameStyles: ['margin-left', 'margin-right'], bAsText: true },
-			{ Name: 'Right', Title: 'Align right with text wrapping', Icon: 'MediaFloatRight', Styles: { float: 'right' }, SameStyles: ['margin-left', 'margin-right'], bAsText: true },
+			{ Name: 'Left', Title: floatLeft, Icon: 'MediaFloatLeft', Styles: { float: 'left' }, SameStyles: ['margin-left', 'margin-right'], bAsText: true },
+			{ Name: 'Right', Title: floatRight, Icon: 'MediaFloatRight', Styles: { float: 'right' }, SameStyles: ['margin-left', 'margin-right'], bAsText: true },
 		],
 		Alignment: [
-			{ Name: 'Left', Title: 'Align left with text break', Icon: 'MediaAlignLeft', Styles: { marginLeft: '0px', marginRight: 'auto' }, SameStyles: ['float'] },
-			{ Name: 'Center', Title: 'Align center with text break', Icon: 'MediaAlignCenter', Styles: { marginLeft: 'auto', marginRight: 'auto' }, SameStyles: ['float'] },
-			{ Name: 'Right', Title: 'Align right with text break', Icon: 'MediaAlignRight', Styles: { marginLeft: 'auto', marginRight: '0px' }, SameStyles: ['float'] },
+			{ Name: 'Left', Title: alignLeft, Icon: 'MediaAlignLeft', Styles: { marginLeft: '0px', marginRight: 'auto' }, SameStyles: ['float'] },
+			{ Name: 'Center', Title: alignCenter, Icon: 'MediaAlignCenter', Styles: { marginLeft: 'auto', marginRight: 'auto' }, SameStyles: ['float'] },
+			{ Name: 'Right', Title: alignRight, Icon: 'MediaAlignRight', Styles: { marginLeft: 'auto', marginRight: '0px' }, SameStyles: ['float'] },
 		]
 	};
 

@@ -6,6 +6,7 @@ import { Hex, HSV, IHexUtils, IHSVUtils, IRGBAUtils, NAME, RGBA } from './utils/
 
 export interface IColorPickerSetting {
 	readonly Icons: Record<string, string>,
+	readonly Texts: Record<string, string>,
 	Pick: (rgb: string) => void,
 }
 
@@ -24,11 +25,12 @@ const ColorPicker = (): IColorPicker => {
 		if (!form) return;
 
 		const schema = Sketcher.Modal(NAME, {
-			Title: 'Color Picker',
+			Title: setting.Texts.Title,
 			Icons: setting.Icons,
 			Body: form.Form,
 			Footer: Footer(
 				setting.Icons,
+				setting.Texts,
 				() => schema.Schema.Destroy(),
 				() => {
 					const rgbString = form.Navigation.GetRGB(false);

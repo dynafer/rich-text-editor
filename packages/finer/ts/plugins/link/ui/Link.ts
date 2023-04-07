@@ -11,7 +11,7 @@ const Link = (editor: Editor) => {
 
 	const uiName = 'Link';
 	const uiFormat = {
-		Title: 'Insert a link',
+		Title: Finer.ILC.Get('plugins.link.title') ?? 'Insert/Edit a link',
 		Icon: 'Hyperlink'
 	};
 
@@ -46,13 +46,22 @@ const Link = (editor: Editor) => {
 			const createAnchor = createCallback(true);
 			const removeAnchor = createCallback(false);
 
+			const placeholderUpdate = Finer.ILC.Get('plugins.link.update') ?? 'Update the link';
+			const placeholderInsert = Finer.ILC.Get('plugins.link.insert') ?? 'Insert a link';
+
 			const { OptionWrapper, Input } = formatter.UI.CreateInputWrapWithOptionList({
 				uiName,
-				placeholder: bUpdatable ? 'Update the link' : 'Insert a link',
 				bUpdatable,
 				createCallback: createAnchor,
 				removeCallback: removeAnchor as () => void,
-				src: bUpdatable ? anchor.href : undefined
+				src: bUpdatable ? anchor.href : undefined,
+				texts: {
+					placeholder: bUpdatable ? placeholderUpdate : placeholderInsert,
+					cancel: Finer.ILC.Get('cancel') ?? 'Cancel',
+					insert: Finer.ILC.Get('insert') ?? 'Insert',
+					update: Finer.ILC.Get('update') ?? 'Update',
+					remove: Finer.ILC.Get('remove') ?? 'Remove',
+				}
 			});
 
 			DOM.Insert(self.Frame.Root, OptionWrapper);

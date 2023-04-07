@@ -12,7 +12,7 @@ const MediaInserter = (editor: Editor, ui: IPluginMediaUI) => {
 
 	const uiName = 'Media';
 	const uiFormat: IPluginsMediaFormatUI = {
-		Title: 'Insert a media',
+		Title: Finer.ILC.Get('plugins.media.title') ?? 'Insert/Edit a media',
 		Icon: 'Media'
 	};
 
@@ -70,13 +70,22 @@ const MediaInserter = (editor: Editor, ui: IPluginMediaUI) => {
 				DOM.Remove(figure);
 			};
 
+			const placeholderUpdate = Finer.ILC.Get('plugins.media.update') ?? 'Update the media URL';
+			const placeholderInsert = Finer.ILC.Get('plugins.media.insert') ?? 'Insert a media via URL';
+
 			const { OptionWrapper, Input } = formatUI.CreateInputWrapWithOptionList({
 				uiName,
-				placeholder: bUpdatable ? 'Update the media URL' : 'Insert an media via URL',
 				bUpdatable,
 				createCallback: createMedia,
 				removeCallback: removeMedia,
-				src: bUpdatable ? figureElement.src : undefined
+				src: bUpdatable ? figureElement.src : undefined,
+				texts: {
+					placeholder: bUpdatable ? placeholderUpdate : placeholderInsert,
+					cancel: Finer.ILC.Get('cancel') ?? 'Cancel',
+					insert: Finer.ILC.Get('insert') ?? 'Insert',
+					update: Finer.ILC.Get('update') ?? 'Update',
+					remove: Finer.ILC.Get('remove') ?? 'Remove',
+				}
 			});
 
 			DOM.Insert(self.Frame.Root, OptionWrapper);
