@@ -1,0 +1,26 @@
+{
+  "name": "@dynafer/interlocaliser",
+  "version": "0.0.1",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/finer-group/finer-editor.git",
+    "directory": "packages/dynafer/interlocaliser"
+  },
+  "author": "Dynafer",
+  "scripts": {
+    "prepublishOnly": "yarn run build",
+    "build": "tsc -b",
+    "lint": "eslint -c ../../../.eslintrc.json ts/*.ts"
+  },
+  "dependencies": {
+    "tslib": "^2.5.0"
+  },
+  "type": "module",
+  "main": "build/lib/Interlocaliser.js",
+  "module": "build/lib/Interlocaliser.js",
+  "types": "build/lib/Interlocaliser.d.ts",
+  "publishConfig": {
+    "access": "public"
+  },
+  "license": "MIT"
+}

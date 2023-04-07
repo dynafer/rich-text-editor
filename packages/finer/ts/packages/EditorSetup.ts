@@ -6,7 +6,7 @@ import Editor from './Editor';
 import EditorUtils from './editorUtils/EditorUtils';
 import EventSetup from './events/EventSetup';
 import Formatter from './formatter/Formatter';
-import { FooterManager } from './managers/FooterManager';
+import FooterManager from './managers/FooterManager';
 import PluginManager from './managers/PluginManager';
 
 const EditorSetup = (editor: Editor): Promise<void> => {

@@ -38,7 +38,8 @@ const Options = (): IOptions => {
 		PREFIX: URL_PREFIX,
 		CSS: `${URL_PREFIX}`,
 		PLUGIN: `${URL_PREFIX}/plugins`,
-		ICON: `${URL_PREFIX}/icons`
+		ICON: `${URL_PREFIX}/icons`,
+		LANGUAGE: `${URL_PREFIX}/langs`,
 	};
 
 	const JoinURL = (type: string, name: string): string => {
@@ -52,6 +53,9 @@ const Options = (): IOptions => {
 			case 'icon':
 				if (!Str.Contains(name, '.js')) name = `${name}/icons.min.js`;
 				return `${URLS.ICON}/${name}`;
+			case 'language':
+				if (!Str.Contains(name, '.js')) name = `${name}.js`;
+				return `${URLS.LANGUAGE}/${name}`;
 			default:
 				return `${URLS.PREFIX}/${name}`;
 		}

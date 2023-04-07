@@ -24,13 +24,13 @@ const Inline = (editor: Editor, detector: IFormatDetector): IFormatUIRegistryUni
 	const inlineFont = InlineFont(self, detector);
 
 	const InlineFormats: Record<string, IInlineFormatUI> = {
-		Bold: { Format: Formats.Bold as IInlineFormat[], Title: 'Bold', Icon: 'Bold', Keys: 'Ctrl+B' },
-		Italic: { Format: Formats.Italic as IInlineFormat[], Title: 'Italic', Icon: 'Italic', Keys: 'Ctrl+I' },
-		Strikethrough: { Format: Formats.Strikethrough as IInlineFormat[], Title: 'Strikethrough', Icon: 'Strikethrough' },
-		Subscript: { Format: Formats.Subscript as IInlineFormat, Title: 'Subscript', Icon: 'Subscript' },
-		Superscript: { Format: Formats.Superscript as IInlineFormat, Title: 'Superscript', Icon: 'Superscript' },
-		Underline: { Format: Formats.Underline as IInlineFormat[], Title: 'Underline', Icon: 'Underline', Keys: 'Ctrl+U' },
-		Code: { Format: Formats.Code as IInlineFormat, Title: 'Code', Icon: 'Code' },
+		Bold: { Format: Formats.Bold as IInlineFormat[], Title: Finer.ILC.Get('format.bold') ?? 'Bold', Icon: 'Bold', Keys: 'Ctrl+B' },
+		Italic: { Format: Formats.Italic as IInlineFormat[], Title: Finer.ILC.Get('format.italic') ?? 'Italic', Icon: 'Italic', Keys: 'Ctrl+I' },
+		Strikethrough: { Format: Formats.Strikethrough as IInlineFormat[], Title: Finer.ILC.Get('format.strikethrough') ?? 'Strikethrough', Icon: 'Strikethrough' },
+		Subscript: { Format: Formats.Subscript as IInlineFormat, Title: Finer.ILC.Get('format.subscript') ?? 'Subscript', Icon: 'Subscript' },
+		Superscript: { Format: Formats.Superscript as IInlineFormat, Title: Finer.ILC.Get('format.superscript') ?? 'Superscript', Icon: 'Superscript' },
+		Underline: { Format: Formats.Underline as IInlineFormat[], Title: Finer.ILC.Get('format.underline') ?? 'Underline', Icon: 'Underline', Keys: 'Ctrl+U' },
+		Code: { Format: Formats.Code as IInlineFormat, Title: Finer.ILC.Get('format.code') ?? 'Code', Icon: 'Code' },
 	};
 
 	const UINames = Obj.Keys(InlineFormats);

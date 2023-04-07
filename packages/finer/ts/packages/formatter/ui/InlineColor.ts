@@ -26,14 +26,14 @@ const InlineColor = (editor: Editor, detector: IFormatDetector): IFormatUIRegist
 	const ColorFormats: Record<string, IInlineFormatColorPickerUI> = {
 		ForeColor: {
 			Format: Formats.ForeColor as IInlineFormat,
-			Title: 'Text color',
+			Title: Finer.ILC.Get('format.textColor') ?? 'Text color',
 			DefaultColor: ColorPicker.Utils.RGBA.ToRGB(255, 0, 0),
 			Icon: 'ColorA',
 			LastPicked: [],
 		},
 		BackColor: {
 			Format: Formats.BackColor as IInlineFormat,
-			Title: 'Back color',
+			Title: Finer.ILC.Get('format.backColor') ?? 'Back color',
 			DefaultColor: ColorPicker.Utils.RGBA.ToRGB(255, 0, 0),
 			Icon: 'Fill',
 			LastPicked: [],
@@ -99,7 +99,7 @@ const InlineColor = (editor: Editor, detector: IFormatDetector): IFormatUIRegist
 	const createResetButton = (uiName: string, uiFormat: IInlineFormatColorPickerUI): HTMLElement => {
 		const { DefaultColor } = uiFormat;
 
-		const defaultColorText = 'Default color';
+		const defaultColorText = Finer.ILC.Get('format.color.default') ?? 'Default color';
 		const defaultColorHTML = DOM.Utils.WrapTagHTML('button', Str.Merge(
 			DOM.Utils.WrapTagHTML('div', ''),
 			DOM.Utils.WrapTagHTML('span', defaultColorText)
@@ -115,7 +115,7 @@ const InlineColor = (editor: Editor, detector: IFormatDetector): IFormatUIRegist
 	const createFooter = (uiName: string, uiFormat: IInlineFormatColorPickerUI): HTMLElement => {
 		const { LastPicked } = uiFormat;
 
-		const moreText = 'More...';
+		const moreText = Finer.ILC.Get('more') ?? 'More...';
 
 		const footer = FormatUI.CreateOption('', moreText, false, false);
 		const lastPickedList = FormatUI.CreateItemGroup();
@@ -131,6 +131,11 @@ const InlineColor = (editor: Editor, detector: IFormatDetector): IFormatUIRegist
 				Icons: {
 					Check: Finer.Icons.Get('Check'),
 					Close: Finer.Icons.Get('Close')
+				},
+				Texts: {
+					Title: Finer.ILC.Get('colorpicker') ?? 'Color Picker',
+					Cancel: Finer.ILC.Get('cancel') ?? 'Cancel',
+					Confirm: Finer.ILC.Get('confirm') ?? 'Confirm',
 				},
 				Pick: (rgb: string) => FormatUI.RunCommand<boolean | string>(self, uiName, true, rgb),
 			}));

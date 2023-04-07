@@ -3,6 +3,7 @@
 	"references": [
 		{ "path": "../dynafer/colorpicker" },
 		{ "path": "../dynafer/dom-control" },
+		{ "path": "../dynafer/interlocaliser" },
 		{ "path": "../dynafer/sketcher" },
 		{ "path": "../dynafer/utils" }
 	],
@@ -17,6 +18,7 @@
 
 			"@dynafer/colorpicker": ["../dynafer/colorpicker/ts/ColorPicker"],
 			"@dynafer/dom-control": ["../dynafer/dom-control/ts/DOMControl"],
+			"@dynafer/interlocaliser": ["packages/dynafer/interlocaliser/ts/Interlocaliser"],
 			"@dynafer/sketcher": ["../dynafer/sketcher/ts/Sketcher"],
 			"@dynafer/utils": ["../dynafer/utils/ts/Index"]
 		}

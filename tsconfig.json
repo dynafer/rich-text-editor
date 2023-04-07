@@ -7,6 +7,7 @@
 
 			"@dynafer/colorpicker": ["packages/dynafer/colorpicker/ts/ColorPicker"],
 			"@dynafer/dom-control": ["packages/dynafer/dom-control/ts/DOMControl"],
+			"@dynafer/interlocaliser": ["packages/dynafer/interlocaliser/ts/Interlocaliser"],
 			"@dynafer/sketcher": ["packages/dynafer/sketcher/ts/Sketcher"],
 			"@dynafer/utils": ["packages/dynafer/utils/ts/Index"]
 		}

@@ -13,7 +13,9 @@ const counterId = DOM.Utils.CreateUEID('counter', false);
 const wordCounterId = DOM.Utils.CreateUEID('counter-word', false);
 const totalCounterId = DOM.Utils.CreateUEID('counter-total', false);
 
-const CreateFooter = (): HTMLElement => {
+const FooterManager = (editor: Editor): IFooterManager | null => {
+	const self = editor;
+
 	const create = (id: string): HTMLElement => DOM.Create('div', {
 		attrs: { id },
 		class: id
@@ -24,6 +26,7 @@ const CreateFooter = (): HTMLElement => {
 			class: DOM.Utils.CreateUEID('counter-wrap', false),
 			children: [
 				DOM.Create('div', {
+					attrs: { title: label },
 					class: DOM.Utils.CreateUEID('label', false),
 					html: Str.Merge(label, ':')
 				}),
@@ -39,21 +42,16 @@ const CreateFooter = (): HTMLElement => {
 	const navigation = create(navigationId);
 
 	const counter = create(counterId);
-	DOM.Insert(counter, createCounter('Words', wordCounterId), createCounter('Total', totalCounterId));
+	const wordCounterWrapper = createCounter(Finer.ILC.Get('counter.words') ?? 'Words', wordCounterId);
+	const totalCounterWrapper = createCounter(Finer.ILC.Get('counter.total') ?? 'Total', totalCounterId);
+	DOM.Insert(counter, wordCounterWrapper, totalCounterWrapper);
 
 	DOM.Insert(footer, navigation, counter);
 
-	return footer;
-};
+	DOM.InsertAfter(self.Frame.Container, footer);
 
-const FooterManager = (editor: Editor): IFooterManager | null => {
-	const self = editor;
-	if (!self.Frame.Footer) return null;
-
-	const footer = self.Frame.Footer;
-	const navigation = DOM.Select({ attrs: { id: navigationId } }, footer);
-	const wordCounter = DOM.Select({ attrs: { id: wordCounterId } }, footer);
-	const totalCounter = DOM.Select({ attrs: { id: totalCounterId } }, footer);
+	const wordCounter = DOM.Select({ attrs: { id: wordCounterId } }, wordCounterWrapper);
+	const totalCounter = DOM.Select({ attrs: { id: totalCounterId } }, totalCounterWrapper);
 
 	let regexBlockTags: RegExp;
 
@@ -176,7 +174,4 @@ const FooterManager = (editor: Editor): IFooterManager | null => {
 	};
 };
 
-export {
-	CreateFooter,
-	FooterManager,
-};
+export default FooterManager;

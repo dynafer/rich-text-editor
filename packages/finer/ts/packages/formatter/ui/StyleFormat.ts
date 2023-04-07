@@ -33,10 +33,10 @@ const StyleFormat = (editor: Editor, detector: IFormatDetector): IFormatUIRegist
 	const StyleFormats: Record<string, IStyleFormatUI> = {
 		Alignment: {
 			Items: [
-				{ Format: Formats.Justify as IStyleFormat, Title: 'Justify', Icon: 'AlignJustify', bDetector: true },
-				{ Format: Formats.AlignLeft as IStyleFormat[], Title: 'Align left', Icon: 'AlignLeft', bDetector: true },
-				{ Format: Formats.AlignCenter as IStyleFormat[], Title: 'Align center', Icon: 'AlignCenter', bDetector: true },
-				{ Format: Formats.AlignRight as IStyleFormat[], Title: 'Align right', Icon: 'AlignRight', bDetector: true },
+				{ Format: Formats.Justify as IStyleFormat, Title: Finer.ILC.Get('format.alignJustify') ?? 'Justify', Icon: 'AlignJustify', bDetector: true },
+				{ Format: Formats.AlignLeft as IStyleFormat[], Title: Finer.ILC.Get('format.alignLeft') ?? 'Align left', Icon: 'AlignLeft', bDetector: true },
+				{ Format: Formats.AlignCenter as IStyleFormat[], Title: Finer.ILC.Get('format.alignCenter') ?? 'Align center', Icon: 'AlignCenter', bDetector: true },
+				{ Format: Formats.AlignRight as IStyleFormat[], Title: Finer.ILC.Get('format.alignRight') ?? 'Align right', Icon: 'AlignRight', bDetector: true },
 			]
 		},
 		Indentation: {
@@ -44,8 +44,8 @@ const StyleFormat = (editor: Editor, detector: IFormatDetector): IFormatUIRegist
 			DefaultValue: FormatUtils.GetPixcelFromRoot(),
 			bCalculate: true,
 			Items: [
-				{ Format: Formats.Outdent as IStyleFormat, Title: 'Outdent', Icon: 'Outdent', bDetector: true, bSubtract: true, Keys: 'Shift+Tab' },
-				{ Format: Formats.Indent as IStyleFormat, Title: 'Indent', Icon: 'Indent', bDetector: false, Keys: 'Tab' },
+				{ Format: Formats.Outdent as IStyleFormat, Title: Finer.ILC.Get('format.Outdent') ?? 'Outdent', Icon: 'Outdent', bDetector: true, bSubtract: true, Keys: 'Shift+Tab' },
+				{ Format: Formats.Indent as IStyleFormat, Title: Finer.ILC.Get('format.Indent') ?? 'Indent', Icon: 'Indent', bDetector: false, Keys: 'Tab' },
 			]
 		}
 	};

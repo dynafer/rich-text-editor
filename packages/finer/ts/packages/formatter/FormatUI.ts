@@ -20,11 +20,17 @@ export interface IFormatUIInputWrap {
 
 export interface IFormatUIInputWrapOptions {
 	uiName: string,
-	placeholder: string,
 	bUpdatable: boolean,
 	createCallback: (input: HTMLInputElement) => void,
 	removeCallback?: () => void,
 	src?: string,
+	texts: {
+		placeholder: string,
+		cancel: string,
+		insert: string,
+		update: string,
+		remove: string,
+	};
 }
 
 export interface IFormatUIInputWrapWithOptionList {
@@ -183,12 +189,12 @@ const FormatUI = (): IFormatUI => {
 	};
 
 	const CreateInputWrapWithOptionList = (opts: IFormatUIInputWrapOptions): IFormatUIInputWrapWithOptionList => {
-		const { uiName, placeholder, bUpdatable, createCallback, removeCallback, src } = opts;
+		const { uiName, bUpdatable, createCallback, removeCallback, src, texts } = opts;
 		const OptionWrapper = CreateOptionList(uiName);
 		DOM.SetAttr(OptionWrapper, 'url-input', 'true');
 		DOM.On(OptionWrapper, Finer.NativeEventMap.click, event => Finer.PreventEvent(event));
 
-		const { Wrapper, Input } = CreateInputWrap(placeholder);
+		const { Wrapper, Input } = CreateInputWrap(texts.placeholder);
 		if (src) Input.value = src;
 
 		const callback = () => {
@@ -213,25 +219,27 @@ const FormatUI = (): IFormatUI => {
 
 		const cancelButton = Create({
 			tagName: 'button',
-			title: 'Cancel',
-			html: Str.Merge(Finer.Icons.Get('Close'), 'Cancel')
+			title: texts.cancel,
+			html: Str.Merge(Finer.Icons.Get('Close'), texts.cancel)
 		});
 		DOM.On(cancelButton, Finer.NativeEventMap.click, () => DOM.Doc.body.click());
 		Arr.Push(buttons, cancelButton);
 
+		const insertText = !bUpdatable ? texts.insert : texts.update;
 		const insertButton = Create({
 			tagName: 'button',
-			title: !bUpdatable ? 'Insert' : 'Update',
-			html: Str.Merge(Finer.Icons.Get('Check'), !bUpdatable ? 'Insert' : 'Update')
+			title: insertText,
+			html: Str.Merge(Finer.Icons.Get('Check'), insertText)
 		});
 		DOM.On(insertButton, Finer.NativeEventMap.click, callback);
 		Arr.Push(buttons, insertButton);
 
 		if (bUpdatable && Type.IsFunction(removeCallback)) {
+			const removeText = texts.remove;
 			const removeButton = Create({
 				tagName: 'button',
-				title: 'Remove',
-				html: Str.Merge(Finer.Icons.Get('Trash'), 'Remove')
+				title: removeText,
+				html: Str.Merge(Finer.Icons.Get('Trash'), removeText)
 			});
 			DOM.On(removeButton, Finer.NativeEventMap.click, () => {
 				DOM.Doc.body.click();
