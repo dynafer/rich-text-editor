@@ -104,6 +104,12 @@
 						fill: getVar(tools-menu-item-icon-fill);
 					}
 
+					&[data-remove] {
+						svg {
+							fill: getVar(tools-menu-item-remove-fill);
+						}
+					}
+
 					&:hover {
 						background-color: getVar(tools-menu-item-hover-bg);
 					}

@@ -93,6 +93,7 @@ $activeDefault: rgba(88, 183, 255, 0.7);
 	#{getVarName(tools-menu-item-radius)}: 0.25rem;
 	#{getVarName(tools-menu-item-hover-bg)}: $hoverDefault;
 	#{getVarName(tools-menu-item-active-bg)}: $activeDefault;
+	#{getVarName(tools-menu-item-remove-fill)}: #cf3939;
 
 	#{getVarName(format-code-hover-bg)}: $hoverDefault;
 	#{getVarName(format-code-focused-bg)}: $activeDefault;

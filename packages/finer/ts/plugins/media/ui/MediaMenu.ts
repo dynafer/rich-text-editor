@@ -84,9 +84,10 @@ const MediaMenu = (editor: Editor, ui: IPluginMediaUI): IMediaMenu => {
 		});
 
 		const button = DOM.Create('button', {
-			attrs: {
-				title: removeFigure,
-			},
+			attrs: [
+				'data-remove',
+				{ title: removeFigure }
+			],
 			class: DOM.Utils.CreateUEID('icon-button', false),
 			html: Finer.Icons.Get(Finer.Icons.Get('Trash'))
 		});
