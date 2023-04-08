@@ -30,6 +30,13 @@
 		}
 	}
 
+	blockquote {
+		@include padding(rem, $left: 2, $right: 2);
+		@include border($left: #ccc, $size: 5px);
+		@include margin($left: 0, $right: 0);
+		font-style: italic;
+	}
+
 	a {
 		text-decoration: none;
 

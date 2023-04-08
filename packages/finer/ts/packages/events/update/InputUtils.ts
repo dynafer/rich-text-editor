@@ -27,6 +27,32 @@ const InputUtils = (editor: Editor) => {
 		}, fragment);
 
 		Arr.WhileShift(figureElements, element => {
+			if (DOM.Element.Table.IsTable(element)) {
+				const columnGroups = DOM.SelectAll('colgroup', element);
+				Arr.WhileShift(columnGroups, columnGroup => DOM.Remove(columnGroup));
+				DOM.SetAttrs(element, {
+					contenteditable: 'true',
+					border: '1'
+				});
+
+				const widthColumns = DOM.SelectAll({
+					attrs: ['width']
+				}, element);
+				Arr.WhileShift(widthColumns, widthColumn => {
+					DOM.SetStyle(widthColumn, 'width', `${DOM.GetAttr(widthColumn, 'width')}px`);
+					DOM.RemoveAttr(widthColumn, 'width');
+				});
+
+				const heightColumns = DOM.SelectAll({
+					attrs: ['width']
+				}, element);
+				Arr.WhileShift(heightColumns, heightColumn => {
+					DOM.SetStyle(heightColumn, 'height', `${DOM.GetAttr(heightColumn, 'height')}px`);
+					DOM.RemoveAttr(heightColumn, 'height');
+				});
+
+				DOM.RemoveAttrs(element, 'width', 'height');
+			}
 			if (!!DOM.Element.Figure.GetClosest(element)) return;
 
 			const figure = DOM.Element.Figure.Create(DOM.Utils.GetNodeName(element));
