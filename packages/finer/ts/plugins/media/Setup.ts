@@ -1,7 +1,6 @@
 import { Arr, Type } from '@dynafer/utils';
 import Editor from '../../packages/Editor';
 import { TConfigurationMap } from '../../packages/EditorConfigure';
-import MediaMenuEvents from './events/MediaMenuEvents';
 import UI from './UI';
 import ImageUploader from './ui/ImageUploader';
 import MediaInserter from './ui/MediaInserter';
@@ -22,9 +21,7 @@ const Setup = (editor: Editor) => {
 	toolsManager.Attach({
 		name: 'media',
 		partAttachers: [parts.Create],
-		partPositionListeners: [parts.ChangePosition]
 	});
-	MediaMenuEvents(self).Register();
 
 	if (Type.IsArray(self.Config.MediaUrlPatterns)) {
 		const matchers = self.Config.MediaUrlPatterns as TConfigurationMap<string, string>[];

@@ -1,5 +1,6 @@
 import { Attribute, NodeType } from '@dynafer/dom-control';
 import { Arr, Obj, Str } from '@dynafer/utils';
+import Editor from '../../Editor';
 import DOMUtils from '../DOMUtils';
 import Table from './Table';
 
@@ -26,6 +27,7 @@ export interface IFigure {
 	},
 	IsFigure: (selector?: Node | EventTarget | null) => selector is HTMLElement,
 	GetClosest: <T extends Node>(selector?: T | EventTarget | null) => HTMLElement | T | null,
+	Remove: (editor: Editor, target: Node) => void,
 }
 
 const Figure = (): IFigure => {
@@ -91,6 +93,29 @@ const Figure = (): IFigure => {
 	const GetClosest = <T extends Node>(selector?: T | EventTarget | null): HTMLElement | T | null =>
 		!NodeType.IsElement(selector) ? null : selector.closest(Selector);
 
+	const Remove = (editor: Editor, target: Node) => {
+		const self = editor;
+		const DOM = self.DOM;
+
+		const figure = GetClosest<HTMLElement>(target);
+		if (!figure) return;
+
+		const newRange = self.Utils.Range();
+
+		if (figure.nextElementSibling) {
+			const firstChild = DOM.Utils.GetFirstChild(figure, true);
+			if (firstChild) newRange.SetStartToEnd(firstChild, 0, 0);
+		} else if (figure.previousElementSibling) {
+			const lastChild = DOM.Utils.GetLastChild(figure, true);
+			const offset = NodeType.IsText(lastChild) ? lastChild.length : 0;
+			if (lastChild) newRange.SetStartToEnd(lastChild, offset, offset);
+		}
+
+		DOM.Remove(figure, true);
+		self.Utils.Caret.UpdateRange(newRange);
+		self.Utils.Shared.DispatchCaretChange();
+	};
+
 	return {
 		Selector,
 		FigureTypeSetMap,
@@ -102,6 +127,7 @@ const Figure = (): IFigure => {
 		Find,
 		IsFigure,
 		GetClosest,
+		Remove,
 	};
 };
 

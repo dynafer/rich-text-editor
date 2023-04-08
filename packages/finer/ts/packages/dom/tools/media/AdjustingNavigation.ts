@@ -16,7 +16,7 @@ const AdjustingNavigation = (editor: Editor, media: HTMLElement, fakeMedia: HTML
 			: 0;
 
 	const navigation = DOM.Create('div', {
-		class: DOM.Utils.CreateUEID('media-size-navigation', false),
+		class: DOM.Utils.CreateUEID('tools-size-navigation', false),
 	});
 
 	const getOriginalSize = (type: 'width' | 'height'): number => {

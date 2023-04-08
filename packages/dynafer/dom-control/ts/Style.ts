@@ -76,6 +76,9 @@ export const Remove = (selector: TElement, name: string) => {
 	if (Str.IsEmpty(selector.style.cssText)) Attribute.Remove(selector, 'style');
 };
 
+export const RemoveMultiple = (selector: TElement, ...names: string[]) =>
+	Arr.Each(names, name => Remove(selector, name));
+
 export const Has = (selector: TElement, name: string, compareValue?: string): boolean => {
 	if (!Obj.HasProperty<HTMLElement>(selector, 'style')) return false;
 

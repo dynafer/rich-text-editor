@@ -30,27 +30,6 @@
 		}
 	}
 
-	table {
-		@include all-margin(auto auto);
-		border-collapse: collapse;
-		box-sizing: border-box;
-
-		[data-selected] {
-			background-color: getVar(selected-color);
-		}
-
-		td,
-		th {
-			@include width($min: 2rem);
-			box-sizing: border-box;
-			white-space: nowrap;
-
-			p {
-				@include all-margin(0);
-			}
-		}
-	}
-
 	a {
 		text-decoration: none;
 
@@ -88,58 +67,101 @@
 			iframe {
 				pointer-events: none;
 			}
-
-			&[style*='float: left'] {
-				@include margin(rem, 0.5, 0.5, 0.5, 0);
-			}
-
-			&[style*='float: right'] {
-				@include margin(rem, 0.5, 0, 0.5, 0.5);
-			}
-
-			&[style*='margin-left: 0'][style*='margin-right: auto'],
-			&[style*='margin-left: 0px'][style*='margin-right: auto'] {
-				img,
-				iframe,
-				video,
-				audio,
-				div[data-fake] {
-					@include margin(null, $left: 0, $right: auto);
-					display: block;
-				}
-			}
-
-			&[style*='margin-left: auto'][style*='margin-right: auto'] {
-				img,
-				iframe,
-				video,
-				audio,
-				div[data-fake] {
-					@include all-margin(auto auto);
-					display: block;
-				}
-			}
-
-			&[style*='margin-left: auto'][style*='margin-right: 0'],
-			&[style*='margin-left: auto'][style*='margin-right: 0px'] {
-				img,
-				iframe,
-				video,
-				audio,
-				div[data-fake] {
-					@include margin(null, $left: auto, $right: 0);
-					display: block;
-				}
-			}
 		}
 
 		&[type='table'] {
 			@include margin($left: 0, $right: 0);
 
+			table {
+				border-collapse: collapse;
+				box-sizing: border-box;
+
+				[data-selected] {
+					background-color: getVar(selected-color);
+				}
+
+				td,
+				th {
+					@include width($min: 2rem);
+					box-sizing: border-box;
+					white-space: nowrap;
+
+					p {
+						@include all-margin(0);
+					}
+				}
+			}
+
 			&[data-focused] {
 				table {
 					@include position(relative);
 				}
+			}
+		}
+
+		&[style*='float: left'] {
+			@include margin(rem, 1.5, 1.5, 1.5, 0);
+		}
+
+		&[style*='float: right'] {
+			@include margin(rem, 1.5, 0, 1.5, 1.5);
+		}
+
+		&[style*='margin-left: 0'][style*='margin-right: auto'],
+		&[style*='margin-left: 0px'][style*='margin-right: auto'] {
+			img,
+			iframe,
+			video,
+			audio,
+			div[data-fake],
+			table {
+				@include margin(null, $left: 0, $right: auto);
+
+				&:not(table) {
+					display: block;
+				}
+			}
+		}
+
+		&[style*='margin-left: auto'][style*='margin-right: auto'] {
+			img,
+			iframe,
+			video,
+			audio,
+			div[data-fake],
+			table {
+				@include all-margin(auto auto);
+
+				&:not(table) {
+					display: block;
+				}
+			}
+		}
+
+		&[style*='margin-left: auto'][style*='margin-right: 0'],
+		&[style*='margin-left: auto'][style*='margin-right: 0px'] {
+			img,
+			iframe,
+			video,
+			audio,
+			div[data-fake],
+			table {
+				@include margin(null, $left: auto, $right: 0);
+
+				&:not(table) {
+					display: block;
+				}
+			}
+		}
+
+		table[data-adjusting] {
+			@include font($color: transparent);
+			border-style: dotted;
+
+			th,
+			td {
+				border-style: dotted;
+				white-space: nowrap;
 			}
 		}
 
@@ -171,9 +193,10 @@
 	}
 }
 
-.#{getClassName(media-size-navigation)} {
+.#{getClassName(tools-size-navigation)} {
 	@include position(absolute, 0, 0);
-	@include font($color: getVar(media-size-navigation-font));
+	@include font($color: getVar(tools-size-navigation-font));
 	@include all-padding(0.25rem);
-	background-color: getVar(media-size-navigation-bg);
+	background-color: getVar(tools-size-navigation-bg);
+	white-space: nowrap;
 }

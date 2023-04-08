@@ -80,19 +80,19 @@ $activeDefault: rgba(88, 183, 255, 0.7);
 	#{getVarName(selected-color)}: $hoverDefault;
 	#{getVarName(tool-default-color)}: $hoverDefault;
 
-	#{getVarName(media-size-navigation-bg)}: rgba(0, 0, 0, 0.6);
-	#{getVarName(media-size-navigation-font)}: #fff;
+	#{getVarName(tools-size-navigation-bg)}: rgba(0, 0, 0, 0.6);
+	#{getVarName(tools-size-navigation-font)}: #fff;
 
-	#{getVarName(media-menu-bg)}: #fff;
-	#{getVarName(media-menu-border)}: #ececec;
-	#{getVarName(media-menu-radius)}: 0.4rem;
+	#{getVarName(tools-menu-bg)}: #fff;
+	#{getVarName(tools-menu-border)}: #ececec;
+	#{getVarName(tools-menu-radius)}: 0.4rem;
 
-	#{getVarName(media-menu-item-bg)}: #fff;
-	#{getVarName(media-menu-item-border)}: #ececec;
-	#{getVarName(media-menu-item-icon-fill)}: #000;
-	#{getVarName(media-menu-item-radius)}: 0.25rem;
-	#{getVarName(media-menu-item-hover-bg)}: $hoverDefault;
-	#{getVarName(media-menu-item-active-bg)}: $activeDefault;
+	#{getVarName(tools-menu-item-bg)}: #fff;
+	#{getVarName(tools-menu-item-border)}: #ececec;
+	#{getVarName(tools-menu-item-icon-fill)}: #000;
+	#{getVarName(tools-menu-item-radius)}: 0.25rem;
+	#{getVarName(tools-menu-item-hover-bg)}: $hoverDefault;
+	#{getVarName(tools-menu-item-active-bg)}: $activeDefault;
 
 	#{getVarName(format-code-hover-bg)}: $hoverDefault;
 	#{getVarName(format-code-focused-bg)}: $activeDefault;

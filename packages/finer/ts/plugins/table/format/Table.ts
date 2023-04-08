@@ -69,11 +69,13 @@ const TableFormat = (editor: Editor) => {
 		const insertions = !blockNode ? [figure, EndBlock] : [EndBlock, figure];
 		insert(blockNode ?? self.GetBody(), ...insertions);
 
+		if (!DOM.Element.Figure.IsFigure(StartBlock) && Str.IsEmpty(DOM.GetText(StartBlock))) DOM.Remove(StartBlock);
+
 		finish();
 	};
 
 	return {
-		CreateFromCaret
+		CreateFromCaret,
 	};
 };
 

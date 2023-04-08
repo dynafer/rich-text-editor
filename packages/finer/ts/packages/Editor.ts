@@ -87,14 +87,9 @@ class Editor {
 		this.DOM.Dispatch(this.GetBody(), eventName);
 	}
 
-	public IsDestroyed(): boolean {
-		return this.mbDestroyed;
-	}
+	public IsDestroyed(): boolean { return this.mbDestroyed; }
 
-	public IsAdjusting(): boolean {
-		return this.mbAdjusting;
-	}
-
+	public IsAdjusting(): boolean { return this.mbAdjusting; }
 	public SetAdjusting(bAdjusting: boolean) { this.mbAdjusting = bAdjusting; }
 
 	public IsIFrame(): boolean {

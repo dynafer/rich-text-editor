@@ -57,6 +57,8 @@ const Media = (editor: Editor): IFormatMedia => {
 		const insertions = !blockNode ? [...figures, EndBlock] : [EndBlock, ...Arr.Reverse(figures)];
 		insert(blockNode ?? self.GetBody(), ...insertions);
 
+		if (!DOM.Element.Figure.IsFigure(StartBlock) && Str.IsEmpty(DOM.GetText(StartBlock))) DOM.Remove(StartBlock);
+
 		finish();
 	};
 

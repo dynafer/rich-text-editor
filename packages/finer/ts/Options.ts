@@ -21,6 +21,7 @@ export interface IOptions {
 	readonly ATTRIBUTE_ADJUSTING: string,
 	readonly ATTRIBUTE_FOCUSED: string,
 	readonly ATTRIBUTE_SELECTED: string,
+	readonly ATTRIBUTE_AS_TEXT: string,
 	readonly URLS: Record<string, string>,
 	JoinURL: (type: string, name: string) => string,
 }
@@ -32,6 +33,7 @@ const Options = (): IOptions => {
 	const ATTRIBUTE_ADJUSTING = 'data-adjusting';
 	const ATTRIBUTE_FOCUSED = 'data-focused';
 	const ATTRIBUTE_SELECTED = 'data-selected';
+	const ATTRIBUTE_AS_TEXT = 'data-as-text';
 	const URL_PREFIX: string = new URL(projectURL).href;
 
 	const URLS: Record<string, string> = {
@@ -68,6 +70,7 @@ const Options = (): IOptions => {
 		ATTRIBUTE_ADJUSTING,
 		ATTRIBUTE_FOCUSED,
 		ATTRIBUTE_SELECTED,
+		ATTRIBUTE_AS_TEXT,
 		URLS,
 		JoinURL,
 	};

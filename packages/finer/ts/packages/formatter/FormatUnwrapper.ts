@@ -122,7 +122,7 @@ const FormatUnwrapper = (editor: Editor): IFormatUnwrapper => {
 				}
 
 				const tempWrapped = wrapNeedless(child);
-				Obj.Keys(Styles, styleName => DOM.RemoveStyle(tempWrapped, styleName));
+				DOM.RemoveStyles(tempWrapped, ...Obj.Keys(Styles));
 
 				if (Str.IsEmpty(DOM.GetStyleText(tempWrapped))) {
 					Arr.Push(replacedNodes, child);
@@ -149,7 +149,7 @@ const FormatUnwrapper = (editor: Editor): IFormatUnwrapper => {
 		const closest = getClosestByStyles(node, Styles);
 		if (!closest || !StrictFormats.has(DOM.Utils.GetNodeName(closest))) return false;
 
-		Obj.Keys(Styles, styleName => DOM.RemoveStyle(closest, styleName));
+		DOM.RemoveStyles(closest, ...Obj.Keys(Styles));
 
 		return true;
 	};

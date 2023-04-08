@@ -60,12 +60,16 @@ export const MakeAbsolute = (editor: Editor, fakeFigure: IFakeFigure, figure: HT
 	const self = editor;
 	const DOM = self.DOM;
 
+	if (DOM.HasStyle(figure, 'float')) DOM.SetAttr(figure, 'dump-float', DOM.GetStyle(figure, 'float'));
+	if (DOM.HasStyle(figure, 'margin-left')) DOM.SetAttr(figure, 'dump-margin-left', DOM.GetStyle(figure, 'margin-left'));
+	if (DOM.HasStyle(figure, 'margin-right')) DOM.SetAttr(figure, 'dump-margin-right', DOM.GetStyle(figure, 'margin-right'));
+
 	DOM.SetStyles(figure, {
 		position: 'absolute',
-		width: `${fakeFigure.Figure.offsetWidth}px`,
-		height: `${fakeFigure.Figure.offsetHeight}px`,
 		left: `${getOriginalPosition(editor, fakeFigure, 'left')}px`,
 		top: `${getOriginalPosition(editor, fakeFigure, 'top')}px`,
+		width: `${fakeFigure.Figure.offsetWidth}px`,
+		height: `${fakeFigure.Figure.offsetHeight}px`,
 	});
 
 	DOM.SetStyles(figureElement, {
@@ -79,13 +83,22 @@ export const ResetAbsolute = (editor: Editor, figure: HTMLElement, figureElement
 	const self = editor;
 	const DOM = self.DOM;
 
-	DOM.RemoveStyle(figureElement, 'position');
-	DOM.RemoveStyle(figureElement, 'left');
-	DOM.RemoveStyle(figureElement, 'top');
+	DOM.RemoveStyles(figureElement, 'position', 'left', 'top');
+	DOM.RemoveStyles(figure, 'position', 'left', 'top', 'width', 'height');
 
-	DOM.RemoveStyle(figure, 'position');
-	DOM.RemoveStyle(figure, 'left');
-	DOM.RemoveStyle(figure, 'top');
-	DOM.RemoveStyle(figure, 'width');
-	DOM.RemoveStyle(figure, 'height');
+	const dumpFloat = DOM.GetAttr(figure, 'dump-float');
+	if (dumpFloat) {
+		DOM.SetStyle(figure, 'float', dumpFloat);
+		DOM.RemoveAttr(figure, 'dump-float');
+	}
+	const dumpMarginLeft = DOM.GetAttr(figure, 'dump-margin-left');
+	if (dumpMarginLeft) {
+		DOM.SetStyle(figure, 'margin-left', dumpMarginLeft);
+		DOM.RemoveAttr(figure, 'dump-margin-left');
+	}
+	const dumpMarginRight = DOM.GetAttr(figure, 'dump-margin-right');
+	if (dumpMarginRight) {
+		DOM.SetStyle(figure, 'margin-right', dumpMarginRight);
+		DOM.RemoveAttr(figure, 'dump-margin-right');
+	}
 };

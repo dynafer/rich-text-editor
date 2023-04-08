@@ -72,6 +72,7 @@ export interface IDom {
 		(selector: TElement, styles: Record<string, string>): void;
 	},
 	RemoveStyle: (selector: TElement, name: string) => void,
+	RemoveStyles: (selector: TElement, ...names: string[]) => void,
 	HasStyle: (selector: TElement, name: string, compareValue?: string) => boolean,
 	GetRect: (selector: TElement) => DOMRect | null,
 	GetText: (selector: TElement) => string,
@@ -188,6 +189,7 @@ const DOM = (opts: TDOMCreateOption): IDom => {
 		if (Str.IsEmpty(GetStyleText(selector))) return RemoveAttr(selector, Options.ATTRIBUTE_EDITOR_STYLE);
 		SetAttr(selector, Options.ATTRIBUTE_EDITOR_STYLE, GetStyleText(selector));
 	};
+	const RemoveStyles = (selector: TElement, ...names: string[]) => Arr.Each(names, name => RemoveStyle(selector, name));
 	const HasStyle = (selector: TElement, name: string, compareValue?: string): boolean =>
 		!NodeType.IsElement(selector) || !Type.IsString(name) ? false : Style.Has(selector, name, compareValue);
 
@@ -354,6 +356,7 @@ const DOM = (opts: TDOMCreateOption): IDom => {
 		SetStyle,
 		SetStyles,
 		RemoveStyle,
+		RemoveStyles,
 		HasStyle,
 		GetRect,
 		GetText,
