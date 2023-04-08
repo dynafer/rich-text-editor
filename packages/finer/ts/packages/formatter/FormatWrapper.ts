@@ -95,12 +95,7 @@ const FormatWrapper = (editor: Editor): IFormatWrapper => {
 
 		const styles = createStyleMap(Styles, value);
 
-		const removeStyles = () => {
-			if (!Type.IsArray(SameStyles)) return;
-			Arr.Each(SameStyles, styleName => DOM.RemoveStyle(parent, styleName));
-		};
-
-		removeStyles();
+		if (Type.IsArray(SameStyles)) DOM.RemoveStyles(parent, ...SameStyles);
 		mergeStyle(parent, styles);
 		return true;
 	};

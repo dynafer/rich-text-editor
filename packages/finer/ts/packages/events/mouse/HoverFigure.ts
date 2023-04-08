@@ -22,8 +22,9 @@ const HoverFigure = (editor: Editor, event: MouseEvent) => {
 		target = tool;
 	});
 	DOMTools.HideAll(target);
-	if (target) DOMTools.Show(target);
+	if (!target || !DOM.IsHidden(target)) return;
 
+	DOMTools.Show(target);
 	DOMTools.ChangePositions();
 };
 

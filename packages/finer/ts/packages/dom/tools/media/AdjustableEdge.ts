@@ -49,8 +49,8 @@ const AdjustableEdge = (editor: Editor, media: HTMLElement): HTMLElement => {
 
 		const adjustItem = event.target as HTMLElement;
 
-		let startOffsetX = event.clientX;
-		let startOffsetY = event.clientY;
+		let startOffsetX = event.pageX;
+		let startOffsetY = event.pageY;
 
 		const { Figure, FigureElement } = DOM.Element.Figure.Find<HTMLElement>(adjustItem);
 		if (!Figure || !FigureElement) return;
@@ -74,7 +74,7 @@ const AdjustableEdge = (editor: Editor, media: HTMLElement): HTMLElement => {
 		self.SaveScrollPosition();
 
 		const navigation = AdjustingNavigation(self, FigureElement, figureElement);
-		navigation.Update(startOffsetX, startOffsetY);
+		navigation.Update(event.clientX, event.clientY);
 
 		const fakeFigure = CreateFakeFigure(self, Figure, figureElement);
 		DOM.InsertBefore(Figure, fakeFigure.Figure);
@@ -93,8 +93,6 @@ const AdjustableEdge = (editor: Editor, media: HTMLElement): HTMLElement => {
 		const minLeft = figureElement.offsetLeft + (bLeft ? Math.max(minWidth - oldWidth, oldWidth - minWidth) : 0);
 		const minTop = figureElement.offsetTop + (bTop ? Math.max(minHeight - oldHeight, oldHeight - minHeight) : 0);
 
-		updateEdgePosition(figureElement);
-
 		const toggleWidth = !Str.IsEmpty(dumpWidth) ? DOM.SetStyle : DOM.RemoveStyle;
 		const toggleHeight = !Str.IsEmpty(dumpHeight) ? DOM.SetStyle : DOM.RemoveStyle;
 		toggleWidth(figureElement, 'width', dumpWidth);
@@ -107,19 +105,11 @@ const AdjustableEdge = (editor: Editor, media: HTMLElement): HTMLElement => {
 		const lineGroup = DOM.Select<HTMLElement>({ attrs: ['data-adjustable-line-group'] }, Figure);
 		DOM.Hide(lineGroup);
 
-		const bFigureRight = DOM.HasStyle(Figure, 'float', 'right')
-			|| (DOM.HasStyle(Figure, 'margin-left', 'auto') && !DOM.HasStyle(Figure, 'margin-right', 'auto'));
-
-		const adjustLeftDifference = minLeft - oldLeft + (bLeft ? 0 : (minWidth - oldWidth));
+		const adjustLeftDifference = (bLeft ? minLeft - oldLeft : oldLeft - minLeft) + (bLeft ? 0 : (minWidth - oldWidth));
 		const minimumOffsetX = startOffsetX + adjustLeftDifference;
-		const minimumAdjustPositionX = adjustItem.offsetLeft + adjustLeftDifference;
 
-		const adjustTopDifference = minTop - oldTop + (bTop ? 0 : (minHeight - oldHeight));
+		const adjustTopDifference = (bTop ? minTop - oldTop : oldTop - minTop) + (bTop ? 0 : (minHeight - oldHeight));
 		const minimumOffsetY = startOffsetY + adjustTopDifference;
-		const minimumAdjustPositionY = adjustItem.offsetTop + adjustTopDifference;
-
-		let bUpdatableX = true;
-		let bUpdatableY = true;
 
 		const isUpdatable = (bHorizontal: boolean, current: number): false | number => {
 			const bLeftOrTop = bHorizontal ? bLeft : bTop;
@@ -130,42 +120,30 @@ const AdjustableEdge = (editor: Editor, media: HTMLElement): HTMLElement => {
 			if (bHorizontal) startOffsetX = current;
 			else startOffsetY = current;
 
+			const figureSize = bHorizontal ? figureElement.offsetWidth : figureElement.offsetHeight;
+			const minimumSize = bHorizontal ? minWidth : minHeight;
 			const minimumOffset = bHorizontal ? minimumOffsetX : minimumOffsetY;
-			const minimumAdjustPosition = bHorizontal ? minimumAdjustPositionX : minimumAdjustPositionY;
-			const currentAdjustPosition = bHorizontal ? adjustItem.offsetLeft : adjustItem.offsetTop;
-
 			const offsetDifference = bLeftOrTop ? minimumOffset - current : current - minimumOffset;
-			const adjustDifference = bLeftOrTop ? minimumAdjustPosition - currentAdjustPosition : currentAdjustPosition - minimumAdjustPosition;
 
-			const bUpdatable = bHorizontal ? bUpdatableX : bUpdatableY;
+			if (figureSize + calculated > minimumSize && offsetDifference > 0) return calculated;
 
-			if (!bUpdatable) {
-				if (calculated < 0 || (offsetDifference <= 0 && adjustDifference <= 0)) return false;
+			DOM.SetStyle(figureElement, bHorizontal ? 'width' : 'height', `${bHorizontal ? minWidth : minHeight}px`);
+			if ((bHorizontal && bLeft) || (!bHorizontal && bTop))
+				DOM.SetStyle(figureElement, bHorizontal ? 'left' : 'top', `${bHorizontal ? minLeft : minTop}px`);
 
-				if (bHorizontal) bUpdatableX = true;
-				else bUpdatableY = true;
-				return calculated;
-			}
-
-			if (calculated < 0 && offsetDifference <= 0 && adjustDifference <= 0) {
-				if (bHorizontal) bUpdatableX = false;
-				else bUpdatableY = false;
-				return false;
-			}
-
-			return calculated;
+			return false;
 		};
 
 		const adjust = (e: MouseEvent) => {
 			PreventEvent(e);
 
-			const currentOffsetX = e.clientX;
-			const currentOffsetY = e.clientY;
+			const currentOffsetX = e.pageX;
+			const currentOffsetY = e.pageY;
 
 			const calculatedX = isUpdatable(true, currentOffsetX);
 			const calculatedY = isUpdatable(false, currentOffsetY);
 
-			navigation.Update(currentOffsetX, currentOffsetY);
+			navigation.Update(e.clientX, e.clientY);
 
 			if ((Type.IsBoolean(calculatedX) && !calculatedX) && (Type.IsBoolean(calculatedY) && !calculatedY)) return;
 
@@ -181,16 +159,10 @@ const AdjustableEdge = (editor: Editor, media: HTMLElement): HTMLElement => {
 				newStyle[bWidth ? 'left' : 'top'] = `${minPosition - newSize}px`;
 			};
 
-			if (!Type.IsBoolean(calculatedX)) updateSize('width', calculatedX, bLeft && !bFigureRight);
+			if (!Type.IsBoolean(calculatedX)) updateSize('width', calculatedX, bLeft);
 			if (!Type.IsBoolean(calculatedY)) updateSize('height', calculatedY, bTop);
 
 			DOM.SetStyles(figureElement, newStyle);
-
-			if (bLeft && bFigureRight && !Type.IsBoolean(calculatedX))
-				DOM.SetStyles(Figure, {
-					left: `${Figure.offsetLeft - parseFloat(DOM.GetStyle(Figure, 'margin-left', true)) - calculatedX}px`,
-					width: `${Figure.offsetWidth + calculatedX}px`
-				});
 
 			updateEdgePosition(figureElement);
 		};

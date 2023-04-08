@@ -3,7 +3,7 @@ import Options from '../../Options';
 import Editor from '../Editor';
 import DefaultParts from './tools/DefaultParts';
 import ToolsManager, { IToolsManager } from './tools/ToolsManager';
-import { ChangeAllPositions } from './tools/Utils';
+import { ADDABLE_TOOLS_MENU_TOP, ChangeAllPositions } from './tools/Utils';
 
 export interface IDOMTools {
 	readonly Manager: IToolsManager,
@@ -24,6 +24,22 @@ const DOMTools = (editor: Editor): IDOMTools => {
 	// Register default tools
 	Manager.Attach(DefaultParts.Media);
 	Manager.Attach(DefaultParts.Table);
+
+	DOM.On(DOM.Win, Finer.NativeEventMap.scroll, () =>
+		Arr.Each(DOM.SelectAll<HTMLElement>({ attrs: ['data-tools-menu'] }), menu => {
+			const { Figure, FigureElement } = DOM.Element.Figure.Find<HTMLElement>(menu);
+			if (!Figure || !FigureElement) return;
+
+			const yRange = DOM.Win.innerHeight + DOM.Win.scrollY;
+			const predictMenuBottomSide = Figure.offsetTop + Figure.offsetHeight + menu.offsetHeight;
+
+			const position = predictMenuBottomSide <= yRange
+				? `${FigureElement.offsetTop + FigureElement.offsetHeight + ADDABLE_TOOLS_MENU_TOP}px`
+				: `${FigureElement.offsetTop - menu.offsetHeight - ADDABLE_TOOLS_MENU_TOP}px`;
+
+			DOM.SetStyle(menu, 'top', position);
+		})
+	);
 
 	const Create = (type: string, element: HTMLElement): HTMLElement | null =>
 		Manager.Create(type, element);

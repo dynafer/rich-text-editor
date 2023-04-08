@@ -1,4 +1,5 @@
 import { Arr } from '@dynafer/utils';
+import Options from '../../../Options';
 import Editor from '../../Editor';
 import { ENativeEvents } from '../../events/EventSetupUtils';
 import { TEventListener } from '../DOM';
@@ -7,6 +8,7 @@ export const MOVABLE_ADDABLE_SIZE = 16;
 export const ADJUSTABLE_EDGE_ADDABLE_SIZE = -6;
 export const ADJUSTABLE_LINE_HALF_SIZE = 3;
 export const ADJUSTABLE_LINE_ADDABLE_SIZE = ADJUSTABLE_LINE_HALF_SIZE - (ADJUSTABLE_LINE_HALF_SIZE * 2);
+export const ADDABLE_TOOLS_MENU_TOP = 6;
 
 const getSizeWithPixel = (size: number, bWithPixel: boolean) => bWithPixel ? `${size}px` : size;
 
@@ -22,12 +24,21 @@ export const CreateAdjustableEdgeSize = <T extends boolean = false>(size: number
 export const CreateAdjustableLineSize = <T extends boolean = false>(size: number, bWithPixel: T | false = false): T extends false ? number : string =>
 	getSizeWithPixel(size + ADJUSTABLE_LINE_ADDABLE_SIZE, bWithPixel) as T extends false ? number : string;
 
+const getToolsMenu = (editor: Editor, target: HTMLElement): HTMLElement | null => {
+	const DOM = editor.DOM;
+
+	const { Figure } = DOM.Element.Figure.Find<HTMLElement>(target);
+	if (!Figure) return null;
+
+	return DOM.Select<HTMLElement>({ attrs: ['data-tools-menu'] }, Figure);
+};
 export const RegisterAdjustingEvents = (editor: Editor, target: HTMLElement, adjustCallback: TEventListener<'mousemove'>, finishCallback: TEventListener<'mouseup'>) => {
 	const self = editor;
 	const DOM = self.DOM;
 
 	self.SetAdjusting(true);
 	self.Dispatch('Adjust:Start', target);
+	DOM.Hide(getToolsMenu(self, target));
 
 	const boundEvents: [boolean, (Window & typeof globalThis), ENativeEvents, EventListener][] = [];
 
@@ -47,6 +58,7 @@ export const RegisterAdjustingEvents = (editor: Editor, target: HTMLElement, adj
 		removeEvents();
 		self.SetAdjusting(false);
 		self.Dispatch('Adjust:Finish', target);
+		DOM.Show(getToolsMenu(self, target));
 		self.Tools.DOM.ChangePositions();
 	};
 
@@ -88,8 +100,8 @@ export const ChangeAllPositions = (editor: Editor) => {
 					const bWidth = lineType === 'width';
 					styles.width = `${bWidth ? ADJUSTABLE_LINE_HALF_SIZE * 2 - 1 : FigureElement.offsetWidth}px`;
 					styles.height = `${bWidth ? FigureElement.offsetHeight : ADJUSTABLE_LINE_HALF_SIZE * 2 - 1}px`;
-					if (!bWidth) styles.left = `${FigureElement.offsetLeft}px`;
-					if (bWidth) styles.top = `${FigureElement.offsetTop}px`;
+					styles.left = `${bWidth ? 0 : FigureElement.offsetLeft}px`;
+					styles.top = `${bWidth ? FigureElement.offsetTop : 0}px`;
 					break;
 				case 'media':
 					const bHorizontal = lineType === 'left' || lineType === 'right';
@@ -111,6 +123,39 @@ export const ChangeAllPositions = (editor: Editor) => {
 				left: CreateAdjustableEdgeSize(FigureElement.offsetLeft + (bLeft ? 0 : FigureElement.offsetWidth), true),
 				top: CreateAdjustableEdgeSize(FigureElement.offsetTop + (bTop ? 0 : FigureElement.offsetHeight), true),
 			});
+		});
+
+		Arr.Each(DOM.SelectAll<HTMLElement>({ attrs: ['data-tools-menu'] }, tools), menu => {
+			if (!DOM.HasAttr(Figure, Options.ATTRIBUTE_FOCUSED)) return DOM.Hide(menu);
+			DOM.Show(menu);
+
+			const newStyles: Record<string, string> = {};
+
+			const figureRightPosition = Figure.offsetLeft + Figure.offsetWidth;
+			const figureElementRightPosition = FigureElement.offsetLeft + FigureElement.offsetWidth;
+			const halfWithDifference = (FigureElement.offsetWidth - menu.offsetWidth) / 2;
+			const menuCentredLeftPosition = figureElementRightPosition - menu.offsetWidth - halfWithDifference;
+			const menuCentredRightPosition = menuCentredLeftPosition + menu.offsetWidth;
+
+			const bAsText = DOM.HasAttr(Figure, Options.ATTRIBUTE_AS_TEXT);
+			const bOutOfBody = bAsText && figureRightPosition > DOM.Doc.body.offsetWidth;
+
+			if (menuCentredLeftPosition < 0 && !bOutOfBody)
+				newStyles.left = '0px';
+			else if (menuCentredRightPosition > DOM.Doc.body.offsetWidth || bOutOfBody)
+				newStyles.left = `${menuCentredLeftPosition + halfWithDifference}px`;
+			else
+				newStyles.left = `${menuCentredLeftPosition}px`;
+
+			const yRange = DOM.Win.innerHeight + DOM.Win.scrollY;
+
+			const predictMenuBottomSide = Figure.offsetTop + Figure.offsetHeight + menu.offsetHeight;
+
+			newStyles.top = predictMenuBottomSide <= yRange
+				? `${FigureElement.offsetTop + FigureElement.offsetHeight + ADDABLE_TOOLS_MENU_TOP}px`
+				: `${FigureElement.offsetTop - menu.offsetHeight - ADDABLE_TOOLS_MENU_TOP}px`;
+
+			DOM.SetStyles(menu, newStyles);
 		});
 	});
 };

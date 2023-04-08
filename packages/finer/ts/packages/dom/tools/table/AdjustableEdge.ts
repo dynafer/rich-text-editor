@@ -1,13 +1,9 @@
-import { Arr, Formula, Type } from '@dynafer/utils';
+import { Arr, Str, Type } from '@dynafer/utils';
 import Editor from '../../../Editor';
 import { ENativeEvents, PreventEvent } from '../../../events/EventSetupUtils';
 import { CreateAdjustableEdgeSize, GetClientSize, RegisterAdjustingEvents } from '../Utils';
-import { CreateCurrentPoint, CreateFakeTable, MoveToCurrentPoint } from './TableToolsUtils';
+import { CreateCurrentPoint, CreateFakeFigure, MakeAbsolute, MoveToCurrentPoint, ResetAbsolute, WalkGrid } from './TableToolsUtils';
 
-interface ICellStyleMap {
-	cell: HTMLElement,
-	styles: Record<string, string>,
-}
 
 const AdjustableEdge = (editor: Editor, table: HTMLElement): HTMLElement => {
 	const self = editor;
@@ -41,13 +37,20 @@ const AdjustableEdge = (editor: Editor, table: HTMLElement): HTMLElement => {
 			top: CreateAdjustableEdgeSize(targetTable.offsetTop + (bTop ? 0 : targetTable.offsetHeight), true),
 		});
 
+	const updateEdgePosition = (figureElement: HTMLElement) => {
+		setEdgePositionStyles(figureElement, leftTopEdge, true, true);
+		setEdgePositionStyles(figureElement, rightTopEdge, false, true);
+		setEdgePositionStyles(figureElement, leftBottomEdge, true, false);
+		setEdgePositionStyles(figureElement, rightBottomEdge, false, false);
+	};
+
 	const startAdjusting = (event: MouseEvent) => {
 		PreventEvent(event);
 
 		const adjustItem = event.target as HTMLElement;
 
-		let startOffsetX = event.clientX;
-		let startOffsetY = event.clientY;
+		let startOffsetX = event.pageX;
+		let startOffsetY = event.pageY;
 
 		const { Figure, FigureElement } = DOM.Element.Figure.Find<HTMLElement>(adjustItem);
 		if (!Figure || !FigureElement) return;
@@ -57,86 +60,65 @@ const AdjustableEdge = (editor: Editor, table: HTMLElement): HTMLElement => {
 		const bLeft = adjustItem === leftTopEdge || adjustItem === leftBottomEdge;
 		const bTop = adjustItem === leftTopEdge || adjustItem === rightTopEdge;
 
+		const oldWidth = FigureElement.offsetWidth;
+		const oldHeight = FigureElement.offsetHeight;
+		const oldLeft = FigureElement.offsetLeft;
+		const oldTop = FigureElement.offsetTop;
+
 		self.SaveScrollPosition();
 
-		const tableGrid = DOM.Element.Table.GetGridWithIndex(FigureElement);
+		const { Grid } = DOM.Element.Table.GetGridWithIndex(FigureElement);
 
-		const fakeTable = CreateFakeTable(self, FigureElement);
-		DOM.Insert(adjustableEdgeGroup, fakeTable);
+		const fakeFigure = CreateFakeFigure(self, Figure, FigureElement);
+		DOM.InsertBefore(Figure, fakeFigure.Figure);
+		MakeAbsolute(self, fakeFigure, Figure, FigureElement);
 
-		const oldWidth = fakeTable.offsetWidth;
-		const oldHeight = fakeTable.offsetHeight;
-		const oldLeft = fakeTable.offsetLeft;
-		const oldTop = fakeTable.offsetTop;
+		const dumpStyles: [HTMLElement, Record<string, string>][] = [];
 
-		const fakeTableGrid = DOM.Element.Table.GetGridWithIndex(fakeTable);
-		const cellSizePercents: [number, number][][] = [];
+		WalkGrid(Grid, cell =>
+			Arr.Push(dumpStyles, [cell, {
+				width: `${GetClientSize(self, cell, 'width') / oldWidth * 100}%`,
+				height: `${GetClientSize(self, cell, 'height') / oldHeight * 100}%`,
+			}])
+		);
 
-		Arr.Each(fakeTableGrid.Grid, row => {
-			const cellSizePercent: [number, number][] = [];
+		const dumpWidth = DOM.GetStyle(FigureElement, 'width');
+		const dumpHeight = DOM.GetStyle(FigureElement, 'height');
 
-			Arr.Each(row, cell =>
-				Arr.Push(cellSizePercent, [
-					cell.offsetWidth / oldWidth,
-					cell.offsetHeight / oldHeight
-				])
-			);
-
-			Arr.Push(cellSizePercents, cellSizePercent);
+		DOM.SetStyles(FigureElement, {
+			width: '0px',
+			height: '0px',
 		});
 
-		Arr.Each(fakeTableGrid.Grid, row =>
-			Arr.Each(row, cell => {
-				if (!DOM.HasAttr(cell, 'dump-width') && DOM.HasStyle(cell, 'width')) {
-					DOM.SetAttr(cell, 'dump-width', DOM.GetStyle(cell, 'width'));
-					DOM.RemoveStyle(cell, 'width');
-				}
-				if (!DOM.HasAttr(cell, 'dump-height') && DOM.HasStyle(cell, 'height')) {
-					DOM.SetAttr(cell, 'dump-height', DOM.GetStyle(cell, 'height'));
-					DOM.RemoveStyle(cell, 'height');
-				}
-			})
-		);
+		WalkGrid(Grid, cell => DOM.RemoveStyles(cell, 'width', 'height'));
 
-		const minWidth = fakeTable.offsetWidth;
-		const minHeight = fakeTable.offsetHeight;
-		const minLeft = fakeTable.offsetLeft + (bLeft ? Math.max(minWidth - oldWidth, oldWidth - minWidth) : 0);
-		const minTop = fakeTable.offsetTop + (bTop ? Math.max(minHeight - oldHeight, oldHeight - minHeight) : 0);
+		const minWidth = FigureElement.offsetWidth;
+		const minHeight = FigureElement.offsetHeight;
+		const minLeft = FigureElement.offsetLeft + (bLeft ? Math.max(minWidth - oldWidth, oldWidth - minWidth) : 0);
+		const minTop = FigureElement.offsetTop + (bTop ? Math.max(minHeight - oldHeight, oldHeight - minHeight) : 0);
 
-		setEdgePositionStyles(fakeTable, adjustItem, bLeft, bTop);
+		const toggleWidth = !Str.IsEmpty(dumpWidth) ? DOM.SetStyle : DOM.RemoveStyle;
+		const toggleHeight = !Str.IsEmpty(dumpHeight) ? DOM.SetStyle : DOM.RemoveStyle;
+		toggleWidth(FigureElement, 'width', dumpWidth);
+		toggleHeight(FigureElement, 'height', dumpHeight);
 
-		Arr.Each(fakeTableGrid.Grid, row =>
-			Arr.Each(row, cell => {
-				if (DOM.HasAttr(cell, 'dump-width')) {
-					DOM.SetStyle(cell, 'width', DOM.GetAttr(cell, 'dump-width') ?? '');
-					DOM.RemoveAttr(cell, 'dump-width');
-				}
-				if (DOM.HasAttr(cell, 'dump-height')) {
-					DOM.SetStyle(cell, 'height', DOM.GetAttr(cell, 'dump-height') ?? '');
-					DOM.RemoveAttr(cell, 'dump-height');
-				}
-			})
-		);
+		Arr.WhileShift(dumpStyles, ([cell, styles]) => DOM.SetStyles(cell, styles));
 
-		setEdgePositionStyles(fakeTable, adjustItem, bLeft, bTop);
+		updateEdgePosition(FigureElement);
 
 		self.ScrollSavedPosition();
+
+		const lineGroup = DOM.Select<HTMLElement>({ attrs: ['data-adjustable-line-group'] }, Figure);
+		DOM.Hide(lineGroup);
 
 		const movable = DOM.Select<HTMLElement>({ attrs: ['data-movable'] }, Figure);
 		DOM.Hide(movable);
 
-		const startWidthDifference = bLeft ? 0 : (minWidth - oldWidth);
-		const adjustLeftDifference = minLeft - oldLeft + startWidthDifference;
+		const adjustLeftDifference = (bLeft ? minLeft - oldLeft : oldLeft - minLeft) + (bLeft ? 0 : (minWidth - oldWidth));
 		const minimumOffsetX = startOffsetX + adjustLeftDifference;
-		const minimumAdjustPositionX = adjustItem.offsetLeft + adjustLeftDifference;
 
-		const startHeightDifference = bTop ? 0 : (minHeight - oldHeight);
-		const adjustTopDifference = minTop - oldTop + startHeightDifference;
+		const adjustTopDifference = (bTop ? minTop - oldTop : oldTop - minTop) + (bTop ? 0 : (minHeight - oldHeight));
 		const minimumOffsetY = startOffsetY + adjustTopDifference;
-		const minimumAdjustPositionY = adjustItem.offsetTop + adjustTopDifference;
-
-		let bUpdatableX = true;
-		let bUpdatableY = true;
 
 		const isUpdatable = (bHorizontal: boolean, current: number): false | number => {
 			const bLeftOrTop = bHorizontal ? bLeft : bTop;
@@ -147,109 +129,73 @@ const AdjustableEdge = (editor: Editor, table: HTMLElement): HTMLElement => {
 			if (bHorizontal) startOffsetX = current;
 			else startOffsetY = current;
 
+			const figureSize = bHorizontal ? FigureElement.offsetWidth : FigureElement.offsetHeight;
+			const minimumSize = bHorizontal ? minWidth : minHeight;
 			const minimumOffset = bHorizontal ? minimumOffsetX : minimumOffsetY;
-			const minimumAdjustPosition = bHorizontal ? minimumAdjustPositionX : minimumAdjustPositionY;
-			const currentAdjustPosition = bHorizontal ? adjustItem.offsetLeft : adjustItem.offsetTop;
-
 			const offsetDifference = bLeftOrTop ? minimumOffset - current : current - minimumOffset;
-			const adjustDifference = bLeftOrTop ? minimumAdjustPosition - currentAdjustPosition : currentAdjustPosition - minimumAdjustPosition;
 
-			const bUpdatable = bHorizontal ? bUpdatableX : bUpdatableY;
+			if (figureSize + calculated > minimumSize && offsetDifference > 0) return calculated;
 
-			if (!bUpdatable) {
-				if (calculated < 0 || (offsetDifference <= 0 && adjustDifference <= 0)) return false;
+			DOM.SetStyle(FigureElement, bHorizontal ? 'width' : 'height', `${bHorizontal ? minWidth : minHeight}px`);
+			if ((bHorizontal && bLeft) || (!bHorizontal && bTop))
+				DOM.SetStyle(FigureElement, bHorizontal ? 'left' : 'top', `${bHorizontal ? minLeft : minTop}px`);
 
-				if (bHorizontal) bUpdatableX = true;
-				else bUpdatableY = true;
-				return calculated;
-			}
-
-			if (calculated < 0 && offsetDifference <= 0 && adjustDifference <= 0) {
-				if (bHorizontal) bUpdatableX = false;
-				else bUpdatableY = false;
-				return false;
-			}
-
-			return calculated;
+			return false;
 		};
 
 		const adjust = (e: MouseEvent) => {
 			PreventEvent(e);
 
-			const currentOffsetX = e.clientX;
-			const currentOffsetY = e.clientY;
+			const currentOffsetX = e.pageX;
+			const currentOffsetY = e.pageY;
 
 			const calculatedX = isUpdatable(true, currentOffsetX);
 			const calculatedY = isUpdatable(false, currentOffsetY);
 
 			if ((Type.IsBoolean(calculatedX) && !calculatedX) && (Type.IsBoolean(calculatedY) && !calculatedY)) return;
 
-			const applyStyles: [HTMLElement, Record<string, string>][] = [];
-
-			for (let rowIndex = 0, rowLength = cellSizePercents.length; rowIndex < rowLength; ++rowIndex) {
-				for (let cellIndex = 0, cellLength = cellSizePercents[rowIndex].length; cellIndex < cellLength; ++cellIndex) {
-					const cell = fakeTableGrid.Grid[rowIndex][cellIndex];
-					const cellSizePercent = cellSizePercents[rowIndex][cellIndex];
-					const newStyle: Record<string, string> = {};
-
-					const addStyle = (type: 'width' | 'height', calculated: number) => {
-						const bWidth = type === 'width';
-						const addableSize = Formula.RoundDecimal(calculated * cellSizePercent[bWidth ? 0 : 1]);
-						if (addableSize !== 0) newStyle[type] = `${GetClientSize(self, cell, type) + addableSize}px`;
-					};
-
-					if (!Type.IsBoolean(calculatedX)) addStyle('width', calculatedX);
-					if (!Type.IsBoolean(calculatedY)) addStyle('height', calculatedY);
-
-					Arr.Push(applyStyles, [cell, newStyle]);
-				}
-			}
-
-			Arr.Each(applyStyles, ([cell, styles]) => DOM.SetStyles(cell, styles));
-
 			const newStyle: Record<string, string> = {};
 
-			if (!Type.IsBoolean(calculatedX) && bLeft) newStyle.left = `${minLeft + minWidth - fakeTable.offsetWidth}px`;
-			if (!Type.IsBoolean(calculatedY) && bTop) newStyle.top = `${minTop + minHeight - fakeTable.offsetHeight}px`;
+			const updateSize = (type: 'width' | 'height', calculated: number, bUpdatePosition: boolean) => {
+				const bWidth = type === 'width';
+				const newSize = (bWidth ? FigureElement.offsetWidth : FigureElement.offsetHeight) + calculated;
+				newStyle[type] = `${newSize}px`;
+				if (!bUpdatePosition) return;
 
-			DOM.SetStyles(fakeTable, newStyle);
+				const minPosition = (bWidth ? minLeft : minTop) + (bWidth ? minWidth : minHeight);
+				newStyle[bWidth ? 'left' : 'top'] = `${minPosition - newSize}px`;
+			};
 
-			setEdgePositionStyles(fakeTable, leftTopEdge, true, true);
-			setEdgePositionStyles(fakeTable, rightTopEdge, false, true);
-			setEdgePositionStyles(fakeTable, leftBottomEdge, true, false);
-			setEdgePositionStyles(fakeTable, rightBottomEdge, false, false);
+			if (!Type.IsBoolean(calculatedX)) updateSize('width', calculatedX, bLeft);
+			if (!Type.IsBoolean(calculatedY)) updateSize('height', calculatedY, bTop);
+
+			DOM.SetStyles(FigureElement, newStyle);
+
+			updateEdgePosition(FigureElement);
 		};
 
 		const finishAdjusting = (e: MouseEvent) => {
 			PreventEvent(e);
 
-			const widthDifference = fakeTable.offsetWidth - oldWidth;
-			const heightDifference = fakeTable.offsetHeight - oldHeight;
+			DOM.Remove(fakeFigure.Figure);
 
-			DOM.Remove(fakeTable);
+			const cellStyles: [HTMLElement, Record<string, string>][] = [];
 
-			const cellGridStyles: ICellStyleMap[][] = [];
+			WalkGrid(Grid, cell =>
+				Arr.Push(cellStyles, [
+					cell,
+					{
+						width: `${GetClientSize(self, cell, 'width')}px`,
+						height: `${GetClientSize(self, cell, 'height')}px`
+					}
+				])
+			);
 
-			Arr.Each(tableGrid.Grid, row => {
-				const cellStyles: ICellStyleMap[] = [];
+			Arr.WhileShift(cellStyles, ([cell, styles]) => DOM.SetStyles(cell, styles));
 
-				Arr.Each(row, cell => {
-					const newCellWidth = Formula.RoundDecimal(widthDifference * cell.offsetWidth / oldWidth);
-					const newCellHeight = Formula.RoundDecimal(heightDifference * cell.offsetHeight / oldHeight);
-					const styles = {
-						width: `${cell.offsetWidth + newCellWidth}px`,
-						height: `${cell.offsetHeight + newCellHeight}px`,
-					};
+			ResetAbsolute(self, Figure, FigureElement);
 
-					Arr.Push(cellStyles, { cell, styles });
-				});
-
-				Arr.Push(cellGridStyles, cellStyles);
-			});
-
-			Arr.Each(cellGridStyles, gridStyles => Arr.Each(gridStyles, ({ cell, styles }) => DOM.SetStyles(cell, styles)));
-			Arr.Clean(cellGridStyles);
-
+			DOM.Show(lineGroup);
 			DOM.Show(movable);
 
 			MoveToCurrentPoint(self, FigureElement, savedPoint);

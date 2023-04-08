@@ -1,15 +1,15 @@
 import { Arr, Obj } from '@dynafer/utils';
 import { IDOMToolsPartAttacher } from '../../../packages/dom/tools/Types';
 import Editor from '../../../packages/Editor';
-import MediaStyles from '../format/MediaStyles';
-import { IPluginMediaUI } from '../UI';
-import { IPluginMediaMenuFormatUI } from '../utils/Type';
+import TableStyles from '../format/TableStyles';
+import { IPluginTableMenuFormatUI } from '../Type';
+import { IPluginTableUI } from '../UI';
 
-export interface IMediaMenu {
+export interface ITableMenu {
 	Create: IDOMToolsPartAttacher,
 }
 
-const MediaMenu = (editor: Editor, ui: IPluginMediaUI): IMediaMenu => {
+const TableMenu = (editor: Editor, ui: IPluginTableUI): ITableMenu => {
 	const self = editor;
 	const DOM = self.DOM;
 
@@ -22,7 +22,7 @@ const MediaMenu = (editor: Editor, ui: IPluginMediaUI): IMediaMenu => {
 
 	const removeFigure = Finer.ILC.Get('plugins.tools.menu.remove.figure') ?? 'Remove the figure';
 
-	const uiFormats: Record<string, IPluginMediaMenuFormatUI[]> = {
+	const uiFormats: Record<string, IPluginTableMenuFormatUI[]> = {
 		Float: [
 			{ Name: 'Left', Title: floatLeft, Icon: 'MediaFloatLeft', Styles: { float: 'left' }, SameStyles: ['margin-left', 'margin-right'], bAsText: true },
 			{ Name: 'Right', Title: floatRight, Icon: 'MediaFloatRight', Styles: { float: 'right' }, SameStyles: ['margin-left', 'margin-right'], bAsText: true },
@@ -34,17 +34,17 @@ const MediaMenu = (editor: Editor, ui: IPluginMediaUI): IMediaMenu => {
 		]
 	};
 
-	const createCommand = (mediaMenu: HTMLElement, format: IPluginMediaMenuFormatUI, button: HTMLElement) =>
+	const createCommand = (tableMenu: HTMLElement, format: IPluginTableMenuFormatUI, button: HTMLElement) =>
 		(bActive: boolean) => {
-			const { FigureElement } = DOM.Element.Figure.Find<HTMLElement>(mediaMenu);
+			const { FigureElement } = DOM.Element.Figure.Find<HTMLElement>(tableMenu);
 			if (!FigureElement) return null;
 
-			const toggler = MediaStyles(self, format);
+			const toggler = TableStyles(self, format);
 			toggler.Toggle(bActive, FigureElement);
 
 			const otherButtons = DOM.SelectAll({
 				class: DOM.Utils.CreateUEID('icon-button', false)
-			}, mediaMenu);
+			}, tableMenu);
 
 			Arr.Each(otherButtons, otherButton => DOM.RemoveClass(otherButton, ui.ACTIVE_CLASS));
 
@@ -52,7 +52,7 @@ const MediaMenu = (editor: Editor, ui: IPluginMediaUI): IMediaMenu => {
 			toggleClass(button, ui.ACTIVE_CLASS);
 		};
 
-	const createGroup = (mediaMenu: HTMLElement, formats: IPluginMediaMenuFormatUI[]): HTMLElement => {
+	const createGroup = (tableMenu: HTMLElement, formats: IPluginTableMenuFormatUI[]): HTMLElement => {
 		const group = DOM.Create('div', {
 			class: DOM.Utils.CreateUEID('icon-group', false)
 		});
@@ -68,7 +68,7 @@ const MediaMenu = (editor: Editor, ui: IPluginMediaUI): IMediaMenu => {
 				html: Finer.Icons.Get(Icon)
 			});
 
-			const command = createCommand(mediaMenu, format, button);
+			const command = createCommand(tableMenu, format, button);
 
 			DOM.On(button, Finer.NativeEventMap.click, () => command(!DOM.HasClass(button, ui.ACTIVE_CLASS)));
 
@@ -78,7 +78,7 @@ const MediaMenu = (editor: Editor, ui: IPluginMediaUI): IMediaMenu => {
 		return group;
 	};
 
-	const createGroupWithoutFormat = (mediaMenu: HTMLElement): HTMLElement => {
+	const createGroupWithoutFormat = (tableMenu: HTMLElement): HTMLElement => {
 		const group = DOM.Create('div', {
 			class: DOM.Utils.CreateUEID('icon-group', false)
 		});
@@ -91,7 +91,7 @@ const MediaMenu = (editor: Editor, ui: IPluginMediaUI): IMediaMenu => {
 			html: Finer.Icons.Get(Finer.Icons.Get('Trash'))
 		});
 
-		DOM.On(button, Finer.NativeEventMap.click, () => DOM.Element.Figure.Remove(self, mediaMenu));
+		DOM.On(button, Finer.NativeEventMap.click, () => DOM.Element.Figure.Remove(self, tableMenu));
 
 		DOM.Insert(group, button);
 
@@ -99,15 +99,15 @@ const MediaMenu = (editor: Editor, ui: IPluginMediaUI): IMediaMenu => {
 	};
 
 	const Create: IDOMToolsPartAttacher = (): HTMLElement | null => {
-		const mediaMenu = DOM.Create('div', {
+		const tableMenu = DOM.Create('div', {
 			attrs: ['data-tools-menu']
 		});
 
-		Obj.Values(uiFormats, formats => DOM.Insert(mediaMenu, createGroup(mediaMenu, formats)));
+		Obj.Values(uiFormats, formats => DOM.Insert(tableMenu, createGroup(tableMenu, formats)));
 
-		DOM.Insert(mediaMenu, createGroupWithoutFormat(mediaMenu));
+		DOM.Insert(tableMenu, createGroupWithoutFormat(tableMenu));
 
-		return mediaMenu;
+		return tableMenu;
 	};
 
 	return {
@@ -115,4 +115,4 @@ const MediaMenu = (editor: Editor, ui: IPluginMediaUI): IMediaMenu => {
 	};
 };
 
-export default MediaMenu;
+export default TableMenu;

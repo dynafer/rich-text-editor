@@ -9,6 +9,8 @@ interface IPluginsIconWrapReturn {
 }
 
 export interface IPluginTableUI {
+	readonly ACTIVE_CLASS: string,
+	readonly DISABLED_ATTRIBUTE: string,
 	CreateIconWrap: (uiFormat: IPluginsTableFormatUI) => IPluginsIconWrapReturn,
 	BindClickEvent: (event: () => void, ...uiList: HTMLElement[]) => void,
 }
@@ -17,6 +19,9 @@ const UI = (editor: Editor): IPluginTableUI => {
 	const self = editor;
 	const DOM = self.GetRootDOM();
 	const formatUI = self.Formatter.UI;
+
+	const ACTIVE_CLASS = formatUI.ACTIVE_CLASS;
+	const DISABLED_ATTRIBUTE = formatUI.DISABLED_ATTRIBUTE;
 
 	const CreateIconWrap = (uiFormat: IPluginsTableFormatUI): IPluginsIconWrapReturn => {
 		const { Title, Icon } = uiFormat;
@@ -38,6 +43,8 @@ const UI = (editor: Editor): IPluginTableUI => {
 		Arr.Each(uiList, ui => formatUI.BindClickEvent(ui, event));
 
 	return {
+		ACTIVE_CLASS,
+		DISABLED_ATTRIBUTE,
 		CreateIconWrap,
 		BindClickEvent,
 	};

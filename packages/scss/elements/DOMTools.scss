@@ -1,8 +1,7 @@
 @mixin dom-tools {
 	[data-fixed='dom-tool'] {
-		&,
-		* {
-			z-index: 999999;
+		& {
+			z-index: 99999;
 		}
 
 		[data-movable] {
@@ -12,6 +11,7 @@
 			@include square(calc(1rem - 6px));
 			@include height($line: 0);
 			cursor: move;
+			z-index: 99999;
 
 			svg {
 				@include all-margin(0px);
@@ -26,6 +26,7 @@
 				@include square(0.75rem);
 				@include height($line: 0);
 				background-color: getVar(tool-default-color);
+				z-index: 9999999;
 
 				&[data-adjustable-edge='east'] {
 					cursor: ne-resize;
@@ -42,6 +43,7 @@
 				[data-adjustable-line] {
 					@include position(absolute);
 					@include all-margin(0px);
+					z-index: 999999;
 
 					&[data-adjusting] {
 						background-color: getVar(tool-default-color);
@@ -56,17 +58,6 @@
 					cursor: row-resize;
 				}
 			}
-
-			table {
-				@include font($color: transparent);
-				border-style: dotted;
-
-				th,
-				td {
-					border-style: dotted;
-					white-space: nowrap;
-				}
-			}
 		}
 
 		&[data-type='media-tool'] {
@@ -75,6 +66,7 @@
 					@include position(absolute);
 					@include all-margin(0px);
 					background-color: getVar(tool-default-color);
+					z-index: 999999;
 				}
 
 				[data-adjustable-line='left'],
@@ -87,42 +79,42 @@
 					cursor: row-resize;
 				}
 			}
+		}
 
-			[data-media-menu] {
-				@include position(absolute);
-				@include all-border(getVar(media-menu-border));
-				@include round(getVar(media-menu-radius));
-				@include all-padding(0.2rem);
-				@include rectangle(9rem, 1.6rem);
-				@include flex(center, space-between);
-				background-color: getVar(media-menu-bg);
+		[data-tools-menu] {
+			@include position(absolute);
+			@include all-border(getVar(tools-menu-border));
+			@include round(getVar(tools-menu-radius));
+			@include all-padding(0.2rem);
+			@include flex(center, space-between);
+			@include height(1.6rem);
+			background-color: getVar(tools-menu-bg);
 
-				.#{getClassName(icon-group)} {
-					.#{getClassName(icon-button)} {
-						@include flex(center, $inline: true);
-						@include all-padding(0.2rem);
-						@include all-border(none);
-						@include round(getVar(media-menu-item-radius));
-						background-color: getVar(media-menu-item-bg);
-						cursor: pointer;
+			.#{getClassName(icon-group)} {
+				.#{getClassName(icon-button)} {
+					@include flex(center, $inline: true);
+					@include all-padding(0.2rem);
+					@include all-border(none);
+					@include round(getVar(tools-menu-item-radius));
+					background-color: getVar(tools-menu-item-bg);
+					cursor: pointer;
 
-						svg {
-							@include square(1.2rem);
-							fill: getVar(media-menu-item-icon-fill);
-						}
-
-						&:hover {
-							background-color: getVar(media-menu-item-hover-bg);
-						}
-
-						&.active {
-							background-color: getVar(media-menu-item-active-bg);
-						}
+					svg {
+						@include square(1.2rem);
+						fill: getVar(tools-menu-item-icon-fill);
 					}
 
-					&:not(:last-child) {
-						@include margin(rem, $left: 0.25);
+					&:hover {
+						background-color: getVar(tools-menu-item-hover-bg);
 					}
+
+					&.active {
+						background-color: getVar(tools-menu-item-active-bg);
+					}
+				}
+
+				&:not(:first-child) {
+					@include margin(rem, $left: 0.5);
 				}
 			}
 		}
