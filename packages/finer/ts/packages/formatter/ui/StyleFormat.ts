@@ -141,12 +141,16 @@ const StyleFormat = (editor: Editor, detector: IFormatDetector): IFormatUIRegist
 
 			if (bSubtract) FormatUI.ToggleDisable(button, true);
 
-			if (Type.IsString(Keys)) FormatUI.RegisterKeyboardEvent(self, Keys, (e: Editor, event: Event) => {
-				if (FormatUI.IsDisabled(button)) return;
-				const figure = DOM.Element.Figure.GetClosest(event.target);
-				if (figure) return;
-				eventCallback();
-			});
+			if (Type.IsString(Keys)) {
+				self.AddShortcut(Title, Keys);
+
+				FormatUI.RegisterKeyboardEvent(self, Keys, (e: Editor, event: Event) => {
+					if (FormatUI.IsDisabled(button)) return;
+					const figure = DOM.Element.Figure.GetClosest(event.target);
+					if (figure) return;
+					eventCallback();
+				});
+			}
 			FormatUI.BindClickEvent(button, eventCallback);
 
 			DOM.Insert(group, button);

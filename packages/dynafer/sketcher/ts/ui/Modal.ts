@@ -1,4 +1,4 @@
-import { Type } from '@dynafer/utils';
+import { Str, Type } from '@dynafer/utils';
 import { IUISchemaMap } from '../types/UISchema';
 import { IUISettingMap } from '../types/UISetting';
 import { CreateTagName } from '../utils/UIUtils';
@@ -10,8 +10,13 @@ const Modal = (name: string, setting: IUISettingMap['Modal']): IUISchemaMap['Mod
 
 	const rootSchema = Sketcher.SketchOne({
 		TagName: CreateName('modal'),
-		Events
+		Events,
 	});
+
+	rootSchema.BindRoot('keyup', (event: KeyboardEvent) => {
+		if (Str.LowerCase(event.code) !== 'escape' && Str.LowerCase(event.key) !== 'escape') return;
+		rootSchema.Destroy();
+	}, true);
 
 	const schema = Sketcher.SketchOne({
 		TagName: CreateName('dialog'),

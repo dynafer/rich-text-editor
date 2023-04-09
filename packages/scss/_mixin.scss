@@ -153,6 +153,7 @@
 	@include font(1rem);
 	@include flex(center, space-between, $inline: true);
 	cursor: pointer;
+	outline: none;
 
 	svg {
 		@include square(1rem);
@@ -184,6 +185,20 @@
 			fill: getVar(button-#{$type}hover-icon-fill);
 		}
 	}
+
+	&.active {
+		@include all-border(getVar(button-#{$type}active-border));
+		@include font($color: getVar(button-#{$type}active-font));
+		background-color: getVar(button-#{$type}active-bg);
+
+		svg {
+			fill: getVar(button-#{$type}active-icon-fill);
+		}
+	}
+}
+
+@mixin default-button {
+	@include make-button;
 }
 
 @mixin success-button {
@@ -196,4 +211,20 @@
 
 @mixin remove-button {
 	@include make-button(remove);
+}
+
+@mixin input-style {
+	input {
+		@include round(getVar(input-radius));
+		@include all-border(getVar(input-border));
+		outline: none;
+
+		&:focus {
+			@include all-border(getVar(input-focus-border), 3px);
+		}
+
+		&.error {
+			@include all-border(getVar(input-error-border));
+		}
+	}
 }

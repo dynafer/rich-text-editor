@@ -1,6 +1,7 @@
 import { Arr, Obj, Str } from '@dynafer/utils';
 import DOM from './dom/DOM';
 import Editor from './Editor';
+import ToolbarRegistry from './toolbars/ToolbarRegistry';
 
 export enum EToolbarStyle {
 	SCROLL = 'SCROLL',
@@ -21,6 +22,7 @@ const EditorToolbar = (editor: Editor): IEditorToolbar => {
 	const self = editor;
 	const ToolbarSet = self.Config.Toolbar;
 	const ToolbarGroup = self.Config.ToolbarGroup;
+	const registry = ToolbarRegistry(self);
 	const items: Record<string, HTMLElement> = {};
 
 	const Has = (name: string): boolean => !!items[Str.LowerCase(name)];
@@ -53,10 +55,12 @@ const EditorToolbar = (editor: Editor): IEditorToolbar => {
 	const LoadAll = () => {
 		Arr.Each(ToolbarSet, toolbar => {
 			if (self.Formatter.Registry.IsAvailable(toolbar)) return self.Formatter.Register(toolbar);
+			if (registry.Has(toolbar)) return registry.Register(toolbar);
 			if (!ToolbarGroup[toolbar]) return self.Plugin.Get(toolbar)?.(toolbar);
 
 			Arr.Each(ToolbarGroup[toolbar], groupItem => {
 				if (self.Formatter.Registry.IsAvailable(groupItem)) return self.Formatter.Register(groupItem);
+				if (registry.Has(groupItem)) return registry.Register(groupItem);
 				if (!self.Plugin.Has(groupItem)) return;
 				self.Plugin.Get(groupItem)?.(groupItem);
 			});

@@ -44,8 +44,11 @@ const AdjustableEdge = (editor: Editor, table: HTMLElement): HTMLElement => {
 		setEdgePositionStyles(figureElement, rightBottomEdge, false, false);
 	};
 
-	const startAdjusting = (event: MouseEvent) => {
-		PreventEvent(event);
+	const startAdjusting = (evt: MouseEvent | TouchEvent) => {
+		PreventEvent(evt);
+
+		const event = !Str.Contains(evt.type, 'touch') ? evt as MouseEvent : (evt as TouchEvent).touches.item(0);
+		if (!event) return;
 
 		const adjustItem = event.target as HTMLElement;
 
@@ -143,8 +146,11 @@ const AdjustableEdge = (editor: Editor, table: HTMLElement): HTMLElement => {
 			return false;
 		};
 
-		const adjust = (e: MouseEvent) => {
-			PreventEvent(e);
+		const adjust = (ev: MouseEvent | TouchEvent) => {
+			PreventEvent(ev);
+
+			const e = !Str.Contains(ev.type, 'touch') ? ev as MouseEvent : (ev as TouchEvent).touches.item(0);
+			if (!e) return;
 
 			const currentOffsetX = e.pageX;
 			const currentOffsetY = e.pageY;
@@ -174,7 +180,7 @@ const AdjustableEdge = (editor: Editor, table: HTMLElement): HTMLElement => {
 			updateEdgePosition(FigureElement);
 		};
 
-		const finishAdjusting = (e: MouseEvent) => {
+		const finishAdjusting = (e: MouseEvent | TouchEvent) => {
 			PreventEvent(e);
 
 			DOM.Remove(fakeFigure.Figure);
@@ -207,6 +213,7 @@ const AdjustableEdge = (editor: Editor, table: HTMLElement): HTMLElement => {
 
 	const edges = [leftTopEdge, rightTopEdge, leftBottomEdge, rightBottomEdge];
 	Arr.Each(edges, edge => DOM.On(edge, ENativeEvents.mousedown, startAdjusting));
+	Arr.Each(edges, edge => DOM.On(edge, ENativeEvents.touchstart, startAdjusting));
 
 	DOM.Insert(adjustableEdgeGroup, ...edges);
 

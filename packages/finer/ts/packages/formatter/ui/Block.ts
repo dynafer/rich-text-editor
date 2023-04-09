@@ -121,6 +121,9 @@ const Block = (editor: Editor, detector: IFormatDetector): IFormatUIRegistryUnit
 			FormatUI.RegisterCommand(self, commandName, command);
 
 			if (!Type.IsString(Keys)) return;
+
+			self.AddShortcut(Title, Keys);
+
 			FormatUI.RegisterKeyboardEvent(self, Keys, () => {
 				if (FormatUI.IsDisabled(selection.Selection)) return;
 				FormatUI.RunCommand(self, commandName, isDetectedByCaret(Format.Tag));

@@ -162,34 +162,33 @@
 				@include position(relative);
 				@include width(100%);
 
+				@include input-style;
+
 				input {
 					@include width(calc(100% - 4px));
 					@include all-padding(0.5rem);
-					@include round(0.4rem);
-					@include all-border(getVar(toolbar-input-border));
 					@include all-margin(2px);
-					outline: none;
 
 					&:focus {
 						@include width(100%);
-						@include all-border(getVar(toolbar-input-focus-border), 3px);
 						@include all-margin(0);
 					}
 				}
 
 				.#{getClassName(input-placeholder)} {
-					@include position(absolute, 0.6rem, 0.5rem);
+					@include position(absolute, 50%, 0.5rem);
 					@include flex(center);
-					@include font($color: getVar(toolbar-input-placeholder-font));
+					@include font($color: getVar(input-placeholder-font));
 					background: none;
 					pointer-events: none;
 					transition: all 0.2s;
 					transform-origin: 0% 0%;
+					transform: translateY(calc(-50% - 1px));
 				}
 
 				input:valid + .#{getClassName(input-placeholder)},
 				input:focus + .#{getClassName(input-placeholder)} {
-					transform: scale(0.6) translate(1rem, -1.35rem);
+					transform: scale(0.6) translate(1rem, calc(-100% - calc(50% * 1.6) - 1px));
 					background-color: #fff;
 				}
 			}

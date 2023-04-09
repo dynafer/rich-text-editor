@@ -48,8 +48,11 @@ const AdjustableLine = (editor: Editor, media: HTMLElement): HTMLElement => {
 		setLineStyles(figureElement, adjustableBottom, 'bottom');
 	};
 
-	const startAdjusting = (event: MouseEvent) => {
-		PreventEvent(event);
+	const startAdjusting = (evt: MouseEvent | TouchEvent) => {
+		PreventEvent(evt);
+
+		const event = !Str.Contains(evt.type, 'touch') ? evt as MouseEvent : (evt as TouchEvent).touches.item(0);
+		if (!event) return;
 
 		const adjustItem = event.target as HTMLElement;
 
@@ -123,8 +126,11 @@ const AdjustableLine = (editor: Editor, media: HTMLElement): HTMLElement => {
 		const savedOffsetPosition = (bWidth ? startOffsetX : startOffsetY) + positionDifference;
 		let bUpdatable = true;
 
-		const adjust = (e: MouseEvent) => {
-			PreventEvent(e);
+		const adjust = (ev: MouseEvent | TouchEvent) => {
+			PreventEvent(ev);
+
+			const e = !Str.Contains(ev.type, 'touch') ? ev as MouseEvent : (ev as TouchEvent).touches.item(0);
+			if (!e) return;
 
 			const currentOffsetX = e.clientX;
 			const currentOffsetY = e.clientY;
@@ -168,7 +174,7 @@ const AdjustableLine = (editor: Editor, media: HTMLElement): HTMLElement => {
 			finish();
 		};
 
-		const finishAdjusting = (e: MouseEvent) => {
+		const finishAdjusting = (e: MouseEvent | TouchEvent) => {
 			PreventEvent(e);
 
 			DOM.Remove(fakeFigure.Figure);
@@ -194,6 +200,7 @@ const AdjustableLine = (editor: Editor, media: HTMLElement): HTMLElement => {
 
 	const lines = [adjustableLeft, adjustableTop, adjustableRight, adjustableBottom];
 	Arr.Each(lines, line => DOM.On(line, ENativeEvents.mousedown, startAdjusting));
+	Arr.Each(lines, line => DOM.On(line, ENativeEvents.touchstart, startAdjusting));
 
 	DOM.Insert(adjustableLineGroup, adjustableLeft, adjustableTop, adjustableRight, adjustableBottom);
 

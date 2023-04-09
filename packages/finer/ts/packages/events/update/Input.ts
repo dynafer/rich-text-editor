@@ -43,8 +43,6 @@ const Input = (editor: Editor) => {
 			caret.Range.DeleteContents();
 			FormatUtils.CleanDirtyWithCaret(self, caret);
 			fakeFragment = inputUtils.ConvertHTMLToFragment(html);
-
-			inputUtils.CleanUnusable(fakeFragment);
 		};
 
 	const deleteByDragEvent = (event: InputEvent) => {
@@ -60,13 +58,7 @@ const Input = (editor: Editor) => {
 		fakeFragment = inputUtils.GetProcessedFragment(caret, true);
 	};
 
-	const insertFromDropEvent = (event: InputEvent) =>
-		() => {
-			PreventEvent(event);
-			if (!fakeFragment) return;
-
-			inputUtils.CleanUnusable(fakeFragment);
-		};
+	const insertFromDropEvent = (event: InputEvent) => () => PreventEvent(event);
 
 	const setLastChildName = () => {
 		const root: Node | null = CaretUtils.Get()?.SameRoot ?? null;

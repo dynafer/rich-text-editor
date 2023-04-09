@@ -17,6 +17,7 @@
 		button {
 			@include all-border(getVar(toolbar-item-border));
 			background-color: getVar(toolbar-item-bg);
+			outline: none;
 			cursor: pointer;
 		}
 

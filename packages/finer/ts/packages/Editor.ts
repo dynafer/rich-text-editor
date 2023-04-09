@@ -16,6 +16,7 @@ import FormatUtils from './formatter/FormatUtils';
 import { IFooterManager } from './managers/FooterManager';
 import { ENotificationStatus, INotificationManager, NotificationManager } from './managers/NotificationManager';
 import { IPluginManager } from './managers/PluginManager';
+import { IShortcuts } from './toolbars/Types';
 
 enum ELoadingStatus {
 	SHOW = 'SHOW',
@@ -49,6 +50,7 @@ class Editor {
 	private mbAdjusting: boolean = false;
 	private mScrollX: number = -1;
 	private mScrollY: number = -1;
+	private readonly mShortcuts: IShortcuts[] = [];
 
 	public constructor(config: IEditorConfiguration) {
 		const configuration: IConfiguration = Configure(config);
@@ -198,6 +200,21 @@ class Editor {
 	public CleanDirty() {
 		const lines = this.GetLines(true);
 		Arr.WhileShift(lines, line => FormatUtils.CleanDirty(this, this.DOM.GetChildNodes(line)));
+	}
+
+	public AddShortcut(title: string, keys: string) {
+		for (let index = 0, length = this.mShortcuts.length; index < length; ++index) {
+			if (Str.LowerCase(this.mShortcuts[index].Title) === Str.LowerCase(title)) return;
+		}
+
+		Arr.Push(this.mShortcuts, {
+			Title: title,
+			Keys: keys,
+		});
+	}
+
+	public GetShortcuts(): IShortcuts[] {
+		return this.mShortcuts;
 	}
 
 	private setLoading(status: ELoadingStatus) {

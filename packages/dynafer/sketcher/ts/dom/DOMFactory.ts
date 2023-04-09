@@ -16,9 +16,17 @@ export interface IDOMFactory<E extends HTMLElement = HTMLElement> {
 		<K extends keyof GlobalEventHandlersEventMap>(eventName: K, event: TEventListener<K>, bCapture?: boolean): void;
 		(eventName: string, event: EventListener, bCapture?: boolean): void;
 	},
-	Unbind: {
+	BindRoot: {
 		<K extends keyof GlobalEventHandlersEventMap>(eventName: K, event: TEventListener<K>, bCapture?: boolean): void;
 		(eventName: string, event: EventListener, bCapture?: boolean): void;
+	},
+	Unbind: {
+		<K extends keyof GlobalEventHandlersEventMap>(eventName: K, event: TEventListener<K>): void;
+		(eventName: string, event: EventListener): void;
+	},
+	UnbindRoot: {
+		<K extends keyof GlobalEventHandlersEventMap>(eventName: K, event: TEventListener<K>): void;
+		(eventName: string, event: EventListener): void;
 	},
 	GetChildren: <T extends HTMLElement>() => IDOMFactory<T>[],
 	Destroy: () => void,
@@ -32,6 +40,7 @@ export interface IDOMFactoryConstructor {
 const DOMFactory: IDOMFactoryConstructor = <E extends HTMLElement>(creation: string): IDOMFactory<E> => {
 	const Doc = document;
 	const boundEvents: Record<string, EventListener[]> = {};
+	const rootBoundEvents: Record<string, EventListener[]> = {};
 	const children: IDOMFactory[] = [];
 
 	const Self = Doc.createElement(creation) as E;
@@ -61,9 +70,23 @@ const DOMFactory: IDOMFactoryConstructor = <E extends HTMLElement>(creation: str
 		Arr.Push(boundEvents[eventName], event);
 	};
 
-	const Unbind = (eventName: string, event: EventListener, bCapture: boolean = false) => {
+	const BindRoot = (eventName: string, event: EventListener, bCapture: boolean = false) => {
+		if (!rootBoundEvents[eventName]) rootBoundEvents[eventName] = [];
+		if (Arr.Contains(rootBoundEvents[eventName], event)) return;
+		Doc.addEventListener(eventName, event, bCapture);
+		Arr.Push(rootBoundEvents[eventName], event);
+	};
+
+	const Unbind = (eventName: string, event: EventListener) => {
+		Self.removeEventListener(eventName, event, true);
+		Self.removeEventListener(eventName, event, false);
 		if (boundEvents[eventName]) boundEvents[eventName] = boundEvents[eventName].filter(bound => bound !== event);
-		Self.removeEventListener(eventName, event, bCapture);
+	};
+
+	const UnbindRoot = (eventName: string, event: EventListener) => {
+		Doc.removeEventListener(eventName, event, true);
+		Doc.removeEventListener(eventName, event, false);
+		if (rootBoundEvents[eventName]) rootBoundEvents[eventName] = rootBoundEvents[eventName].filter(bound => bound !== event);
 	};
 
 	const Dispatch = (eventName: string) => Self.dispatchEvent(new Event(eventName));
@@ -78,6 +101,7 @@ const DOMFactory: IDOMFactoryConstructor = <E extends HTMLElement>(creation: str
 		Dispatch('destroyed');
 
 		Obj.Entries(boundEvents, (eventName, events) => Arr.Each(events, event => Unbind(eventName, event)));
+		Obj.Entries(rootBoundEvents, (eventName, events) => Arr.Each(events, event => UnbindRoot(eventName, event)));
 
 		Self.remove();
 	};
@@ -92,7 +116,9 @@ const DOMFactory: IDOMFactoryConstructor = <E extends HTMLElement>(creation: str
 		HasClass,
 		RemoveClass,
 		Bind,
+		BindRoot,
 		Unbind,
+		UnbindRoot,
 		GetChildren,
 		Destroy,
 	};
