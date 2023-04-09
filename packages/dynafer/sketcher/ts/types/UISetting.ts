@@ -3,6 +3,7 @@ import { IDOMFactory } from '../dom/DOMFactory';
 export interface ISketcherSetting<T extends HTMLElement = HTMLElement> {
 	TagName: string,
 	Attributes?: Record<string, string>,
+	Classes?: string[],
 	Events?: [string, EventListener][],
 	Elements?: (string | IDOMFactory<T> | ISketcherSetting)[],
 }

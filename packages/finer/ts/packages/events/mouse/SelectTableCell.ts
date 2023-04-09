@@ -2,7 +2,7 @@ import { Arr } from '@dynafer/utils';
 import Editor from '../../Editor';
 import { ENativeEvents } from '../EventSetupUtils';
 
-const SelectTableCell = (editor: Editor, event: MouseEvent) => {
+const SelectTableCell = (editor: Editor, event: MouseEvent | TouchEvent) => {
 	const self = editor;
 	const DOM = self.DOM;
 	const rootDOM = self.GetRootDOM();
@@ -21,7 +21,7 @@ const SelectTableCell = (editor: Editor, event: MouseEvent) => {
 	const { Grid, TargetCellIndex } = DOM.Element.Table.GetGridWithIndex(Table, Cell);
 	if (TargetCellIndex === -1) return;
 
-	const mouseMoveEvent = (e: MouseEvent) => {
+	const moveEvent = (e: MouseEvent | TouchEvent) => {
 		const currentCell = DOM.Element.Table.GetClosestCell(e.composedPath()[0]);
 		const currentRow = currentCell?.parentElement;
 		if (!currentCell || !currentRow || currentCell === Cell || !DOM.Element.Table.IsTableRow(currentRow)) {
@@ -65,16 +65,22 @@ const SelectTableCell = (editor: Editor, event: MouseEvent) => {
 		}
 	};
 
-	const mouseUpEvent = () => {
+	const upEvent = () => {
 		bDragged = false;
-		DOM.Off(Table, ENativeEvents.mousemove, mouseMoveEvent);
-		DOM.Off(DOM.Win, ENativeEvents.mouseup, mouseUpEvent);
-		rootDOM.Off(rootDOM.Win, ENativeEvents.mouseup, mouseUpEvent);
+		DOM.Off(Table, ENativeEvents.mousemove, moveEvent);
+		DOM.Off(Table, ENativeEvents.touchmove, moveEvent);
+		DOM.Off(DOM.Win, ENativeEvents.mouseup, upEvent);
+		DOM.Off(DOM.Win, ENativeEvents.touchend, upEvent);
+		rootDOM.Off(rootDOM.Win, ENativeEvents.mouseup, upEvent);
+		rootDOM.Off(rootDOM.Win, ENativeEvents.touchend, upEvent);
 	};
 
-	DOM.On(Table, ENativeEvents.mousemove, mouseMoveEvent);
-	DOM.On(DOM.Win, ENativeEvents.mouseup, mouseUpEvent);
-	rootDOM.On(rootDOM.Win, ENativeEvents.mouseup, mouseUpEvent);
+	DOM.On(Table, ENativeEvents.mousemove, moveEvent);
+	DOM.On(Table, ENativeEvents.touchmove, moveEvent);
+	DOM.On(DOM.Win, ENativeEvents.mouseup, upEvent);
+	DOM.On(DOM.Win, ENativeEvents.touchend, upEvent);
+	rootDOM.On(rootDOM.Win, ENativeEvents.mouseup, upEvent);
+	rootDOM.On(rootDOM.Win, ENativeEvents.touchend, upEvent);
 };
 
 export default SelectTableCell;

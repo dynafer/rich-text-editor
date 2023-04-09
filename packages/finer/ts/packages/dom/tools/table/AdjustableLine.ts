@@ -1,4 +1,4 @@
-import { Arr } from '@dynafer/utils';
+import { Arr, Str } from '@dynafer/utils';
 import Options from '../../../../Options';
 import Editor from '../../../Editor';
 import { ENativeEvents, PreventEvent } from '../../../events/EventSetupUtils';
@@ -38,8 +38,11 @@ const AdjustableLine = (editor: Editor, table: HTMLElement): HTMLElement => {
 		});
 	};
 
-	const startAdjusting = (event: MouseEvent) => {
-		PreventEvent(event);
+	const startAdjusting = (evt: MouseEvent | TouchEvent) => {
+		PreventEvent(evt);
+
+		const event = !Str.Contains(evt.type, 'touch') ? evt as MouseEvent : (evt as TouchEvent).touches.item(0);
+		if (!event) return;
 
 		let savedPoint = CreateCurrentPoint(self, table);
 
@@ -239,8 +242,11 @@ const AdjustableLine = (editor: Editor, table: HTMLElement): HTMLElement => {
 			Arr.Each(nextAdjustableSizes, ([cell, size]) => DOM.SetStyle(cell, sizeStyleName, size));
 		};
 
-		const adjust = (e: MouseEvent) => {
-			PreventEvent(e);
+		const adjust = (ev: MouseEvent | TouchEvent) => {
+			PreventEvent(ev);
+
+			const e = !Str.Contains(ev.type, 'touch') ? ev as MouseEvent : (ev as TouchEvent).touches.item(0);
+			if (!e) return;
 
 			const currentOffset = bWidth ? e.clientX : e.clientY;
 			const calculated = currentOffset - startOffset;
@@ -297,7 +303,7 @@ const AdjustableLine = (editor: Editor, table: HTMLElement): HTMLElement => {
 			DOM.SetStyles(FigureElement, newStyles);
 		};
 
-		const finishAdjusting = (e: MouseEvent) => {
+		const finishAdjusting = (e: MouseEvent | TouchEvent) => {
 			PreventEvent(e);
 
 			commonFinishAdjusting();
@@ -307,7 +313,9 @@ const AdjustableLine = (editor: Editor, table: HTMLElement): HTMLElement => {
 	};
 
 	DOM.On(adjustableWidth, ENativeEvents.mousedown, startAdjusting);
+	DOM.On(adjustableWidth, ENativeEvents.touchstart, startAdjusting);
 	DOM.On(adjustableHeight, ENativeEvents.mousedown, startAdjusting);
+	DOM.On(adjustableHeight, ENativeEvents.touchstart, startAdjusting);
 
 	DOM.Insert(adjustableLineGroup, adjustableWidth, adjustableHeight);
 

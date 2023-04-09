@@ -21,7 +21,6 @@ const Paste = (editor: Editor, event: ClipboardEvent) => {
 		const fakeCaret = CaretUtils.CreateFake(Figure, 0, Figure, 0);
 
 		const fragment = inputUtils.ConvertHTMLToFragment(html);
-		inputUtils.CleanUnusable(fragment);
 		inputUtils.FinishInsertion(fakeCaret, fragment);
 	};
 

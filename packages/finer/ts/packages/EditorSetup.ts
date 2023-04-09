@@ -8,6 +8,7 @@ import EventSetup from './events/EventSetup';
 import Formatter from './formatter/Formatter';
 import FooterManager from './managers/FooterManager';
 import PluginManager from './managers/PluginManager';
+import ToolbarRegistry from './toolbars/ToolbarRegistry';
 
 const EditorSetup = (editor: Editor): Promise<void> => {
 	const self = editor;

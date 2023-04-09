@@ -74,7 +74,10 @@ const Inline = (editor: Editor, detector: IFormatDetector): IFormatUIRegistryUni
 			FormatUI.RunCommand(self, uiName, !FormatUI.HasActiveClass(button));
 		};
 		FormatUI.BindClickEvent(button, eventCallback);
-		if (Type.IsString(Keys)) FormatUI.RegisterKeyboardEvent(self, Keys, eventCallback);
+		if (Type.IsString(Keys)) {
+			self.AddShortcut(Title, Keys);
+			FormatUI.RegisterKeyboardEvent(self, Keys, eventCallback);
+		}
 
 		const isNearDisableList = (node: Node): boolean => {
 			if (!Type.IsArray(Format)) return FormatUI.IsNearDisableList(Format.DisableList, button, node);

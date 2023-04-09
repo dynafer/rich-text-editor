@@ -32,7 +32,7 @@ const getToolsMenu = (editor: Editor, target: HTMLElement): HTMLElement | null =
 
 	return DOM.Select<HTMLElement>({ attrs: ['data-tools-menu'] }, Figure);
 };
-export const RegisterAdjustingEvents = (editor: Editor, target: HTMLElement, adjustCallback: TEventListener<'mousemove'>, finishCallback: TEventListener<'mouseup'>) => {
+export const RegisterAdjustingEvents = (editor: Editor, target: HTMLElement, adjustCallback: TEventListener<'mousemove' | 'touchmove'>, finishCallback: TEventListener<'mouseup' | 'touchend'>) => {
 	const self = editor;
 	const DOM = self.DOM;
 
@@ -48,12 +48,12 @@ export const RegisterAdjustingEvents = (editor: Editor, target: HTMLElement, adj
 			off(boundEvent[1], boundEvent[2], boundEvent[3]);
 		});
 
-	const adjust = (event: MouseEvent) => {
+	const adjust = (event: MouseEvent | TouchEvent) => {
 		self.Dispatch('Adjust:Move', target);
 		adjustCallback(event);
 	};
 
-	const finish = (event: MouseEvent) => {
+	const finish = (event: MouseEvent | TouchEvent) => {
 		finishCallback(event);
 		removeEvents();
 		self.SetAdjusting(false);
@@ -64,8 +64,11 @@ export const RegisterAdjustingEvents = (editor: Editor, target: HTMLElement, adj
 
 	Arr.Push(boundEvents,
 		[false, DOM.Win, ENativeEvents.mousemove, adjust],
+		[false, DOM.Win, ENativeEvents.touchmove, adjust],
 		[false, DOM.Win, ENativeEvents.mouseup, finish],
+		[false, DOM.Win, ENativeEvents.touchend, finish],
 		[true, self.GetRootDOM().Win, ENativeEvents.mouseup, finish],
+		[true, self.GetRootDOM().Win, ENativeEvents.touchend, finish],
 	);
 
 	Arr.Each(boundEvents, boundEvent => {

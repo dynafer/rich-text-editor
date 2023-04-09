@@ -10,7 +10,7 @@ export interface ISketcher {
 
 const Sketcher = (): ISketcher => {
 	const SketchOne = <T extends HTMLElement>(setting: ISketcherSetting<T>): IDOMFactory<T> => {
-		const { TagName, Elements, Events, Attributes } = setting;
+		const { TagName, Elements, Events, Attributes, Classes } = setting;
 		const sketch = DOMFactory(TagName);
 
 		if (Type.IsArray(Elements)) {
@@ -24,6 +24,8 @@ const Sketcher = (): ISketcher => {
 		if (Type.IsArray(Events)) Arr.Each(Events, event => sketch.Bind(event[0], event[1]));
 
 		if (Type.IsObject(Attributes)) Attribute.SetMultiple(sketch.Self, Attributes);
+
+		if (Type.IsArray(Classes)) sketch.AddClass(...Classes);
 
 		return sketch as IDOMFactory<T>;
 	};

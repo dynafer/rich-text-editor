@@ -2,7 +2,7 @@ colorpicker-modal {
 	@include flex(center, center);
 	@include position(fixed, 0, 0);
 	@include square(100%);
-	background-color: rgba(255, 255, 255, 0.6);
+	background-color: getVar(modal-bg);
 	z-index: 9999999;
 	box-sizing: border-box;
 	user-select: none;
@@ -13,26 +13,31 @@ colorpicker-modal {
 	}
 
 	colorpicker-dialog {
-		@include round(15px);
+		@include round(getVar(modal-radius));
 		@include all-border(getVar(modal-border));
 
 		colorpicker-header {
 			@include all-padding(0.5rem);
 			@include font(14pt);
-			@include round(15px 15px 0 0);
+			@include round(getVar(modal-radius) getVar(modal-radius) 0 0);
 			@include border($bottom: getVar(modal-border));
 			@include flex(center, space-between);
-			background-color: getVar(modal-bg);
+			background-color: getVar(modal-dialog-bg);
 
-			div svg {
-				@include square(1.5rem);
-				cursor: pointer;
+			div {
+				@include default-button;
+				@include round(getVar(button-radius));
+
+				svg {
+					@include square(1.25rem);
+					cursor: pointer;
+				}
 			}
 		}
 
 		colorpicker-body {
 			@include all-padding(1rem);
-			background-color: getVar(modal-bg);
+			background-color: getVar(modal-dialog-bg);
 
 			colorpicker-form {
 				@include flex();
@@ -92,15 +97,18 @@ colorpicker-modal {
 							@include font(14pt, bold);
 						}
 
+						@include input-style;
+
 						input {
 							@include width(calc(100% - 2rem));
 							@include all-padding(0.4rem);
-							@include round(0.4rem);
-							@include all-border(getVar(modal-border));
-							outline: none;
+
+							&:not(.error):focus {
+								@include margin(null, calc(0.3rem - 2px), $bottom: calc(0.3rem - 2px));
+								@include padding(null, $right: calc(0.4rem - 2px), $left: calc(0.4rem - 2px));
+							}
 
 							&.error {
-								@include all-border(rgb(243, 10, 10));
 								animation: shake-horizontal 0.15s;
 							}
 						}
@@ -119,8 +127,8 @@ colorpicker-modal {
 		colorpicker-footer {
 			@include all-padding(0.5rem);
 			@include border(getVar(modal-border));
-			@include round(0 0 15px 15px);
-			background-color: getVar(modal-bg);
+			@include round(0 0 getVar(modal-radius) getVar(modal-radius));
+			background-color: getVar(modal-dialog-bg);
 			text-align: right;
 
 			button {

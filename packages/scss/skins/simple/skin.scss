@@ -45,10 +45,6 @@ $activeDefault: rgba(88, 183, 255, 0.7);
 	#{getVarName(toolbar-item-select-border)}: #afafaf;
 	#{getVarName(toolbar-item-radius)}: 0.25rem;
 	#{getVarName(toolbar-item-disabled-icon-fill)}: #aeaeae;
-
-	#{getVarName(toolbar-input-border)}: #afafaf;
-	#{getVarName(toolbar-input-focus-border)}: $activeDefault;
-	#{getVarName(toolbar-input-placeholder-font)}: #434343;
 }
 
 :root {
@@ -56,22 +52,34 @@ $activeDefault: rgba(88, 183, 255, 0.7);
 	#{getVarName(editor-border)}: #ececec;
 	#{getVarName(editor-opposite-bg)}: #000;
 
-	#{getVarName(modal-bg)}: #fff;
+	#{getVarName(modal-bg)}: rgba(255, 255, 255, 0.6);
+	#{getVarName(modal-dialog-bg)}: #fff;
 	#{getVarName(modal-border)}: #c9c9c9;
+	#{getVarName(modal-radius)}: 14px;
 
 	#{getVarName(button-radius)}: 0.25rem;
 
 	@include make-button-variables(null, transparent, transparent, #000, #000);
 	@include make-button-variables(hover, $hoverDefault, $hoverDefault, #000, #000);
+	@include make-button-variables(active, $activeDefault, $activeDefault, #000, #000);
 
 	@include make-button-variables(success, transparent, transparent, rgb(67, 206, 45), rgb(67, 206, 45));
 	@include make-button-variables(success-hover, $hoverDefault, $hoverDefault, rgb(61, 188, 42), rgb(61, 188, 42));
+	@include make-button-variables(success-active, $activeDefault, $activeDefault, rgb(61, 188, 42), rgb(61, 188, 42));
 
 	@include make-button-variables(cancel, transparent, transparent, #cf3939, #cf3939);
 	@include make-button-variables(cancel-hover, $hoverDefault, $hoverDefault, #b83232, #b83232);
+	@include make-button-variables(cancel-active, $activeDefault, $activeDefault, #b83232, #b83232);
 
 	@include make-button-variables(remove, transparent, transparent, #cf3939, #cf3939);
 	@include make-button-variables(remove-hover, $hoverDefault, $hoverDefault, #b83232, #b83232);
+	@include make-button-variables(remove-active, $activeDefault, $activeDefault, #b83232, #b83232);
+
+	#{getVarName(input-radius)}: 0.4rem;
+	#{getVarName(input-border)}: #afafaf;
+	#{getVarName(input-focus-border)}: $activeDefault;
+	#{getVarName(input-placeholder-font)}: #434343;
+	#{getVarName(input-error-border)}: rgb(243, 10, 10);
 
 	#{getVarName(button-disabled-bg)}: #737b81;
 	#{getVarName(button-disabled-border)}: #737b81;

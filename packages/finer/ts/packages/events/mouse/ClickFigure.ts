@@ -1,7 +1,7 @@
 import Options from '../../../Options';
 import Editor from '../../Editor';
 
-const ClickFigure = (editor: Editor, event: MouseEvent) => {
+const ClickFigure = (editor: Editor, event: MouseEvent | TouchEvent) => {
 	const self = editor;
 	const DOM = self.DOM;
 	const DOMTools = self.Tools.DOM;

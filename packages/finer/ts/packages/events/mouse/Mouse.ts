@@ -11,10 +11,13 @@ const Mouse = (editor: Editor) => {
 	const caretChangeEvent = () => self.Utils.Shared.DispatchCaretChange();
 
 	Setup(self, ENativeEvents.mouseup, caretChangeEvent);
+	Setup(self, ENativeEvents.touchend, caretChangeEvent);
 	Setup(self, ENativeEvents.mousedown, SelectTableCell);
+	Setup(self, ENativeEvents.touchstart, SelectTableCell);
 	Setup(self, ENativeEvents.mousemove, HoverFigure);
 	Setup(self, ENativeEvents.mousemove, MoveInTable);
 	Setup(self, ENativeEvents.mouseup, ClickFigure);
+	Setup(self, ENativeEvents.touchend, ClickFigure);
 	Setup(self, ENativeEvents.dblclick, DoubleClick);
 };
 

@@ -241,7 +241,13 @@ const InputUtils = (editor: Editor) => {
 	};
 
 	const FinishInsertion = (caret: ICaretData, fragment: DocumentFragment) => {
+		CleanUnusable(fragment);
+
 		const newRange = self.Utils.Range();
+
+		const nodes = DOM.GetChildNodes(fragment);
+
+		self.Dispatch('Nodes:Insert:Before', nodes);
 		const lastChild = InsertFragment(caret, fragment);
 
 		if (lastChild) {
@@ -256,11 +262,14 @@ const InputUtils = (editor: Editor) => {
 
 			self.Scroll(FormatUtils.GetParentIfText(lastChild) as HTMLElement);
 		}
+
 		FormatUtils.CleanDirtyWithCaret(self, caret);
 		CaretUtils.UpdateRange(newRange);
 
 		DOMTools.ChangePositions();
 		self.Utils.Shared.DispatchCaretChange();
+
+		self.Dispatch('Nodes:Insert:After', nodes);
 	};
 
 	return {

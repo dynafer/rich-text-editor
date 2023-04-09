@@ -68,7 +68,7 @@ const Configure = (config: IEditorConfiguration): IConfiguration => {
 		ToolbarGroup = config.toolbarGroup ?? {};
 		if (ToolbarGroup && !Type.IsObject(ToolbarGroup)) throw new Error('Configuration: Toolbar Group must be an object.');
 	} else {
-		Toolbar = ['styles', 'basic', 'script', 'font', 'color', 'alignment', 'indentation'];
+		Toolbar = ['styles', 'basic', 'script', 'font', 'color', 'alignment', 'indentation', 'info'];
 		ToolbarGroup = {
 			styles: ['heading_style', 'block_style'],
 			font: ['fontSize', 'fontFamily'],

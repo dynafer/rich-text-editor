@@ -71,10 +71,13 @@ const Table = (editor: Editor, ui: IPluginTableUI) => {
 
 				bindCellMouseEnterEvent(navigation, cellItem, row, cell);
 
-				DOM.On(cellItem, Finer.NativeEventMap.mouseup, () => {
+				const upEvent = () => {
 					const tableFormat = TableFormat(self);
 					tableFormat.CreateFromCaret(row, cell);
-				});
+				};
+
+				DOM.On(cellItem, Finer.NativeEventMap.mouseup, upEvent);
+				DOM.On(cellItem, Finer.NativeEventMap.touchend, upEvent);
 			}
 			Arr.Push(items, rowItem);
 		}
