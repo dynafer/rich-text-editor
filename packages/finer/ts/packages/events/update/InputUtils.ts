@@ -112,8 +112,7 @@ const InputUtils = (editor: Editor) => {
 			if (bFirst) {
 				bFirst = false;
 				if (BlockFormatTags.Block.has(blockName)) {
-					const startBlock = DOM.Closest(startParent, blockSelectors)
-						?? DOM.Closest(startParent, ListItemSelector);
+					const startBlock = DOM.Closest(startParent, blockSelectors) ?? DOM.Closest(startParent, ListItemSelector);
 					if (startBlock) {
 						previousBlock = startBlock;
 						return DOM.Insert(startBlock, ...DOM.GetChildNodes(node));
@@ -154,12 +153,13 @@ const InputUtils = (editor: Editor) => {
 		const endBlockName = DOM.Utils.GetNodeName(endBlock);
 
 		if (previousName === endBlockName && BlockFormatTags.List.has(previousName) && BlockFormatTags.List.has(endBlockName)) {
+			const lastChild = DOM.Utils.GetLastChild(previousBlock);
 			Arr.WhileShift(DOM.GetChildNodes(endBlock), listItem => {
-				if (DOM.Utils.IsTextEmpty(listItem) || Str.IsEmpty(DOM.GetText(listItem))) return DOM.Remove(listItem);
+				if (Str.IsEmpty(DOM.GetText(listItem))) return DOM.Remove(listItem);
 				DOM.Insert(previousBlock, listItem);
 			});
 			DOM.Remove(endBlock);
-			return previousBlock;
+			return lastChild as Element;
 		}
 
 		const insert = !!previousBlock ? DOM.InsertAfter : DOM.Insert;
