@@ -85,7 +85,8 @@ $activeDefault: rgba(88, 183, 255, 0.7);
 	#{getVarName(button-disabled-border)}: #737b81;
 	#{getVarName(button-disabled-font)}: #fff;
 
-	#{getVarName(selected-color)}: $hoverDefault;
+	#{getVarName(hover-color)}: $hoverDefault;
+	#{getVarName(selected-color)}: $activeDefault;
 	#{getVarName(tool-default-color)}: $hoverDefault;
 
 	#{getVarName(tools-size-navigation-bg)}: rgba(0, 0, 0, 0.6);

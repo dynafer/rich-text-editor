@@ -58,6 +58,7 @@ const Media = (editor: Editor): IFormatMedia => {
 		insert(blockNode ?? self.GetBody(), ...insertions);
 
 		if (!DOM.Element.Figure.IsFigure(StartBlock) && Str.IsEmpty(DOM.GetText(StartBlock))) DOM.Remove(StartBlock);
+		if (!DOM.Element.Figure.IsFigure(EndBlock) && Str.IsEmpty(DOM.GetText(EndBlock))) DOM.Remove(EndBlock);
 
 		finish();
 	};

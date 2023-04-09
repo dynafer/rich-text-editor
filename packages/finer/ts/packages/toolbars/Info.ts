@@ -85,7 +85,7 @@ const Info = (editor: Editor) => {
 			html: Finer.Icons.Get('Info')
 		});
 
-		DOM.On(button, ENativeEvents.click, () => {
+		const create = () => {
 			const schema = Sketcher.Modal('info', {
 				Title: title,
 				Icons: icons,
@@ -94,13 +94,15 @@ const Info = (editor: Editor) => {
 			});
 
 			DOM.InsertAfter(schema.Schema.GetBody(), schema.Schema.Self);
-		});
+		};
+
+		DOM.On(button, ENativeEvents.click, create);
 
 		return button;
 	};
 
 	return {
-		Name: 'info',
+		Name: 'Info',
 		Create,
 	};
 };

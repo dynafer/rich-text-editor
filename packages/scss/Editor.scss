@@ -53,10 +53,27 @@
 
 	figure {
 		@include position(relative);
+		@include margin($left: 0, $right: 0);
+
+		&[type='hr'] {
+			hr {
+				@include all-border(#ddd, 3px);
+			}
+
+			&:not([data-focused]):hover {
+				hr {
+					@include all-border(getVar(hover-color), 3px);
+				}
+			}
+
+			&[data-focused] {
+				hr {
+					outline: getVar(selected-color) solid 3px;
+				}
+			}
+		}
 
 		&[type='media'] {
-			@include margin($left: 0, $right: 0);
-
 			img,
 			iframe,
 			video,
@@ -77,8 +94,6 @@
 		}
 
 		&[type='table'] {
-			@include margin($left: 0, $right: 0);
-
 			table {
 				border-collapse: collapse;
 				box-sizing: border-box;
