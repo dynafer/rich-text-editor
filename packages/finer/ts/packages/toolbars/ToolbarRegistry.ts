@@ -1,6 +1,8 @@
 import { Str } from '@dynafer/utils';
 import Editor from '../Editor';
+import HorizontalLine from './HorizontalLine';
 import Info from './Info';
+import SelectAll from './SelectAll';
 
 interface IToolbarRegistry {
 	readonly Name: string,
@@ -10,7 +12,7 @@ interface IToolbarRegistry {
 const ToolbarRegistry = (editor: Editor) => {
 	const self = editor;
 
-	const registries: IToolbarRegistry[] = [Info(self)];
+	const registries: IToolbarRegistry[] = [Info(self), SelectAll(self), HorizontalLine(self)];
 
 	const Has = (name: string): boolean => {
 		for (let index = 0, length = registries.length; index < length; ++index) {

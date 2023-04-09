@@ -38,7 +38,7 @@
 
 			.#{getClassName(color-icon)} {
 				@include all-border(none);
-				@include padding(rem !important, 0.1, 0.3, 0.1, 0.3);
+				@include padding(rem !important, 0.1, 0.2, 0.1, 0.2);
 				display: inline-block;
 
 				svg {
@@ -59,7 +59,7 @@
 
 			& > .#{getClassName(helper)} {
 				@include all-border(none);
-				@include padding(rem, $right: 0.3, $left: 0.3);
+				@include padding(rem, $right: 0.25, $left: 0.25);
 				@include square(1.25rem);
 
 				svg {
@@ -136,7 +136,7 @@
 			@include flex(center, $inline: true);
 			@include round(getVar(toolbar-item-radius));
 			@include margin(rem, 0.2, 0.6, 0.2, 0.6);
-			@include all-padding(0.3rem);
+			@include all-padding(0.25rem);
 			@include font($color: getVar(toolbar-item-font));
 			background-color: getVar(toolbar-item-bg);
 
