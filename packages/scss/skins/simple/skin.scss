@@ -50,6 +50,7 @@ $activeDefault: rgba(88, 183, 255, 0.7);
 :root {
 	#{getVarName(editor-bg)}: transparent;
 	#{getVarName(editor-border)}: #ececec;
+	#{getVarName(editor-focused-border)}: $activeDefault;
 	#{getVarName(editor-opposite-bg)}: #000;
 
 	#{getVarName(modal-bg)}: rgba(255, 255, 255, 0.6);

@@ -50,14 +50,14 @@ const DOMFactory: IDOMFactoryConstructor = <E extends HTMLElement>(creation: str
 	const InsertFactory = <T extends HTMLElement>(...factories: IDOMFactory<T>[]): IDOMFactory<T>[] => {
 		Arr.Each(factories, child => {
 			if (!child) return;
-			Inserter.AfterInner(Doc, Self, child.Self);
+			Inserter.AfterInner(Self, child.Self);
 			Arr.Push(children, child);
 		});
 
 		return children as IDOMFactory<T>[];
 	};
 
-	const InsertHtml = (html: string) => Inserter.AfterInner(Doc, Self, html);
+	const InsertHtml = (html: string) => Inserter.AfterInner(Self, html);
 
 	const AddClass = (...classes: string[]) => Self.classList.add(...classes);
 	const HasClass = (className: string): boolean => Self.classList.contains(className);

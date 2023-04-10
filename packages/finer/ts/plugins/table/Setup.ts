@@ -1,5 +1,6 @@
 import { Arr } from '@dynafer/utils';
 import Editor from '../../packages/Editor';
+import RegisterCommands from './format/Commands';
 import UI from './UI';
 import Table from './ui/Table';
 import TableMenu from './ui/TableMenu';
@@ -25,6 +26,7 @@ const Setup = (editor: Editor) => {
 		const uiName = formatUtils.GetFormatName(name as string, formatNames);
 		switch (uiName) {
 			case formatNames[0]:
+				RegisterCommands(self);
 				Table(self, ui);
 				break;
 		}

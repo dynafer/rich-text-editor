@@ -50,6 +50,7 @@ export interface IFormatUtils {
 	SplitTextNode: (editor: Editor, node: Node, start: number, end: number) => Node | null,
 	GetStyleSelectorMap: (styles: Record<string, string>, value?: string) => (string | Record<string, string>)[],
 	ExceptNodes: (editor: Editor, node: Node, root: Node, bPrevious?: boolean) => Node[],
+	LeaveProcessorIfFigure: (editor: Editor, caret: ICaretData) => boolean,
 	SerialiseWithProcessors: (editor: Editor, options: IProcessorOption) => void,
 }
 
@@ -419,7 +420,7 @@ const FormatUtils = (): IFormatUtils => {
 		return getNodesInRoot(node, root, bPrevious);
 	};
 
-	const leaveProcessorIfFigure = (editor: Editor, caret: ICaretData): boolean => {
+	const LeaveProcessorIfFigure = (editor: Editor, caret: ICaretData): boolean => {
 		const self = editor;
 
 		const element = GetParentIfText(caret.Start.Node);
@@ -442,7 +443,7 @@ const FormatUtils = (): IFormatUtils => {
 		const caret = CaretUtils.Get();
 		if (!caret) return;
 
-		if (leaveProcessorIfFigure(self, caret)) return;
+		if (LeaveProcessorIfFigure(self, caret)) return;
 
 		Arr.Each(processors, (option, exit) => {
 			if (!option.processor(bWrap, caret, value)) return;
@@ -471,6 +472,7 @@ const FormatUtils = (): IFormatUtils => {
 		SplitTextNode,
 		GetStyleSelectorMap,
 		ExceptNodes,
+		LeaveProcessorIfFigure,
 		SerialiseWithProcessors,
 	};
 };

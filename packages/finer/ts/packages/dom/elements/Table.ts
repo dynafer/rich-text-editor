@@ -23,8 +23,8 @@ export interface ITable {
 	readonly CellSelector: string,
 	Find: (from: EventTarget | Node) => IFoundTable,
 	GetAllOwnRows: (table: Element) => HTMLTableRowElement[],
-	GetAllOwnCells: (table: Element, row?: Element) => HTMLTableCellElement[],
-	GetSelectedCells: (editor: Editor, table?: Element, bSelected?: boolean) => HTMLTableCellElement[],
+	GetAllOwnCells: (table: Node, row?: Element) => HTMLTableCellElement[],
+	GetSelectedCells: (editor: Editor, table?: Element, bSelected?: true | boolean) => HTMLTableCellElement[],
 	ToggleSelectCell: (bSelected: boolean, cell: Element) => void,
 	ToggleSelectMultipleCells: (bSelected: boolean, cells: Element[]) => void,
 	GetGridWithIndex: (table: Element, targetCell?: Element) => ITableGrid,
@@ -67,7 +67,9 @@ const Table = (): ITable => {
 		return rows;
 	};
 
-	const GetAllOwnCells = (table: Element, row?: Element): HTMLTableCellElement[] => {
+	const GetAllOwnCells = (table: Node, row?: Element): HTMLTableCellElement[] => {
+		if (!NodeType.IsElement(table)) return [];
+
 		const parent = row ?? table;
 		const selector = !!row ? RowSelector : Selector;
 

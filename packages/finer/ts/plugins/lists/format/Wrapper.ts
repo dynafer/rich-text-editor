@@ -221,29 +221,35 @@ const Wrapper = (editor: Editor, format: IPluginListFormat) => {
 		});
 	};
 
-	const processSameLine = (caret: ICaretData) => {
-		if (caret.Start.Line !== caret.End.Line) return;
+	const processSameLine = (caret: ICaretData): boolean => {
+		if (caret.Start.Line !== caret.End.Line) return false;
 
 		const startNode = formatUtils.GetParentIfText(caret.Start.Node);
 		const endNode = formatUtils.GetParentIfText(caret.End.Node);
 
 		if (!DOM.Closest(startNode, tableAndListSelector)) {
 			const blockNode = getBlock(startNode);
-			if (!blockNode) return;
-			return wrapBlock(blockNode);
+			if (!blockNode) return false;
+			wrapBlock(blockNode);
+			return true;
 		}
 
 		const table = DOM.Element.Table.GetClosest(startNode);
 		if (!!table) {
 			const selectedTableItems = DOM.Element.Table.GetSelectedCells(self, table);
-			if (!Arr.IsEmpty(selectedTableItems)) return wrapNodesInTable(selectedTableItems);
+			if (!Arr.IsEmpty(selectedTableItems)) {
+				wrapNodesInTable(selectedTableItems);
+				return true;
+			}
 		}
 
 		const startListItem = DOM.Closest(startNode, Following);
 		const endListItem = DOM.Closest(endNode, Following);
 
-		if (startListItem?.parentNode && endListItem?.parentNode && startListItem.parentNode === endListItem.parentNode)
-			return wrapNodesInList(startListItem.parentNode, startListItem, endListItem);
+		if (startListItem?.parentNode && endListItem?.parentNode && startListItem.parentNode === endListItem.parentNode) {
+			wrapNodesInList(startListItem.parentNode, startListItem, endListItem);
+			return true;
+		}
 
 		if ((startListItem || endListItem)) {
 			const rootChildren = DOM.GetChildNodes(caret.SameRoot);
@@ -263,17 +269,18 @@ const Wrapper = (editor: Editor, format: IPluginListFormat) => {
 				if (bStart) wrapNodesInSameLine(child);
 			});
 
-			if (bStart) return;
+			if (bStart) return true;
 		}
 
 		const bRootTableCell = DOM.Element.Table.GetClosestCell(startNode) === DOM.Element.Table.GetClosestCell(endNode);
-		if (!bRootTableCell) return;
+		if (!bRootTableCell) return true;
 
 		wrapNodesInTableCell(caret.SameRoot, caret.Start.Node, caret.End.Node);
+		return true;
 	};
 
-	const processRange = (caret: ICaretData) => {
-		if (caret.Start.Line === caret.End.Line) return;
+	const processRange = (caret: ICaretData): boolean => {
+		if (caret.Start.Line === caret.End.Line) return false;
 
 		const lines = self.GetLines();
 
@@ -286,10 +293,12 @@ const Wrapper = (editor: Editor, format: IPluginListFormat) => {
 			wrapRange(firstChild);
 		}
 		wrapRange(caret.End.Node, true);
+		return true;
 	};
 
 	const WrapFromCaret = (caret: ICaretData) => {
-		processSameLine(caret);
+		if (formatUtils.LeaveProcessorIfFigure(self, caret)) return;
+		if (processSameLine(caret)) return;
 		processRange(caret);
 	};
 

@@ -3,12 +3,10 @@ import Options from '../Options';
 import DOM from './dom/DOM';
 import DOMTools from './dom/DOMTools';
 import Editor from './Editor';
-import EditorUtils from './editorUtils/EditorUtils';
 import EventSetup from './events/EventSetup';
 import Formatter from './formatter/Formatter';
 import FooterManager from './managers/FooterManager';
 import PluginManager from './managers/PluginManager';
-import ToolbarRegistry from './toolbars/ToolbarRegistry';
 
 const EditorSetup = (editor: Editor): Promise<void> => {
 	const self = editor;
@@ -25,8 +23,9 @@ const EditorSetup = (editor: Editor): Promise<void> => {
 	const createIframe = (): HTMLElement => {
 		const container = frame.Container as HTMLIFrameElement;
 
+		self.SetWin(container.contentWindow as Window & typeof globalThis);
+
 		self.DOM = DOM.New({
-			window: container.contentWindow as Window & typeof globalThis,
 			document: container.contentDocument,
 			bEditor: true,
 			bSelfBody: true,
@@ -90,7 +89,6 @@ const EditorSetup = (editor: Editor): Promise<void> => {
 			DOM: DOMTools(self)
 		};
 
-		self.Utils = EditorUtils(self);
 		self.Plugin = PluginManager(self);
 		if (config.ShowFooter) self.Footer = FooterManager(self);
 		EventSetup(self);

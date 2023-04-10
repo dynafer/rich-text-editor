@@ -1,5 +1,6 @@
 import { Arr } from '@dynafer/utils';
 import Editor from '../../packages/Editor';
+import { IFormatUI } from '../../packages/formatter/FormatUI';
 import { IPluginsTableFormatUI } from './Type';
 
 interface IPluginsIconWrapReturn {
@@ -12,6 +13,8 @@ export interface IPluginTableUI {
 	readonly ACTIVE_CLASS: string,
 	readonly DISABLED_ATTRIBUTE: string,
 	CreateIconWrap: (uiFormat: IPluginsTableFormatUI) => IPluginsIconWrapReturn,
+	RegisterCommand: IFormatUI['RegisterCommand'],
+	RunCommand: IFormatUI['RunCommand'],
 	BindClickEvent: (event: () => void, ...uiList: HTMLElement[]) => void,
 }
 
@@ -39,6 +42,9 @@ const UI = (editor: Editor): IPluginTableUI => {
 		};
 	};
 
+	const RegisterCommand = formatUI.RegisterCommand;
+	const RunCommand = formatUI.RunCommand;
+
 	const BindClickEvent = (event: () => void, ...uiList: HTMLElement[]) =>
 		Arr.Each(uiList, ui => formatUI.BindClickEvent(ui, event));
 
@@ -46,6 +52,8 @@ const UI = (editor: Editor): IPluginTableUI => {
 		ACTIVE_CLASS,
 		DISABLED_ATTRIBUTE,
 		CreateIconWrap,
+		RegisterCommand,
+		RunCommand,
 		BindClickEvent,
 	};
 };

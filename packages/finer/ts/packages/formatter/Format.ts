@@ -9,7 +9,7 @@ export const ListSelector = Str.Join(',', ...ListSet);
 export const ListItemSelector = 'li';
 
 export const BlockFormatTags = {
-	Figures: new Set([Figure.Selector, ...Figure.FigureTypeSetMap.media]),
+	Figures: new Set([Figure.Selector, ...Figure.FigureTypeSetMap.media, ...Figure.FigureTypeSetMap.hr]),
 	Table: new Set([Table.Selector]),
 	TableItems: new Set([...Table.CellSet, Table.RowSelector]),
 	Block: new Set(['p', 'div', 'blockquote', 'pre', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6']),
@@ -18,7 +18,7 @@ export const BlockFormatTags = {
 	Focusable: new Set(['code', 'a']),
 };
 
-export const AllDisableList = new Set([FigureNotTableSelector, ...Figure.FigureTypeSetMap.media]);
+export const AllDisableList = new Set([FigureNotTableSelector, ...Figure.FigureTypeSetMap.media, ...Figure.FigureTypeSetMap.hr]);
 export const FigureElementFormats = new Set([...BlockFormatTags.Figures, ...BlockFormatTags.Table]);
 export const UnswitchableFormats = new Set([...BlockFormatTags.TableItems, ...BlockFormatTags.List]);
 export const AllStrictFormats = new Set([...BlockFormatTags.Block, ...UnswitchableFormats]);

@@ -56,10 +56,10 @@ const InlineColor = (editor: Editor, detector: IFormatDetector): IFormatUIRegist
 	];
 
 	const createCommand = (format: IInlineFormat, navigation: HTMLElement) =>
-		<T = boolean | string>(bActive: T, rgb: T) => {
+		(bActive: boolean, rgb: string) => {
 			const toggler = ToggleInline(self, format);
-			toggler.ToggleFromCaret(bActive as boolean, bActive ? rgb as string : undefined);
-			DOM.SetStyle(navigation, 'background-color', rgb as string);
+			toggler.ToggleFromCaret(bActive, bActive ? rgb : undefined);
+			DOM.SetStyle(navigation, 'background-color', rgb);
 			DOM.Dispatch(navigation, 'Color:Change');
 		};
 

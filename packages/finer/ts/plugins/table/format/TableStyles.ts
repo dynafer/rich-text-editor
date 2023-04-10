@@ -1,9 +1,9 @@
-import { Obj } from '@dynafer/utils';
+import { Arr, Obj } from '@dynafer/utils';
 import Options from '../../../Options';
 import Editor from '../../../packages/Editor';
-import { IPluginTableMenuFormatUI } from '../Type';
+import { IPluginTableCommand } from '../Type';
 
-const TableStyles = (editor: Editor, format: IPluginTableMenuFormatUI) => {
+const TableStyles = (editor: Editor, format: IPluginTableCommand) => {
 	const self = editor;
 	const DOM = self.DOM;
 	const { Styles, SameStyles, bAsText } = format;
@@ -29,9 +29,20 @@ const TableStyles = (editor: Editor, format: IPluginTableMenuFormatUI) => {
 	};
 
 	const Toggle = (bWrap: boolean, table: HTMLElement) => {
+		const caret = self.Utils.Caret.Get();
+		const cells = DOM.Element.Table.GetSelectedCells(self);
+
 		const toggle = bWrap ? wrapStyle : unwrapStyle;
 		toggle(table);
 		self.Tools.DOM.ChangePositions();
+
+		if (!caret) {
+			if (Arr.IsEmpty(cells)) return;
+			self.Utils.Caret.CleanRanges();
+			return DOM.Element.Table.ToggleSelectMultipleCells(true, cells);
+		}
+
+		self.Utils.Caret.UpdateRange(caret.Range.Clone());
 	};
 
 	return {

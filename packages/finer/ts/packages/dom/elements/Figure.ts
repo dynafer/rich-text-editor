@@ -36,11 +36,13 @@ const Figure = (): IFigure => {
 	const FigureTypeSetMap: Record<string, Set<string>> = {
 		media: new Set(['img', 'audio', 'video', 'iframe']),
 		table: new Set([Table.Selector]),
+		hr: new Set(['hr']),
 	};
 
 	const FigureTypeMap: Record<string, string> = {
 		media: Str.Join(',', ...FigureTypeSetMap.media),
 		table: Table.Selector,
+		hr: 'hr',
 	};
 
 	const HasType = (type: string): boolean => Arr.Contains(Obj.Keys(FigureTypeMap), type);
@@ -103,10 +105,10 @@ const Figure = (): IFigure => {
 		const newRange = self.Utils.Range();
 
 		if (figure.nextElementSibling) {
-			const firstChild = DOM.Utils.GetFirstChild(figure, true);
+			const firstChild = DOM.Utils.GetFirstChild(figure.nextElementSibling, true);
 			if (firstChild) newRange.SetStartToEnd(firstChild, 0, 0);
 		} else if (figure.previousElementSibling) {
-			const lastChild = DOM.Utils.GetLastChild(figure, true);
+			const lastChild = DOM.Utils.GetLastChild(figure.previousElementSibling, true);
 			const offset = NodeType.IsText(lastChild) ? lastChild.length : 0;
 			if (lastChild) newRange.SetStartToEnd(lastChild, offset, offset);
 		}

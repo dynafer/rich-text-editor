@@ -1,7 +1,7 @@
 import { Str } from '@dynafer/utils';
 import DOM from '../dom/DOM';
 import Editor from '../Editor';
-import { ENativeEvents } from '../events/EventSetupUtils';
+import { ENativeEvents, PreventEvent } from '../events/EventSetupUtils';
 
 const HorizontalLine = (editor: Editor) => {
 	const self = editor;
@@ -23,7 +23,8 @@ const HorizontalLine = (editor: Editor) => {
 			html: Finer.Icons.Get('HorizontalLine')
 		});
 
-		DOM.On(button, ENativeEvents.click, () => {
+		DOM.On(button, ENativeEvents.click, event => {
+			PreventEvent(event);
 			const CaretUtils = self.Utils.Caret;
 
 			const horizontalLine = createLine();
@@ -33,6 +34,7 @@ const HorizontalLine = (editor: Editor) => {
 				newRange.SetStartToEnd(horizontalLine, 1, 1);
 				CaretUtils.UpdateRange(newRange);
 				self.Utils.Shared.DispatchCaretChange([horizontalLine]);
+				self.Focus();
 			};
 
 			const caret = CaretUtils.Get();

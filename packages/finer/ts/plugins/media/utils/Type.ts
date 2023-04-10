@@ -3,17 +3,21 @@ export interface IPluginMediaFormat {
 }
 
 export interface IPluginsMediaFormatUI {
-	Title: string,
-	Icon: string,
+	readonly Title: string,
+	readonly Icon: string,
 }
 
 export interface IPluginMediaMenuFormatUI {
-	Name: string,
-	Title: string,
-	Icon: string,
-	Styles: Record<string, string>,
-	SameStyles: string[],
-	bAsText?: boolean,
+	readonly Title: string,
+	readonly CommandName: string,
+	readonly Icon: string,
+}
+
+export interface IPluginMediaCommand {
+	readonly Name: string,
+	readonly Styles: Record<string, string>,
+	readonly SameStyles: string[],
+	readonly bAsText?: boolean,
 }
 
 export interface IFileSize {

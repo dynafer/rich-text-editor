@@ -2,7 +2,7 @@ import { NodeType } from '@dynafer/dom-control';
 import { Arr, Str } from '@dynafer/utils';
 import DOM from '../dom/DOM';
 import Editor from '../Editor';
-import { ENativeEvents } from '../events/EventSetupUtils';
+import { ENativeEvents, PreventEvent } from '../events/EventSetupUtils';
 
 export interface IFooterManager {
 	UpdateCounter: () => void,
@@ -147,7 +147,10 @@ const FooterManager = (editor: Editor): IFooterManager | null => {
 			const navigationItem = DOM.Create('button', { attrs: { title: elementName } });
 			DOM.SetText(navigationItem, elementName);
 
-			DOM.On(navigationItem, ENativeEvents.click, () => navigationClickEvent(element));
+			DOM.On(navigationItem, ENativeEvents.click, event => {
+				PreventEvent(event);
+				navigationClickEvent(element);
+			});
 
 			DOM.Insert(navigation, navigationItem);
 		});

@@ -1,5 +1,6 @@
 import { NodeType } from '@dynafer/dom-control';
 import { Arr } from '@dynafer/utils';
+import DOM from '../dom/DOM';
 import Editor from '../Editor';
 import FormatUtils from '../formatter/FormatUtils';
 
@@ -15,14 +16,13 @@ export interface ISharedUtils {
 
 const SharedUtils = (editor: Editor): ISharedUtils => {
 	const self = editor;
-	const DOM = self.DOM;
 
 	const DispatchCaretChange = (paths: Node[] = []) => {
 		const newPaths: Node[] = [...paths];
 
 		const caret = self.Utils.Caret.Get();
 
-		if (caret && (newPaths.length === 1 || !!DOM.Select(DOM.Element.Table.Selector, newPaths[0])))
+		if (caret && (newPaths.length === 1 || !!self.DOM.Select(DOM.Element.Table.Selector, newPaths[0])))
 			Arr.Push(newPaths, ...Arr.MergeUnique(caret.Start.Path, caret.End.Path));
 
 		if (!Arr.IsEmpty(newPaths)) return self.Dispatch('Caret:Change', newPaths);

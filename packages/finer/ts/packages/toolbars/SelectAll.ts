@@ -1,7 +1,7 @@
 import { NodeType } from '@dynafer/dom-control';
 import DOM from '../dom/DOM';
 import Editor from '../Editor';
-import { ENativeEvents } from '../events/EventSetupUtils';
+import { ENativeEvents, PreventEvent } from '../events/EventSetupUtils';
 
 const SelectAll = (editor: Editor) => {
 	const self = editor;
@@ -17,7 +17,8 @@ const SelectAll = (editor: Editor) => {
 
 		self.AddShortcut(title, 'Ctrl+A');
 
-		DOM.On(button, ENativeEvents.click, () => {
+		DOM.On(button, ENativeEvents.click, event => {
+			PreventEvent(event);
 			const lines = self.GetLines();
 			const firstChild = DOM.Utils.GetFirstChild(lines[0], true);
 			const lastChild = DOM.Utils.GetLastChild(lines[lines.length - 1], true);

@@ -12,13 +12,11 @@ export type TCreateOption = Attribute.TAttributeSetter | string | TElement[] | (
 export type TEventListener<K extends keyof GlobalEventHandlersEventMap> = (event: GlobalEventHandlersEventMap[K]) => void;
 
 interface IDOMCreateOption {
-	window?: Window & typeof globalThis | null,
 	document?: Document | null,
 	bEditor: false,
 }
 
 interface IDOMCreateOptionFromEditor {
-	window?: Window & typeof globalThis | null,
 	document?: Document | null,
 	bEditor: true,
 	bSelfBody: false,
@@ -26,14 +24,12 @@ interface IDOMCreateOptionFromEditor {
 }
 
 interface IDOMCreateOptionFromEditorIFrame {
-	window?: Window & typeof globalThis | null,
 	document?: Document | null,
 	bEditor: true,
 	bSelfBody: true,
 }
 
 export interface IDom {
-	readonly Win: Window & typeof globalThis,
 	readonly Doc: Document,
 	readonly Utils: IDOMUtils,
 	readonly EventUtils: IDOMEventUtils,
@@ -123,7 +119,6 @@ export interface IDom {
 }
 
 const DOM = (opts: TDOMCreateOption): IDom => {
-	const Win: Window & typeof globalThis = opts.window ?? window;
 	const Doc: Document = opts.document ?? document;
 	const Utils: IDOMUtils = DOMUtils;
 
@@ -173,7 +168,7 @@ const DOM = (opts: TDOMCreateOption): IDom => {
 
 	const GetStyleText = (selector: TElement): string => Style.GetText(selector);
 	const GetStyles = (selector: TElement): Record<string, string> => Style.GetAsMap(selector);
-	const GetStyle = (selector: TElement, name: string, bComputed?: boolean): string => Style.Get(Win, selector, name, bComputed);
+	const GetStyle = (selector: TElement, name: string, bComputed?: boolean): string => Style.Get(selector, name, bComputed);
 	const SetStyleText = (selector: TElement, styleText: string) => Style.SetText(selector, styleText);
 	const SetStyle = (selector: TElement, name: string, value: string) => {
 		Style.Set(selector, name, value);
@@ -205,8 +200,8 @@ const DOM = (opts: TDOMCreateOption): IDom => {
 	const SetOuterHTML = (selector: TElement, text: string) => Obj.SetProperty(selector, 'outerHTML', text);
 
 	const InsertBefore = (selector: TElement, ...insertions: (string | TElement)[]) => Inserter.BeforeOuter(selector, ...insertions);
-	const InsertFirst = (selector: TElement, ...insertions: (string | TElement)[]) => Inserter.BeforeInner(Doc, selector, ...insertions);
-	const Insert = (selector: TElement, ...insertions: (string | TElement)[]) => Inserter.AfterInner(Doc, selector, ...insertions);
+	const InsertFirst = (selector: TElement, ...insertions: (string | TElement)[]) => Inserter.BeforeInner(selector, ...insertions);
+	const Insert = (selector: TElement, ...insertions: (string | TElement)[]) => Inserter.AfterInner(selector, ...insertions);
 	const InsertAfter = (selector: TElement, ...insertions: (string | TElement)[]) => Inserter.AfterOuter(selector, ...insertions);
 
 	const Clone = <T extends Element>(selector: T | NonNullable<TElement>, bDeep?: boolean): T | Node => selector.cloneNode(bDeep);
@@ -273,7 +268,7 @@ const DOM = (opts: TDOMCreateOption): IDom => {
 	const Off = (selector: TEventTarget, eventName: string, event: EventListener) => EventUtils.Unbind(selector, eventName, event);
 
 	const Dispatch = (selector: TEventTarget, eventName: string) => {
-		if ((selector !== Win && selector !== Doc && !NodeType.IsElement(selector)) || !Type.IsString(eventName)) return;
+		if ((!NodeType.IsWindow(selector) && !NodeType.IsDocument(selector) && !NodeType.IsElement(selector)) || !Type.IsString(eventName)) return;
 		const customEvent = new CustomEvent(eventName);
 
 		selector.dispatchEvent(customEvent);
@@ -331,7 +326,6 @@ const DOM = (opts: TDOMCreateOption): IDom => {
 	};
 
 	return {
-		Win,
 		Doc,
 		Utils,
 		EventUtils,

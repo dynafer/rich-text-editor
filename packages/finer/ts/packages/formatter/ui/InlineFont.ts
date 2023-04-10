@@ -90,10 +90,10 @@ const InlineFont = (editor: Editor, detector: IFormatDetector): IFormatUIRegistr
 	};
 
 	const createCommand = (format: IInlineFormat, label: string, value: string, setLabelText: (value: string) => void) =>
-		<T = boolean>(bActive: T) => {
+		(bActive: boolean) => {
 			const toggler = ToggleInline(self, format);
 			if (bActive) FormatUI.UnwrapSameInlineFormats(self, format);
-			toggler.ToggleFromCaret(bActive as boolean, value);
+			toggler.ToggleFromCaret(bActive, value);
 			setLabelText(bActive ? label : '');
 		};
 

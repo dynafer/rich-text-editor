@@ -1,4 +1,10 @@
 .#{$projectName} {
+	&[mode='classic'] {
+		.#{getClassName(container)} {
+			@include margin(rem, $bottom: -0.25);
+		}
+	}
+
 	.#{getClassName(wrapper)} {
 		@include position(relative);
 
@@ -32,14 +38,17 @@
 			}
 		}
 
-		.#{getClassName(classic)} {
-			@include width(100%);
-			@include all-border(getVar(editor-border));
+		.#{getClassName(container)} {
+			@include all-border(transparent);
+			@include width(calc(100% - 2px));
+			@include margin(px, $left: 1);
+			outline: getVar(editor-border) 1px solid;
 			background-color: getVar(editor-bg);
-		}
 
-		& > iframe {
-			@include margin(rem, $bottom: -0.25);
+			&.focused {
+				@include all-border(getVar(editor-focused-border));
+				outline-color: getVar(editor-focused-border);
+			}
 		}
 	}
 }

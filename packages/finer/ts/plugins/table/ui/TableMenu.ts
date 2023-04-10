@@ -1,9 +1,9 @@
 import { Arr, Obj } from '@dynafer/utils';
 import { IDOMToolsPartAttacher } from '../../../packages/dom/tools/Types';
 import Editor from '../../../packages/Editor';
-import TableStyles from '../format/TableStyles';
 import { IPluginTableMenuFormatUI } from '../Type';
 import { IPluginTableUI } from '../UI';
+import { COMMAND_NAMES_MAP } from '../Utils';
 
 export interface ITableMenu {
 	Create: IDOMToolsPartAttacher,
@@ -24,33 +24,15 @@ const TableMenu = (editor: Editor, ui: IPluginTableUI): ITableMenu => {
 
 	const uiFormats: Record<string, IPluginTableMenuFormatUI[]> = {
 		Float: [
-			{ Name: 'Left', Title: floatLeft, Icon: 'MediaFloatLeft', Styles: { float: 'left' }, SameStyles: ['margin-left', 'margin-right'], bAsText: true },
-			{ Name: 'Right', Title: floatRight, Icon: 'MediaFloatRight', Styles: { float: 'right' }, SameStyles: ['margin-left', 'margin-right'], bAsText: true },
+			{ Title: floatLeft, CommandName: COMMAND_NAMES_MAP.FLOAT_LEFT, Icon: 'MediaFloatLeft' },
+			{ Title: floatRight, CommandName: COMMAND_NAMES_MAP.FLOAT_RIGHT, Icon: 'MediaFloatRight' },
 		],
 		Alignment: [
-			{ Name: 'Left', Title: alignLeft, Icon: 'MediaAlignLeft', Styles: { marginLeft: '0px', marginRight: 'auto' }, SameStyles: ['float'] },
-			{ Name: 'Center', Title: alignCenter, Icon: 'MediaAlignCenter', Styles: { marginLeft: 'auto', marginRight: 'auto' }, SameStyles: ['float'] },
-			{ Name: 'Right', Title: alignRight, Icon: 'MediaAlignRight', Styles: { marginLeft: 'auto', marginRight: '0px' }, SameStyles: ['float'] },
+			{ Title: alignLeft, CommandName: COMMAND_NAMES_MAP.ALIGN_LEFT, Icon: 'MediaAlignLeft' },
+			{ Title: alignCenter, CommandName: COMMAND_NAMES_MAP.ALIGN_CENTER, Icon: 'MediaAlignCenter' },
+			{ Title: alignRight, CommandName: COMMAND_NAMES_MAP.ALIGN_RIGHT, Icon: 'MediaAlignRight' },
 		]
 	};
-
-	const createCommand = (tableMenu: HTMLElement, format: IPluginTableMenuFormatUI, button: HTMLElement) =>
-		(bActive: boolean) => {
-			const { FigureElement } = DOM.Element.Figure.Find<HTMLElement>(tableMenu);
-			if (!FigureElement) return null;
-
-			const toggler = TableStyles(self, format);
-			toggler.Toggle(bActive, FigureElement);
-
-			const otherButtons = DOM.SelectAll({
-				class: DOM.Utils.CreateUEID('icon-button', false)
-			}, tableMenu);
-
-			Arr.Each(otherButtons, otherButton => DOM.RemoveClass(otherButton, ui.ACTIVE_CLASS));
-
-			const toggleClass = bActive ? DOM.AddClass : DOM.RemoveClass;
-			toggleClass(button, ui.ACTIVE_CLASS);
-		};
 
 	const createGroup = (tableMenu: HTMLElement, formats: IPluginTableMenuFormatUI[]): HTMLElement => {
 		const group = DOM.Create('div', {
@@ -58,7 +40,7 @@ const TableMenu = (editor: Editor, ui: IPluginTableUI): ITableMenu => {
 		});
 
 		Arr.Each(formats, format => {
-			const { Title, Icon } = format;
+			const { Title, CommandName, Icon } = format;
 
 			const button = DOM.Create('button', {
 				attrs: {
@@ -68,9 +50,20 @@ const TableMenu = (editor: Editor, ui: IPluginTableUI): ITableMenu => {
 				html: Finer.Icons.Get(Icon)
 			});
 
-			const command = createCommand(tableMenu, format, button);
+			DOM.On(button, Finer.NativeEventMap.click, event => {
+				Finer.PreventEvent(event);
+				const bActive = !DOM.HasClass(button, ui.ACTIVE_CLASS);
+				self.Commander.Run<boolean | Node>(CommandName, bActive, tableMenu);
 
-			DOM.On(button, Finer.NativeEventMap.click, () => command(!DOM.HasClass(button, ui.ACTIVE_CLASS)));
+				const otherButtons = DOM.SelectAll({
+					class: DOM.Utils.CreateUEID('icon-button', false)
+				}, tableMenu);
+
+				Arr.Each(otherButtons, otherButton => DOM.RemoveClass(otherButton, ui.ACTIVE_CLASS));
+
+				const toggleClass = bActive ? DOM.AddClass : DOM.RemoveClass;
+				toggleClass(button, ui.ACTIVE_CLASS);
+			});
 
 			DOM.Insert(group, button);
 		});
@@ -92,7 +85,10 @@ const TableMenu = (editor: Editor, ui: IPluginTableUI): ITableMenu => {
 			html: Finer.Icons.Get(Finer.Icons.Get('Trash'))
 		});
 
-		DOM.On(button, Finer.NativeEventMap.click, () => DOM.Element.Figure.Remove(self, tableMenu));
+		DOM.On(button, Finer.NativeEventMap.click, event => {
+			Finer.PreventEvent(event);
+			self.Commander.Run(COMMAND_NAMES_MAP.TABLE_REMOVE, tableMenu);
+		});
 
 		DOM.Insert(group, button);
 

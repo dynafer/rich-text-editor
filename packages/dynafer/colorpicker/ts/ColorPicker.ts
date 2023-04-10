@@ -42,7 +42,7 @@ const ColorPicker = (): IColorPicker => {
 			),
 		});
 
-		Inserter.AfterInner(document, schema.Schema.GetBody(), schema.Schema.Self);
+		Inserter.AfterInner(schema.Schema.GetBody(), schema.Schema.Self);
 	};
 
 	return {

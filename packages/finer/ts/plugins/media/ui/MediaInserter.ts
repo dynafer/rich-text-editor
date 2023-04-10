@@ -1,8 +1,7 @@
 import Editor from '../../../packages/Editor';
-import Media from '../format/Media';
 import { IPluginMediaUI } from '../UI';
 import { IPluginsMediaFormatUI } from '../utils/Type';
-import URLMatcher from '../utils/URLMatcher';
+import { COMMAND_NAMES_MAP } from '../utils/Utils';
 
 const MediaInserter = (editor: Editor, ui: IPluginMediaUI) => {
 	const self = editor;
@@ -23,51 +22,13 @@ const MediaInserter = (editor: Editor, ui: IPluginMediaUI) => {
 			const bUpdatable = DOM.Element.Figure.IsFigure(figure) && (DOM.Utils.IsIFrame(figureElement) || DOM.Utils.IsVideo(figureElement));
 
 			const createMedia = (input: HTMLInputElement) => {
-				const mediaFormat = Media(self);
-
-				const matchedURL = URLMatcher.Match(input.value);
-				const format = matchedURL.Format ?? 'video';
-				const width = matchedURL.Width ?? 640;
-				const height = matchedURL.Height ?? 360;
-
-				const loadCallback = (media: HTMLElement) => {
-					if (DOM.Utils.IsVideo(media)) {
-						media.controls = true;
-						return;
-					}
-
-					DOM.SetAttrs(media, {
-						dataOriginalWidth: width.toString(),
-						dataOriginalHeight: height.toString(),
-					});
-					self.DOM.SetStyles(media, {
-						width: `${width}px`,
-						height: `${height}px`,
-					});
-				};
-
-				if (!bUpdatable) return mediaFormat.CreateViaURL(matchedURL.URL, {
-					tagName: format,
-					loadCallback
-				});
-
-				if (DOM.Utils.GetNodeName(figureElement) === format) {
-					figureElement.src = matchedURL.URL;
-					return mediaFormat.OnLoadAndErrorEvents(figureElement, loadCallback);
-				}
-
-				mediaFormat.ChangeFigure(figure, {
-					tagName: format,
-					attrs: {
-						src: matchedURL.URL
-					},
-					loadCallback
-				});
+				const commandName = !bUpdatable ? COMMAND_NAMES_MAP.MEDIA_CREATE : COMMAND_NAMES_MAP.MEDIA_UPDATE;
+				self.Commander.Run<string | Node | null>(commandName, input.value, figureElement);
 			};
 
 			const removeMedia = () => {
 				if (!figure) return;
-				DOM.Remove(figure);
+				self.Commander.Run(COMMAND_NAMES_MAP.MEDIA_REMOVE, figure);
 			};
 
 			const placeholderUpdate = Finer.ILC.Get('plugins.media.update') ?? 'Update the media URL';

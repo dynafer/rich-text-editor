@@ -10,10 +10,11 @@ import InlineColor from './InlineColor';
 import InlineFont from './InlineFont';
 
 interface IInlineFormatUI {
-	Format: IInlineFormat | IInlineFormat[],
-	Title: string,
-	Icon: string,
-	Keys?: string,
+	readonly Format: IInlineFormat | IInlineFormat[],
+	readonly Title: string,
+	readonly CommandName: string,
+	readonly Icon: string,
+	readonly Keys?: string,
 }
 
 const Inline = (editor: Editor, detector: IFormatDetector): IFormatUIRegistryUnit => {
@@ -24,13 +25,13 @@ const Inline = (editor: Editor, detector: IFormatDetector): IFormatUIRegistryUni
 	const inlineFont = InlineFont(self, detector);
 
 	const InlineFormats: Record<string, IInlineFormatUI> = {
-		Bold: { Format: Formats.Bold as IInlineFormat[], Title: Finer.ILC.Get('format.bold') ?? 'Bold', Icon: 'Bold', Keys: 'Ctrl+B' },
-		Italic: { Format: Formats.Italic as IInlineFormat[], Title: Finer.ILC.Get('format.italic') ?? 'Italic', Icon: 'Italic', Keys: 'Ctrl+I' },
-		Strikethrough: { Format: Formats.Strikethrough as IInlineFormat[], Title: Finer.ILC.Get('format.strikethrough') ?? 'Strikethrough', Icon: 'Strikethrough' },
-		Subscript: { Format: Formats.Subscript as IInlineFormat, Title: Finer.ILC.Get('format.subscript') ?? 'Subscript', Icon: 'Subscript' },
-		Superscript: { Format: Formats.Superscript as IInlineFormat, Title: Finer.ILC.Get('format.superscript') ?? 'Superscript', Icon: 'Superscript' },
-		Underline: { Format: Formats.Underline as IInlineFormat[], Title: Finer.ILC.Get('format.underline') ?? 'Underline', Icon: 'Underline', Keys: 'Ctrl+U' },
-		Code: { Format: Formats.Code as IInlineFormat, Title: Finer.ILC.Get('format.code') ?? 'Code', Icon: 'Code' },
+		Bold: { Format: Formats.Bold as IInlineFormat[], Title: Finer.ILC.Get('format.bold') ?? 'Bold', CommandName: 'Bold', Icon: 'Bold', Keys: 'Ctrl+B' },
+		Italic: { Format: Formats.Italic as IInlineFormat[], Title: Finer.ILC.Get('format.italic') ?? 'Italic', CommandName: 'Italic', Icon: 'Italic', Keys: 'Ctrl+I' },
+		Strikethrough: { Format: Formats.Strikethrough as IInlineFormat[], Title: Finer.ILC.Get('format.strikethrough') ?? 'Strikethrough', CommandName: 'Strikethrough', Icon: 'Strikethrough' },
+		Subscript: { Format: Formats.Subscript as IInlineFormat, Title: Finer.ILC.Get('format.subscript') ?? 'Subscript', CommandName: 'Subscript', Icon: 'Subscript' },
+		Superscript: { Format: Formats.Superscript as IInlineFormat, Title: Finer.ILC.Get('format.superscript') ?? 'Superscript', CommandName: 'Superscript', Icon: 'Superscript' },
+		Underline: { Format: Formats.Underline as IInlineFormat[], Title: Finer.ILC.Get('format.underline') ?? 'Underline', CommandName: 'Underline', Icon: 'Underline', Keys: 'Ctrl+U' },
+		Code: { Format: Formats.Code as IInlineFormat, Title: Finer.ILC.Get('format.code') ?? 'Code', CommandName: 'Code', Icon: 'Code' },
 	};
 
 	const UINames = Obj.Keys(InlineFormats);
@@ -56,22 +57,22 @@ const Inline = (editor: Editor, detector: IFormatDetector): IFormatUIRegistryUni
 	};
 
 	const createCommand = (format: IInlineFormat | IInlineFormat[], button: HTMLElement) =>
-		<T = boolean>(bActive: T) => {
-			FormatUI.ToggleActivateClass(button, bActive as boolean);
+		(bActive: boolean) => {
+			FormatUI.ToggleActivateClass(button, bActive);
 			const toggler = ToggleInline(self, format);
 			if (bActive) FormatUI.UnwrapSameInlineFormats(self, format);
-			toggler.ToggleFromCaret(bActive as boolean);
+			toggler.ToggleFromCaret(bActive);
 		};
 
-	const createIconButton = (uiName: string, uiFormat: IInlineFormatUI): HTMLElement => {
-		const { Format, Title, Icon, Keys } = uiFormat;
+	const createIconButton = (uiFormat: IInlineFormatUI): HTMLElement => {
+		const { Format, Title, CommandName, Icon, Keys } = uiFormat;
 		const button = FormatUI.CreateIconButton(Title, Icon);
 		const command = createCommand(Format, button);
 
-		FormatUI.RegisterCommand(self, uiName, command);
+		FormatUI.RegisterCommand(self, CommandName, command);
 		const eventCallback = () => {
 			if (FormatUI.IsDisabled(button)) return;
-			FormatUI.RunCommand(self, uiName, !FormatUI.HasActiveClass(button));
+			FormatUI.RunCommand(self, CommandName, !FormatUI.HasActiveClass(button));
 		};
 		FormatUI.BindClickEvent(button, eventCallback);
 		if (Type.IsString(Keys)) {
@@ -116,7 +117,7 @@ const Inline = (editor: Editor, detector: IFormatDetector): IFormatUIRegistryUni
 		const uiName = FormatUtils.GetFormatName(name, UINames);
 		const uiFormat = InlineFormats[uiName];
 
-		return createIconButton(uiName, uiFormat);
+		return createIconButton(uiFormat);
 	};
 
 	return {
