@@ -21,7 +21,7 @@ const Wrapper = (editor: Editor, utils: IAnchorUtils) => {
 		return anchor;
 	};
 
-	const mergeAnchors = () => {
+	const mergeAnchors = (caret: ICaretData) => {
 		const anchors = DOM.SelectAll<HTMLAnchorElement>('a', self.GetBody());
 
 		Arr.WhileShift(anchors, anchor => {
@@ -31,10 +31,14 @@ const Wrapper = (editor: Editor, utils: IAnchorUtils) => {
 			DOM.Insert(previous, ...DOM.GetChildNodes(anchor));
 			DOM.Remove(anchor);
 		});
+
+		CaretUtils.UpdateRange(caret.Range.Clone());
 	};
 
 	const wrapRecursive = (node: Node, url: string): void => {
 		const nodeName = DOM.Utils.GetNodeName(node);
+		if (formats.AllDisableList.has(nodeName)) return;
+
 		if (formats.AllBlockFormats.has(nodeName) && !formats.BlockFormatTags.Block.has(nodeName))
 			return Arr.Each(DOM.GetChildNodes(node), child => wrapRecursive(child, url));
 
@@ -119,7 +123,7 @@ const Wrapper = (editor: Editor, utils: IAnchorUtils) => {
 
 		const newRange = RangeUtils();
 		newRange.SetStart(startNode, 0);
-		newRange.SetEnd(endNode, endNode.textContent?.length ?? 0);
+		newRange.SetEnd(endNode, NodeType.IsText(endNode) ? endNode.length : 0);
 		CaretUtils.UpdateRange(newRange);
 
 		return true;
@@ -142,7 +146,7 @@ const Wrapper = (editor: Editor, utils: IAnchorUtils) => {
 		const endNode = utils.TrimTextsRangeEdge(caret.End.Node, caret.End.Offset);
 
 		caret.Range.SetStart(startNode, startNode === caret.Start.Node ? caret.Start.Offset : 0);
-		caret.Range.SetEnd(endNode, endNode.textContent?.length ?? 0);
+		caret.Range.SetEnd(endNode, NodeType.IsText(endNode) ? endNode.length : 0);
 
 		const startUntil = utils.GetClosestBlock(startNode);
 		const endUntil = utils.GetClosestBlock(endNode);
@@ -167,14 +171,15 @@ const Wrapper = (editor: Editor, utils: IAnchorUtils) => {
 			endUntil,
 			caret.End.Path[0],
 			false,
-			(sibling: Node) => wrapRecursive(sibling, url)
+			(sibling: Node) => wrapRecursive(sibling, url),
+			(sibling: Node) => !DOM.Utils.IsChildOf(caret.End.Path[0], sibling)
 		);
 
 		trimRangeEdge(endNode, endUntil, url, false);
 
 		const newRange = RangeUtils();
 		newRange.SetStart(startNode, startNode === caret.Start.Node ? caret.Start.Offset : 0);
-		newRange.SetEnd(endNode, endNode.textContent?.length ?? 0);
+		newRange.SetEnd(endNode, NodeType.IsText(endNode) ? endNode.length : 0);
 		CaretUtils.UpdateRange(newRange);
 
 		return true;
@@ -210,7 +215,7 @@ const Wrapper = (editor: Editor, utils: IAnchorUtils) => {
 
 		const finish = () => {
 			formatUtils.CleanDirtyWithCaret(self, CaretUtils.Get() ?? caret);
-			formatUtils.RunFormatting(self, mergeAnchors);
+			mergeAnchors(CaretUtils.Get() ?? caret);
 			self.Focus();
 		};
 

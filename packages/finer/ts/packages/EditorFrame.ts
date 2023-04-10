@@ -15,7 +15,8 @@ export interface IEditorFrame {
 const EditorFrame = (config: IConfiguration): IEditorFrame => {
 	const Root = DOM.Create('div', {
 		attrs: {
-			id: config.Id
+			id: config.Id,
+			mode: EModeEditor[config.Mode],
 		},
 		styles: {
 			width: config.Width,
@@ -56,7 +57,7 @@ const EditorFrame = (config: IConfiguration): IEditorFrame => {
 		styles: {
 			height: config.Height
 		},
-		class: DOM.Utils.CreateUEID(EModeEditor[config.Mode], false),
+		class: containerId,
 	});
 
 	const loadingId = DOM.Utils.CreateUEID('loading', false);

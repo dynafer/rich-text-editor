@@ -5,7 +5,6 @@ import { ENativeEvents } from '../EventSetupUtils';
 const SelectTableCell = (editor: Editor, event: MouseEvent | TouchEvent) => {
 	const self = editor;
 	const DOM = self.DOM;
-	const rootDOM = self.GetRootDOM();
 	let bDragged = false;
 
 	const selectedCells = DOM.Element.Table.GetSelectedCells(self);
@@ -65,22 +64,20 @@ const SelectTableCell = (editor: Editor, event: MouseEvent | TouchEvent) => {
 		}
 	};
 
-	const upEvent = () => {
-		bDragged = false;
-		DOM.Off(Table, ENativeEvents.mousemove, moveEvent);
-		DOM.Off(Table, ENativeEvents.touchmove, moveEvent);
-		DOM.Off(DOM.Win, ENativeEvents.mouseup, upEvent);
-		DOM.Off(DOM.Win, ENativeEvents.touchend, upEvent);
-		rootDOM.Off(rootDOM.Win, ENativeEvents.mouseup, upEvent);
-		rootDOM.Off(rootDOM.Win, ENativeEvents.touchend, upEvent);
-	};
+	const boundEvents: [((Window & typeof globalThis) | Element), ENativeEvents, EventListener][] = [];
 
-	DOM.On(Table, ENativeEvents.mousemove, moveEvent);
-	DOM.On(Table, ENativeEvents.touchmove, moveEvent);
-	DOM.On(DOM.Win, ENativeEvents.mouseup, upEvent);
-	DOM.On(DOM.Win, ENativeEvents.touchend, upEvent);
-	rootDOM.On(rootDOM.Win, ENativeEvents.mouseup, upEvent);
-	rootDOM.On(rootDOM.Win, ENativeEvents.touchend, upEvent);
+	const upEvent = () => Arr.WhileShift(boundEvents, boundEvent => DOM.Off(boundEvent[0], boundEvent[1], boundEvent[2]));
+
+	Arr.Push(boundEvents,
+		[Table, ENativeEvents.mousemove, moveEvent as EventListener],
+		[Table, ENativeEvents.touchmove, moveEvent as EventListener],
+		[self.GetWin(), ENativeEvents.mouseup, upEvent],
+		[self.GetWin(), ENativeEvents.touchend, upEvent],
+		[window, ENativeEvents.mouseup, upEvent],
+		[window, ENativeEvents.touchend, upEvent],
+	);
+
+	Arr.Each(boundEvents, boundEvent => DOM.On(boundEvent[0], boundEvent[1], boundEvent[2]));
 };
 
 export default SelectTableCell;

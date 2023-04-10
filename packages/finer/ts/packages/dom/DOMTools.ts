@@ -25,12 +25,12 @@ const DOMTools = (editor: Editor): IDOMTools => {
 	Manager.Attach(DefaultParts.Media);
 	Manager.Attach(DefaultParts.Table);
 
-	DOM.On(DOM.Win, Finer.NativeEventMap.scroll, () =>
+	DOM.On(self.GetWin(), Finer.NativeEventMap.scroll, () =>
 		Arr.Each(DOM.SelectAll<HTMLElement>({ attrs: ['data-tools-menu'] }), menu => {
 			const { Figure, FigureElement } = DOM.Element.Figure.Find<HTMLElement>(menu);
 			if (!Figure || !FigureElement) return;
 
-			const yRange = DOM.Win.innerHeight + DOM.Win.scrollY;
+			const yRange = self.GetWin().innerHeight + self.GetWin().scrollY;
 			const predictMenuBottomSide = Figure.offsetTop + Figure.offsetHeight + menu.offsetHeight;
 
 			const position = predictMenuBottomSide <= yRange

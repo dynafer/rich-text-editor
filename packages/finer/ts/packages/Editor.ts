@@ -1,4 +1,5 @@
 import { Arr, Instance, Str } from '@dynafer/utils';
+import Options from '..//Options';
 import Commander, { ICommander } from './commander/Commander';
 import DOM, { IDom, TEventListener } from './dom/DOM';
 import { IDOMTools } from './dom/DOMTools';
@@ -8,7 +9,7 @@ import EditorFrame, { IEditorFrame } from './EditorFrame';
 import EditorSetup from './EditorSetup';
 import EditorToolbar, { IEditorToolbar } from './EditorToolbar';
 import { IRangeUtils } from './editorUtils/caret/RangeUtils';
-import { IEditorUtils } from './editorUtils/EditorUtils';
+import EditorUtils, { IEditorUtils } from './editorUtils/EditorUtils';
 import { IEvent } from './editorUtils/EventUtils';
 import { ENativeEvents } from './events/EventSetupUtils';
 import { IFormatter } from './formatter/Formatter';
@@ -36,21 +37,22 @@ class Editor {
 	public readonly Config: IConfiguration;
 	public readonly Frame: IEditorFrame;
 	public readonly Notification: INotificationManager;
-	public Plugin!: IPluginManager;
-	public DOM!: IDom;
-	public readonly Commander: ICommander = Commander();
-	public Utils!: IEditorUtils;
-	public Formatter!: IFormatter;
+	public readonly Commander: ICommander;
 	public readonly Toolbar: IEditorToolbar;
-	public Tools!: IEditorTools;
+	public readonly Utils: IEditorUtils;
+	public DOM!: IDom;
 	public Footer!: IFooterManager | null;
+	public Formatter!: IFormatter;
+	public Plugin!: IPluginManager;
+	public Tools!: IEditorTools;
 
+	private readonly mShortcuts: IShortcuts[] = [];
+	private mWin: Window & typeof globalThis = window;
 	private mBody!: HTMLElement;
-	private mbDestroyed: boolean = false;
-	private mbAdjusting: boolean = false;
 	private mScrollX: number = -1;
 	private mScrollY: number = -1;
-	private readonly mShortcuts: IShortcuts[] = [];
+	private mbDestroyed: boolean = false;
+	private mbAdjusting: boolean = false;
 
 	public constructor(config: IEditorConfiguration) {
 		const configuration: IConfiguration = Configure(config);
@@ -58,6 +60,8 @@ class Editor {
 		this.Id = configuration.Id;
 		this.Config = configuration;
 		this.Frame = EditorFrame(configuration);
+		this.Utils = EditorUtils(this);
+		this.Commander = Commander(this);
 		this.Notification = NotificationManager(this);
 		this.Toolbar = EditorToolbar(this);
 
@@ -102,9 +106,11 @@ class Editor {
 	public SetBody(body: HTMLElement) { this.mBody = body; }
 	public GetBody(): HTMLElement { return this.mBody; }
 
-	public GetRootDOM(): IDom {
-		return DOM;
-	}
+	public SetWin(win: Window) { this.mWin = win as Window & typeof globalThis ?? window; }
+	public GetWin(): Window & typeof globalThis { return this.mWin; }
+	public GetRootWin(): Window & typeof globalThis { return window; }
+
+	public GetRootDOM(): IDom { return DOM; }
 
 	public SaveScrollPosition() {
 		this.mScrollX = this.DOM.GetRoot().scrollLeft;
@@ -124,7 +130,7 @@ class Editor {
 		const rect = this.DOM.GetRect(target);
 		const targetTop = rect?.top ?? target.offsetTop;
 		const targetHeight = rect?.height ?? target.offsetHeight;
-		const halfHeights = (this.DOM.Win.innerHeight / 2) - (targetHeight / 2);
+		const halfHeights = (this.GetWin().innerHeight / 2) - (targetHeight / 2);
 		const distance = targetTop - halfHeights;
 
 		let startTime: number | null = null;
@@ -141,12 +147,12 @@ class Editor {
 			const elapsedTime = currentTime - startTime;
 			const progress = easeInOutQuad(elapsedTime);
 			const scrollToPosition = start + distance * progress;
-			this.DOM.Win.scrollTo(0, scrollToPosition);
+			this.GetWin().scrollTo(0, scrollToPosition);
 
-			if (elapsedTime < duration) return this.DOM.Win.requestAnimationFrame(animate);
+			if (elapsedTime < duration) return this.GetWin().requestAnimationFrame(animate);
 		};
 
-		this.DOM.Win.requestAnimationFrame(animate);
+		this.GetWin().requestAnimationFrame(animate);
 	}
 
 	public Focus() {
@@ -189,6 +195,16 @@ class Editor {
 	public SetContent(html: string) {
 		if (Str.IsEmpty(html)) return this.InitContent();
 		this.InitContent(html);
+	}
+
+	public GetContent(): string {
+		const fake = DOM.Create('div');
+		DOM.CloneAndInsert(fake, true, ...this.GetLines());
+		Arr.WhileShift(DOM.SelectAll({ attrs: { dataFixed: 'dom-tool' } }, fake), tools => DOM.Remove(tools));
+		Arr.WhileShift(DOM.SelectAll({ attrs: [Options.ATTRIBUTE_EDITOR_STYLE] }, fake), styleElems => DOM.RemoveAttr(styleElems, Options.ATTRIBUTE_EDITOR_STYLE));
+		const html = DOM.GetHTML(fake);
+		DOM.Remove(fake);
+		return html;
 	}
 
 	public GetLines(bArray?: true): Element[];

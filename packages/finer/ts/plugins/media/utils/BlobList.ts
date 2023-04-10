@@ -4,18 +4,18 @@ import { IFileSize } from './Type';
 import { CalculateFileSize } from './Utils';
 
 export interface IBlobList {
-	Get: () => FileList,
+	Get: () => File[],
 	GetList: () => IBlobItem[],
 	GetLength: () => number,
 	GetTotalSize: (type?: string) => IFileSize,
 }
 
-const BlobList = (list: FileList) => {
+const BlobList = (...list: File[]): IBlobList => {
 	const files: IBlobItem[] = [];
 
 	Arr.Each(list, file => Arr.Push(files, BlobItem(file)));
 
-	const Get = (): FileList => list;
+	const Get = (): File[] => list;
 	const GetList = (): IBlobItem[] => files;
 	const GetLength = (): number => files.length;
 

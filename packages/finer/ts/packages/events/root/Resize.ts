@@ -5,7 +5,7 @@ import { ENativeEvents } from '../EventSetupUtils';
 const Resize = (editor: Editor) => {
 	const self = editor;
 
-	DOM.On(DOM.Win, ENativeEvents.resize, self.Tools.DOM.ChangePositions);
+	DOM.On(window, ENativeEvents.resize, self.Tools.DOM.ChangePositions);
 };
 
 export default Resize;

@@ -24,10 +24,11 @@ const getOriginalMediaPosition = (editor: Editor, fakeFigure: IFakeFigure, type:
 export const CreateCurrentPoint = (editor: Editor, table: HTMLElement): TCurrentPoint => {
 	const self = editor;
 	const DOM = self.DOM;
-	const CaretUtils = self.Utils.Caret;
 
-	let point: TCurrentPoint = CaretUtils.Get();
-	CaretUtils.CleanRanges();
+	const caret = self.Utils.Caret.Get();
+
+	let point: TCurrentPoint = caret ? { ...caret } : null;
+	self.Utils.Caret.CleanRanges();
 
 	if (!point) point = DOM.Element.Table.GetSelectedCells(self, table);
 
@@ -60,10 +61,7 @@ export const MoveToCurrentPoint = (editor: Editor, table: HTMLElement, point: TC
 		return;
 	}
 
-	const newRange = self.Utils.Range();
-	newRange.SetStart(point.Start.Node, DOM.Utils.IsBr(point.Start.Node) ? 0 : point.Start.Offset);
-	newRange.SetEnd(point.End.Node, DOM.Utils.IsBr(point.End.Node) ? 0 : point.End.Offset);
-	CaretUtils.UpdateRange(newRange);
+	CaretUtils.UpdateRange(point.Range.Clone());
 };
 
 export const CreateFakeFigure = (editor: Editor, figure: HTMLElement, figureElement: HTMLElement): IFakeFigure => {

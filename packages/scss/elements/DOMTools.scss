@@ -89,6 +89,7 @@
 			@include flex(center, space-between);
 			@include height(1.6rem);
 			background-color: getVar(tools-menu-bg);
+			z-index: 99999;
 
 			.#{getClassName(icon-group)} {
 				.#{getClassName(icon-button)} {

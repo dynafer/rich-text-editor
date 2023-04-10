@@ -5,7 +5,7 @@
 		background-color: getVar(toolbar-bg);
 
 		&[toolbar-style='scroll'] {
-			@include flex($wrap: nowrap);
+			@include flex(center, $wrap: nowrap);
 			overflow: auto hidden;
 		}
 
@@ -38,7 +38,7 @@
 
 			.#{getClassName(color-icon)} {
 				@include all-border(none);
-				@include padding(rem !important, 0.1, 0.2, 0.1, 0.2);
+				@include padding(rem !important, 0.1, 0.3, 0.1, 0.3);
 				display: inline-block;
 
 				svg {

@@ -202,15 +202,10 @@
 	@include tag-styles;
 }
 
-.#{getClassName(inline)} {
-	@include all-border(getVar(editor-border));
-	background-color: getVar(editor-bg);
-
+[mode='inline'] {
 	##{getClassName(editor-body)} {
 		@include firefox('##{getClassName(editor-body)}');
 		@include all-margin(0.75rem);
-		@include word-break;
-		@include tag-styles;
 		outline: none;
 	}
 }

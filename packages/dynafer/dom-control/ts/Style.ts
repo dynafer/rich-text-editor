@@ -15,9 +15,9 @@ export const GetAsMap = (selector: TElement): Record<string, string> => {
 	return styleDict;
 };
 
-export const Get = (win: Window & typeof globalThis, selector: TElement, name: string, bComputed?: boolean): string => {
+export const Get = (selector: TElement, name: string, bComputed?: boolean): string => {
 	if (!Obj.HasProperty<HTMLElement>(selector, 'style')) return '';
-	const computedStyle = win.getComputedStyle(selector);
+	const computedStyle = window.getComputedStyle(selector);
 	const capitalisedStyle = Str.DashToCapital(name);
 	if (bComputed) return computedStyle[capitalisedStyle as 'all'];
 	const styles = GetAsMap(selector);

@@ -1,11 +1,10 @@
-import { Type } from '@dynafer/utils';
+import { Arr, Type } from '@dynafer/utils';
 import Editor from '../../../packages/Editor';
 import { TConfigurationCallback, TConfigurationCommon } from '../../../packages/EditorConfigure';
-import Media from '../format/Media';
 import { IPluginMediaUI } from '../UI';
 import BlobList, { IBlobList } from '../utils/BlobList';
 import { IPluginsMediaFormatUI } from '../utils/Type';
-import { GetAllowedExtensions } from '../utils/Utils';
+import { COMMAND_NAMES_MAP, GetAllowedExtensions } from '../utils/Utils';
 
 type TImageConfiguration = TConfigurationCommon<IBlobList, string>;
 type TUploadCallback = TConfigurationCallback<IBlobList, string>;
@@ -49,14 +48,12 @@ const ImageUploader = (editor: Editor, ui: IPluginMediaUI) => {
 		const fileList = fileInput.files;
 		if (!fileList) return;
 
-		const files = BlobList(fileList);
-
-		const mediaFormat = Media(self);
-		mediaFormat.CreateFromFiles(files, allowedExtensions, { tagName: 'img' });
+		const files = Arr.Convert(bMultiple ? fileList : [fileList[0]]);
+		self.Commander.Run<File[] | string>(COMMAND_NAMES_MAP.IMAGE_UPLOAD, files, allowedExtensions);
 		fileInput.value = '';
 
 		if (!Type.IsFunction(uploadCallback)) return;
-		uploadCallback(files);
+		uploadCallback(BlobList(...files));
 	});
 
 	const createOptionList = (wrapper: HTMLElement) =>
@@ -65,17 +62,13 @@ const ImageUploader = (editor: Editor, ui: IPluginMediaUI) => {
 			const bUpdatable = DOM.Utils.IsImage(figureElement);
 
 			const createImage = (input: HTMLInputElement) => {
-				const mediaFormat = Media(self);
-
-				if (!bUpdatable) return mediaFormat.CreateViaURL(input.value, { tagName: 'img' });
-
-				figureElement.src = input.value;
-				mediaFormat.OnLoadAndErrorEvents(figureElement);
+				const commandName = !bUpdatable ? COMMAND_NAMES_MAP.IMAGE_CREATE : COMMAND_NAMES_MAP.IMAGE_UPDATE;
+				self.Commander.Run<string | Node | null>(commandName, input.value, figureElement);
 			};
 
 			const removeImage = () => {
 				if (!figureElement) return;
-				DOM.Remove(figureElement.parentElement);
+				self.Commander.Run(COMMAND_NAMES_MAP.IMAGE_REMOVE, figureElement);
 			};
 
 			const placeholderUpdate = Finer.ILC.Get('plugins.media.image.update') ?? 'Update the image URL';

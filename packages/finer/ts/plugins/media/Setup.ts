@@ -1,6 +1,7 @@
 import { Arr, Type } from '@dynafer/utils';
 import Editor from '../../packages/Editor';
 import { TConfigurationMap } from '../../packages/EditorConfigure';
+import Commands from './format/Commands';
 import UI from './UI';
 import ImageUploader from './ui/ImageUploader';
 import MediaInserter from './ui/MediaInserter';
@@ -32,11 +33,15 @@ const Setup = (editor: Editor) => {
 		if (!formatUtils.HasFormatName(name as string, formatNames)) return;
 		const uiName = formatUtils.GetFormatName(name as string, formatNames);
 
+		const commands = Commands(self);
+
 		switch (uiName) {
 			case formatNames[0]:
+				commands.Register(formatNames[0]);
 				ImageUploader(self, ui);
 				break;
 			case formatNames[1]:
+				commands.Register(formatNames[1]);
 				MediaInserter(self, ui);
 				break;
 		}

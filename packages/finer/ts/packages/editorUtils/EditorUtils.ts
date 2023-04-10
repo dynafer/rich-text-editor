@@ -13,7 +13,10 @@ export interface IEditorUtils {
 
 const EditorUtils = (editor: Editor): IEditorUtils => ({
 	Caret: CaretUtils(editor),
-	Range: (range: Range = new editor.DOM.Win.Range()): IRangeUtils => RangeUtils(range),
+	Range: (range?: Range): IRangeUtils => {
+		const win = editor.GetWin();
+		return RangeUtils(range ?? new win.Range());
+	},
 	Event: EventUtils(),
 	Shared: SharedUtils(editor),
 });

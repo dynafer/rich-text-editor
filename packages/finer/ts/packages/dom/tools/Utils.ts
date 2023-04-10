@@ -40,13 +40,9 @@ export const RegisterAdjustingEvents = (editor: Editor, target: HTMLElement, adj
 	self.Dispatch('Adjust:Start', target);
 	DOM.Hide(getToolsMenu(self, target));
 
-	const boundEvents: [boolean, (Window & typeof globalThis), ENativeEvents, EventListener][] = [];
+	const boundEvents: [(Window & typeof globalThis), ENativeEvents, EventListener][] = [];
 
-	const removeEvents = () =>
-		Arr.Each(boundEvents, boundEvent => {
-			const off = boundEvent[0] ? self.GetRootDOM().Off : DOM.Off;
-			off(boundEvent[1], boundEvent[2], boundEvent[3]);
-		});
+	const removeEvents = () => Arr.WhileShift(boundEvents, boundEvent => DOM.Off(boundEvent[0], boundEvent[1], boundEvent[2]));
 
 	const adjust = (event: MouseEvent | TouchEvent) => {
 		self.Dispatch('Adjust:Move', target);
@@ -63,18 +59,15 @@ export const RegisterAdjustingEvents = (editor: Editor, target: HTMLElement, adj
 	};
 
 	Arr.Push(boundEvents,
-		[false, DOM.Win, ENativeEvents.mousemove, adjust],
-		[false, DOM.Win, ENativeEvents.touchmove, adjust],
-		[false, DOM.Win, ENativeEvents.mouseup, finish],
-		[false, DOM.Win, ENativeEvents.touchend, finish],
-		[true, self.GetRootDOM().Win, ENativeEvents.mouseup, finish],
-		[true, self.GetRootDOM().Win, ENativeEvents.touchend, finish],
+		[self.GetWin(), ENativeEvents.mousemove, adjust],
+		[self.GetWin(), ENativeEvents.touchmove, adjust],
+		[self.GetWin(), ENativeEvents.mouseup, finish],
+		[self.GetWin(), ENativeEvents.touchend, finish],
+		[window, ENativeEvents.mouseup, finish],
+		[window, ENativeEvents.touchend, finish],
 	);
 
-	Arr.Each(boundEvents, boundEvent => {
-		const on = boundEvent[0] ? self.GetRootDOM().On : DOM.On;
-		on(boundEvent[1], boundEvent[2], boundEvent[3]);
-	});
+	Arr.Each(boundEvents, boundEvent => DOM.On(boundEvent[0], boundEvent[1], boundEvent[2]));
 };
 
 export const ChangeAllPositions = (editor: Editor) => {
@@ -150,7 +143,7 @@ export const ChangeAllPositions = (editor: Editor) => {
 			else
 				newStyles.left = `${menuCentredLeftPosition}px`;
 
-			const yRange = DOM.Win.innerHeight + DOM.Win.scrollY;
+			const yRange = self.GetWin().innerHeight + self.GetWin().scrollY;
 
 			const predictMenuBottomSide = Figure.offsetTop + Figure.offsetHeight + menu.offsetHeight;
 

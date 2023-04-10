@@ -26,10 +26,12 @@ const UI = (editor: Editor): IPluginListUI => {
 	};
 
 	const createCommand = (format: IPluginListFormat, button: HTMLElement) =>
-		<T = boolean>(bActive: T) => {
+		(bActive: boolean) => {
+			if (formatUI.IsDisabled(button)) return;
+
 			const toggler = Toggler(self, format);
-			toggler.ToggleFromCaret(bActive as boolean);
-			formatUI.ToggleActivateClass(button, bActive as boolean);
+			toggler.ToggleFromCaret(bActive);
+			formatUI.ToggleActivateClass(button, bActive);
 
 			self.Utils.Shared.DispatchCaretChange();
 		};
@@ -49,8 +51,8 @@ const UI = (editor: Editor): IPluginListUI => {
 		Detector.Register((paths: Node[]) => {
 			formatUI.ToggleActivateClass(button, IsDetected(format.Tag, paths));
 
-			const figure = DOM.Element.Figure.GetClosest(paths[0]);
-			const bDisable = !!figure && formats.BlockFormatTags.Figures.has(DOM.GetAttr(figure, 'type') ?? '');
+			const { Figure, FigureElement } = DOM.Element.Figure.Find(paths[0]);
+			const bDisable = !!Figure && !!FigureElement && formats.AllDisableList.has(DOM.Utils.GetNodeName(FigureElement));
 			formatUI.ToggleDisable(button, bDisable);
 		});
 

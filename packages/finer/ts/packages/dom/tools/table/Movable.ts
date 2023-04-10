@@ -26,11 +26,11 @@ const Movable = (editor: Editor, table: HTMLElement): HTMLElement => {
 		html: Finer.Icons.Get('Move'),
 	});
 
-	DOM.On(movable, ENativeEvents.click, (event: MouseEvent) => {
+	DOM.On(movable, ENativeEvents.mouseup, (event: MouseEvent) => {
 		const { Figure, FigureElement } = DOM.Element.Figure.Find<HTMLElement>(event.target as Node);
 		if (!Figure || !FigureElement) return;
 
-		const cells = DOM.SelectAll(DOM.Element.Table.CellSelector, FigureElement);
+		const cells = DOM.Element.Table.GetAllOwnCells(FigureElement);
 		DOM.Element.Table.ToggleSelectMultipleCells(true, cells);
 
 		DOM.SetAttr(Figure, Options.ATTRIBUTE_FOCUSED);
@@ -52,7 +52,7 @@ const Movable = (editor: Editor, table: HTMLElement): HTMLElement => {
 			savedPoint = undefined;
 		};
 
-		const cells = DOM.SelectAll(DOM.Element.Table.CellSelector, FigureElement);
+		const cells = DOM.Element.Table.GetAllOwnCells(FigureElement);
 		DOM.Element.Table.ToggleSelectMultipleCells(true, cells);
 
 		DOM.SetAttr(Figure, Options.ATTRIBUTE_FOCUSED);

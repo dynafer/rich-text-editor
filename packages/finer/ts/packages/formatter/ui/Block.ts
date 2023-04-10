@@ -11,6 +11,7 @@ import FormatUtils from '../FormatUtils';
 interface IBlockFormatItem {
 	readonly Format: IBlockFormat,
 	readonly Title: string,
+	readonly CommandName: string,
 	readonly Keys?: string,
 }
 
@@ -28,23 +29,23 @@ const Block = (editor: Editor, detector: IFormatDetector): IFormatUIRegistryUnit
 		HeadingStyle: {
 			bPreview: true,
 			Items: [
-				{ Format: Formats.Paragraph as IBlockFormat, Title: Finer.ILC.Get('format.normal') ?? 'Normal' },
-				{ Format: Formats.Heading1 as IBlockFormat, Title: Finer.ILC.Get('format.heading1') ?? 'Heading1', Keys: 'Alt+Shift+1' },
-				{ Format: Formats.Heading2 as IBlockFormat, Title: Finer.ILC.Get('format.heading2') ?? 'Heading2', Keys: 'Alt+Shift+2' },
-				{ Format: Formats.Heading3 as IBlockFormat, Title: Finer.ILC.Get('format.heading3') ?? 'Heading3', Keys: 'Alt+Shift+3' },
-				{ Format: Formats.Heading4 as IBlockFormat, Title: Finer.ILC.Get('format.heading4') ?? 'Heading4', Keys: 'Alt+Shift+4' },
-				{ Format: Formats.Heading5 as IBlockFormat, Title: Finer.ILC.Get('format.heading5') ?? 'Heading5', Keys: 'Alt+Shift+5' },
-				{ Format: Formats.Heading6 as IBlockFormat, Title: Finer.ILC.Get('format.heading6') ?? 'Heading6', Keys: 'Alt+Shift+6' },
+				{ Format: Formats.Paragraph as IBlockFormat, Title: Finer.ILC.Get('format.normal') ?? 'Normal', CommandName: 'Normal' },
+				{ Format: Formats.Heading1 as IBlockFormat, Title: Finer.ILC.Get('format.heading1') ?? 'Heading1', CommandName: 'Heading1', Keys: 'Alt+Shift+1' },
+				{ Format: Formats.Heading2 as IBlockFormat, Title: Finer.ILC.Get('format.heading2') ?? 'Heading2', CommandName: 'Heading2', Keys: 'Alt+Shift+2' },
+				{ Format: Formats.Heading3 as IBlockFormat, Title: Finer.ILC.Get('format.heading3') ?? 'Heading3', CommandName: 'Heading3', Keys: 'Alt+Shift+3' },
+				{ Format: Formats.Heading4 as IBlockFormat, Title: Finer.ILC.Get('format.heading4') ?? 'Heading4', CommandName: 'Heading4', Keys: 'Alt+Shift+4' },
+				{ Format: Formats.Heading5 as IBlockFormat, Title: Finer.ILC.Get('format.heading5') ?? 'Heading5', CommandName: 'Heading5', Keys: 'Alt+Shift+5' },
+				{ Format: Formats.Heading6 as IBlockFormat, Title: Finer.ILC.Get('format.heading6') ?? 'Heading6', CommandName: 'Heading6', Keys: 'Alt+Shift+6' },
 			],
 			DisableList: AllDisableList
 		},
 		BlockStyle: {
 			bPreview: false,
 			Items: [
-				{ Format: Formats.Paragraph as IBlockFormat, Title: Finer.ILC.Get('format.paragraph') ?? 'Paragraph' },
-				{ Format: Formats.Div as IBlockFormat, Title: Finer.ILC.Get('format.div') ?? 'Div' },
-				{ Format: Formats.Blockquote as IBlockFormat, Title: Finer.ILC.Get('format.blockquote') ?? 'Blockquote' },
-				{ Format: Formats.Pre as IBlockFormat, Title: Finer.ILC.Get('format.pre') ?? 'Pre' },
+				{ Format: Formats.Paragraph as IBlockFormat, Title: Finer.ILC.Get('format.paragraph') ?? 'Paragraph', CommandName: 'Paragraph' },
+				{ Format: Formats.Div as IBlockFormat, Title: Finer.ILC.Get('format.div') ?? 'Div', CommandName: 'Div' },
+				{ Format: Formats.Blockquote as IBlockFormat, Title: Finer.ILC.Get('format.blockquote') ?? 'Blockquote', CommandName: 'Blockquote' },
+				{ Format: Formats.Pre as IBlockFormat, Title: Finer.ILC.Get('format.pre') ?? 'Pre', CommandName: 'Pre' },
 			],
 			DisableList: AllDisableList
 		},
@@ -74,9 +75,9 @@ const Block = (editor: Editor, detector: IFormatDetector): IFormatUIRegistryUnit
 	};
 
 	const createCommand = (format: IBlockFormat, title: string, setLabelText: (value: string) => void) =>
-		<T = boolean>(bActive: T) => {
+		(bActive: boolean) => {
 			const toggler = ToggleBlock(self, format);
-			toggler.ToggleFromCaret(bActive as boolean);
+			toggler.ToggleFromCaret(bActive);
 			setLabelText(bActive ? title : '');
 
 			self.Utils.Shared.DispatchCaretChange();
@@ -115,9 +116,9 @@ const Block = (editor: Editor, detector: IFormatDetector): IFormatUIRegistryUnit
 		setLabelText();
 
 		Arr.Each(uiFormat.Items, format => {
-			const { Format, Title, Keys } = format;
+			const { Format, Title, CommandName, Keys } = format;
 			const command = createCommand(Format, Title, setLabelText);
-			const commandName = createCommandName(uiName, Title);
+			const commandName = createCommandName(uiName, CommandName);
 			FormatUI.RegisterCommand(self, commandName, command);
 
 			if (!Type.IsString(Keys)) return;

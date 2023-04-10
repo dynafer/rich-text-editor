@@ -10,18 +10,19 @@ import FormatUtils from '../FormatUtils';
 
 interface IStyleFormatUIItem {
 	readonly Format: IStyleFormat | IStyleFormat[],
-	Title: string,
-	Icon: string,
-	bDetector: boolean,
-	bSubtract?: boolean,
-	Keys?: string,
+	readonly Title: string,
+	readonly CommandName: string,
+	readonly Icon: string,
+	readonly bDetector: boolean,
+	readonly bSubtract?: boolean,
+	readonly Keys?: string,
 }
 
 interface IStyleFormatUI {
-	ConfigName?: Capitalize<string>,
+	readonly ConfigName?: Capitalize<string>,
+	readonly bCalculate?: boolean,
+	readonly Items: IStyleFormatUIItem[],
 	DefaultValue?: string,
-	bCalculate?: boolean,
-	Items: IStyleFormatUIItem[],
 }
 
 const StyleFormat = (editor: Editor, detector: IFormatDetector): IFormatUIRegistryUnit => {
@@ -33,10 +34,10 @@ const StyleFormat = (editor: Editor, detector: IFormatDetector): IFormatUIRegist
 	const StyleFormats: Record<string, IStyleFormatUI> = {
 		Alignment: {
 			Items: [
-				{ Format: Formats.Justify as IStyleFormat, Title: Finer.ILC.Get('format.alignJustify') ?? 'Justify', Icon: 'AlignJustify', bDetector: true },
-				{ Format: Formats.AlignLeft as IStyleFormat[], Title: Finer.ILC.Get('format.alignLeft') ?? 'Align left', Icon: 'AlignLeft', bDetector: true },
-				{ Format: Formats.AlignCenter as IStyleFormat[], Title: Finer.ILC.Get('format.alignCenter') ?? 'Align center', Icon: 'AlignCenter', bDetector: true },
-				{ Format: Formats.AlignRight as IStyleFormat[], Title: Finer.ILC.Get('format.alignRight') ?? 'Align right', Icon: 'AlignRight', bDetector: true },
+				{ Format: Formats.Justify as IStyleFormat, Title: Finer.ILC.Get('format.alignJustify') ?? 'Justify', CommandName: 'Justify', Icon: 'AlignJustify', bDetector: true },
+				{ Format: Formats.AlignLeft as IStyleFormat[], Title: Finer.ILC.Get('format.alignLeft') ?? 'Align left', CommandName: 'AlignLeft', Icon: 'AlignLeft', bDetector: true },
+				{ Format: Formats.AlignCenter as IStyleFormat[], Title: Finer.ILC.Get('format.alignCenter') ?? 'Align center', CommandName: 'AlignCenter', Icon: 'AlignCenter', bDetector: true },
+				{ Format: Formats.AlignRight as IStyleFormat[], Title: Finer.ILC.Get('format.alignRight') ?? 'Align right', CommandName: 'AlignRight', Icon: 'AlignRight', bDetector: true },
 			]
 		},
 		Indentation: {
@@ -44,8 +45,16 @@ const StyleFormat = (editor: Editor, detector: IFormatDetector): IFormatUIRegist
 			DefaultValue: FormatUtils.GetPixcelFromRoot(),
 			bCalculate: true,
 			Items: [
-				{ Format: Formats.Outdent as IStyleFormat, Title: Finer.ILC.Get('format.Outdent') ?? 'Outdent', Icon: 'Outdent', bDetector: true, bSubtract: true, Keys: 'Shift+Tab' },
-				{ Format: Formats.Indent as IStyleFormat, Title: Finer.ILC.Get('format.Indent') ?? 'Indent', Icon: 'Indent', bDetector: false, Keys: 'Tab' },
+				{
+					Format: Formats.Outdent as IStyleFormat,
+					Title: Finer.ILC.Get('format.Outdent') ?? 'Outdent',
+					CommandName: 'Outdent',
+					Icon: 'Outdent',
+					bDetector: true,
+					bSubtract: true,
+					Keys: 'Shift+Tab'
+				},
+				{ Format: Formats.Indent as IStyleFormat, Title: Finer.ILC.Get('format.Indent') ?? 'Indent', CommandName: 'Indent', Icon: 'Indent', bDetector: false, Keys: 'Tab' },
 			]
 		}
 	};
@@ -110,12 +119,12 @@ const StyleFormat = (editor: Editor, detector: IFormatDetector): IFormatUIRegist
 		const { DefaultValue, bCalculate } = uiFormat;
 		const { Format, bSubtract } = uiFormatItem;
 
-		return <T = boolean>(bActive: T) => {
-			if (!bCalculate) FormatUI.ToggleActivateClass(button, bActive as boolean);
+		return (bActive: boolean) => {
+			if (!bCalculate) FormatUI.ToggleActivateClass(button, bActive);
 
 			const toggler = ToggleStyleFormat(self, Format);
 			if (!bCalculate) {
-				toggler.ToggleFromCaret(bActive as boolean, DefaultValue);
+				toggler.ToggleFromCaret(bActive, DefaultValue);
 				return self.Utils.Shared.DispatchCaretChange();
 			}
 
@@ -131,13 +140,13 @@ const StyleFormat = (editor: Editor, detector: IFormatDetector): IFormatUIRegist
 		const createdDetector = bIndentation ? createIndentationDetector : createAlignmentDetector;
 
 		Arr.Each(Items, item => {
-			const { Title, Icon, bDetector, bSubtract, Keys } = item;
+			const { Title, CommandName, Icon, bDetector, bSubtract, Keys } = item;
 			const button = FormatUI.CreateIconButton(Title, Icon);
 			const command = createCommand(button, uiFormat, item);
 
-			FormatUI.RegisterCommand(self, Title, command);
+			FormatUI.RegisterCommand(self, CommandName, command);
 
-			const eventCallback = () => FormatUI.RunCommand(self, Title, !FormatUI.HasActiveClass(button));
+			const eventCallback = () => FormatUI.RunCommand(self, CommandName, !FormatUI.HasActiveClass(button));
 
 			if (bSubtract) FormatUI.ToggleDisable(button, true);
 

@@ -1,6 +1,25 @@
 import { Arr, Str, Type } from '@dynafer/utils';
 import { IFileSize } from './Type';
 
+const createCommandName = (name: string): string => Str.Join(':', 'Media', name);
+const createImageCommandName = (name: string): string => Str.Join(':', 'Image', name);
+const createStyleCommandName = (name: string): string => Str.Join(':', 'MediaStyle', name);
+
+export const COMMAND_NAMES_MAP = {
+	MEDIA_CREATE: createCommandName('Create'),
+	MEDIA_UPDATE: createCommandName('Update'),
+	MEDIA_REMOVE: createCommandName('Remove'),
+	IMAGE_CREATE: createImageCommandName('Create'),
+	IMAGE_UPLOAD: createImageCommandName('Upload'),
+	IMAGE_UPDATE: createImageCommandName('Update'),
+	IMAGE_REMOVE: createImageCommandName('Remove'),
+	FLOAT_LEFT: createStyleCommandName('FloatLeft'),
+	FLOAT_RIGHT: createStyleCommandName('FloatRight'),
+	ALIGN_LEFT: createStyleCommandName('AlignLeft'),
+	ALIGN_CENTER: createStyleCommandName('AlignCenter'),
+	ALIGN_RIGHT: createStyleCommandName('AlignRight'),
+};
+
 export const FILE_SIZE_UNITS = ['byte', 'KB', 'MB', 'GB', 'TB'];
 export const MAX_BYTES = 1024;
 

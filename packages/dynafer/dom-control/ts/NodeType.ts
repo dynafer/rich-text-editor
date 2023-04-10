@@ -20,6 +20,7 @@ const getNodeType = (value: unknown): number => Obj.GetProperty(value, 'nodeType
 
 const is = <T>(type: ENodeTypeMap) => (value: unknown): value is T => getNodeType(value) === type;
 
+export const IsWindow = (value: unknown): value is Window & typeof globalThis => Obj.HasProperty(value, 'Window');
 export const IsNode = (value: unknown): value is Node => getNodeType(value) !== ENodeTypeMap.UNKNOWN;
 export const IsElement: (value: unknown) => value is Element = is(ENodeTypeMap.ELEMENT);
 export const IsAttribute: (value: unknown) => value is Attr = is(ENodeTypeMap.ATTRIBUTE);

@@ -61,7 +61,7 @@ export interface IFormatUI {
 	SetOptionListCoordinate: (editor: Editor, name: string, selection: HTMLElement, optionList: HTMLElement) => void,
 	BindClickEvent: (selector: HTMLElement, callback: () => void) => void,
 	UnwrapSameInlineFormats: (editor: Editor, formats: IInlineFormat | IInlineFormat[]) => void,
-	RegisterCommand: (editor: Editor, name: string, command: <T>(...args: T[]) => void) => void,
+	RegisterCommand: (editor: Editor, name: string, command: (...args: never[]) => void) => void,
 	RunCommand: <T>(editor: Editor, name: string, ...args: T[]) => void,
 	RegisterKeyboardEvent: (editor: Editor, combinedKeys: string, callback: (editor: Editor, event: Event) => void) => void,
 	IsNearDisableList: (disableList: Set<string> | undefined, selector: HTMLElement, path: Node) => boolean,
@@ -192,7 +192,7 @@ const FormatUI = (): IFormatUI => {
 		const { uiName, bUpdatable, createCallback, removeCallback, src, texts } = opts;
 		const OptionWrapper = CreateOptionList(uiName);
 		DOM.SetAttr(OptionWrapper, 'url-input', 'true');
-		DOM.On(OptionWrapper, Finer.NativeEventMap.click, event => Finer.PreventEvent(event));
+		DOM.On(OptionWrapper, ENativeEvents.click, event => Finer.PreventEvent(event));
 
 		const { Wrapper, Input } = CreateInputWrap(texts.placeholder);
 		if (src) Input.value = src;
@@ -204,9 +204,9 @@ const FormatUI = (): IFormatUI => {
 			createCallback(Input);
 		};
 
-		DOM.On(Input, Finer.NativeEventMap.keyup, e => {
-			const event = e as KeyboardEvent;
+		DOM.On(Input, ENativeEvents.keyup, event => {
 			if (event.key !== Finer.KeyCode.Enter && event.code !== Finer.KeyCode.Enter) return;
+			PreventEvent(event);
 			callback();
 		});
 
@@ -222,7 +222,7 @@ const FormatUI = (): IFormatUI => {
 			title: texts.cancel,
 			html: Str.Merge(Finer.Icons.Get('Close'), texts.cancel)
 		});
-		DOM.On(cancelButton, Finer.NativeEventMap.click, () => DOM.Doc.body.click());
+		DOM.On(cancelButton, ENativeEvents.click, () => DOM.Doc.body.click());
 		Arr.Push(buttons, cancelButton);
 
 		const insertText = !bUpdatable ? texts.insert : texts.update;
@@ -231,7 +231,10 @@ const FormatUI = (): IFormatUI => {
 			title: insertText,
 			html: Str.Merge(Finer.Icons.Get('Check'), insertText)
 		});
-		DOM.On(insertButton, Finer.NativeEventMap.click, callback);
+		DOM.On(insertButton, ENativeEvents.click, event => {
+			PreventEvent(event);
+			callback();
+		});
 		Arr.Push(buttons, insertButton);
 
 		if (bUpdatable && Type.IsFunction(removeCallback)) {
@@ -241,7 +244,7 @@ const FormatUI = (): IFormatUI => {
 				title: removeText,
 				html: Str.Merge(Finer.Icons.Get('Trash'), removeText)
 			});
-			DOM.On(removeButton, Finer.NativeEventMap.click, () => {
+			DOM.On(removeButton, ENativeEvents.click, () => {
 				DOM.Doc.body.click();
 				removeCallback();
 			});
@@ -282,13 +285,12 @@ const FormatUI = (): IFormatUI => {
 		const toggleEvents = (bOn: boolean, event: () => void) => {
 			Arr.Each(optionsActivableList, activableItem => ToggleActivateClass(activableItem, false));
 			ToggleActivateClass(activable, bOn);
-			const toggleRoot = bOn ? DOM.On : DOM.Off;
-			const toggleEditor = bOn ? self.DOM.On : self.DOM.Off;
-			toggleRoot(self.Frame.Toolbar, ENativeEvents.scroll, event);
-			toggleRoot(DOM.Win, ENativeEvents.click, event);
-			toggleEditor(self.DOM.Win, ENativeEvents.click, event);
-			toggleRoot(DOM.Win, ENativeEvents.scroll, event);
-			toggleRoot(DOM.Win, ENativeEvents.resize, event);
+			const toggle = bOn ? DOM.On : DOM.Off;
+			toggle(self.Frame.Toolbar, ENativeEvents.scroll, event);
+			toggle(self.GetWin(), ENativeEvents.click, event);
+			toggle(window, ENativeEvents.click, event);
+			toggle(window, ENativeEvents.scroll, event);
+			toggle(window, ENativeEvents.resize, event);
 		};
 
 		const destroyOptionList = () => {
@@ -313,8 +315,8 @@ const FormatUI = (): IFormatUI => {
 		const self = editor;
 
 		const bInGroup = self.Toolbar.IsInGroup(name);
-		const browserWidth = DOM.Win.innerWidth + DOM.Win.scrollX;
-		const browserHeight = DOM.Win.innerHeight + DOM.Win.scrollY;
+		const browserWidth = self.GetWin().innerWidth + self.GetWin().scrollX;
+		const browserHeight = self.GetWin().innerHeight + self.GetWin().scrollY;
 		const groupLeft = selection.parentElement && DOM.HasAttr(selection.parentElement, 'group') ? selection.parentElement.offsetLeft : 0;
 		let x = selection.offsetLeft + groupLeft - self.Frame.Toolbar.scrollLeft
 			+ (bInGroup ? parseInt(DOM.GetStyle(selection, 'margin-left')) : 0);
@@ -338,8 +340,9 @@ const FormatUI = (): IFormatUI => {
 	};
 
 	const BindClickEvent = (selector: HTMLElement, callback: () => void) =>
-		DOM.On(selector, ENativeEvents.click, () => {
+		DOM.On(selector, ENativeEvents.click, event => {
 			if (IsDisabled(selector)) return;
+			PreventEvent(event);
 			callback();
 		});
 
@@ -358,7 +361,7 @@ const FormatUI = (): IFormatUI => {
 		Arr.Each(formats, format => unwrap(format));
 	};
 
-	const RegisterCommand = (editor: Editor, name: string, command: <T>(...args: T[]) => void) =>
+	const RegisterCommand = (editor: Editor, name: string, command: (...args: never[]) => void) =>
 		editor.Commander.Register(name, command);
 
 	const RunCommand = <T>(editor: Editor, name: string, ...args: T[]) =>

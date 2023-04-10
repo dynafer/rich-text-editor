@@ -1,8 +1,8 @@
 import { Arr } from '@dynafer/utils';
 import Editor from '../../../packages/Editor';
-import TableFormat from '../format/Table';
 import { IPluginsTableFormatUI } from '../Type';
 import { IPluginTableUI } from '../UI';
+import { COMMAND_NAMES_MAP } from '../Utils';
 
 const Table = (editor: Editor, ui: IPluginTableUI) => {
 	const self = editor;
@@ -71,10 +71,7 @@ const Table = (editor: Editor, ui: IPluginTableUI) => {
 
 				bindCellMouseEnterEvent(navigation, cellItem, row, cell);
 
-				const upEvent = () => {
-					const tableFormat = TableFormat(self);
-					tableFormat.CreateFromCaret(row, cell);
-				};
+				const upEvent = () => self.Commander.Run(COMMAND_NAMES_MAP.TABLE_CREATE, row, cell);
 
 				DOM.On(cellItem, Finer.NativeEventMap.mouseup, upEvent);
 				DOM.On(cellItem, Finer.NativeEventMap.touchend, upEvent);

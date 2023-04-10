@@ -7,11 +7,10 @@ const Unwrapper = (editor: Editor, format: IPluginListFormat) => {
 	const self = editor;
 	const DOM = self.DOM;
 	const formatter = self.Formatter;
-
 	const formatUtils = formatter.Utils;
 	const { Tag, UnsetSwitcher } = format;
 
-	const unwrap = (oldList: Node, start: Node, end: Node, bTable: boolean = false) => {
+	const unwrap = (oldList: Node, start: Node, end: Node, bTable: boolean = false): boolean => {
 		const startList = DOM.Create(Tag);
 		const middleNodes: Node[] = [];
 		const endList = DOM.Create(Tag);
@@ -63,6 +62,8 @@ const Unwrapper = (editor: Editor, format: IPluginListFormat) => {
 		}
 
 		if (DOM.Utils.HasChildNodes(endList)) DOM.InsertAfter(lastChildInMiddleNodes, endList);
+
+		return true;
 	};
 
 	const unwrapNodesInTable = (selectedList: Node[]) =>
@@ -93,24 +94,27 @@ const Unwrapper = (editor: Editor, format: IPluginListFormat) => {
 		unwrap(oldList, startChild, endChild, false);
 	};
 
-	const processSameLine = (caret: ICaretData) => {
-		if (caret.Start.Line !== caret.End.Line) return;
+	const processSameLine = (caret: ICaretData): boolean => {
+		if (caret.Start.Line !== caret.End.Line) return false;
 
 		const target = formatUtils.GetParentIfText(caret.Start.Node);
 
 		const oldList = DOM.Closest(target, Tag);
 		const table = DOM.Element.Table.GetClosest(target);
-		if (!oldList && !table) return;
+		if (!oldList && !table) return false;
 
 		if (table) {
 			const selectedTableItems = DOM.Element.Table.GetSelectedCells(self, table);
-			if (!Arr.IsEmpty(selectedTableItems)) return unwrapNodesInTable(selectedTableItems);
+			if (!Arr.IsEmpty(selectedTableItems)) {
+				unwrapNodesInTable(selectedTableItems);
+				return true;
+			}
 		}
 
 		const tableCell = DOM.Element.Table.GetClosestCell(target);
 		if (!tableCell && oldList) return unwrap(oldList, caret.Start.Node, caret.End.Node);
 
-		if (!tableCell) return;
+		if (!tableCell) return false;
 
 		const children = DOM.GetChildNodes(tableCell);
 		let bStart = false;
@@ -133,10 +137,12 @@ const Unwrapper = (editor: Editor, format: IPluginListFormat) => {
 
 			if (bHasEnd) exit();
 		});
+
+		return true;
 	};
 
-	const processRange = (caret: ICaretData) => {
-		if (caret.Start.Line === caret.End.Line) return;
+	const processRange = (caret: ICaretData): boolean => {
+		if (caret.Start.Line === caret.End.Line) return false;
 
 		const lines = self.GetLines();
 
@@ -149,10 +155,12 @@ const Unwrapper = (editor: Editor, format: IPluginListFormat) => {
 			unwrapRange(firstChild);
 		}
 		unwrapRange(caret.End.Node, true);
+		return true;
 	};
 
 	const UnwrapFromCaret = (caret: ICaretData) => {
-		processSameLine(caret);
+		if (formatUtils.LeaveProcessorIfFigure(self, caret)) return;
+		if (processSameLine(caret)) return;
 		processRange(caret);
 	};
 

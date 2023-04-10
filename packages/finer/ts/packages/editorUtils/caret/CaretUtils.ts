@@ -1,7 +1,8 @@
 import { NodeType } from '@dynafer/dom-control';
 import { Arr } from '@dynafer/utils';
+import DOM from '../../dom/DOM';
 import Editor from '../../Editor';
-import { AllBlockFormats, BlockFormatTags } from '../../formatter/Format';
+import { AllBlockFormats, AllStrictFormats } from '../../formatter/Format';
 import RangeUtils, { IRangeUtils } from './RangeUtils';
 
 interface ILineData {
@@ -30,7 +31,6 @@ export interface ICaretUtils {
 
 const CaretUtils = (editor: Editor): ICaretUtils => {
 	const self = editor;
-	const DOM = self.DOM;
 
 	let caret: ICaretData | null = null;
 
@@ -70,9 +70,12 @@ const CaretUtils = (editor: Editor): ICaretUtils => {
 
 		const nodeName = DOM.Utils.GetNodeName(node);
 
-		if (BlockFormatTags.Block.has(nodeName) && bRange && !bStart) {
+		if (AllStrictFormats.has(nodeName) && bRange && !bStart) {
 			const deepestChild = getDeepestSiblingChild(node, offset === 0);
-			if (deepestChild) node = deepestChild;
+			if (deepestChild) {
+				node = deepestChild;
+				offset = NodeType.IsText(node) ? node.length : 0;
+			}
 		}
 
 		if (!bRange && AllBlockFormats.has(nodeName) && !DOM.Element.Figure.IsFigure(node)) {
@@ -94,7 +97,7 @@ const CaretUtils = (editor: Editor): ICaretUtils => {
 	};
 
 	const CleanRanges = () => {
-		const selection = DOM.Win.getSelection();
+		const selection = self.GetWin().getSelection();
 		selection?.removeAllRanges();
 		caret = null;
 	};
@@ -112,7 +115,7 @@ const CaretUtils = (editor: Editor): ICaretUtils => {
 	const Refresh = () => {
 		if (hasSelectedCells()) return;
 
-		const selection = DOM.Win.getSelection();
+		const selection = self.GetWin().getSelection();
 		if (!selection) return;
 
 		const range = selection.rangeCount === 0 ? null : selection.getRangeAt(0);
@@ -137,7 +140,7 @@ const CaretUtils = (editor: Editor): ICaretUtils => {
 	const UpdateRange = (range: IRangeUtils) => {
 		if (hasSelectedCells()) return;
 		CleanRanges();
-		const selection = DOM.Win.getSelection();
+		const selection = self.GetWin().getSelection();
 		selection?.addRange(range.Get());
 		Refresh();
 	};

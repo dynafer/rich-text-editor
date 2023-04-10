@@ -1,18 +1,22 @@
 export interface IPluginTableFormat {
-	Tag: string,
+	readonly Tag: string,
 }
 
 export interface IPluginsTableFormatUI {
-	Format: IPluginTableFormat,
-	Title: string,
-	Icon: string,
+	readonly Format: IPluginTableFormat,
+	readonly Title: string,
+	readonly Icon: string,
 }
 
 export interface IPluginTableMenuFormatUI {
-	Name: string,
-	Title: string,
-	Icon: string,
-	Styles: Record<string, string>,
-	SameStyles: string[],
-	bAsText?: boolean,
+	readonly Title: string,
+	readonly CommandName: string,
+	readonly Icon: string,
+}
+
+export interface IPluginTableCommand {
+	readonly Name: string,
+	readonly Styles: Record<string, string>,
+	readonly SameStyles: string[],
+	readonly bAsText?: boolean,
 }

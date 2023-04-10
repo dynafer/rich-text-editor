@@ -2,7 +2,7 @@ import { IDOMFactory, Sketcher } from '@dynafer/sketcher';
 import { Arr, Str } from '@dynafer/utils';
 import DOM from '../dom/DOM';
 import Editor from '../Editor';
-import { ENativeEvents } from '../events/EventSetupUtils';
+import { ENativeEvents, PreventEvent } from '../events/EventSetupUtils';
 
 const Info = (editor: Editor) => {
 	const self = editor;
@@ -24,7 +24,8 @@ const Info = (editor: Editor) => {
 
 		const shortcuts = sketch(Finer.ILC.Get('toolbar.shortcuts') ?? 'Shortcuts', true);
 
-		shortcuts.Bind(ENativeEvents.click, () => {
+		shortcuts.Bind(ENativeEvents.click, event => {
+			PreventEvent(event);
 			shortcuts.AddClass('active');
 			DOM.Show(content.GetChildren()[0].Self);
 		});
