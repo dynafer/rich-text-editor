@@ -1,4 +1,4 @@
-import { Arr, Instance, Str } from '@dynafer/utils';
+import { Arr, Str } from '@dynafer/utils';
 import Options from '..//Options';
 import Commander, { ICommander } from './commander/Commander';
 import DOM, { IDom, TEventListener } from './dom/DOM';
@@ -8,12 +8,12 @@ import EditorDestroy from './EditorDestroy';
 import EditorFrame, { IEditorFrame } from './EditorFrame';
 import EditorSetup from './EditorSetup';
 import EditorToolbar, { IEditorToolbar } from './EditorToolbar';
-import { IRangeUtils } from './editorUtils/caret/RangeUtils';
 import EditorUtils, { IEditorUtils } from './editorUtils/EditorUtils';
 import { IEvent } from './editorUtils/EventUtils';
 import { ENativeEvents } from './events/EventSetupUtils';
 import { IFormatter } from './formatter/Formatter';
-import FormatUtils from './formatter/FormatUtils';
+import { IHistoryManager } from './history/HistoryManager';
+import HistorySetup from './history/Setup';
 import { IFooterManager } from './managers/FooterManager';
 import { ENotificationStatus, INotificationManager, NotificationManager } from './managers/NotificationManager';
 import { IPluginManager } from './managers/PluginManager';
@@ -36,6 +36,7 @@ class Editor {
 	public readonly Id: string;
 	public readonly Config: IConfiguration;
 	public readonly Frame: IEditorFrame;
+	public readonly History: IHistoryManager;
 	public readonly Notification: INotificationManager;
 	public readonly Commander: ICommander;
 	public readonly Toolbar: IEditorToolbar;
@@ -62,6 +63,7 @@ class Editor {
 		this.Frame = EditorFrame(configuration);
 		this.Utils = EditorUtils(this);
 		this.Commander = Commander(this);
+		this.History = HistorySetup(this);
 		this.Notification = NotificationManager(this);
 		this.Toolbar = EditorToolbar(this);
 
@@ -99,7 +101,7 @@ class Editor {
 	public SetAdjusting(bAdjusting: boolean) { this.mbAdjusting = bAdjusting; }
 
 	public IsIFrame(): boolean {
-		return Instance.Is(this.Frame.Container, HTMLIFrameElement);
+		return DOM.Utils.IsIFrame(this.Frame.Container);
 	}
 
 	// body getter and setter
@@ -158,7 +160,7 @@ class Editor {
 	public Focus() {
 		this.SaveScrollPosition();
 		const caret = this.Utils.Caret.Get();
-		let copiedRange: IRangeUtils | null = caret?.Range.Clone() ?? null;
+		let copiedRange = caret?.Range.Clone() ?? null;
 
 		const cells = DOM.Element.Table.GetSelectedCells(this);
 		if (!Arr.IsEmpty(cells)) return this.ScrollSavedPosition();
@@ -176,6 +178,8 @@ class Editor {
 		this.Utils.Caret.UpdateRange(copiedRange);
 		this.ScrollSavedPosition();
 	}
+
+	public IsFocused(): boolean { return DOM.HasClass(this.Frame.Container, 'focused'); }
 
 	public CreateEmptyParagraph(): HTMLElement {
 		return this.DOM.Create('p', {
@@ -215,7 +219,7 @@ class Editor {
 
 	public CleanDirty() {
 		const lines = this.GetLines(true);
-		Arr.WhileShift(lines, line => FormatUtils.CleanDirty(this, this.DOM.GetChildNodes(line)));
+		Arr.WhileShift(lines, line => this.Formatter.Utils.CleanDirty(this, this.DOM.GetChildNodes(line)));
 	}
 
 	public AddShortcut(title: string, keys: string) {

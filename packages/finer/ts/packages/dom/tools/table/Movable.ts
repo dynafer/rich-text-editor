@@ -42,14 +42,17 @@ const Movable = (editor: Editor, table: HTMLElement): HTMLElement => {
 		const { Figure, FigureElement } = DOM.Element.Figure.Find<HTMLElement>(movable);
 		if (!Figure || !FigureElement) return;
 
+		self.Dispatch('Tools:Move:Start', FigureElement);
+
 		event.dataTransfer?.setData('text/html', DOM.GetOuterHTML(FigureElement));
 		event.dataTransfer?.setDragImage(FigureElement, 0, 0);
 
 		let savedPoint = CreateCurrentPoint(self, FigureElement);
 
-		const moveToSavedPoint = () => {
+		const moveToSavedPoint = (bCancelled: boolean) => {
 			MoveToCurrentPoint(self, FigureElement, savedPoint);
 			savedPoint = undefined;
+			self.Dispatch(Str.Merge('Tools:Move:', bCancelled ? 'Cancel' : 'Finish'), FigureElement);
 		};
 
 		const cells = DOM.Element.Table.GetAllOwnCells(FigureElement);
@@ -57,41 +60,41 @@ const Movable = (editor: Editor, table: HTMLElement): HTMLElement => {
 
 		DOM.SetAttr(Figure, Options.ATTRIBUTE_FOCUSED);
 
-		const stopDragEvent = (e: InputEvent) => {
+		const dropEvent = (e: InputEvent) => {
 			PreventEvent(e);
-			DOM.Off(self.GetBody(), ENativeEvents.beforeinput, stopDragEvent);
+			DOM.Off(self.GetBody(), ENativeEvents.beforeinput, dropEvent);
 
-			if (e.target === self.GetBody()) return moveToSavedPoint();
+			if (e.target === self.GetBody()) return moveToSavedPoint(true);
 
 			DOM.Element.Table.ToggleSelectMultipleCells(false, cells);
 			const caret = CaretUtils.Get();
 			DOM.Element.Table.ToggleSelectMultipleCells(true, cells);
-			if (!caret) return moveToSavedPoint();
+			if (!caret) return moveToSavedPoint(true);
 
 			const closestTable = DOM.Element.Table.GetClosest(FormatUtils.GetParentIfText(caret.Start.Node));
-			if (closestTable === FigureElement) return moveToSavedPoint();
+			if (closestTable === FigureElement) return moveToSavedPoint(true);
 
 			const bPointLine = caret.SameRoot === caret.Start.Path[0];
 			const bLineEmpty = bPointLine ? Str.IsEmpty(DOM.GetText(caret.SameRoot)) : false;
 
 			if (!!closestTable || (bPointLine && !bLineEmpty) || !NodeType.IsText(caret.SameRoot) || Str.IsEmpty(caret.SameRoot.textContent) || !caret.SameRoot.parentNode) {
 				DOM.InsertAfter(caret.Start.Path[0], Figure);
-				return moveToSavedPoint();
+				return moveToSavedPoint(false);
 			}
 
 			if (bPointLine && bLineEmpty) {
 				self.GetBody().replaceChild(Figure, caret.SameRoot);
-				return moveToSavedPoint();
+				return moveToSavedPoint(false);
 			}
 
 			const { StartBlock, EndBlock } = self.Utils.Shared.SplitLines(caret.SameRoot, caret.Start.Offset);
 
 			DOM.InsertAfter(StartBlock, EndBlock, Figure);
 
-			moveToSavedPoint();
+			moveToSavedPoint(false);
 		};
 
-		DOM.On(self.GetBody(), ENativeEvents.beforeinput, stopDragEvent);
+		DOM.On(self.GetBody(), ENativeEvents.beforeinput, dropEvent);
 	});
 
 	return movable;

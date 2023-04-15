@@ -56,7 +56,7 @@ const MediaInserter = (editor: Editor, ui: IPluginMediaUI) => {
 
 	const iconWrap = ui.CreateFormatButton(uiFormat);
 
-	DOM.SetAttr(iconWrap.Button, 'no-border');
+	DOM.SetAttr(iconWrap.Wrapper, 'no-border');
 
 	formatUI.BindOptionListEvent(self, uiName, iconWrap.Wrapper, iconWrap.Wrapper, createOptionList(iconWrap.Wrapper));
 

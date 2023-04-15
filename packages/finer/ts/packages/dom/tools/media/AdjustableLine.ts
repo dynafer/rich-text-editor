@@ -1,7 +1,6 @@
-import { Arr, Str } from '@dynafer/utils';
+import { Str } from '@dynafer/utils';
 import Editor from '../../../Editor';
-import { ENativeEvents, PreventEvent } from '../../../events/EventSetupUtils';
-import { ADJUSTABLE_LINE_HALF_SIZE, RegisterAdjustingEvents } from '../Utils';
+import { ADJUSTABLE_LINE_HALF_SIZE, RegisterAdjustingEvents, StartAdjustment } from '../Utils';
 import AdjustingNavigation from './AdjustingNavigation';
 import { CreateFakeFigure, CreateFakeMedia, MakeAbsolute, ResetAbsolute } from './MediaToolsUtils';
 
@@ -48,19 +47,11 @@ const AdjustableLine = (editor: Editor, media: HTMLElement): HTMLElement => {
 		setLineStyles(figureElement, adjustableBottom, 'bottom');
 	};
 
-	const startAdjusting = (evt: MouseEvent | TouchEvent) => {
-		PreventEvent(evt);
-
-		const event = !Str.Contains(evt.type, 'touch') ? evt as MouseEvent : (evt as TouchEvent).touches.item(0);
-		if (!event) return;
-
+	const startAdjusting = (event: MouseEvent | Touch, Figure: HTMLElement, FigureElement: HTMLElement) => {
 		const adjustItem = event.target as HTMLElement;
 
-		let startOffsetX = event.clientX;
-		let startOffsetY = event.clientY;
-
-		const { Figure, FigureElement } = DOM.Element.Figure.Find<HTMLElement>(adjustItem);
-		if (!Figure || !FigureElement) return;
+		let startOffsetX = event.pageX;
+		let startOffsetY = event.pageY;
 
 		const bIFrame = DOM.Utils.IsIFrame(FigureElement);
 
@@ -126,14 +117,9 @@ const AdjustableLine = (editor: Editor, media: HTMLElement): HTMLElement => {
 		const savedOffsetPosition = (bWidth ? startOffsetX : startOffsetY) + positionDifference;
 		let bUpdatable = true;
 
-		const adjust = (ev: MouseEvent | TouchEvent) => {
-			PreventEvent(ev);
-
-			const e = !Str.Contains(ev.type, 'touch') ? ev as MouseEvent : (ev as TouchEvent).touches.item(0);
-			if (!e) return;
-
-			const currentOffsetX = e.clientX;
-			const currentOffsetY = e.clientY;
+		const adjust = (e: MouseEvent | Touch) => {
+			const currentOffsetX = e.pageX;
+			const currentOffsetY = e.pageY;
 
 			navigation.Update(currentOffsetX, currentOffsetY);
 
@@ -174,9 +160,7 @@ const AdjustableLine = (editor: Editor, media: HTMLElement): HTMLElement => {
 			finish();
 		};
 
-		const finishAdjusting = (e: MouseEvent | TouchEvent) => {
-			PreventEvent(e);
-
+		const finishAdjusting = () => {
 			DOM.Remove(fakeFigure.Figure);
 
 			ResetAbsolute(self, Figure, figureElement);
@@ -199,10 +183,8 @@ const AdjustableLine = (editor: Editor, media: HTMLElement): HTMLElement => {
 	};
 
 	const lines = [adjustableLeft, adjustableTop, adjustableRight, adjustableBottom];
-	Arr.Each(lines, line => DOM.On(line, ENativeEvents.mousedown, startAdjusting));
-	Arr.Each(lines, line => DOM.On(line, ENativeEvents.touchstart, startAdjusting));
-
-	DOM.Insert(adjustableLineGroup, adjustableLeft, adjustableTop, adjustableRight, adjustableBottom);
+	StartAdjustment(self, startAdjusting, ...lines);
+	DOM.Insert(adjustableLineGroup, ...lines);
 
 	return adjustableLineGroup;
 };

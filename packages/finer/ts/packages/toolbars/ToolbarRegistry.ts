@@ -3,6 +3,7 @@ import Editor from '../Editor';
 import HorizontalLine from './HorizontalLine';
 import Info from './Info';
 import SelectAll from './SelectAll';
+import UndoRedo from './UndoRedo';
 
 interface IToolbarRegistry {
 	readonly Name: string,
@@ -12,7 +13,9 @@ interface IToolbarRegistry {
 const ToolbarRegistry = (editor: Editor) => {
 	const self = editor;
 
-	const registries: IToolbarRegistry[] = [Info(self), SelectAll(self), HorizontalLine(self)];
+	const undoRedo = UndoRedo(self);
+
+	const registries: IToolbarRegistry[] = [Info(self), SelectAll(self), HorizontalLine(self), undoRedo.Undo, undoRedo.Redo];
 
 	const Has = (name: string): boolean => {
 		for (let index = 0, length = registries.length; index < length; ++index) {

@@ -13,7 +13,7 @@ const Modal = (name: string, setting: IUISettingMap['Modal']): IUISchemaMap['Mod
 		Events,
 	});
 
-	rootSchema.BindRoot('keyup', (event: KeyboardEvent) => {
+	rootSchema.BindRoot('keyup', event => {
 		if (Str.LowerCase(event.code) !== 'escape' && Str.LowerCase(event.key) !== 'escape') return;
 		rootSchema.Destroy();
 	}, true);

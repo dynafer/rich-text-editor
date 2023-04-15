@@ -44,6 +44,7 @@ export interface IFormatUtils {
 	GetFormatConfig: (editor: Editor, defaultOptions: TConfigOption, configName: Capitalize<string>) => TConfigOption,
 	LabelConfigArray: (config: string[]) => Record<string, string>,
 	GetParentIfText: (node: Node) => Element,
+	DoWithShallowMarking: (editor: Editor, caret: ICaretData, callback: () => void) => void,
 	CleanDirty: (editor: Editor, nodes: Node[]) => void,
 	CleanDirtyWithCaret: (editor: Editor, caret: ICaretData | null) => void,
 	RunFormatting: (editor: Editor, toggle: () => void) => void,
@@ -101,6 +102,26 @@ const FormatUtils = (): IFormatUtils => {
 	};
 
 	const GetParentIfText = (node: Node): Element => (NodeType.IsText(node) ? node.parentElement : node) as Element;
+
+	const DoWithShallowMarking = (editor: Editor, caret: ICaretData, callback: () => void) => {
+		const self = editor;
+
+		const startMarker = DOM.Create('span', { attrs: ['marker'] });
+		const endMarker = DOM.Create('span', { attrs: ['marker'] });
+
+		DOM.InsertBefore(caret.Start.Node, startMarker);
+		DOM.InsertAfter(caret.End.Node, endMarker);
+
+		callback();
+
+		const newRange = self.Utils.Range();
+		newRange.SetStart(startMarker.nextSibling as Element, caret.Start.Offset);
+		newRange.SetEnd(endMarker.previousSibling as Element, caret.End.Offset);
+		self.Utils.Caret.UpdateRange(newRange);
+
+		DOM.Remove(startMarker);
+		DOM.Remove(endMarker);
+	};
 
 	const CleanDirty = (editor: Editor, nodes: Node[]) => {
 		const self = editor;
@@ -174,7 +195,7 @@ const FormatUtils = (): IFormatUtils => {
 		if (!DOM.Element.Figure.IsFigure(startBlock)) Arr.Push(children, ...DOM.GetChildNodes(startBlock));
 		if (!DOM.Element.Figure.IsFigure(endBlock)) Arr.Push(children, ...DOM.GetChildNodes(endBlock));
 
-		CleanDirty(self, children);
+		DoWithShallowMarking(self, caret, () => CleanDirty(self, children));
 	};
 
 	const createMarker = (editor: Editor): TMarkerPath | null => {
@@ -466,6 +487,7 @@ const FormatUtils = (): IFormatUtils => {
 		GetFormatConfig,
 		LabelConfigArray,
 		GetParentIfText,
+		DoWithShallowMarking,
 		CleanDirty,
 		CleanDirtyWithCaret,
 		RunFormatting,

@@ -1,4 +1,4 @@
-import { Arr, Str } from '@dynafer/utils';
+import { Arr } from '@dynafer/utils';
 import Editor from '../../Editor';
 import { ICaretData } from '../../editorUtils/caret/CaretUtils';
 import { IBlockFormat } from '../FormatType';
@@ -13,8 +13,6 @@ const ToggleBlock = (editor: Editor, format: IBlockFormat): IToggleBlock => {
 	const DOM = self.DOM;
 	const Toggler = self.Formatter.Toggler;
 	const { AddInside } = format;
-
-	const addInsideSelector = Str.Join(',', ...AddInside);
 
 	const toggleRangeEdge = (bWrap: boolean, node: Node, root: Node, bPrevious: boolean = false) => {
 		if (!AddInside.has(DOM.Utils.GetNodeName(root))) return Toggler.Toggle(bWrap, format, root);
@@ -42,7 +40,7 @@ const ToggleBlock = (editor: Editor, format: IBlockFormat): IToggleBlock => {
 		const startElement = FormatUtils.GetParentIfText(caret.Start.Node);
 
 		if (caret.Start.Node === caret.End.Node
-			|| (!DOM.Element.Table.GetClosest(startElement) && !DOM.Closest(startElement, addInsideSelector))
+			|| (!DOM.Element.Table.GetClosest(startElement) && !DOM.Closest(startElement, { tagName: Arr.Convert(AddInside) }))
 		) {
 			Toggler.Toggle(bWrap, format, DOM.GetChildNodes(caret.Start.Node, false)[0] ?? caret.Start.Node);
 			return true;

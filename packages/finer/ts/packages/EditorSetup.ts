@@ -1,10 +1,13 @@
-import { Instance, Str } from '@dynafer/utils';
+import { NodeType } from '@dynafer/dom-control';
+import { Str } from '@dynafer/utils';
 import Options from '../Options';
 import DOM from './dom/DOM';
 import DOMTools from './dom/DOMTools';
 import Editor from './Editor';
 import EventSetup from './events/EventSetup';
+import { ENativeEvents } from './events/EventSetupUtils';
 import Formatter from './formatter/Formatter';
+import { CreateHistoryPath, GetHTMLHistory } from './history/Utils';
 import FooterManager from './managers/FooterManager';
 import PluginManager from './managers/PluginManager';
 
@@ -63,13 +66,13 @@ const EditorSetup = (editor: Editor): Promise<void> => {
 	};
 
 	const setEditorBody = () => {
-		const body: HTMLElement = self.IsIFrame() ? createIframe() : createDiv();
+		const body = self.IsIFrame() ? createIframe() : createDiv();
 
 		if (!DOM.Select({ id: editorDefaultId }, DOM.Doc.head)) DOM.Insert(DOM.Doc.head, editorDefaultCss);
 		if (!DOM.Select({ id: skinId }, DOM.Doc.head)) DOM.Insert(DOM.Doc.head, skinLink);
 
 		let initialContent: string;
-		if (Instance.Is(config.Selector, HTMLTextAreaElement)) {
+		if (DOM.Utils.IsTextArea(config.Selector)) {
 			initialContent = config.Selector.value;
 			if (Str.IsEmpty(initialContent)) initialContent = config.Selector.innerHTML.replace(/&lt;/gi, '<').replace(/&gt;/gi, '>');
 			config.Selector.value = '';
@@ -85,6 +88,11 @@ const EditorSetup = (editor: Editor): Promise<void> => {
 	return new Promise((resolve, reject) => {
 		setEditorBody();
 
+		self.On(ENativeEvents.click, () => {
+			if (self.IsFocused()) return;
+			self.Focus();
+		});
+
 		self.Tools = {
 			DOM: DOMTools(self)
 		};
@@ -96,6 +104,21 @@ const EditorSetup = (editor: Editor): Promise<void> => {
 		self.Footer?.UpdateCounter();
 
 		self.CleanDirty();
+
+		self.Focus();
+		const lastChild = DOM.Utils.GetLastChild(self.GetBody(), true);
+		if (lastChild) {
+			const newRange = self.Utils.Range();
+			const offset = NodeType.IsText(lastChild) ? lastChild.length : 0;
+			newRange.SetStartToEnd(lastChild, offset, offset);
+			self.Utils.Caret.UpdateRange(newRange);
+		}
+
+		const history = CreateHistoryPath(self, self.Utils.Caret.Get() ?? []);
+		if (history) self.History.Record({
+			data: GetHTMLHistory(self),
+			redo: history
+		});
 
 		Finer.Loaders.Plugin.LoadParallel(config.Plugins)
 			.then(() => self.Plugin.AttachPlugin())

@@ -1,5 +1,5 @@
 import { NodeType } from '@dynafer/dom-control';
-import { Arr, Obj, Str, Type } from '@dynafer/utils';
+import { Arr, Obj, Type } from '@dynafer/utils';
 import Editor from '../Editor';
 import { AllBlockFormats } from './Format';
 import { EFormatType, IBlockFormat, IInlineFormat, IStyleFormat, TFormat } from './FormatType';
@@ -74,7 +74,7 @@ const FormatWrapper = (editor: Editor): IFormatWrapper => {
 
 		const styles = createStyleMap(Styles, value);
 
-		const closestStyle = DOM.Closest(elementForCheck, DOM.Utils.CreateAttrSelector('style')) as Node | null;
+		const closestStyle = DOM.Closest(elementForCheck, { attrs: ['style'] }) as Node | null;
 		if (!closestStyle) return wrapFormat(node, Tag, styles);
 
 		let currentChild = closestStyle;
@@ -90,7 +90,7 @@ const FormatWrapper = (editor: Editor): IFormatWrapper => {
 	const wrapStyleFormat = (format: IStyleFormat, node: Node, value?: string): boolean => {
 		const { StrictFormats, Styles, SameStyles } = format;
 
-		const parent = DOM.Closest(FormatUtils.GetParentIfText(node), Str.Join(',', ...StrictFormats));
+		const parent = DOM.Closest(FormatUtils.GetParentIfText(node), { tagName: Arr.Convert(StrictFormats) });
 		if (!parent) return false;
 
 		const styles = createStyleMap(Styles, value);

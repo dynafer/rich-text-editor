@@ -21,7 +21,7 @@ const Wrapper = (editor: Editor, utils: IAnchorUtils) => {
 		return anchor;
 	};
 
-	const mergeAnchors = (caret: ICaretData) => {
+	const mergeAnchors = () => {
 		const anchors = DOM.SelectAll<HTMLAnchorElement>('a', self.GetBody());
 
 		Arr.WhileShift(anchors, anchor => {
@@ -31,8 +31,6 @@ const Wrapper = (editor: Editor, utils: IAnchorUtils) => {
 			DOM.Insert(previous, ...DOM.GetChildNodes(anchor));
 			DOM.Remove(anchor);
 		});
-
-		CaretUtils.UpdateRange(caret.Range.Clone());
 	};
 
 	const wrapRecursive = (node: Node, url: string): void => {
@@ -118,12 +116,12 @@ const Wrapper = (editor: Editor, utils: IAnchorUtils) => {
 		return true;
 	};
 
-	const sameLineProcessor = (startNode: Node, endNode: Node, until: Node, url: string) => {
+	const sameLineProcessor = (startNode: Node, endNode: Node, startOffset: number, endOffset: number, until: Node, url: string) => {
 		sameProcessor(startNode, endNode, until, url);
 
 		const newRange = RangeUtils();
-		newRange.SetStart(startNode, 0);
-		newRange.SetEnd(endNode, NodeType.IsText(endNode) ? endNode.length : 0);
+		newRange.SetStart(startNode, startOffset);
+		newRange.SetEnd(endNode, endOffset);
 		CaretUtils.UpdateRange(newRange);
 
 		return true;
@@ -145,15 +143,18 @@ const Wrapper = (editor: Editor, utils: IAnchorUtils) => {
 		const startNode = utils.TrimTextsRangeEdge(caret.Start.Node, caret.Start.Offset, true);
 		const endNode = utils.TrimTextsRangeEdge(caret.End.Node, caret.End.Offset);
 
-		caret.Range.SetStart(startNode, startNode === caret.Start.Node ? caret.Start.Offset : 0);
-		caret.Range.SetEnd(endNode, NodeType.IsText(endNode) ? endNode.length : 0);
+		const startOffset = startNode === caret.Start.Node ? caret.Start.Offset : 0;
+		const endOffset = endNode === caret.End.Node ? caret.End.Offset : (endNode.textContent?.length ?? 0);
+
+		caret.Range.SetStart(startNode, startOffset);
+		caret.Range.SetEnd(endNode, endOffset);
 
 		const startUntil = utils.GetClosestBlock(startNode);
 		const endUntil = utils.GetClosestBlock(endNode);
 		if (!startUntil || !endUntil) return false;
 
 		if (startUntil === endUntil) {
-			sameLineProcessor(startNode, endNode, startUntil, url);
+			sameLineProcessor(startNode, endNode, startOffset, endOffset, startUntil, url);
 			return true;
 		}
 
@@ -178,8 +179,8 @@ const Wrapper = (editor: Editor, utils: IAnchorUtils) => {
 		trimRangeEdge(endNode, endUntil, url, false);
 
 		const newRange = RangeUtils();
-		newRange.SetStart(startNode, startNode === caret.Start.Node ? caret.Start.Offset : 0);
-		newRange.SetEnd(endNode, NodeType.IsText(endNode) ? endNode.length : 0);
+		newRange.SetStart(startNode, startOffset);
+		newRange.SetEnd(endNode, endOffset);
 		CaretUtils.UpdateRange(newRange);
 
 		return true;
@@ -214,8 +215,8 @@ const Wrapper = (editor: Editor, utils: IAnchorUtils) => {
 		if (!caret) return;
 
 		const finish = () => {
+			formatUtils.DoWithShallowMarking(self, CaretUtils.Get() ?? caret, mergeAnchors);
 			formatUtils.CleanDirtyWithCaret(self, CaretUtils.Get() ?? caret);
-			mergeAnchors(CaretUtils.Get() ?? caret);
 			self.Focus();
 		};
 

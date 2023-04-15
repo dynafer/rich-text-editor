@@ -1,5 +1,5 @@
 import { NodeType } from '@dynafer/dom-control';
-import { Str } from '@dynafer/utils';
+import { Arr } from '@dynafer/utils';
 import Editor from '../../Editor';
 import { BlockFormatTags } from '../../formatter/Format';
 import FormatUtils from '../../formatter/FormatUtils';
@@ -48,7 +48,7 @@ const MoveUtils = (editor: Editor, event: KeyboardEvent) => {
 			if (targetOffset !== offset) return false;
 		}
 
-		const block = DOM.Closest(FormatUtils.GetParentIfText(node), Str.Join(',', ...BlockFormatTags.Block));
+		const block = DOM.Closest(FormatUtils.GetParentIfText(node), { tagName: Arr.Convert(BlockFormatTags.Block) });
 		if (!block) return true;
 
 		let current: Node | null = node;

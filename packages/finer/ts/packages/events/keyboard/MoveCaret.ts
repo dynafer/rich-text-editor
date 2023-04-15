@@ -1,5 +1,5 @@
 import { NodeType } from '@dynafer/dom-control';
-import { Str } from '@dynafer/utils';
+import { Arr } from '@dynafer/utils';
 import Editor from '../../Editor';
 import { BlockFormatTags, ListItemSelector } from '../../formatter/Format';
 import FormatUtils from '../../formatter/FormatUtils';
@@ -72,7 +72,7 @@ const MoveCaret = (editor: Editor, event: KeyboardEvent) => {
 	};
 
 	const moveOrDeleteBeforeFigure = () => {
-		const blockNode = DOM.Closest(FormatUtils.GetParentIfText(caret.Start.Node), Str.Join(',', ...BlockFormatTags.Block));
+		const blockNode = DOM.Closest(FormatUtils.GetParentIfText(caret.Start.Node), { tagName: Arr.Convert(BlockFormatTags.Block) });
 		if (!blockNode) return;
 
 		const getChild = bBackward ? DOM.Utils.GetFirstChild : DOM.Utils.GetLastChild;

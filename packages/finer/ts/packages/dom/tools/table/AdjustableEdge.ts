@@ -1,7 +1,6 @@
 import { Arr, Str, Type } from '@dynafer/utils';
 import Editor from '../../../Editor';
-import { ENativeEvents, PreventEvent } from '../../../events/EventSetupUtils';
-import { CreateAdjustableEdgeSize, GetClientSize, RegisterAdjustingEvents } from '../Utils';
+import { CreateAdjustableEdgeSize, GetClientSize, RegisterAdjustingEvents, StartAdjustment } from '../Utils';
 import { CreateCurrentPoint, CreateFakeFigure, MakeAbsolute, MoveToCurrentPoint, ResetAbsolute, WalkGrid } from './TableToolsUtils';
 
 
@@ -44,37 +43,29 @@ const AdjustableEdge = (editor: Editor, table: HTMLElement): HTMLElement => {
 		setEdgePositionStyles(figureElement, rightBottomEdge, false, false);
 	};
 
-	const startAdjusting = (evt: MouseEvent | TouchEvent) => {
-		PreventEvent(evt);
-
-		const event = !Str.Contains(evt.type, 'touch') ? evt as MouseEvent : (evt as TouchEvent).touches.item(0);
-		if (!event) return;
-
+	const startAdjusting = (event: MouseEvent | Touch, figure: HTMLElement, figureElement: HTMLElement) => {
 		const adjustItem = event.target as HTMLElement;
 
 		let startOffsetX = event.pageX;
 		let startOffsetY = event.pageY;
 
-		const { Figure, FigureElement } = DOM.Element.Figure.Find<HTMLElement>(adjustItem);
-		if (!Figure || !FigureElement) return;
-
-		let savedPoint = CreateCurrentPoint(self, FigureElement);
+		let savedPoint = CreateCurrentPoint(self, figureElement);
 
 		const bLeft = adjustItem === leftTopEdge || adjustItem === leftBottomEdge;
 		const bTop = adjustItem === leftTopEdge || adjustItem === rightTopEdge;
 
-		const oldWidth = FigureElement.offsetWidth;
-		const oldHeight = FigureElement.offsetHeight;
-		const oldLeft = FigureElement.offsetLeft;
-		const oldTop = FigureElement.offsetTop;
+		const oldWidth = figureElement.offsetWidth;
+		const oldHeight = figureElement.offsetHeight;
+		const oldLeft = figureElement.offsetLeft;
+		const oldTop = figureElement.offsetTop;
 
 		self.SaveScrollPosition();
 
-		const { Grid } = DOM.Element.Table.GetGridWithIndex(FigureElement);
+		const { Grid } = DOM.Element.Table.GetGridWithIndex(figureElement);
 
-		const fakeFigure = CreateFakeFigure(self, Figure, FigureElement);
-		DOM.InsertBefore(Figure, fakeFigure.Figure);
-		MakeAbsolute(self, fakeFigure, Figure, FigureElement);
+		const fakeFigure = CreateFakeFigure(self, figure, figureElement);
+		DOM.InsertBefore(figure, fakeFigure.Figure);
+		MakeAbsolute(self, fakeFigure, figure, figureElement);
 
 		const dumpStyles: [HTMLElement, Record<string, string>][] = [];
 
@@ -85,36 +76,36 @@ const AdjustableEdge = (editor: Editor, table: HTMLElement): HTMLElement => {
 			}])
 		);
 
-		const dumpWidth = DOM.GetStyle(FigureElement, 'width');
-		const dumpHeight = DOM.GetStyle(FigureElement, 'height');
+		const dumpWidth = DOM.GetStyle(figureElement, 'width');
+		const dumpHeight = DOM.GetStyle(figureElement, 'height');
 
-		DOM.SetStyles(FigureElement, {
+		DOM.SetStyles(figureElement, {
 			width: '0px',
 			height: '0px',
 		});
 
 		WalkGrid(Grid, cell => DOM.RemoveStyles(cell, 'width', 'height'));
 
-		const minWidth = FigureElement.offsetWidth;
-		const minHeight = FigureElement.offsetHeight;
-		const minLeft = FigureElement.offsetLeft + (bLeft ? Math.max(minWidth - oldWidth, oldWidth - minWidth) : 0);
-		const minTop = FigureElement.offsetTop + (bTop ? Math.max(minHeight - oldHeight, oldHeight - minHeight) : 0);
+		const minWidth = figureElement.offsetWidth;
+		const minHeight = figureElement.offsetHeight;
+		const minLeft = figureElement.offsetLeft + (bLeft ? Math.max(minWidth - oldWidth, oldWidth - minWidth) : 0);
+		const minTop = figureElement.offsetTop + (bTop ? Math.max(minHeight - oldHeight, oldHeight - minHeight) : 0);
 
 		const toggleWidth = !Str.IsEmpty(dumpWidth) ? DOM.SetStyle : DOM.RemoveStyle;
 		const toggleHeight = !Str.IsEmpty(dumpHeight) ? DOM.SetStyle : DOM.RemoveStyle;
-		toggleWidth(FigureElement, 'width', dumpWidth);
-		toggleHeight(FigureElement, 'height', dumpHeight);
+		toggleWidth(figureElement, 'width', dumpWidth);
+		toggleHeight(figureElement, 'height', dumpHeight);
 
 		Arr.WhileShift(dumpStyles, ([cell, styles]) => DOM.SetStyles(cell, styles));
 
-		updateEdgePosition(FigureElement);
+		updateEdgePosition(figureElement);
 
 		self.ScrollSavedPosition();
 
-		const lineGroup = DOM.Select<HTMLElement>({ attrs: ['data-adjustable-line-group'] }, Figure);
+		const lineGroup = DOM.Select<HTMLElement>({ attrs: ['data-adjustable-line-group'] }, figure);
 		DOM.Hide(lineGroup);
 
-		const movable = DOM.Select<HTMLElement>({ attrs: ['data-movable'] }, Figure);
+		const movable = DOM.Select<HTMLElement>({ attrs: ['data-movable'] }, figure);
 		DOM.Hide(movable);
 
 		const adjustLeftDifference = (bLeft ? minLeft - oldLeft : oldLeft - minLeft) + (bLeft ? 0 : (minWidth - oldWidth));
@@ -132,26 +123,21 @@ const AdjustableEdge = (editor: Editor, table: HTMLElement): HTMLElement => {
 			if (bHorizontal) startOffsetX = current;
 			else startOffsetY = current;
 
-			const figureSize = bHorizontal ? FigureElement.offsetWidth : FigureElement.offsetHeight;
+			const figureSize = bHorizontal ? figureElement.offsetWidth : figureElement.offsetHeight;
 			const minimumSize = bHorizontal ? minWidth : minHeight;
 			const minimumOffset = bHorizontal ? minimumOffsetX : minimumOffsetY;
 			const offsetDifference = bLeftOrTop ? minimumOffset - current : current - minimumOffset;
 
 			if (figureSize + calculated > minimumSize && offsetDifference > 0) return calculated;
 
-			DOM.SetStyle(FigureElement, bHorizontal ? 'width' : 'height', `${bHorizontal ? minWidth : minHeight}px`);
+			DOM.SetStyle(figureElement, bHorizontal ? 'width' : 'height', `${bHorizontal ? minWidth : minHeight}px`);
 			if ((bHorizontal && bLeft) || (!bHorizontal && bTop))
-				DOM.SetStyle(FigureElement, bHorizontal ? 'left' : 'top', `${bHorizontal ? minLeft : minTop}px`);
+				DOM.SetStyle(figureElement, bHorizontal ? 'left' : 'top', `${bHorizontal ? minLeft : minTop}px`);
 
 			return false;
 		};
 
-		const adjust = (ev: MouseEvent | TouchEvent) => {
-			PreventEvent(ev);
-
-			const e = !Str.Contains(ev.type, 'touch') ? ev as MouseEvent : (ev as TouchEvent).touches.item(0);
-			if (!e) return;
-
+		const adjust = (e: MouseEvent | Touch) => {
 			const currentOffsetX = e.pageX;
 			const currentOffsetY = e.pageY;
 
@@ -164,7 +150,7 @@ const AdjustableEdge = (editor: Editor, table: HTMLElement): HTMLElement => {
 
 			const updateSize = (type: 'width' | 'height', calculated: number, bUpdatePosition: boolean) => {
 				const bWidth = type === 'width';
-				const newSize = (bWidth ? FigureElement.offsetWidth : FigureElement.offsetHeight) + calculated;
+				const newSize = (bWidth ? figureElement.offsetWidth : figureElement.offsetHeight) + calculated;
 				newStyle[type] = `${newSize}px`;
 				if (!bUpdatePosition) return;
 
@@ -175,14 +161,12 @@ const AdjustableEdge = (editor: Editor, table: HTMLElement): HTMLElement => {
 			if (!Type.IsBoolean(calculatedX)) updateSize('width', calculatedX, bLeft);
 			if (!Type.IsBoolean(calculatedY)) updateSize('height', calculatedY, bTop);
 
-			DOM.SetStyles(FigureElement, newStyle);
+			DOM.SetStyles(figureElement, newStyle);
 
-			updateEdgePosition(FigureElement);
+			updateEdgePosition(figureElement);
 		};
 
-		const finishAdjusting = (e: MouseEvent | TouchEvent) => {
-			PreventEvent(e);
-
+		const finishAdjusting = () => {
 			DOM.Remove(fakeFigure.Figure);
 
 			const cellStyles: [HTMLElement, Record<string, string>][] = [];
@@ -199,22 +183,20 @@ const AdjustableEdge = (editor: Editor, table: HTMLElement): HTMLElement => {
 
 			Arr.WhileShift(cellStyles, ([cell, styles]) => DOM.SetStyles(cell, styles));
 
-			ResetAbsolute(self, Figure, FigureElement);
+			ResetAbsolute(self, figure, figureElement);
 
 			DOM.Show(lineGroup);
 			DOM.Show(movable);
 
-			MoveToCurrentPoint(self, FigureElement, savedPoint);
+			MoveToCurrentPoint(self, figureElement, savedPoint);
 			savedPoint = undefined;
 		};
 
-		RegisterAdjustingEvents(self, FigureElement, adjust, finishAdjusting);
+		RegisterAdjustingEvents(self, figureElement, adjust, finishAdjusting);
 	};
 
 	const edges = [leftTopEdge, rightTopEdge, leftBottomEdge, rightBottomEdge];
-	Arr.Each(edges, edge => DOM.On(edge, ENativeEvents.mousedown, startAdjusting));
-	Arr.Each(edges, edge => DOM.On(edge, ENativeEvents.touchstart, startAdjusting));
-
+	StartAdjustment(self, startAdjusting, ...edges);
 	DOM.Insert(adjustableEdgeGroup, ...edges);
 
 	return adjustableEdgeGroup;

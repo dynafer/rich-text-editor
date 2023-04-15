@@ -1,43 +1,11 @@
+@import '../_modal';
+
+@include modal(colorpicker);
+
 colorpicker-modal {
-	@include flex(center, center);
-	@include position(fixed, 0, 0);
-	@include square(100%);
-	background-color: getVar(modal-bg);
-	z-index: 9999999;
-	box-sizing: border-box;
-	user-select: none;
-
-	* {
-		display: block;
-		box-sizing: inherit;
-	}
-
 	colorpicker-dialog {
-		@include round(getVar(modal-radius));
-		@include all-border(getVar(modal-border));
-
-		colorpicker-header {
-			@include all-padding(0.5rem);
-			@include font(14pt);
-			@include round(getVar(modal-radius) getVar(modal-radius) 0 0);
-			@include border($bottom: getVar(modal-border));
-			@include flex(center, space-between);
-			background-color: getVar(modal-dialog-bg);
-
-			div {
-				@include default-button;
-				@include round(getVar(button-radius));
-
-				svg {
-					@include square(1.25rem);
-					cursor: pointer;
-				}
-			}
-		}
-
 		colorpicker-body {
 			@include all-padding(1rem);
-			background-color: getVar(modal-dialog-bg);
 
 			colorpicker-form {
 				@include flex();
@@ -125,15 +93,7 @@ colorpicker-modal {
 		}
 
 		colorpicker-footer {
-			@include all-padding(0.5rem);
-			@include border(getVar(modal-border));
-			@include round(0 0 getVar(modal-radius) getVar(modal-radius));
-			background-color: getVar(modal-dialog-bg);
-			text-align: right;
-
 			button {
-				@include common-button;
-
 				&:first-child {
 					@include cancel-button;
 				}
@@ -148,15 +108,8 @@ colorpicker-modal {
 
 @include mobile {
 	colorpicker-modal {
-		display: block;
-
 		colorpicker-dialog {
-			@include width($max: 96vw);
-			@include all-margin(2vw);
-
 			colorpicker-body {
-				overflow-x: auto;
-
 				colorpicker-form {
 					@include width(408px);
 				}

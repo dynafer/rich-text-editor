@@ -1,5 +1,5 @@
 import { NodeType } from '@dynafer/dom-control';
-import { Arr, Str, Type } from '@dynafer/utils';
+import { Arr, Type } from '@dynafer/utils';
 import Editor from '../../../packages/Editor';
 
 export interface IAnchorUtils {
@@ -18,7 +18,7 @@ const AnchorUtils = (editor: Editor): IAnchorUtils => {
 	const formatUtils = self.Formatter.Utils;
 
 	const GetClosestBlock = (node: Node): Node | null =>
-		DOM.Closest(formatUtils.GetParentIfText(node), Str.Join(',', ...formats.BlockFormatTags.Block))
+		DOM.Closest(formatUtils.GetParentIfText(node), { tagName: Arr.Convert(formats.BlockFormatTags.Block) })
 		?? DOM.Closest(formatUtils.GetParentIfText(node), formats.ListItemSelector);
 
 	const UnwrapAnchor = (targetAnchor: Node) =>

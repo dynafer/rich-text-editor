@@ -201,7 +201,7 @@ const InputUtils = (editor: Editor) => {
 			return fragment;
 		}
 
-		const until = DOM.Closest(FormatUtils.GetParentIfText(caret.Start.Node), Str.Join(',', ...BlockFormatTags.Block))
+		const until = DOM.Closest(FormatUtils.GetParentIfText(caret.Start.Node), { tagName: Arr.Convert(BlockFormatTags.Block) })
 			?? DOM.Closest(FormatUtils.GetParentIfText(caret.Start.Node), ListItemSelector);
 		const startNode = caret.Start.Node.parentNode;
 

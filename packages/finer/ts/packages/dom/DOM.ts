@@ -87,8 +87,8 @@ export interface IDom {
 	},
 	CloneAndInsert: (selector: NonNullable<TElement>, bDeep: boolean, ...insertions: (string | TElement)[]) => void,
 	Closest: {
-		<T extends Element>(selector: T | TElement, find: string): T | null;
-		(selector: TElement, find: string): Element | null;
+		<T extends Element>(selector: T | TElement, find: string | Omit<ICreateSelectorOption, 'styles'>): T | null;
+		(selector: TElement, find: string | Omit<ICreateSelectorOption, 'styles'>): Element | null;
 	},
 	ClosestByStyle: (selector: TElement, styles: string | (string | Record<string, string>)[] | Record<string, string>) => Element | null,
 	IsEditable: (selector: Node) => boolean,
@@ -215,9 +215,13 @@ const DOM = (opts: TDOMCreateOption): IDom => {
 		});
 	};
 
-	const Closest = (selector: TElement, find: string): Element | null => {
-		if (!NodeType.IsElement(selector) || !Type.IsString(find) || Str.IsEmpty(find)) return null;
-		const closest = selector.closest(find);
+	const Closest = (selector: TElement, find: string | Omit<ICreateSelectorOption, 'styles'>): Element | null => {
+		if (!NodeType.IsElement(selector)) return null;
+
+		const finder = Type.IsString(find) ? find : Utils.CreateSelector(find);
+		if (Str.IsEmpty(finder)) return null;
+
+		const closest = selector.closest(finder);
 		if (!closest || HasAttr(closest, 'id', Utils.CreateUEID('editor-body', false))) return null;
 		return closest;
 	};

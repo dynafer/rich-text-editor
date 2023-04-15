@@ -70,7 +70,7 @@ export const Find = <T>(array: ArrayLike<unknown>, target: T): number => {
 
 	if (!IsFunction((array as T[])[Symbol.iterator])) return -1;
 
-	const length = (array as T[]).length;
+	const length = array.length;
 	for (let index = 0; index < length; ++index) {
 		if (array[index] !== target) continue;
 		return index;

@@ -8,6 +8,7 @@ interface IBoundEvent {
 }
 
 export interface IDOMEventUtils {
+	Boundaries: Record<string, IBoundEvent>,
 	Bind: (target: TEventTarget, eventName: string, event: EventListener) => void,
 	Unbind: (target: TEventTarget, eventName: string, event: EventListener) => void,
 	UnbindAll: (target: TEventTarget, eventName?: string) => void,
@@ -15,7 +16,7 @@ export interface IDOMEventUtils {
 }
 
 const DOMEventUtils = (): IDOMEventUtils => {
-	const boundEvents: Record<string, IBoundEvent> = {};
+	const boundaries: Record<string, IBoundEvent> = {};
 
 	const propertyName = 'finer-boundary-id';
 
@@ -30,13 +31,13 @@ const DOMEventUtils = (): IDOMEventUtils => {
 
 	const Bind = (target: TEventTarget, eventName: string, event: EventListener) => {
 		const boundaryId = getElementBoundaryId(target);
-		if (!boundEvents[boundaryId]) boundEvents[boundaryId] = {
+		if (!boundaries[boundaryId]) boundaries[boundaryId] = {
 			element: target,
 			eventMap: {}
 		};
 
-		if (!boundEvents[boundaryId].eventMap[eventName]) boundEvents[boundaryId].eventMap[eventName] = [];
-		Arr.Push(boundEvents[boundaryId].eventMap[eventName], event);
+		if (!boundaries[boundaryId].eventMap[eventName]) boundaries[boundaryId].eventMap[eventName] = [];
+		Arr.Push(boundaries[boundaryId].eventMap[eventName], event);
 		target.addEventListener(eventName, event);
 	};
 
@@ -44,7 +45,7 @@ const DOMEventUtils = (): IDOMEventUtils => {
 		if (!hasElementBoundaryId(target)) return;
 
 		const boundaryId = getElementBoundaryId(target);
-		const events = boundEvents[boundaryId]?.eventMap[eventName];
+		const events = boundaries[boundaryId]?.eventMap[eventName];
 		if (!events) return;
 
 		let index = Arr.Find(events, event);
@@ -66,7 +67,7 @@ const DOMEventUtils = (): IDOMEventUtils => {
 		if (!hasElementBoundaryId(target)) return;
 
 		const boundaryId = getElementBoundaryId(target);
-		const boundEvent = boundEvents[boundaryId];
+		const boundEvent = boundaries[boundaryId];
 		if (!boundEvent) return;
 
 		if (Type.IsString(eventName)) {
@@ -75,13 +76,14 @@ const DOMEventUtils = (): IDOMEventUtils => {
 		}
 
 		Obj.Entries(boundEvent.eventMap, (name, events) => unbindRecursive(target, name, events));
-		delete boundEvents?.[boundaryId];
+		delete boundaries?.[boundaryId];
 	};
 
 	const Destroy = () =>
-		Obj.Values(boundEvents, boundEvent => UnbindAll(boundEvent.element));
+		Obj.Values(boundaries, boundEvent => UnbindAll(boundEvent.element));
 
 	return {
+		Boundaries: boundaries,
 		Bind,
 		Unbind,
 		UnbindAll,

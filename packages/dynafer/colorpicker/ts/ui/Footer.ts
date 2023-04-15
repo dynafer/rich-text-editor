@@ -18,7 +18,7 @@ const Footer = (icons: Record<string, string>, texts: Record<string, string>, ca
 			Attributes: {
 				type: 'button'
 			},
-			Elements: [Str.Merge(icons.Check, texts.Confirm)],
+			Elements: [Str.Merge(icons.Check, texts.Apply)],
 			Events: [
 				['click', pick]
 			]

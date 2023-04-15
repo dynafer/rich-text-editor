@@ -64,7 +64,7 @@ const TableFormat = (editor: Editor) => {
 		const { StartBlock, EndBlock } = self.Utils.Shared.SplitLines(caret.Start.Node, caret.Start.Offset);
 
 		const node = formatter.Utils.GetParentIfText(caret.Start.Node);
-		const blockNode = StartBlock ?? DOM.Closest(node, Str.Join(',', ...formatter.Formats.BlockFormatTags.Block)) ?? lines[0];
+		const blockNode = StartBlock ?? DOM.Closest(node, { tagName: Arr.Convert(formatter.Formats.BlockFormatTags.Block) }) ?? lines[0];
 		const insert = !blockNode ? DOM.Insert : DOM.InsertAfter;
 		const insertions = !blockNode ? [figure, EndBlock] : [EndBlock, figure];
 		insert(blockNode ?? self.GetBody(), ...insertions);

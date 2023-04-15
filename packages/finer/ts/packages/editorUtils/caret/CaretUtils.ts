@@ -60,7 +60,7 @@ const CaretUtils = (editor: Editor): ICaretUtils => {
 
 		if (node === self.GetBody()) {
 			const getChild = bStart ? DOM.Utils.GetFirstChild : DOM.Utils.GetLastChild;
-			const current: Node | null = getChild(bStart ? lines[0] : lines[offset - 1], true);
+			const current: Node | null = getChild(bStart ? lines[offset] : lines[offset - 1], true);
 
 			if (current) {
 				node = current;
@@ -121,7 +121,7 @@ const CaretUtils = (editor: Editor): ICaretUtils => {
 		const range = selection.rangeCount === 0 ? null : selection.getRangeAt(0);
 		if (!range || !DOM.Utils.IsChildOf(range.commonAncestorContainer, self.GetBody())) return;
 
-		const bRange = !range.collapsed;
+		const bRange = range.startContainer !== range.endContainer || range.startOffset !== range.endOffset;
 		const bBackward = selection.focusNode === range.startContainer;
 
 		const IsRange = (): boolean => bRange;
@@ -130,8 +130,8 @@ const CaretUtils = (editor: Editor): ICaretUtils => {
 		caret = {
 			IsRange,
 			IsBackward,
-			Start: getLine(range.startContainer, range.startOffset, !range.collapsed, true),
-			End: getLine(range.endContainer, range.endOffset, !range.collapsed, false),
+			Start: getLine(range.startContainer, range.startOffset, bRange, true),
+			End: getLine(range.endContainer, range.endOffset, bRange, false),
 			SameRoot: range.commonAncestorContainer,
 			Range: RangeUtils(range),
 		};

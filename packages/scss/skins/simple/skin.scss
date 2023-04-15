@@ -1,5 +1,22 @@
 @import '../../_function';
 
+@mixin make-toolbar-item-variables($type: null, $bg, $border, $font, $icon, $lightBg: null) {
+	@if $type == null {
+		$type: '';
+	} @else {
+		$type: #{$type}-;
+	}
+
+	@if $lightBg != null {
+		#{getVarName(toolbar-item-#{$type}light-bg)}: $lightBg;
+	}
+
+	#{getVarName(toolbar-item-#{$type}bg)}: $bg;
+	#{getVarName(toolbar-item-#{$type}border)}: $border;
+	#{getVarName(toolbar-item-#{$type}font)}: $font;
+	#{getVarName(toolbar-item-#{$type}icon-fill)}: $icon;
+}
+
 @mixin make-button-variables($type: null, $bg, $border, $font, $icon) {
 	@if $type == null {
 		$type: '';
@@ -13,6 +30,7 @@
 	#{getVarName(button-#{$type}icon-fill)}: $icon;
 }
 
+$hoverLight: rgba(131, 201, 255, 0.7);
 $hoverDefault: rgba(116, 195, 255, 0.7);
 $activeDefault: rgba(88, 183, 255, 0.7);
 
@@ -23,27 +41,24 @@ $activeDefault: rgba(88, 183, 255, 0.7);
 	#{getVarName(toolbar-bg)}: transparent;
 	#{getVarName(toolbar-border)}: #ececec;
 
-	#{getVarName(toolbar-item-bg)}: transparent;
-	#{getVarName(toolbar-item-border)}: transparent;
-	#{getVarName(toolbar-item-font)}: #000;
-	#{getVarName(toolbar-item-icon-fill)}: #000;
+	#{getVarName(toolbar-item-size)}: 1.625rem;
+	#{getVarName(toolbar-item-radius)}: 0.25rem;
+	#{getVarName(toolbar-icon-size)}: 1rem;
+	#{getVarName(toolbar-item-select-padding)}: 0.35rem;
+	#{getVarName(toolbar-item-select-label-width)}: 8em;
+	#{getVarName(toolbar-item-option-padding)}: 0.5rem;
+	#{getVarName(toolbar-item-option-min-width)}: 10rem;
 
-	#{getVarName(toolbar-item-hover-bg)}: $hoverDefault;
-	#{getVarName(toolbar-item-hover-border)}: $hoverDefault;
-	#{getVarName(toolbar-item-hover-font)}: #000;
-	#{getVarName(toolbar-item-hover-icon-fill)}: #000;
-
-	#{getVarName(toolbar-item-active-bg)}: $activeDefault;
-	#{getVarName(toolbar-item-active-border)}: $activeDefault;
-	#{getVarName(toolbar-item-active-font)}: #000;
-	#{getVarName(toolbar-item-active-icon-fill)}: #000;
+	@include make-toolbar-item-variables(null, transparent, transparent, #000, #000);
+	@include make-toolbar-item-variables(hover, $hoverDefault, $hoverDefault, #000, #000, $hoverLight);
+	@include make-toolbar-item-variables(active, $activeDefault, $activeDefault, #000, #000);
 
 	#{getVarName(toolbar-item-option-bg)}: #fff;
 	#{getVarName(toolbar-item-option-border)}: #afafaf;
+	#{getVarName(toolbar-item-option-radius)}: 0.25rem;
 	#{getVarName(toolbar-item-option-select-border)}: #afafaf;
 
-	#{getVarName(toolbar-item-select-border)}: #afafaf;
-	#{getVarName(toolbar-item-radius)}: 0.25rem;
+	#{getVarName(toolbar-item-select-border)}: transparent;
 	#{getVarName(toolbar-item-disabled-icon-fill)}: #aeaeae;
 }
 
@@ -53,7 +68,7 @@ $activeDefault: rgba(88, 183, 255, 0.7);
 	#{getVarName(editor-focused-border)}: $activeDefault;
 	#{getVarName(editor-opposite-bg)}: #000;
 
-	#{getVarName(modal-bg)}: rgba(255, 255, 255, 0.6);
+	#{getVarName(modal-bg)}: rgba(0, 0, 0, 0.6);
 	#{getVarName(modal-dialog-bg)}: #fff;
 	#{getVarName(modal-border)}: #c9c9c9;
 	#{getVarName(modal-radius)}: 14px;

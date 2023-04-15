@@ -1,7 +1,6 @@
-import { Arr, Str, Type } from '@dynafer/utils';
+import { Str, Type } from '@dynafer/utils';
 import Editor from '../../../Editor';
-import { ENativeEvents, PreventEvent } from '../../../events/EventSetupUtils';
-import { CreateAdjustableEdgeSize, RegisterAdjustingEvents } from '../Utils';
+import { CreateAdjustableEdgeSize, RegisterAdjustingEvents, StartAdjustment } from '../Utils';
 import AdjustingNavigation from './AdjustingNavigation';
 import { CreateFakeFigure, CreateFakeMedia, MakeAbsolute, ResetAbsolute } from './MediaToolsUtils';
 
@@ -44,19 +43,11 @@ const AdjustableEdge = (editor: Editor, media: HTMLElement): HTMLElement => {
 		setEdgePositionStyles(figureElement, rightBottomEdge, false, false);
 	};
 
-	const startAdjusting = (evt: MouseEvent | TouchEvent) => {
-		PreventEvent(evt);
-
-		const event = !Str.Contains(evt.type, 'touch') ? evt as MouseEvent : (evt as TouchEvent).touches.item(0);
-		if (!event) return;
-
+	const startAdjusting = (event: MouseEvent | Touch, Figure: HTMLElement, FigureElement: HTMLElement) => {
 		const adjustItem = event.target as HTMLElement;
 
 		let startOffsetX = event.pageX;
 		let startOffsetY = event.pageY;
-
-		const { Figure, FigureElement } = DOM.Element.Figure.Find<HTMLElement>(adjustItem);
-		if (!Figure || !FigureElement) return;
 
 		const bIFrame = DOM.Utils.IsIFrame(FigureElement);
 
@@ -77,7 +68,7 @@ const AdjustableEdge = (editor: Editor, media: HTMLElement): HTMLElement => {
 		self.SaveScrollPosition();
 
 		const navigation = AdjustingNavigation(self, FigureElement, figureElement);
-		navigation.Update(event.clientX, event.clientY);
+		navigation.Update(event.pageX, event.pageY);
 
 		const fakeFigure = CreateFakeFigure(self, Figure, figureElement);
 		DOM.InsertBefore(Figure, fakeFigure.Figure);
@@ -137,19 +128,14 @@ const AdjustableEdge = (editor: Editor, media: HTMLElement): HTMLElement => {
 			return false;
 		};
 
-		const adjust = (ev: MouseEvent | TouchEvent) => {
-			PreventEvent(ev);
-
-			const e = !Str.Contains(ev.type, 'touch') ? ev as MouseEvent : (ev as TouchEvent).touches.item(0);
-			if (!e) return;
-
+		const adjust = (e: MouseEvent | Touch) => {
 			const currentOffsetX = e.pageX;
 			const currentOffsetY = e.pageY;
 
 			const calculatedX = isUpdatable(true, currentOffsetX);
 			const calculatedY = isUpdatable(false, currentOffsetY);
 
-			navigation.Update(e.clientX, e.clientY);
+			navigation.Update(e.pageX, e.pageY);
 
 			if ((Type.IsBoolean(calculatedX) && !calculatedX) && (Type.IsBoolean(calculatedY) && !calculatedY)) return;
 
@@ -173,9 +159,7 @@ const AdjustableEdge = (editor: Editor, media: HTMLElement): HTMLElement => {
 			updateEdgePosition(figureElement);
 		};
 
-		const finishAdjusting = (e: MouseEvent | TouchEvent) => {
-			PreventEvent(e);
-
+		const finishAdjusting = () => {
 			DOM.Remove(fakeFigure.Figure);
 
 			ResetAbsolute(self, Figure, figureElement);
@@ -198,10 +182,7 @@ const AdjustableEdge = (editor: Editor, media: HTMLElement): HTMLElement => {
 	};
 
 	const edges = [leftTopEdge, rightTopEdge, leftBottomEdge, rightBottomEdge];
-	Arr.Each(edges, edge => DOM.On(edge, ENativeEvents.mousedown, startAdjusting));
-	Arr.Each(edges, edge => DOM.On(edge, ENativeEvents.touchstart, startAdjusting));
-
-
+	StartAdjustment(self, startAdjusting, ...edges);
 	DOM.Insert(adjustableEdgeGroup, ...edges);
 
 	return adjustableEdgeGroup;
