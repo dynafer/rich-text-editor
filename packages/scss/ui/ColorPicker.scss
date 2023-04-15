@@ -24,12 +24,12 @@ colorpicker-modal {
 						@include position(absolute, calc(100% - 0.4rem), calc(0px - (0.8rem + 2px) / 2));
 						@include square(0.8rem);
 						@include round(50%);
-						@include all-border(#000);
+						@include all-border(getVar(modal-dialog-bg));
 
 						&::before {
 							@include square(calc(0.7rem - 2.5px));
 							@include round(50%);
-							@include all-border(getVar(modal-border));
+							@include all-border(getVar(modal-dialog-opposite-bg));
 							content: '\00a0';
 							display: block;
 						}
@@ -44,8 +44,8 @@ colorpicker-modal {
 					div {
 						@include position(absolute, -2px, -2px);
 						@include rectangle(calc(100% + 4px), 4px);
-						@include all-border(#000);
-						background-color: #fff;
+						@include all-border(getVar(modal-dialog-bg));
+						background-color: getVar(modal-dialog-opposite-bg);
 					}
 				}
 
@@ -85,7 +85,7 @@ colorpicker-modal {
 					& > div {
 						@include rectangle(80%, 40px);
 						@include margin(rem, 1.5);
-						@include all-border(#000);
+						@include all-border(getVar(modal-border));
 						display: inline-block;
 					}
 				}

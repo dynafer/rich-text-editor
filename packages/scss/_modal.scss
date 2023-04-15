@@ -21,6 +21,7 @@
 		animation: fade-in 0.2s;
 
 		* {
+			@include font($color: getVar(modal-font));
 			display: block;
 			box-sizing: inherit;
 		}

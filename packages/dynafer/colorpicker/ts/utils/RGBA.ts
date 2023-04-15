@@ -1,9 +1,10 @@
-import { Arr, Str } from '@dynafer/utils';
+import { Arr, Str, Type } from '@dynafer/utils';
 import Hex from './Hex';
 import HSV from './HSV';
 import { IHSV, IRGBA } from './Type';
 
 export interface IRGBAUtils {
+	IsValid: (rgba: IRGBA) => boolean,
 	ToMap: (...rgba: number[]) => IRGBA,
 	ToRGB: (...rgba: number[]) => string,
 	ToString: (rgba: IRGBA) => string,
@@ -15,6 +16,18 @@ export interface IRGBAUtils {
 }
 
 const RGBA = (): IRGBAUtils => {
+	const IsValid = (rgba: IRGBA): boolean => {
+		if (!Type.IsNumber(rgba.Red) || !Type.IsNumber(rgba.Green) || !Type.IsNumber(rgba.Blue) || !Type.IsNumber(rgba.Alpha)) return false;
+		if (
+			(rgba.Red < 0 || rgba.Red > 255)
+			|| (rgba.Green < 0 || rgba.Green > 255)
+			|| (rgba.Blue < 0 || rgba.Blue > 255)
+			|| (rgba.Alpha < 0 || rgba.Alpha > 1)
+		) return false;
+
+		return true;
+	};
+
 	const ToMap = (...rgba: number[]): IRGBA => ({
 		Red: rgba[0],
 		Green: rgba[1],
@@ -111,6 +124,7 @@ const RGBA = (): IRGBAUtils => {
 	};
 
 	return {
+		IsValid,
 		ToMap,
 		ToRGB,
 		ToString,

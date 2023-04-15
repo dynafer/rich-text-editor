@@ -44,6 +44,7 @@
 			@include margin(px, $left: 1);
 			outline: getVar(editor-border) 1px solid;
 			background-color: getVar(editor-bg);
+			user-select: none;
 
 			&.focused {
 				@include all-border(getVar(editor-focused-border));

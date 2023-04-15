@@ -6,7 +6,7 @@
 
 		[data-movable] {
 			@include position(absolute, calc(0px - 1rem), 0);
-			@include all-border(getVar(tool-default-color) !important, 3px);
+			@include all-border(getVar(tools-default-color) !important, 3px);
 			@include all-margin(0px);
 			@include square(calc(1rem - 6px));
 			@include height($line: 0);
@@ -16,6 +16,7 @@
 			svg {
 				@include all-margin(0px);
 				@include square(calc(1rem - 6px));
+				fill: getVar(tools-opposite-color);
 			}
 		}
 
@@ -25,7 +26,7 @@
 				@include all-margin(0px);
 				@include square(0.75rem);
 				@include height($line: 0);
-				background-color: getVar(tool-default-color);
+				background-color: getVar(tools-default-color);
 				z-index: 9999999;
 
 				&[data-adjustable-edge='east'] {
@@ -46,7 +47,7 @@
 					z-index: 999999;
 
 					&[data-adjusting] {
-						background-color: getVar(tool-default-color);
+						background-color: getVar(tools-default-color);
 					}
 				}
 
@@ -65,7 +66,7 @@
 				[data-adjustable-line] {
 					@include position(absolute);
 					@include all-margin(0px);
-					background-color: getVar(tool-default-color);
+					background-color: getVar(tools-default-color);
 					z-index: 999999;
 				}
 

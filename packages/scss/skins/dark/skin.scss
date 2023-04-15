@@ -30,16 +30,18 @@
 	#{getVarName(button-#{$type}icon-fill)}: $icon;
 }
 
-$hoverLight: rgba(131, 201, 255, 0.7);
-$hoverDefault: rgba(116, 195, 255, 0.7);
-$activeDefault: rgba(88, 183, 255, 0.7);
+$hoverLight: rgba(77, 118, 148, 0.7);
+$hoverDefault: rgba(50, 84, 109, 0.7);
+$activeDefault: rgba(39, 90, 129, 0.7);
+
+$opposite: rgb(218, 218, 218);
 
 .#{getClassName(toolbar)},
 .#{getClassName(options)},
 .#{getClassName(toolbar)} *,
 .#{getClassName(options)} * {
-	#{getVarName(toolbar-bg)}: transparent;
-	#{getVarName(toolbar-border)}: #ececec;
+	#{getVarName(toolbar-bg)}: #282827;
+	#{getVarName(toolbar-border)}: #353535;
 
 	#{getVarName(toolbar-item-size)}: 1.625rem;
 	#{getVarName(toolbar-item-radius)}: 0.25rem;
@@ -49,37 +51,38 @@ $activeDefault: rgba(88, 183, 255, 0.7);
 	#{getVarName(toolbar-item-option-padding)}: 0.5rem;
 	#{getVarName(toolbar-item-option-min-width)}: 10rem;
 
-	@include make-toolbar-item-variables(null, transparent, transparent, #000, #000);
-	@include make-toolbar-item-variables(hover, $hoverDefault, $hoverDefault, #000, #000, $hoverLight);
-	@include make-toolbar-item-variables(active, $activeDefault, $activeDefault, #000, #000);
+	@include make-toolbar-item-variables(null, transparent, transparent, $opposite, $opposite);
+	@include make-toolbar-item-variables(hover, $hoverDefault, $hoverDefault, $opposite, $opposite, $hoverLight);
+	@include make-toolbar-item-variables(active, $activeDefault, $activeDefault, $opposite, $opposite);
 
-	#{getVarName(toolbar-item-option-bg)}: #fff;
-	#{getVarName(toolbar-item-option-border)}: #afafaf;
+	#{getVarName(toolbar-item-option-bg)}: #282827;
+	#{getVarName(toolbar-item-option-border)}: #353535;
 	#{getVarName(toolbar-item-option-radius)}: 0.25rem;
-	#{getVarName(toolbar-item-option-select-border)}: #afafaf;
+	#{getVarName(toolbar-item-option-select-border)}: #353535;
 
 	#{getVarName(toolbar-item-select-border)}: transparent;
-	#{getVarName(toolbar-item-disabled-icon-fill)}: #aeaeae;
+	#{getVarName(toolbar-item-disabled-icon-fill)}: #707070;
 }
 
 :root {
-	#{getVarName(editor-bg)}: transparent;
-	#{getVarName(editor-border)}: #ececec;
+	#{getVarName(editor-bg)}: #282827;
+	#{getVarName(editor-border)}: #353535;
 	#{getVarName(editor-focused-border)}: $activeDefault;
-	#{getVarName(editor-opposite-bg)}: #000;
+	#{getVarName(editor-opposite-bg)}: $opposite;
 
 	#{getVarName(modal-bg)}: rgba(0, 0, 0, 0.6);
-	#{getVarName(modal-dialog-bg)}: #fff;
-	#{getVarName(modal-dialog-opposite-bg)}: #000;
-	#{getVarName(modal-border)}: #c9c9c9;
+	#{getVarName(modal-dialog-bg)}: #282827;
+	#{getVarName(modal-dialog-opposite-bg)}: $opposite;
+	#{getVarName(modal-dialog-bg)}: #282827;
+	#{getVarName(modal-border)}: #353535;
 	#{getVarName(modal-radius)}: 14px;
-	#{getVarName(modal-font)}: #000;
+	#{getVarName(modal-font)}: $opposite;
 
 	#{getVarName(button-radius)}: 0.25rem;
 
-	@include make-button-variables(null, transparent, transparent, #000, #000);
-	@include make-button-variables(hover, $hoverDefault, $hoverDefault, #000, #000);
-	@include make-button-variables(active, $activeDefault, $activeDefault, #000, #000);
+	@include make-button-variables(null, transparent, transparent, $opposite, $opposite);
+	@include make-button-variables(hover, $hoverDefault, $hoverDefault, $opposite, $opposite);
+	@include make-button-variables(active, $activeDefault, $activeDefault, $opposite, $opposite);
 
 	@include make-button-variables(success, transparent, transparent, rgb(67, 206, 45), rgb(67, 206, 45));
 	@include make-button-variables(success-hover, $hoverDefault, $hoverDefault, rgb(61, 188, 42), rgb(61, 188, 42));
@@ -96,26 +99,26 @@ $activeDefault: rgba(88, 183, 255, 0.7);
 	@include make-button-variables(disabled, transparent, transparent, #737b81, #737b81);
 
 	#{getVarName(input-radius)}: 0.4rem;
-	#{getVarName(input-border)}: #afafaf;
+	#{getVarName(input-border)}: #353535;
 	#{getVarName(input-focus-border)}: $activeDefault;
-	#{getVarName(input-font)}: #434343;
+	#{getVarName(input-font)}: $opposite;
 	#{getVarName(input-error-border)}: rgb(243, 10, 10);
 
 	#{getVarName(hover-color)}: $hoverDefault;
 	#{getVarName(selected-color)}: $activeDefault;
-	#{getVarName(tools-default-color)}: $hoverLight;
-	#{getVarName(tools-opposite-color)}: #000;
+	#{getVarName(tools-default-color)}: $hoverDefault;
+	#{getVarName(tools-opposite-color)}: $opposite;
 
 	#{getVarName(tools-size-navigation-bg)}: rgba(0, 0, 0, 0.6);
-	#{getVarName(tools-size-navigation-font)}: #fff;
+	#{getVarName(tools-size-navigation-font)}: $opposite;
 
-	#{getVarName(tools-menu-bg)}: #fff;
-	#{getVarName(tools-menu-border)}: #ececec;
+	#{getVarName(tools-menu-bg)}: #353535;
+	#{getVarName(tools-menu-border)}: #595959;
 	#{getVarName(tools-menu-radius)}: 0.4rem;
 
-	#{getVarName(tools-menu-item-bg)}: #fff;
-	#{getVarName(tools-menu-item-border)}: #ececec;
-	#{getVarName(tools-menu-item-icon-fill)}: #000;
+	#{getVarName(tools-menu-item-bg)}: transparent;
+	#{getVarName(tools-menu-item-border)}: transparent;
+	#{getVarName(tools-menu-item-icon-fill)}: $opposite;
 	#{getVarName(tools-menu-item-radius)}: 0.25rem;
 	#{getVarName(tools-menu-item-hover-bg)}: $hoverDefault;
 	#{getVarName(tools-menu-item-active-bg)}: $activeDefault;

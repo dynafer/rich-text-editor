@@ -168,31 +168,45 @@
 		$type: #{$type}-;
 	}
 
-	@include all-border(getVar(button-#{$type}border));
-	@include font($color: getVar(button-#{$type}font));
-	background-color: getVar(button-#{$type}bg);
-
-	svg {
-		fill: getVar(button-#{$type}icon-fill);
-	}
-
-	&:hover {
-		@include all-border(getVar(button-#{$type}hover-border));
-		@include font($color: getVar(button-#{$type}hover-font));
-		background-color: getVar(button-#{$type}hover-bg);
+	&:not([disabled]) {
+		@include all-border(getVar(button-#{$type}border));
+		@include font($color: getVar(button-#{$type}font));
+		background-color: getVar(button-#{$type}bg);
 
 		svg {
-			fill: getVar(button-#{$type}hover-icon-fill);
+			fill: getVar(button-#{$type}icon-fill);
+		}
+
+		&:hover {
+			@include all-border(getVar(button-#{$type}hover-border));
+			@include font($color: getVar(button-#{$type}hover-font));
+			background-color: getVar(button-#{$type}hover-bg);
+
+			svg {
+				fill: getVar(button-#{$type}hover-icon-fill);
+			}
+		}
+
+		&.active {
+			@include all-border(getVar(button-#{$type}active-border));
+			@include font($color: getVar(button-#{$type}active-font));
+			background-color: getVar(button-#{$type}active-bg);
+
+			svg {
+				fill: getVar(button-#{$type}active-icon-fill);
+			}
 		}
 	}
 
-	&.active {
-		@include all-border(getVar(button-#{$type}active-border));
-		@include font($color: getVar(button-#{$type}active-font));
-		background-color: getVar(button-#{$type}active-bg);
+	&[disabled] {
+		@include all-border(getVar(button-disabled-border));
+		@include font($color: getVar(button-disabled-font));
+		background-color: getVar(button-disabled-bg);
+		pointer-events: none;
+		cursor: default;
 
 		svg {
-			fill: getVar(button-#{$type}active-icon-fill);
+			fill: getVar(button-disabled-icon-fill);
 		}
 	}
 }
@@ -217,6 +231,8 @@
 	input {
 		@include round(getVar(input-radius));
 		@include all-border(getVar(input-border));
+		@include font($color: getVar(input-font));
+		background-color: transparent;
 		outline: none;
 
 		&:focus {
