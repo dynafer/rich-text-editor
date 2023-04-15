@@ -200,6 +200,10 @@
 	@include all-margin(1rem);
 	@include word-break;
 	@include tag-styles;
+
+	* {
+		color: revert;
+	}
 }
 
 [mode='inline'] {

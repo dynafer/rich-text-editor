@@ -40,6 +40,8 @@ const Navigation = (palette: IPalette, hue: IHue): INavigation => {
 	const presentation = schema.GetChildren()[4];
 
 	const UpdateRGB = (rgb: IRGBA) => {
+		if (!RGBA.IsValid(rgb)) return;
+
 		Obj.Entries(rgbElements, (key, inputSchema) => inputSchema.SetValue(rgb[key as 'Red'].toString()));
 
 		hex.SetValue(RGBA.ToHex(rgb, false));
