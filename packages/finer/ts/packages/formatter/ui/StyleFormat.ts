@@ -153,7 +153,7 @@ const StyleFormat = (editor: Editor, detector: IFormatDetector): IFormatUIRegist
 			if (Type.IsString(Keys)) {
 				self.AddShortcut(Title, Keys);
 
-				FormatUI.RegisterKeyboardEvent(self, Keys, (e: Editor, event: Event) => {
+				FormatUI.RegisterKeyboardEvent(self, Keys, event => {
 					if (FormatUI.IsDisabled(button)) return;
 					const figure = DOM.Element.Figure.GetClosest(event.target);
 					if (figure) return;

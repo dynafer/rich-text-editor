@@ -1,43 +1,10 @@
+@import '../_modal';
+
+@include modal(info);
+
 info-modal {
-	@include flex(center, center);
-	@include position(fixed, 0, 0);
-	@include square(100%);
-	background-color: getVar(modal-bg);
-	z-index: 9999999;
-	box-sizing: border-box;
-	user-select: none;
-
-	* {
-		display: block;
-		box-sizing: inherit;
-	}
-
 	info-dialog {
-		@include round(getVar(modal-radius));
-		@include all-border(getVar(modal-border));
-
-		info-header {
-			@include all-padding(0.5rem);
-			@include font(14pt);
-			@include round(getVar(modal-radius) getVar(modal-radius) 0 0);
-			@include border($bottom: getVar(modal-border));
-			@include flex(center, space-between);
-			background-color: getVar(modal-dialog-bg);
-
-			div {
-				@include default-button;
-				@include round(getVar(button-radius));
-
-				svg {
-					@include square(1.25rem);
-					cursor: pointer;
-				}
-			}
-		}
-
 		info-body {
-			background-color: getVar(modal-dialog-bg);
-
 			info-wrap {
 				@include flex();
 				white-space: nowrap;
@@ -92,14 +59,7 @@ info-modal {
 		}
 
 		info-footer {
-			@include all-padding(0.5rem);
-			@include border(getVar(modal-border));
-			@include round(0 0 getVar(modal-radius) getVar(modal-radius));
-			background-color: getVar(modal-dialog-bg);
-			text-align: right;
-
 			button {
-				@include common-button;
 				@include default-button;
 			}
 		}
@@ -108,15 +68,8 @@ info-modal {
 
 @include mobile {
 	info-modal {
-		display: block;
-
 		info-dialog {
-			@include width($max: 96vw);
-			@include all-margin(2vw);
-
 			info-body {
-				overflow-x: auto;
-
 				info-wrap {
 					@include flex($direction: column);
 

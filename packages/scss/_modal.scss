@@ -1,0 +1,84 @@
+@import '_mixin';
+
+@keyframes fade-in {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+
+@mixin modal($name) {
+	#{$name}-modal {
+		@include flex(center, center);
+		@include position(fixed, 0, 0);
+		@include square(100%);
+		background-color: getVar(modal-bg);
+		z-index: 9999999;
+		box-sizing: border-box;
+		user-select: none;
+		animation: fade-in 0.2s;
+
+		* {
+			display: block;
+			box-sizing: inherit;
+		}
+
+		#{$name}-dialog {
+			@include round(getVar(modal-radius));
+			@include all-border(getVar(modal-border));
+			box-shadow: 4px 4px 24px -3px rgba(0, 0, 0, 0.75);
+
+			#{$name}-header {
+				@include all-padding(0.5rem);
+				@include font(14pt, bold);
+				@include round(getVar(modal-radius) getVar(modal-radius) 0 0);
+				@include border($bottom: getVar(modal-border));
+				@include flex(center, space-between);
+				background-color: getVar(modal-dialog-bg);
+
+				div {
+					@include default-button;
+					@include round(getVar(button-radius));
+
+					svg {
+						@include square(1.25rem);
+						cursor: pointer;
+					}
+				}
+			}
+
+			#{$name}-body {
+				background-color: getVar(modal-dialog-bg);
+			}
+
+			#{$name}-footer {
+				@include all-padding(0.5rem);
+				@include border(getVar(modal-border));
+				@include round(0 0 getVar(modal-radius) getVar(modal-radius));
+				background-color: getVar(modal-dialog-bg);
+				text-align: right;
+
+				button {
+					@include common-button;
+				}
+			}
+		}
+	}
+
+	@include mobile {
+		#{$name}-modal {
+			display: block;
+
+			#{$name}-dialog {
+				@include width($max: 96vw);
+				@include all-margin(2vw);
+
+				#{$name}-body {
+					overflow-x: auto;
+				}
+			}
+		}
+	}
+}

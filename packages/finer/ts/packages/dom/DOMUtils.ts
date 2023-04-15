@@ -29,6 +29,7 @@ export interface IDOMUtils {
 	IsIFrame: (selector: Node | null) => selector is HTMLIFrameElement,
 	IsParagraph: (selector: Node | null) => selector is HTMLParagraphElement,
 	IsSpan: (selector: Node | null) => selector is HTMLSpanElement,
+	IsTextArea: (selector: Node | null) => selector is HTMLTextAreaElement,
 	IsVideo: (selector: Node | null) => selector is HTMLVideoElement,
 	CreateStyleVariable: (name: string, value: string) => string,
 	WrapTagHTML: (tagName: string, text: string) => string,
@@ -71,6 +72,7 @@ const DOMUtils = (): IDOMUtils => {
 	const IsImage: (selector: Node | null) => selector is HTMLImageElement = is('img');
 	const IsParagraph: (selector: Node | null) => selector is HTMLParagraphElement = is('p');
 	const IsSpan: (selector: Node | null) => selector is HTMLSpanElement = is('span');
+	const IsTextArea: (selector: Node | null) => selector is HTMLTextAreaElement = is('textarea');
 	const IsVideo: (selector: Node | null) => selector is HTMLVideoElement = is('video');
 
 	const CreateStyleVariable = (name: string, value: string): string =>
@@ -196,6 +198,7 @@ const DOMUtils = (): IDOMUtils => {
 		IsImage,
 		IsParagraph,
 		IsSpan,
+		IsTextArea,
 		IsVideo,
 		CreateStyleVariable,
 		WrapTagHTML,

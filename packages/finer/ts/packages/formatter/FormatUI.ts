@@ -63,7 +63,7 @@ export interface IFormatUI {
 	UnwrapSameInlineFormats: (editor: Editor, formats: IInlineFormat | IInlineFormat[]) => void,
 	RegisterCommand: (editor: Editor, name: string, command: (...args: never[]) => void) => void,
 	RunCommand: <T>(editor: Editor, name: string, ...args: T[]) => void,
-	RegisterKeyboardEvent: (editor: Editor, combinedKeys: string, callback: (editor: Editor, event: Event) => void) => void,
+	RegisterKeyboardEvent: (editor: Editor, combinedKeys: string, callback: (event: Event) => void) => void,
 	IsNearDisableList: (disableList: Set<string> | undefined, selector: HTMLElement, path: Node) => boolean,
 }
 
@@ -121,7 +121,7 @@ const FormatUI = (): IFormatUI => {
 			tagName: ListItemSelector,
 			title: title ?? html,
 			type: 'option-item',
-			html: Str.Merge(bAddIcon ? Finer.Icons.Get('Check') : '', html)
+			html: Str.Merge(html, bAddIcon ? Finer.Icons.Get('Check') : '')
 		});
 		if (bSelected) DOM.AddClass(option, ACTIVE_CLASS);
 		return option;
@@ -301,7 +301,7 @@ const FormatUI = (): IFormatUI => {
 		Arr.Push(optionsActivableList, activable);
 
 		DOM.On(clickable, ENativeEvents.click, (event: MouseEvent) => {
-			if (!!selectOptionList() && hasTypeAttribute()) return destroyOptionList();
+			if (hasTypeAttribute()) return destroyOptionList();
 			PreventEvent(event);
 
 			destroyOptionList();
@@ -315,23 +315,24 @@ const FormatUI = (): IFormatUI => {
 		const self = editor;
 
 		const bInGroup = self.Toolbar.IsInGroup(name);
-		const browserWidth = self.GetWin().innerWidth + self.GetWin().scrollX;
-		const browserHeight = self.GetWin().innerHeight + self.GetWin().scrollY;
-		const groupLeft = selection.parentElement && DOM.HasAttr(selection.parentElement, 'group') ? selection.parentElement.offsetLeft : 0;
-		let x = selection.offsetLeft + groupLeft - self.Frame.Toolbar.scrollLeft
+		const browserWidth = window.innerWidth + window.scrollX;
+		const browserHeight = window.innerHeight + window.scrollY;
+		let x = selection.offsetLeft + self.Frame.Toolbar.scrollLeft
 			+ (bInGroup ? parseInt(DOM.GetStyle(selection, 'margin-left')) : 0);
-		let y = selection.offsetHeight + selection.offsetTop
-			+ parseInt(DOM.GetStyle(selection, 'margin-bottom'));
+		let y = selection.offsetTop + selection.offsetHeight;
 
-		if (x + optionList.offsetWidth >= browserWidth) {
+		const group = selection.parentElement;
+		if (group && DOM.HasAttr(group, 'group')) {
+			x += group.offsetLeft;
+			y += group.offsetTop;
+		}
+
+		if (x + optionList.offsetWidth >= browserWidth)
 			x -= Math.max(optionList.offsetWidth, selection.offsetWidth)
 				- Math.min(optionList.offsetWidth, selection.offsetWidth);
-		}
 
-		if (y + optionList.offsetHeight + self.Frame.Root.offsetTop >= browserHeight) {
-			y -= selection.offsetHeight + optionList.offsetHeight
-				+ parseInt(DOM.GetStyle(selection, 'margin-bottom'));
-		}
+		if (y + optionList.offsetHeight + self.Frame.Root.offsetTop >= browserHeight)
+			y -= selection.offsetHeight + optionList.offsetHeight - parseInt(DOM.GetStyle(selection, 'margin-bottom'));
 
 		DOM.SetStyles(optionList, {
 			left: `${x}px`,
@@ -367,7 +368,7 @@ const FormatUI = (): IFormatUI => {
 	const RunCommand = <T>(editor: Editor, name: string, ...args: T[]) =>
 		editor.Commander.Run(name, ...args);
 
-	const RegisterKeyboardEvent = (editor: Editor, combinedKeys: string, callback: (editor: Editor, event: Event) => void) => {
+	const RegisterKeyboardEvent = (editor: Editor, combinedKeys: string, callback: (event: Event) => void) => {
 		const self = editor;
 
 		const keys = combinedKeys.split('+');
@@ -401,7 +402,10 @@ const FormatUI = (): IFormatUI => {
 			}
 		});
 
-		if (keyCode) SetupWith(self, ENativeEvents.keydown, keyCode, keyOptions, callback);
+		if (keyCode) SetupWith(self, ENativeEvents.keydown, keyCode, keyOptions, (e: Editor, event: Event) => {
+			PreventEvent(event);
+			callback(event);
+		});
 	};
 
 	const IsNearDisableList = (disableList: Set<string> | undefined, selector: HTMLElement, path: Node): boolean => {
@@ -409,8 +413,7 @@ const FormatUI = (): IFormatUI => {
 			ToggleDisable(selector, false);
 			return false;
 		}
-		const disableListSelector = Str.Join(',', ...disableList);
-		const figure = DOM.Closest(path, disableListSelector);
+		const figure = DOM.Closest(path, { tagName: Arr.Convert(disableList) });
 		if (!figure) {
 			ToggleDisable(selector, false);
 			return false;

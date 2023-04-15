@@ -2,7 +2,9 @@
 	.#{getClassName(toolbar)} {
 		@include width(100%);
 		@include border(getVar(toolbar-border), getVar(toolbar-border), null, getVar(toolbar-border));
+		@include all-padding(0.5rem);
 		background-color: getVar(toolbar-bg);
+		gap: 0.6rem;
 
 		&[toolbar-style='scroll'] {
 			@include flex(center, $wrap: nowrap);
@@ -16,127 +18,19 @@
 
 		button {
 			@include all-border(getVar(toolbar-item-border));
+			@include height(getVar(toolbar-item-size));
 			background-color: getVar(toolbar-item-bg);
 			outline: none;
 			cursor: pointer;
-		}
-
-		.#{getClassName(icon-button)} {
-			@include all-border(none);
-			@include width($min: 1.625rem);
-			@include square(1.625rem);
-
-			svg {
-				@include square(100%);
-			}
-		}
-
-		.#{getClassName(icon-wrap)} {
-			@include all-border(none);
-			@include all-padding(unset !important);
-			@include padding(rem !important, 0.1, $bottom: 0.1);
-
-			.#{getClassName(color-icon)} {
-				@include all-border(none);
-				@include padding(rem !important, 0.1, 0.3, 0.1, 0.3);
-				display: inline-block;
-
-				svg {
-					@include square(0.9rem);
-				}
-
-				div {
-					@include rectangle(1rem, 0.18rem);
-				}
-			}
-
-			.#{getClassName(icon-button)} {
-				@include all-border(none);
-				@include padding(rem !important, 0.1, 0.3, 0.1, 0.3);
-				@include all-margin(0 !important);
-				display: inline-block;
-			}
-
-			& > .#{getClassName(helper)} {
-				@include all-border(none);
-				@include padding(rem, $right: 0.25, $left: 0.25);
-				@include square(1.25rem);
-
-				svg {
-					@include square(100%);
-				}
-			}
-
-			&:not([disabled]):hover,
-			&:not([disabled]).active {
-				.#{getClassName(icon-button)}:not([no-border]),
-				.#{getClassName(color-icon)} {
-					@include padding(null, $right: calc(0.3rem - 1px) !important);
-					@include border($right: getVar(toolbar-item-select-border));
-				}
-			}
-		}
-
-		.#{getClassName(icon-group)} {
-			@include all-border(none);
-			@include all-padding(unset !important);
-
-			& > * {
-				@include all-margin(0.2rem !important);
-			}
-
-			&:not([disabled]) {
-				@include font($color: getVar(toolbar-item-font) !important);
-				background-color: getVar(toolbar-item-bg) !important;
-			}
-		}
-
-		.#{getClassName(select)} {
-			@include all-border(getVar(toolbar-item-select-border));
-			@include width($min: 120px);
-			user-select: none;
-
-			.#{getClassName(select-label)} {
-				@include width(calc(100% - 1rem));
-				@include truncation;
-				text-align: left;
-			}
-
-			svg {
-				@include square(1rem);
-			}
-
-			&:disabled {
-				@include font($color: var(--finer-toolbar-item-disabled-icon-fill));
-			}
-		}
-
-		.#{getClassName(toolbar-group)} {
-			@include flex(center, $inline: true);
-			@include margin(rem, $right: 0.6, $left: 0.6);
-			@include position(relative);
-
-			& > * {
-				@include all-margin(0.2rem !important);
-			}
-		}
-
-		& > :first-child {
-			@include margin(rem, $left: 0.2);
-		}
-
-		& > :last-child {
-			@include margin(rem, $right: 0.2);
 		}
 
 		& > :not(.#{getClassName(toolbar-group)}),
 		.#{getClassName(icon-group)} > *,
 		& > .#{getClassName(toolbar-group)} > *,
 		.#{getClassName(icon-wrap)} > .#{getClassName(icon-button)} {
-			@include flex(center, $inline: true);
+			@include flex(center, center, $inline: true);
 			@include round(getVar(toolbar-item-radius));
-			@include margin(rem, 0.2, 0.6, 0.2, 0.6);
-			@include all-padding(0.25rem);
+			@include all-padding(unset);
 			@include font($color: getVar(toolbar-item-font));
 			background-color: getVar(toolbar-item-bg);
 
@@ -149,6 +43,122 @@
 					fill: getVar(toolbar-item-disabled-icon-fill);
 				}
 			}
+		}
+
+		.#{getClassName(icon-button)} {
+			@include width($min: getVar(toolbar-item-size));
+			@include square(getVar(toolbar-item-size));
+
+			svg {
+				@include square(getVar(toolbar-icon-size));
+			}
+		}
+
+		.#{getClassName(icon-wrap)} {
+			.#{getClassName(color-icon)} {
+				@include all-border(none);
+
+				svg {
+					@include square(getVar(toolbar-icon-size));
+				}
+
+				div {
+					@include rectangle(getVar(toolbar-icon-size), 0.18rem);
+				}
+			}
+
+			.#{getClassName(icon-button)} {
+				@include all-border(none);
+				@include all-margin(0);
+			}
+
+			& > .#{getClassName(helper)} {
+				@include all-border(none);
+				@include padding(rem, $right: 0.25, $left: 0.25);
+				@include flex(center, center, $inline: true);
+
+				svg {
+					@include square(0.8rem);
+				}
+			}
+
+			&:not([disabled], [no-border]):hover,
+			&:not([disabled], [no-border]).active {
+				&:hover {
+					background-color: getVar(toolbar-item-hover-light-bg) !important;
+				}
+
+				.#{getClassName(color-icon)} {
+					@include margin(px, $right: -1);
+				}
+
+				.#{getClassName(icon-button)},
+				.#{getClassName(color-icon)} {
+					@include border($right: getVar(toolbar-item-select-border));
+
+					&:hover {
+						background-color: getVar(toolbar-item-hover-bg) !important;
+					}
+				}
+
+				.#{getClassName(helper)}:hover {
+					background-color: getVar(toolbar-item-hover-bg) !important;
+				}
+			}
+		}
+
+		.#{getClassName(icon-group)} {
+			@include all-border(none);
+			@include height(getVar(toolbar-item-size));
+
+			& > * {
+				@include all-margin(0.2rem);
+			}
+
+			&:not([disabled]) {
+				@include font($color: getVar(toolbar-item-font) !important);
+				background-color: getVar(toolbar-item-bg) !important;
+			}
+		}
+
+		.#{getClassName(select)} {
+			@include all-border(getVar(toolbar-item-select-border));
+			@include width($min: getVar(toolbar-item-size));
+			@include all-padding(0 getVar(toolbar-item-select-padding));
+			user-select: none;
+
+			.#{getClassName(select-label)} {
+				@include width(getVar(toolbar-item-select-label-width));
+				@include truncation;
+				text-align: left;
+			}
+
+			svg {
+				@include square(0.8rem);
+			}
+
+			&:disabled {
+				@include font($color: getVar(toolbar-item-disabled-icon-fill));
+			}
+		}
+
+		.#{getClassName(toolbar-group)} {
+			@include flex(center, $inline: true);
+			@include margin(rem, $right: 0.6, $left: 0.6);
+			@include position(relative);
+			@include height(getVar(toolbar-item-size));
+
+			& > * {
+				@include all-margin(0.2rem);
+			}
+		}
+
+		& > :first-child {
+			@include margin(rem, $left: 0.2);
+		}
+
+		& > :last-child {
+			@include margin(rem, $right: 0.2);
 		}
 
 		button[disabled],

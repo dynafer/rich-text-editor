@@ -95,7 +95,7 @@ const MediaMenu = (editor: Editor, ui: IPluginMediaUI): IMediaMenu => {
 		return group;
 	};
 
-	const Create: IDOMToolsPartAttacher = (): HTMLElement | null => {
+	const Create: IDOMToolsPartAttacher = (): HTMLElement => {
 		const mediaMenu = DOM.Create('div', {
 			attrs: ['data-tools-menu']
 		});

@@ -1,10 +1,11 @@
 .#{$projectName} {
 	.#{getClassName(options)} {
 		@include position(absolute);
-		@include width(fit-content, $min: 120px);
+		@include width(fit-content, $min: getVar(toolbar-item-option-min-width));
 		@include margin($top: -1);
-		@include round(getVar(toolbar-item-radius));
+		@include round(getVar(toolbar-item-option-radius));
 		@include all-border(getVar(toolbar-item-option-border));
+		box-shadow: 4px 4px 24px -3px rgba(0, 0, 0, 0.75);
 		user-select: none;
 		background-color: getVar(toolbar-item-option-bg);
 		z-index: 9999;
@@ -90,32 +91,13 @@
 				@include all-padding(0.3rem);
 
 				button {
-					@include flex(center);
-					@include round(getVar(toolbar-item-radius));
-					@include all-border(none);
-					@include padding(rem, 0.3, 0.6, 0.3, 0.6);
-					@include font($color: getVar(toolbar-item-font));
-					background-color: getVar(toolbar-item-option-bg);
-					cursor: pointer;
-
-					svg {
-						@include square(1rem);
-						@include margin(rem, $right: 0.4);
-						fill: getVar(toolbar-item-icon-fill);
-					}
+					@include common-button;
+					@include default-button;
+					@include all-margin(0);
+					@include font(small);
 
 					& :last-child {
 						@include margin(rem, $left: 0.3);
-					}
-
-					&:hover {
-						@include font($color: getVar(toolbar-item-hover-font));
-						@include all-border(getVar(toolbar-item-hover-border));
-						background-color: getVar(toolbar-item-hover-bg);
-
-						svg {
-							fill: getVar(toolbar-item-hover-icon-fill);
-						}
 					}
 				}
 			}
@@ -226,16 +208,32 @@
 
 		&:not([palette='true'], [table='true'], [url-input='true']) {
 			.#{getClassName(option-item)} {
-				@include flex(center);
-				@include all-padding(0.4rem);
-				@include height(2rem);
+				@include flex(center, space-between);
+				@include height($min: 2.4rem);
+				@include all-padding(0 getVar(toolbar-item-option-padding));
 				@include all-border(getVar(toolbar-item-border));
 				@include font($color: getVar(toolbar-item-font));
 				cursor: pointer;
 
+				:not(svg) {
+					@include all-margin(unset);
+				}
+
+				h1 {
+					@include font(1.4rem);
+				}
+
+				h2 {
+					@include font(1.3rem);
+				}
+
+				h3 {
+					@include font(1.2rem);
+				}
+
 				svg {
 					@include square(1rem);
-					@include margin(rem, $right: 0.4);
+					@include margin(rem, $left: 0.4);
 					fill: getVar(toolbar-item-icon-fill);
 				}
 
@@ -245,12 +243,8 @@
 					fill: getVar(toolbar-item-active-icon-fill);
 				}
 
-				&:not(.active) {
-					$emptyPadding: calc(1.8rem);
-					@include padding(null, $right: $emptyPadding, $left: $emptyPadding);
-					svg {
-						display: none;
-					}
+				&:not(.active) svg {
+					fill: transparent;
 				}
 
 				&:hover {

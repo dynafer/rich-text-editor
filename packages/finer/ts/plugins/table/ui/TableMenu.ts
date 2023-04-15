@@ -95,7 +95,7 @@ const TableMenu = (editor: Editor, ui: IPluginTableUI): ITableMenu => {
 		return group;
 	};
 
-	const Create: IDOMToolsPartAttacher = (): HTMLElement | null => {
+	const Create: IDOMToolsPartAttacher = (): HTMLElement => {
 		const tableMenu = DOM.Create('div', {
 			attrs: ['data-tools-menu']
 		});

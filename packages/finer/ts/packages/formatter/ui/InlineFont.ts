@@ -110,7 +110,10 @@ const InlineFont = (editor: Editor, detector: IFormatDetector): IFormatUIRegistr
 			const command = createCommand(Format, label, value, setLabelText);
 
 			FormatUI.RegisterCommand(self, uiName, command);
-			FormatUI.BindClickEvent(optionElement, () => command(!bSelected));
+			FormatUI.BindClickEvent(optionElement, () => {
+				DOM.Doc.body.click();
+				command(!bSelected);
+			});
 
 			if (bPreview && Format.Styles) DOM.SetStyle(DOM.Select<HTMLElement>('span', optionElement), styleName, value);
 
@@ -152,14 +155,14 @@ const InlineFont = (editor: Editor, detector: IFormatDetector): IFormatUIRegistr
 		const defaultValue = uiName === 'FontFamily' ? (Finer.ILC.Get('format.font.default') ?? 'Default Font') : systemStyle;
 
 		const setLabelText = (value?: string) =>
-			DOM.SetText(selection.Label, (!value || Str.IsEmpty(value) || value === systemStyle) ? defaultValue : value);
+			DOM.SetText(selection.Label, (!value || Str.IsEmpty(value)) ? defaultValue : value);
 
 		FormatUI.BindOptionListEvent(self, uiName, selection.Selection, selection.Selection, () => {
 			const optionElements = createOptionElements(uiName, uiFormat, DOM.GetText(selection.Label), setLabelText);
 			createOptionsList(selection, uiName, optionElements);
 		});
 
-		setLabelText(systemStyle);
+		setLabelText();
 
 		Detector.Register((paths: Node[]) => {
 			setLabelText(getCurrentStyle(uiFormat.Format, uiFormat.Options, paths));

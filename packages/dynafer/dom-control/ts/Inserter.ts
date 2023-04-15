@@ -12,7 +12,6 @@ export const BeforeInner = (selector: TElement, ...insertions: (TElement | strin
 		if (!insertion) return;
 		if (NodeType.IsElement(selector) && Type.IsString(insertion)) return insertHTML(selector, 'afterbegin', insertion);
 		if (selector.firstChild) return selector.firstChild.before(insertion);
-
 		selector.appendChild(Type.IsString(insertion) ? document.createTextNode(insertion) : insertion);
 	});
 };
@@ -23,7 +22,6 @@ export const AfterInner = (selector: TElement, ...insertions: (TElement | string
 	Arr.Each(insertions, insertion => {
 		if (!insertion) return;
 		if (NodeType.IsElement(selector) && Type.IsString(insertion)) return insertHTML(selector, 'beforeend', insertion);
-
 		selector.appendChild(Type.IsString(insertion) ? document.createTextNode(insertion) : insertion);
 	});
 };

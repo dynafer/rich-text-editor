@@ -78,7 +78,10 @@ const InlineColor = (editor: Editor, detector: IFormatDetector): IFormatUIRegist
 					type: 'option-item'
 				});
 				DOM.SetStyle(colorElement, 'background-color', rgbaString);
-				FormatUI.BindClickEvent(colorElement, () => FormatUI.RunCommand<boolean | string>(self, uiName, true, rgbaString));
+				FormatUI.BindClickEvent(colorElement, () => {
+					DOM.Doc.body.click();
+					FormatUI.RunCommand<boolean | string>(self, uiName, true, rgbaString);
+				});
 
 				const styleVariable = DOM.Utils.CreateStyleVariable(
 					'toolbar-color-hover-border',
@@ -107,7 +110,10 @@ const InlineColor = (editor: Editor, detector: IFormatDetector): IFormatUIRegist
 
 		const resetButton = FormatUI.CreateOption(defaultColorHTML, defaultColorText, false, false);
 
-		FormatUI.BindClickEvent(DOM.Select<HTMLElement>('button', resetButton), () => FormatUI.RunCommand<boolean | string>(self, uiName, false, DefaultColor));
+		FormatUI.BindClickEvent(DOM.Select<HTMLElement>('button', resetButton), () => {
+			DOM.Doc.body.click();
+			FormatUI.RunCommand<boolean | string>(self, uiName, false, DefaultColor);
+		});
 
 		return resetButton;
 	};
@@ -115,7 +121,7 @@ const InlineColor = (editor: Editor, detector: IFormatDetector): IFormatUIRegist
 	const createFooter = (uiName: string, uiFormat: IInlineFormatColorPickerUI): HTMLElement => {
 		const { LastPicked } = uiFormat;
 
-		const moreText = Finer.ILC.Get('more') ?? 'More...';
+		const moreText = Finer.ILC.Get('more') ?? 'More';
 
 		const footer = FormatUI.CreateOption('', moreText, false, false);
 		const lastPickedList = FormatUI.CreateItemGroup();
@@ -126,7 +132,8 @@ const InlineColor = (editor: Editor, detector: IFormatDetector): IFormatUIRegist
 		));
 		DOM.Insert(footer, lastPickedList, moreButton);
 
-		FormatUI.BindClickEvent(moreButton, () =>
+		FormatUI.BindClickEvent(moreButton, () => {
+			DOM.Doc.body.click();
 			ColorPicker.Create({
 				Icons: {
 					Check: Finer.Icons.Get('Check'),
@@ -135,10 +142,11 @@ const InlineColor = (editor: Editor, detector: IFormatDetector): IFormatUIRegist
 				Texts: {
 					Title: Finer.ILC.Get('colorpicker') ?? 'Color Picker',
 					Cancel: Finer.ILC.Get('cancel') ?? 'Cancel',
-					Confirm: Finer.ILC.Get('confirm') ?? 'Confirm',
+					Apply: Finer.ILC.Get('apply') ?? 'Apply',
 				},
 				Pick: (rgb: string) => FormatUI.RunCommand<boolean | string>(self, uiName, true, rgb),
-			}));
+			});
+		});
 
 		DOM.Insert(lastPickedList, ...createPaletteGradients(uiName, [LastPicked], false));
 

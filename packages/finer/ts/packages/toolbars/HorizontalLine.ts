@@ -1,11 +1,12 @@
 import { Str } from '@dynafer/utils';
 import DOM from '../dom/DOM';
 import Editor from '../Editor';
-import { ENativeEvents, PreventEvent } from '../events/EventSetupUtils';
+import FormatUI from '../formatter/FormatUI';
 
 const HorizontalLine = (editor: Editor) => {
 	const self = editor;
 
+	const Name = 'HorizontalLine';
 	const title = Finer.ILC.Get('toolbar.horizontal.line') ?? 'Horizontal Line';
 
 	const createLine = (): HTMLElement => {
@@ -16,15 +17,10 @@ const HorizontalLine = (editor: Editor) => {
 		return figure;
 	};
 
-	const Create = () => {
-		const button = DOM.Create('button', {
-			attrs: { title },
-			class: DOM.Utils.CreateUEID('icon-button', false),
-			html: Finer.Icons.Get('HorizontalLine')
-		});
+	const Create = (): HTMLElement => {
+		const button = FormatUI.CreateIconButton(title, Name);
 
-		DOM.On(button, ENativeEvents.click, event => {
-			PreventEvent(event);
+		FormatUI.BindClickEvent(button, () => {
 			const CaretUtils = self.Utils.Caret;
 
 			const horizontalLine = createLine();
@@ -54,7 +50,7 @@ const HorizontalLine = (editor: Editor) => {
 			if (!DOM.Element.Figure.IsFigure(StartBlock) && Str.IsEmpty(DOM.GetText(StartBlock))) DOM.Remove(StartBlock);
 			if (!DOM.Element.Figure.IsFigure(EndBlock) && Str.IsEmpty(DOM.GetText(EndBlock))) DOM.Remove(EndBlock);
 
-			return finish();
+			finish();
 		});
 
 		return button;

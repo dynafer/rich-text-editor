@@ -1,8 +1,11 @@
-import { Arr } from '@dynafer/utils';
+import { NodeType } from '@dynafer/dom-control';
+import { Arr, Obj } from '@dynafer/utils';
 import Options from '../../../Options';
 import Editor from '../../Editor';
-import { ENativeEvents } from '../../events/EventSetupUtils';
-import { TEventListener } from '../DOM';
+import { ENativeEvents, PreventEvent } from '../../events/EventSetupUtils';
+
+type TStartAdjustingEvent = (event: MouseEvent | Touch, figure: HTMLElement, figureElement: HTMLElement) => void;
+type TAdjustingCallback = (event: MouseEvent | Touch) => void;
 
 export const MOVABLE_ADDABLE_SIZE = 16;
 export const ADJUSTABLE_EDGE_ADDABLE_SIZE = -6;
@@ -12,8 +15,8 @@ export const ADDABLE_TOOLS_MENU_TOP = 6;
 
 const getSizeWithPixel = (size: number, bWithPixel: boolean) => bWithPixel ? `${size}px` : size;
 
-export const GetClientSize = (editor: Editor,
-	target: HTMLElement, type: 'width' | 'height'): number => editor.DOM.GetRect(target)?.[type] ?? 0;
+export const GetClientSize = (editor: Editor, target: HTMLElement, type: 'width' | 'height'): number =>
+	editor.DOM.GetRect(target)?.[type] ?? 0;
 
 export const CreateMovableHorizontalSize = <T extends boolean = false>(size: number, bWithPixel: T | false = false): T extends false ? number : string =>
 	getSizeWithPixel(size - MOVABLE_ADDABLE_SIZE / 2, bWithPixel) as T extends false ? number : string;
@@ -32,28 +35,56 @@ const getToolsMenu = (editor: Editor, target: HTMLElement): HTMLElement | null =
 
 	return DOM.Select<HTMLElement>({ attrs: ['data-tools-menu'] }, Figure);
 };
-export const RegisterAdjustingEvents = (editor: Editor, target: HTMLElement, adjustCallback: TEventListener<'mousemove' | 'touchmove'>, finishCallback: TEventListener<'mouseup' | 'touchend'>) => {
+
+export const StartAdjustment = (editor: Editor, callback: TStartAdjustingEvent, ...targets: Element[]) => {
+	const self = editor;
+	const DOM = self.DOM;
+
+	const startAdjusting = (evt: MouseEvent | TouchEvent) => {
+		PreventEvent(evt);
+		const event = !Obj.HasProperty<TouchEvent>(evt, 'touches') ? evt : evt.touches.item(0);
+		if (!event || !NodeType.IsNode(event.target)) return;
+
+		const { Figure, FigureElement } = DOM.Element.Figure.Find<HTMLElement>(event.target);
+		if (!Figure || !FigureElement) return;
+
+		self.Dispatch('Tools:Adjust:Start', FigureElement);
+		callback(event, Figure, FigureElement);
+	};
+
+	Arr.Each(targets, target => DOM.On(target, ENativeEvents.mousedown, startAdjusting));
+	Arr.Each(targets, target => DOM.On(target, ENativeEvents.touchstart, startAdjusting));
+};
+
+export const RegisterAdjustingEvents = (editor: Editor, target: HTMLElement, adjustCallback: TAdjustingCallback, finishCallback: TAdjustingCallback) => {
 	const self = editor;
 	const DOM = self.DOM;
 
 	self.SetAdjusting(true);
-	self.Dispatch('Adjust:Start', target);
 	DOM.Hide(getToolsMenu(self, target));
 
 	const boundEvents: [(Window & typeof globalThis), ENativeEvents, EventListener][] = [];
 
 	const removeEvents = () => Arr.WhileShift(boundEvents, boundEvent => DOM.Off(boundEvent[0], boundEvent[1], boundEvent[2]));
 
-	const adjust = (event: MouseEvent | TouchEvent) => {
-		self.Dispatch('Adjust:Move', target);
+	const adjust = (evt: MouseEvent | TouchEvent) => {
+		PreventEvent(evt);
+		const event = !Obj.HasProperty<TouchEvent>(evt, 'touches') ? evt : evt.touches.item(0);
+		if (!event) return;
+
+		self.Dispatch('Tools:Adjust:Move', target);
 		adjustCallback(event);
 	};
 
-	const finish = (event: MouseEvent | TouchEvent) => {
+	const finish = (evt: MouseEvent | TouchEvent) => {
+		PreventEvent(evt);
+		const event = !Obj.HasProperty<TouchEvent>(evt, 'touches') ? evt : evt.touches.item(0);
+		if (!event) return;
+
 		finishCallback(event);
 		removeEvents();
 		self.SetAdjusting(false);
-		self.Dispatch('Adjust:Finish', target);
+		self.Dispatch('Tools:Adjust:Finish', target);
 		DOM.Show(getToolsMenu(self, target));
 		self.Tools.DOM.ChangePositions();
 	};

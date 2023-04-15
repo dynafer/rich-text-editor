@@ -19,11 +19,10 @@ export const Get = (selector: TElement, name: string, bComputed?: boolean): stri
 	if (!Obj.HasProperty<HTMLElement>(selector, 'style')) return '';
 	const computedStyle = window.getComputedStyle(selector);
 	const capitalisedStyle = Str.DashToCapital(name);
-	if (bComputed) return computedStyle[capitalisedStyle as 'all'];
+	if (bComputed) return Obj.GetProperty(computedStyle, capitalisedStyle) ?? '';
+
 	const styles = GetAsMap(selector);
-	if (!styles[capitalisedStyle]) {
-		return computedStyle[capitalisedStyle as 'all'];
-	}
+	if (!styles[capitalisedStyle]) return Obj.GetProperty(computedStyle, capitalisedStyle) ?? '';
 
 	return styles[capitalisedStyle] ?? '';
 };
@@ -33,10 +32,8 @@ export const GetText = (selector: TElement): string => Obj.GetProperty<CSSStyleD
 export const Set = (selector: TElement, name: string, value: string) => {
 	if (!Obj.HasProperty<HTMLElement>(selector, 'style')) return;
 
-	if (Obj.GetProperty<Record<string, string>>(selector, 'style')?.[name]) {
-		selector.style[name as 'all'] = value;
-		return;
-	}
+	if (Obj.GetProperty<Record<string, string>>(selector, 'style')?.[name])
+		return Obj.SetProperty(selector.style, name, value);
 
 	const styleList = selector.style.cssText.split(';');
 	Arr.Push(styleList, Str.Merge(Str.CapitalToDash(name), ':', value));
@@ -57,8 +54,8 @@ export const SetText = (selector: TElement, styleText: string) => {
 export const Remove = (selector: TElement, name: string) => {
 	if (!Obj.HasProperty<HTMLElement>(selector, 'style')) return;
 
-	if (selector.style[name as 'all']) {
-		selector.style[name as 'all'] = '';
+	if (Obj.HasProperty<string>(selector.style, name)) {
+		Obj.SetProperty(selector.style, name, '');
 		if (Str.IsEmpty(selector.style.cssText)) Attribute.Remove(selector, 'style');
 		return;
 	}

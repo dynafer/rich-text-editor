@@ -3,10 +3,12 @@ import { Arr, Str } from '@dynafer/utils';
 import DOM from '../dom/DOM';
 import Editor from '../Editor';
 import { ENativeEvents, PreventEvent } from '../events/EventSetupUtils';
+import FormatUI from '../formatter/FormatUI';
 
 const Info = (editor: Editor) => {
 	const self = editor;
 
+	const Name = 'Info';
 	const title = Finer.ILC.Get('toolbar.info') ?? 'Information';
 
 	const icons = {
@@ -79,12 +81,8 @@ const Info = (editor: Editor) => {
 			]
 		});
 
-	const Create = () => {
-		const button = DOM.Create('button', {
-			attrs: { title },
-			class: DOM.Utils.CreateUEID('icon-button', false),
-			html: Finer.Icons.Get('Info')
-		});
+	const Create = (): HTMLElement => {
+		const button = FormatUI.CreateIconButton(title, Name);
 
 		const create = () => {
 			const schema = Sketcher.Modal('info', {
@@ -97,13 +95,13 @@ const Info = (editor: Editor) => {
 			DOM.InsertAfter(schema.Schema.GetBody(), schema.Schema.Self);
 		};
 
-		DOM.On(button, ENativeEvents.click, create);
+		FormatUI.BindClickEvent(button, create);
 
 		return button;
 	};
 
 	return {
-		Name: 'Info',
+		Name,
 		Create,
 	};
 };

@@ -91,12 +91,15 @@ const Block = (editor: Editor, detector: IFormatDetector): IFormatUIRegistryUnit
 		if (caret) Arr.Push(caretNodes, FormatUtils.GetParentIfText(caret.Start.Node), FormatUtils.GetParentIfText(caret.End.Node));
 
 		Arr.Each(uiFormat.Items, format => {
-			const { Format, Title } = format;
+			const { Format, Title, CommandName } = format;
 			const html = uiFormat.bPreview ? DOM.Utils.WrapTagHTML(Format.Tag, Title) : Title;
 			const bSelected = isDetected(Format.Tag, caretNodes);
 			const optionElement = FormatUI.CreateOption(html, Title, bSelected);
 
-			FormatUI.BindClickEvent(optionElement, () => FormatUI.RunCommand(self, createCommandName(uiName, Title), !bSelected));
+			FormatUI.BindClickEvent(optionElement, () => {
+				DOM.Doc.body.click();
+				FormatUI.RunCommand(self, createCommandName(uiName, CommandName), !bSelected);
+			});
 
 			Arr.Push(optionElements, optionElement);
 		});

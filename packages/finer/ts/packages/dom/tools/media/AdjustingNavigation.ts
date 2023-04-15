@@ -39,8 +39,8 @@ const AdjustingNavigation = (editor: Editor, media: HTMLElement, fakeMedia: HTML
 	};
 
 	const Update = (offsetX: number, offsetY: number) => {
-		let calculatedLeft = offsetX + getFrameOffset('left') + self.GetWin().scrollX + NAVIGATION_MARGIN;
-		let calculatedTop = offsetY + getFrameOffset('top') + self.GetWin().scrollY + NAVIGATION_MARGIN;
+		let calculatedLeft = offsetX + getFrameOffset('left') - self.GetWin().scrollX + NAVIGATION_MARGIN;
+		let calculatedTop = offsetY + getFrameOffset('top') - self.GetWin().scrollY + NAVIGATION_MARGIN;
 		if (calculatedLeft + navigation.offsetWidth >= self.GetWin().innerWidth)
 			calculatedLeft -= navigation.offsetWidth + NAVIGATION_MARGIN;
 

@@ -52,7 +52,7 @@ const Media = (editor: Editor): IFormatMedia => {
 		const { StartBlock, EndBlock } = self.Utils.Shared.SplitLines(caret.Start.Node, caret.Start.Offset);
 
 		const node = formatter.Utils.GetParentIfText(caret.Start.Node);
-		const blockNode = StartBlock ?? DOM.Closest(node, Str.Join(',', ...formatter.Formats.BlockFormatTags.Block)) ?? lines[0];
+		const blockNode = StartBlock ?? DOM.Closest(node, { tagName: Arr.Convert(formatter.Formats.BlockFormatTags.Block) }) ?? lines[0];
 		const insert = !blockNode ? DOM.Insert : DOM.InsertAfter;
 		const insertions = !blockNode ? [...figures, EndBlock] : [EndBlock, ...Arr.Reverse(figures)];
 		insert(blockNode ?? self.GetBody(), ...insertions);

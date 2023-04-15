@@ -108,7 +108,7 @@ const Table = (editor: Editor, ui: IPluginTableUI) => {
 
 	const iconWrap = ui.CreateIconWrap(uiFormat);
 
-	DOM.SetAttr(iconWrap.Button, 'no-border');
+	DOM.SetAttr(iconWrap.Wrapper, 'no-border');
 
 	formatUI.BindOptionListEvent(self, uiName, iconWrap.Wrapper, iconWrap.Wrapper, createOptionList(iconWrap.Wrapper));
 

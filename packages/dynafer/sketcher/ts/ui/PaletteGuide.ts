@@ -69,7 +69,7 @@ const PaletteGuide = (setting: IUISettingMap['PaletteGuide']): IUISchemaMap['Pal
 	});
 
 	Arr.Each(['drag', 'dragstart', 'dragend', 'dragenter', 'dragleave', 'dragover'], dragEvent =>
-		schema.Bind(dragEvent, (event: Event) => {
+		schema.Bind(dragEvent, event => {
 			event.stopImmediatePropagation();
 			event.stopPropagation();
 			event.preventDefault();
