@@ -160,8 +160,8 @@ export const ChangeAllPositions = (editor: Editor) => {
 
 			const figureRightPosition = Figure.offsetLeft + Figure.offsetWidth;
 			const figureElementRightPosition = FigureElement.offsetLeft + FigureElement.offsetWidth;
-			const halfWithDifference = (FigureElement.offsetWidth - menu.offsetWidth) / 2;
-			const menuCentredLeftPosition = figureElementRightPosition - menu.offsetWidth - halfWithDifference;
+			const halfDifference = (FigureElement.offsetWidth - menu.offsetWidth) / 2;
+			const menuCentredLeftPosition = figureElementRightPosition - menu.offsetWidth - halfDifference;
 			const menuCentredRightPosition = menuCentredLeftPosition + menu.offsetWidth;
 
 			const bAsText = DOM.HasAttr(Figure, Options.ATTRIBUTE_AS_TEXT);
@@ -170,7 +170,7 @@ export const ChangeAllPositions = (editor: Editor) => {
 			if (menuCentredLeftPosition < 0 && !bOutOfBody)
 				newStyles.left = '0px';
 			else if (menuCentredRightPosition > DOM.Doc.body.offsetWidth || bOutOfBody)
-				newStyles.left = `${menuCentredLeftPosition + halfWithDifference}px`;
+				newStyles.left = `${menuCentredLeftPosition + halfDifference}px`;
 			else
 				newStyles.left = `${menuCentredLeftPosition}px`;
 

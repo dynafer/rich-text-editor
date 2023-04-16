@@ -41,8 +41,6 @@ const TableFormat = (editor: Editor) => {
 		self.Focus();
 
 		self.Tools.DOM.UnsetAllFocused();
-		CaretUtils.Get()?.Range.DeleteContents();
-		formatter.Utils.CleanDirtyWithCaret(self, CaretUtils.Get());
 
 		const caret = CaretUtils.Get();
 		const lines = self.GetLines();
@@ -60,6 +58,8 @@ const TableFormat = (editor: Editor) => {
 			insert(target, figure);
 			return finish();
 		}
+
+		caret.Range.DeleteContents();
 
 		const { StartBlock, EndBlock } = self.Utils.Shared.SplitLines(caret.Start.Node, caret.Start.Offset);
 

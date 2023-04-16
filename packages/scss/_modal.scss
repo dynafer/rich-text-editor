@@ -43,6 +43,16 @@
 					@include default-button;
 					@include round(getVar(button-radius));
 
+					&:not(:hover, :focus, .active) {
+						@include all-border(transparent);
+						@include font($color: getVar(modal-dialog-opposite-bg));
+						background-color: transparent;
+
+						svg {
+							fill: getVar(modal-dialog-opposite-bg);
+						}
+					}
+
 					svg {
 						@include square(1.25rem);
 						cursor: pointer;

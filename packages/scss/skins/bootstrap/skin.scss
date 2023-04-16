@@ -1,0 +1,150 @@
+@import '../../ui/UI';
+
+@mixin make-toolbar-item-variables($type: null, $bg, $border, $font, $icon, $lightBg: null) {
+	@if $type == null {
+		$type: '';
+	} @else {
+		$type: #{$type}-;
+	}
+
+	@if $lightBg != null {
+		#{getVarName(toolbar-item-#{$type}light-bg)}: $lightBg;
+	}
+
+	#{getVarName(toolbar-item-#{$type}bg)}: $bg;
+	#{getVarName(toolbar-item-#{$type}border)}: $border;
+	#{getVarName(toolbar-item-#{$type}font)}: $font;
+	#{getVarName(toolbar-item-#{$type}icon-fill)}: $icon;
+}
+
+@mixin make-button-variables($type: null, $bg, $border, $font, $icon) {
+	@if $type == null {
+		$type: '';
+	} @else {
+		$type: #{$type}-;
+	}
+
+	#{getVarName(button-#{$type}bg)}: $bg;
+	#{getVarName(button-#{$type}border)}: $border;
+	#{getVarName(button-#{$type}font)}: $font;
+	#{getVarName(button-#{$type}icon-fill)}: $icon;
+}
+
+@mixin make-tools-item-variables($type: null, $bg, $font, $icon) {
+	@if $type == null {
+		$type: '';
+	} @else {
+		$type: #{$type}-;
+	}
+
+	#{getVarName(tools-menu-item-#{$type}bg)}: $bg;
+	#{getVarName(tools-menu-item-#{$type}font)}: $font;
+	#{getVarName(tools-menu-item-#{$type}icon-fill)}: $icon;
+}
+
+$primaryLight: #3d8bfd;
+$primary: #0d6efd;
+$primaryHover: #0b5ed7;
+$primaryActive: #0a58ca;
+$success: #198754;
+$successHover: #157347;
+$successActive: #157347;
+$danger: #dc3545;
+$dangerHover: #bb2d3b;
+$dangerActive: #bb2d3b;
+$border: rgba(0, 0, 0, 0.125);
+
+.#{getClassName(toolbar)},
+.#{getClassName(options)},
+.#{getClassName(toolbar)} *,
+.#{getClassName(options)} * {
+	#{getVarName(toolbar-bg)}: transparent;
+	#{getVarName(toolbar-border)}: #ececec;
+
+	#{getVarName(toolbar-item-size)}: 1.8rem;
+	#{getVarName(toolbar-item-radius)}: 0.25rem;
+	#{getVarName(toolbar-icon-size)}: 1rem;
+	#{getVarName(toolbar-item-select-padding)}: 0.35rem;
+	#{getVarName(toolbar-item-select-label-width)}: 8em;
+	#{getVarName(toolbar-item-option-padding)}: 0.5rem;
+	#{getVarName(toolbar-item-option-min-width)}: 10rem;
+
+	@include make-toolbar-item-variables(null, transparent, $border, #000, #000);
+	@include make-toolbar-item-variables(hover, #f8f9fa, $border, #495057, #495057, #fbfbfc);
+	@include make-toolbar-item-variables(active, $primary, $primary, #fff, #fff);
+	@include make-toolbar-item-variables(active-hover, $primaryHover, $primaryHover, #fff, #fff, $primary);
+	@include make-toolbar-item-variables(disabled, transparent, $border, $border, $border);
+
+	#{getVarName(toolbar-item-option-bg)}: #fff;
+	#{getVarName(toolbar-item-option-border)}: #afafaf;
+	#{getVarName(toolbar-item-option-radius)}: 0.25rem;
+	#{getVarName(toolbar-item-option-select-border)}: #afafaf;
+
+	#{getVarName(toolbar-item-select-border)}: rgba(0, 0, 0, 0.125);
+}
+
+:root {
+	#{getVarName(editor-bg)}: transparent;
+	#{getVarName(editor-border)}: $border;
+	#{getVarName(editor-focused-border)}: $primaryActive;
+	#{getVarName(editor-opposite-bg)}: #000;
+	#{getVarName(editor-solid-bg)}: #fff;
+
+	#{getVarName(modal-bg)}: rgba(0, 0, 0, 0.5);
+	#{getVarName(modal-dialog-bg)}: #fff;
+	#{getVarName(modal-dialog-opposite-bg)}: #000;
+	#{getVarName(modal-border)}: rgba(0, 0, 0, 0.2);
+	#{getVarName(modal-radius)}: calc(0.3rem - 1px);
+	#{getVarName(modal-font)}: #000;
+
+	#{getVarName(button-radius)}: 0.25rem;
+
+	@include make-button-variables(null, $primary, $primary, #fff, #fff);
+	@include make-button-variables(hover, $primaryHover, $primaryHover, #fff, #fff);
+	@include make-button-variables(active, $primaryActive, $primaryActive, #fff, #fff);
+
+	@include make-button-variables(success, $success, $success, #fff, #fff);
+	@include make-button-variables(success-hover, $successHover, $successHover, #fff, #fff);
+	@include make-button-variables(success-active, $successActive, $successActive, #fff, #fff);
+
+	@include make-button-variables(cancel, $danger, $danger, #fff, #fff);
+	@include make-button-variables(cancel-hover, $dangerHover, $dangerHover, #fff, #fff);
+	@include make-button-variables(cancel-active, $dangerActive, $dangerActive, #fff, #fff);
+
+	@include make-button-variables(remove, $danger, $danger, #fff, #fff);
+	@include make-button-variables(remove-hover, $dangerHover, $dangerHover, #fff, #fff);
+	@include make-button-variables(remove-active, $dangerActive, $dangerActive, #fff, #fff);
+
+	@include make-button-variables(disabled, transparent, transparent, #737b81, #737b81);
+
+	#{getVarName(input-radius)}: 0.25rem;
+	#{getVarName(input-border)}: #ced4da;
+	#{getVarName(input-focus-border)}: #86b7fe;
+	#{getVarName(input-font)}: #212529;
+	#{getVarName(input-error-border)}: $danger;
+
+	#{getVarName(hover-color)}: $primaryHover;
+	#{getVarName(selected-color)}: $primaryActive;
+	#{getVarName(tools-default-color)}: $primary;
+	#{getVarName(tools-opposite-color)}: #000;
+
+	#{getVarName(tools-size-navigation-bg)}: rgba(0, 0, 0, 0.6);
+	#{getVarName(tools-size-navigation-font)}: #fff;
+
+	#{getVarName(tools-menu-bg)}: #fff;
+	#{getVarName(tools-menu-border)}: $border;
+	#{getVarName(tools-menu-radius)}: 0.25rem;
+
+	#{getVarName(tools-menu-item-radius)}: 0.25rem;
+	@include make-tools-item-variables(null, transparent, #000, #000);
+	@include make-tools-item-variables(hover, #f8f9fa, #495057, #495057);
+	@include make-tools-item-variables(active, $primary, #fff, #fff);
+	@include make-tools-item-variables(remove-hover, $dangerHover, #fff, #fff);
+	@include make-tools-item-variables(disabled, transparent, #707070, #707070);
+	#{getVarName(tools-menu-item-remove-icon-fill)}: $dangerHover;
+
+	#{getVarName(format-code-hover-bg)}: $primaryHover;
+	#{getVarName(format-code-focused-bg)}: $primaryActive;
+	#{getVarName(format-anchor-hover-bg)}: $primary;
+	#{getVarName(format-anchor-focused-bg)}: #0a58ca;
+}
