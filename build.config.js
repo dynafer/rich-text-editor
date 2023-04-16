@@ -72,10 +72,6 @@ module.exports = async (runner, config) => {
 	});
 
 	sassList.push({
-		input: path.join(SCSS_PATH, `./${INPUT_NAME}.scss`),
-		output: path.join(OUTPUT_PATH, `./${PROJECT_NAME}.min.css`),
-		compressed: true
-	}, {
 		input: path.join(SCSS_PATH, `./Editor.scss`),
 		output: path.join(OUTPUT_PATH, `./skins/Editor.min.css`),
 		compressed: true

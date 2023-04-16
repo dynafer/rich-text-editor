@@ -187,6 +187,7 @@
 			}
 		}
 
+		*:focus,
 		&.active {
 			@include all-border(getVar(button-#{$type}active-border));
 			@include font($color: getVar(button-#{$type}active-font));

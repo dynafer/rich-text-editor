@@ -38,16 +38,6 @@
 			@include all-padding(unset);
 			@include font($color: getVar(toolbar-item-font));
 			background-color: getVar(toolbar-item-bg);
-
-			&:not(.#{getClassName(select)}) {
-				@include all-border(getVar(toolbar-item-border));
-			}
-
-			&[disabled] {
-				svg {
-					fill: getVar(toolbar-item-disabled-icon-fill);
-				}
-			}
 		}
 
 		.#{getClassName(icon-button)} {
@@ -62,6 +52,7 @@
 		.#{getClassName(icon-wrap)} {
 			.#{getClassName(color-icon)} {
 				@include all-border(none);
+				@include round(var(--finer-toolbar-item-radius) 0px 0px var(--finer-toolbar-item-radius));
 
 				svg {
 					@include square(getVar(toolbar-icon-size));
@@ -75,39 +66,99 @@
 			.#{getClassName(icon-button)} {
 				@include all-border(none);
 				@include all-margin(0);
+				@include round(var(--finer-toolbar-item-radius) 0px 0px var(--finer-toolbar-item-radius));
 			}
 
 			& > .#{getClassName(helper)} {
 				@include all-border(none);
 				@include padding(rem, $right: 0.25, $left: 0.25);
 				@include flex(center, center, $inline: true);
+				@include round(0px var(--finer-toolbar-item-radius) var(--finer-toolbar-item-radius) 0px);
 
 				svg {
 					@include square(0.8rem);
 				}
 			}
 
-			&:not([disabled], [no-border]):hover,
-			&:not([disabled], [no-border]).active {
+			&:not([disabled]):hover {
+				svg {
+					fill: getVar(toolbar-item-hover-icon-fill);
+				}
+			}
+
+			&:not([disabled]):focus,
+			&:not([disabled]).active {
+				svg {
+					fill: getVar(toolbar-item-active-icon-fill);
+				}
+
 				&:hover {
-					background-color: getVar(toolbar-item-hover-light-bg) !important;
-				}
-
-				.#{getClassName(color-icon)} {
-					@include margin(px, $right: -1);
-				}
-
-				.#{getClassName(icon-button)},
-				.#{getClassName(color-icon)} {
-					@include border($right: getVar(toolbar-item-select-border));
-
-					&:hover {
-						background-color: getVar(toolbar-item-hover-bg) !important;
+					svg {
+						fill: getVar(toolbar-item-active-hover-icon-fill);
 					}
+				}
+			}
+
+			&:not([disabled], [no-border]):hover {
+				background-color: getVar(toolbar-item-hover-light-bg) !important;
+
+				.#{getClassName(icon-button)}:hover,
+				.#{getClassName(color-icon)}:hover {
+					background-color: getVar(toolbar-item-hover-bg) !important;
 				}
 
 				.#{getClassName(helper)}:hover {
 					background-color: getVar(toolbar-item-hover-bg) !important;
+				}
+			}
+
+			&:not([disabled], [no-border]).active:hover {
+				background-color: getVar(toolbar-item-active-hover-light-bg) !important;
+
+				.#{getClassName(icon-button)}:hover,
+				.#{getClassName(color-icon)}:hover {
+					background-color: getVar(toolbar-item-active-hover-bg) !important;
+				}
+
+				.#{getClassName(helper)}:hover {
+					background-color: getVar(toolbar-item-active-hover-bg) !important;
+				}
+			}
+
+			&:not([disabled], [no-border]):hover,
+			&:not([disabled], [no-border]).active {
+				.#{getClassName(color-icon)} {
+					@include margin(px, $right: -1);
+				}
+
+				.#{getClassName(icon-button)} {
+					@include padding(px, $left: 1);
+				}
+
+				.#{getClassName(icon-button)},
+				.#{getClassName(color-icon)} {
+					@include border(
+						getVar(toolbar-item-select-border),
+						getVar(toolbar-item-select-border),
+						getVar(toolbar-item-select-border)
+					);
+				}
+
+				.#{getClassName(helper)} {
+					@include border(
+						getVar(toolbar-item-select-border),
+						$bottom: getVar(toolbar-item-select-border),
+						$left: getVar(toolbar-item-select-border)
+					);
+				}
+
+				.#{getClassName(color-icon)} + .#{getClassName(helper)} {
+					@include padding(null, $left: calc(0.25rem - 1px));
+				}
+
+				.#{getClassName(icon-button)} + .#{getClassName(helper)} {
+					@include margin(px, $left: -1);
+					@include padding(null, $left: 0.25rem);
 				}
 			}
 		}
@@ -166,14 +217,6 @@
 			@include margin(rem, $right: 0.2);
 		}
 
-		& > .active:not(.#{getClassName(toolbar-group)}),
-		.#{getClassName(icon-group)} > :not([disabled]).active,
-		& > .#{getClassName(toolbar-group)} > .active {
-			@include font($color: getVar(toolbar-item-active-font));
-			@include all-border(getVar(toolbar-item-active-border));
-			background-color: getVar(toolbar-item-active-bg);
-		}
-
 		& > :not(.#{getClassName(toolbar-group)}, .#{getClassName(icon-group)}, [disabled]):hover,
 		.#{getClassName(icon-group)} > :not([disabled]):hover,
 		& > .#{getClassName(toolbar-group)} > :not([disabled]):hover {
@@ -182,8 +225,52 @@
 			background-color: getVar(toolbar-item-hover-bg);
 		}
 
+		& > :focus:not(.#{getClassName(toolbar-group)}),
+		.#{getClassName(icon-group)} > :not([disabled]):focus,
+		& > .#{getClassName(toolbar-group)} > :focus,
+		& > .active:not(.#{getClassName(toolbar-group)}),
+		.#{getClassName(icon-group)} > :not([disabled]).active,
+		& > .#{getClassName(toolbar-group)} > .active {
+			@include font($color: getVar(toolbar-item-active-font));
+			@include all-border(getVar(toolbar-item-active-border));
+			background-color: getVar(toolbar-item-active-bg);
+
+			&:hover {
+				@include font($color: getVar(toolbar-item-active-hover-font));
+				@include all-border(getVar(toolbar-item-active-hover-border));
+				background-color: getVar(toolbar-item-active-hover-bg);
+			}
+		}
+
 		svg {
 			fill: getVar(toolbar-item-icon-fill);
+		}
+
+		*:hover {
+			& > svg {
+				fill: getVar(toolbar-item-hover-icon-fill);
+			}
+		}
+
+		*:focus,
+		*.active {
+			& > svg {
+				fill: getVar(toolbar-item-active-icon-fill);
+			}
+
+			&:hover > svg {
+				fill: getVar(toolbar-item-active-hover-icon-fill);
+			}
+		}
+
+		[disabled] {
+			@include font($color: getVar(toolbar-item-disabled-font));
+			@include all-border(getVar(toolbar-item-disabled-border));
+			background-color: getVar(toolbar-item-disabled-bg);
+
+			& > svg {
+				fill: getVar(toolbar-item-disabled-icon-fill);
+			}
 		}
 	}
 }

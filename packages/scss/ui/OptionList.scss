@@ -237,10 +237,26 @@
 					fill: getVar(toolbar-item-icon-fill);
 				}
 
-				&.active svg {
+				&:focus,
+				&.active {
 					@include font($color: getVar(toolbar-item-active-font));
-					display: block;
-					fill: getVar(toolbar-item-active-icon-fill);
+					background-color: getVar(toolbar-item-active-bg);
+
+					svg {
+						@include font($color: getVar(toolbar-item-active-font));
+						fill: getVar(toolbar-item-active-icon-fill);
+						display: block;
+					}
+
+					&:hover {
+						@include font($color: getVar(toolbar-item-active-hover-font));
+						background-color: getVar(toolbar-item-active-hover-bg);
+					}
+
+					svg {
+						@include font($color: getVar(toolbar-item-active-hover-font));
+						fill: getVar(toolbar-item-active-hover-icon-fill);
+					}
 				}
 
 				&:not(.active) svg {
@@ -252,6 +268,10 @@
 					@include font($color: getVar(toolbar-item-hover-font));
 					background-color: getVar(toolbar-item-hover-bg);
 					fill: getVar(toolbar-item-hover-icon-fill);
+				}
+
+				&:not(:first-child) {
+					@include margin(px, -1);
 				}
 			}
 		}

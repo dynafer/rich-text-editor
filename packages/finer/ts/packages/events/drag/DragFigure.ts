@@ -13,24 +13,27 @@ const DragMedia = (editor: Editor, event: DragEvent) => {
 
 	const targetName = DOM.Utils.GetNodeName(target);
 	const bFigure = DOM.Element.Figure.IsFigure(target);
-	if (!DOM.Element.Figure.FigureTypeSetMap.media.has(targetName) && !bFigure) return;
+	if ((!DOM.Element.Figure.FigureTypeSetMap.media.has(targetName)
+		&& !DOM.Element.Figure.FigureTypeSetMap.hr.has(targetName))
+		&& !bFigure
+	) return;
 
 	const { Figure, FigureType, FigureElement } = DOM.Element.Figure.Find(target);
 	if (bFigure && (!Figure || !FigureType || !FigureElement)) return;
 
-	const media = (bFigure ? FigureElement : event.target) as HTMLElement;
+	const figureElement = (bFigure ? FigureElement : event.target) as HTMLElement;
 
-	event.dataTransfer?.setData('text/html', DOM.GetOuterHTML(media));
-	event.dataTransfer?.setDragImage(media, 0, 0);
+	event.dataTransfer?.setData('text/html', DOM.GetOuterHTML(figureElement));
+	event.dataTransfer?.setDragImage(figureElement, 0, 0);
 
 	const moveCaret = (startBlock: Node | null, endBlock: Node | null) => {
-		let figure = Figure ?? media.parentElement;
+		let figure = Figure ?? figureElement.parentElement;
 		if (!DOM.Element.Figure.IsFigure(figure)) {
 			const figureType = DOM.Element.Figure.FindType(targetName);
 			figure = DOM.Element.Figure.Create(targetName);
-			DOM.Insert(figure, media);
+			DOM.Insert(figure, figureElement);
 
-			const tools = self.Tools.DOM.Create(figureType, media);
+			const tools = self.Tools.DOM.Create(figureType, figureElement);
 			DOM.Insert(figure, tools);
 		}
 
@@ -48,7 +51,7 @@ const DragMedia = (editor: Editor, event: DragEvent) => {
 		if (!caret) return;
 
 		const closestFigure = DOM.Element.Figure.GetClosest(FormatUtils.GetParentIfText(caret.Start.Node));
-		if (closestFigure === (media.parentElement ?? media)) return;
+		if (closestFigure === (figureElement.parentElement ?? figureElement)) return;
 
 		if (!NodeType.IsText(caret.SameRoot)) return moveCaret(caret.Start.Path[0], null);
 

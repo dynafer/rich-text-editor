@@ -27,8 +27,6 @@ const Media = (editor: Editor): IFormatMedia => {
 		self.Focus();
 
 		DOMTools.UnsetAllFocused();
-		CaretUtils.Get()?.Range.DeleteContents();
-		formatter.Utils.CleanDirtyWithCaret(self, CaretUtils.Get());
 
 		const caret = CaretUtils.Get();
 		const lines = self.GetLines();
@@ -48,6 +46,8 @@ const Media = (editor: Editor): IFormatMedia => {
 			insert(target, ...insertions);
 			return finish();
 		}
+
+		caret.Range.DeleteContents();
 
 		const { StartBlock, EndBlock } = self.Utils.Shared.SplitLines(caret.Start.Node, caret.Start.Offset);
 

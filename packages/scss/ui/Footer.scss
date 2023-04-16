@@ -3,7 +3,6 @@
 		@include flex(center, space-between);
 		@include height(2rem);
 		@include all-border(getVar(editor-border));
-		@include margin(px, -1);
 		@include padding(rem, $right: 0.25, $left: 0.25);
 		background-color: getVar(editor-bg);
 

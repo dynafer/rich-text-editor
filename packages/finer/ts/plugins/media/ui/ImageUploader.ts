@@ -96,7 +96,10 @@ const ImageUploader = (editor: Editor, ui: IPluginMediaUI) => {
 
 	const iconWrap = ui.CreateFormatButton(uiFormat);
 
-	ui.BindClickEvent(() => fileInput.click(), iconWrap.Button);
+	ui.BindClickEvent(() => {
+		self.GetBody().click();
+		fileInput.click();
+	}, iconWrap.Button);
 	formatUI.BindOptionListEvent(self, uiName, iconWrap.Wrapper, iconWrap.Helper, createOptionList(iconWrap.Wrapper));
 
 	self.Toolbar.Add(uiName, iconWrap.Wrapper);

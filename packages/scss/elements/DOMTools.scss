@@ -91,12 +91,16 @@
 			@include height(1.6rem);
 			background-color: getVar(tools-menu-bg);
 			z-index: 99999;
+			gap: 0.5rem;
 
 			.#{getClassName(icon-group)} {
+				@include flex(center);
+
 				.#{getClassName(icon-button)} {
 					@include flex(center, $inline: true);
 					@include all-padding(0.2rem);
 					@include all-border(none);
+					@include font(getVar(tools-menu-item-font));
 					@include round(getVar(tools-menu-item-radius));
 					background-color: getVar(tools-menu-item-bg);
 					cursor: pointer;
@@ -107,22 +111,36 @@
 					}
 
 					&[data-remove] {
+						&:hover {
+							background-color: getVar(tools-menu-item-remove-hover-bg);
+
+							svg {
+								fill: getVar(tools-menu-item-remove-hover-icon-fill);
+							}
+						}
+
 						svg {
-							fill: getVar(tools-menu-item-remove-fill);
+							fill: getVar(tools-menu-item-remove-icon-fill);
 						}
 					}
 
 					&:hover {
+						@include font(getVar(tools-menu-item-hover-font));
 						background-color: getVar(tools-menu-item-hover-bg);
+
+						svg {
+							fill: getVar(tools-menu-item-hover-icon-fill);
+						}
 					}
 
 					&.active {
+						@include font(getVar(tools-menu-item-active-font));
 						background-color: getVar(tools-menu-item-active-bg);
-					}
-				}
 
-				&:not(:first-child) {
-					@include margin(rem, $left: 0.5);
+						svg {
+							fill: getVar(tools-menu-item-active-icon-fill);
+						}
+					}
 				}
 			}
 		}

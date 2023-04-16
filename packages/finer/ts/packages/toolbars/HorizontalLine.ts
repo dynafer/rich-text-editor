@@ -12,6 +12,7 @@ const HorizontalLine = (editor: Editor) => {
 	const createLine = (): HTMLElement => {
 		const figure = DOM.Element.Figure.Create('hr');
 		const horizontalLine = self.DOM.Create('hr');
+		horizontalLine.draggable = true;
 		DOM.Insert(figure, horizontalLine);
 
 		return figure;
