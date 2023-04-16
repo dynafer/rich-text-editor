@@ -106,19 +106,23 @@ module.exports = async (runner, config) => {
 			plugins: [
 				nodeResolve()
 			]
-		},
-		{
-			input: path.resolve(PACKAGE_PATH, './dynafer/icon-pack/build/lib/IconPack.js'),
-			output: [
-				{
-					...outputOption(`icons/default/icons`),
-					globals: {
-						Finer: GLOBAL_NAME
-					}
-				},
-			],
 		}
 	];
+
+	const iconPacksDir = path.resolve(PACKAGE_PATH, './dynafer/icon-pack/build/lib');
+
+	const iconPacks = fs.readdirSync(iconPacksDir);
+	iconPacks.forEach(iconPack => rollups.push({
+		input: path.join(iconPacksDir, `./${iconPack}`, './IconPack.js'),
+		output: [
+			{
+				...outputOption(`icons/${iconPack}/icons`),
+				globals: {
+					Finer: GLOBAL_NAME
+				}
+			},
+		],
+	}));
 
 	PLUGIN_NAMES.forEach(name => {
 		if (name.includes('template')) return;

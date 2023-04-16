@@ -69,6 +69,7 @@ $opposite: rgb(218, 218, 218);
 	#{getVarName(editor-border)}: #353535;
 	#{getVarName(editor-focused-border)}: $activeDefault;
 	#{getVarName(editor-opposite-bg)}: $opposite;
+	#{getVarName(editor-solid-bg)}: #282827;
 
 	#{getVarName(modal-bg)}: rgba(0, 0, 0, 0.6);
 	#{getVarName(modal-dialog-bg)}: #282827;

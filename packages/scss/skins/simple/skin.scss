@@ -67,6 +67,7 @@ $activeDefault: rgba(88, 183, 255, 0.7);
 	#{getVarName(editor-border)}: #ececec;
 	#{getVarName(editor-focused-border)}: $activeDefault;
 	#{getVarName(editor-opposite-bg)}: #000;
+	#{getVarName(editor-solid-bg)}: #fff;
 
 	#{getVarName(modal-bg)}: rgba(0, 0, 0, 0.6);
 	#{getVarName(modal-dialog-bg)}: #fff;

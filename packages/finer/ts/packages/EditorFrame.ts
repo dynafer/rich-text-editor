@@ -1,5 +1,5 @@
 import { Str } from '@dynafer/utils';
-import { EModeEditor } from '../Options';
+import Options, { EModeEditor } from '../Options';
 import DOM from './dom/DOM';
 import { IConfiguration } from './EditorConfigure';
 
@@ -60,19 +60,30 @@ const EditorFrame = (config: IConfiguration): IEditorFrame => {
 		class: containerId,
 	});
 
+	const loadingWrapId = DOM.Utils.CreateUEID('loading-wrap', false);
 	const loadingId = DOM.Utils.CreateUEID('loading', false);
-	const Loading = DOM.Create('div', {
+	const LoadingWrap = DOM.Create('div', {
 		attrs: {
-			id: loadingId
+			id: loadingWrapId
 		},
-		class: loadingId,
-		html: Finer.Icons.Get('Loading')
+		class: loadingWrapId,
+		children: [
+			DOM.Create('div', {
+				attrs: {
+					id: loadingId
+				},
+				class: loadingId,
+			}),
+			DOM.Create('span', {
+				html: Str.CapitaliseFirst(Options.SHORT_NAME)
+			})
+		]
 	});
 
 	DOM.Hide(Notification);
 
 	DOM.Insert(Wrapper, Notification, Container);
-	DOM.Insert(Root, Toolbar, Wrapper, Loading);
+	DOM.Insert(Root, Toolbar, Wrapper, LoadingWrap);
 	DOM.InsertAfter(config.Selector, Root);
 
 	return {
@@ -81,7 +92,7 @@ const EditorFrame = (config: IConfiguration): IEditorFrame => {
 		Notification,
 		Wrapper,
 		Container,
-		Loading,
+		Loading: LoadingWrap,
 	};
 };
 
