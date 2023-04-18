@@ -101,6 +101,29 @@ export const RegisterAdjustingEvents = (editor: Editor, target: HTMLElement, adj
 	Arr.Each(boundEvents, boundEvent => DOM.On(boundEvent[0], boundEvent[1], boundEvent[2]));
 };
 
+export const ChangeToolsMenuOptionList = (editor: Editor, menu: HTMLElement) => {
+	const self = editor;
+	const DOM = self.DOM;
+
+	const optionLists = DOM.SelectAll<HTMLElement>({
+		class: DOM.Utils.CreateUEID('options', false)
+	}, menu);
+
+	Arr.Each(optionLists, optionList => {
+		const uiType = DOM.GetAttr(optionList, 'data-type');
+		if (!uiType) return;
+
+		const selection = DOM.Select<HTMLElement>({
+			attrs: {
+				dataType: uiType
+			}
+		}, menu);
+		if (!selection) return;
+
+		self.Formatter.UI.SetOptionListInToolsMenuCoordinate(self, selection, optionList);
+	});
+};
+
 export const ChangeAllPositions = (editor: Editor) => {
 	const self = editor;
 	const DOM = self.DOM;
@@ -183,6 +206,8 @@ export const ChangeAllPositions = (editor: Editor) => {
 				: `${FigureElement.offsetTop - menu.offsetHeight - ADDABLE_TOOLS_MENU_TOP}px`;
 
 			DOM.SetStyles(menu, newStyles);
+
+			ChangeToolsMenuOptionList(self, menu);
 		});
 	});
 };

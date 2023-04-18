@@ -5,7 +5,7 @@ export interface IInterlocaliser {
 	readonly LANGUAGE_CODES: Record<string, string>,
 	readonly LANGUAGES: Record<string, string>,
 	Register: (map: Record<string, string>) => void,
-	Get: (key: string) => string | null,
+	Get: (key: string, defaultText: string) => string,
 }
 
 const Interlocaliser = (): IInterlocaliser => {
@@ -13,7 +13,7 @@ const Interlocaliser = (): IInterlocaliser => {
 
 	const Register = (map: Record<string, string>) => storage.AddMap(map);
 
-	const Get = (key: string): string | null => storage.Get(key);
+	const Get = (key: string, defaultText: string): string => storage.Get(key) ?? defaultText;
 
 	return {
 		LANGUAGE_CODES,

@@ -11,7 +11,7 @@ const ClickFigure = (editor: Editor, event: MouseEvent | TouchEvent) => {
 	const { Figure, FigureType, FigureElement } = DOM.Element.Figure.Find<HTMLElement>(event.composedPath()[0]);
 	if (!Figure || !FigureType || !FigureElement) return DOMTools.HideAll();
 
-	if (FigureType === 'media') {
+	if (FigureType !== 'table') {
 		const newRange = self.Utils.Range();
 		newRange.SetStartToEnd(Figure, 0, 0);
 		self.Utils.Caret.UpdateRange(newRange);

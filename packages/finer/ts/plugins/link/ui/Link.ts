@@ -11,7 +11,7 @@ const Link = (editor: Editor) => {
 
 	const uiName = 'Link';
 	const uiFormat = {
-		Title: Finer.ILC.Get('plugins.link.title') ?? 'Insert/Edit a link',
+		Title: Finer.ILC.Get('plugins.link.title', 'Insert/Edit a link'),
 		CommandName: 'Hyperlink',
 		Icon: 'Hyperlink'
 	};
@@ -40,8 +40,8 @@ const Link = (editor: Editor) => {
 		const createAnchor = (input: HTMLInputElement) => formatter.UI.RunCommand<boolean | string>(self, uiFormat.CommandName, true, input?.value);
 		const removeAnchor = () => formatter.UI.RunCommand(self, uiFormat.CommandName, false);
 
-		const placeholderUpdate = Finer.ILC.Get('plugins.link.update') ?? 'Update the link';
-		const placeholderInsert = Finer.ILC.Get('plugins.link.insert') ?? 'Insert a link';
+		const placeholderUpdate = Finer.ILC.Get('plugins.link.update', 'Update the link');
+		const placeholderInsert = Finer.ILC.Get('plugins.link.insert', 'Insert a link');
 
 		const { OptionWrapper, Input } = formatter.UI.CreateInputWrapWithOptionList({
 			uiName,
@@ -51,10 +51,10 @@ const Link = (editor: Editor) => {
 			src: bUpdatable ? anchor.href : undefined,
 			texts: {
 				placeholder: bUpdatable ? placeholderUpdate : placeholderInsert,
-				cancel: Finer.ILC.Get('cancel') ?? 'Cancel',
-				insert: Finer.ILC.Get('insert') ?? 'Insert',
-				update: Finer.ILC.Get('update') ?? 'Update',
-				remove: Finer.ILC.Get('remove') ?? 'Remove',
+				cancel: Finer.ILC.Get('cancel', 'Cancel'),
+				insert: Finer.ILC.Get('insert', 'Insert'),
+				update: Finer.ILC.Get('update', 'Update'),
+				remove: Finer.ILC.Get('remove', 'Remove'),
 			}
 		});
 
@@ -73,7 +73,12 @@ const Link = (editor: Editor) => {
 
 	formatter.UI.RegisterCommand(self, uiFormat.CommandName, command);
 
-	formatter.UI.BindOptionListEvent(self, uiName, iconButton, iconButton, createOptionList);
+	formatter.UI.BindOptionListEvent(self, {
+		type: uiName,
+		activable: iconButton,
+		clickable: iconButton,
+		create: createOptionList
+	});
 
 	Detector.Register((paths: Node[]) => {
 		formatter.UI.ToggleActivateClass(iconButton, isDetected(paths));

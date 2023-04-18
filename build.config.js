@@ -54,7 +54,7 @@ module.exports = async (runner, config) => {
 
 	const sassList = [];
 	fs.readdirSync(SCSS_PATH).forEach(dir => {
-		if (dir.includes('.scss') || dir.includes('ui') || dir.includes('elements')) return;
+		if (dir.includes('.scss') || dir.includes('ui') || dir.includes('elements') || dir.includes('mixins')) return;
 
 		const dirPath = path.join(SCSS_PATH, `./${dir}`);
 		fs.readdirSync(dirPath).forEach(subDir => {

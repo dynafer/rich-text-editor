@@ -1,0 +1,155 @@
+@mixin icon-wrap($name) {
+	.#{getClassName(icon-wrap)} {
+		@include flex(center, center, $inline: true);
+		@include all-border(getVar(#{$name}-border));
+		@include all-padding(unset);
+		@include round(getVar(#{$name}-radius));
+		@include font($color: getVar(#{$name}-font));
+		background-color: getVar(#{$name}-bg);
+		outline: none;
+		cursor: pointer;
+
+		&[disabled] {
+			cursor: default;
+			pointer-events: none;
+		}
+
+		& > * {
+			@include flex(center, center, $inline: true);
+			@include all-border(none);
+			@include font($color: getVar(#{$name}-font));
+			background-color: getVar(#{$name}-bg);
+		}
+
+		.#{getClassName(color-icon)} {
+			@include round(getVar(#{$name}-radius) 0px 0px getVar(#{$name}-radius));
+		}
+
+		.#{getClassName(icon-button)} {
+			@include all-margin(0);
+			@include round(getVar(#{$name}-radius) 0px 0px getVar(#{$name}-radius));
+		}
+
+		& > .#{getClassName(helper)} {
+			@include padding(rem, $right: 0.25, $left: 0.25);
+			@include round(0px getVar(#{$name}-radius) getVar(#{$name}-radius) 0px);
+
+			svg {
+				@include square(0.8rem);
+			}
+		}
+
+		&:not([disabled]):hover {
+			svg {
+				fill: getVar(#{$name}-hover-icon-fill);
+			}
+		}
+
+		&:not([disabled]):focus,
+		&:not([disabled]).active {
+			svg {
+				fill: getVar(#{$name}-active-icon-fill);
+			}
+
+			&:hover {
+				svg {
+					fill: getVar(#{$name}-active-hover-icon-fill);
+				}
+			}
+		}
+
+		&[no-border]:not([disabled]) {
+			.#{getClassName(icon-button)}:hover,
+			.#{getClassName(color-icon)}:hover {
+				background-color: transparent;
+			}
+
+			&:hover {
+				background-color: getVar(#{$name}-hover-bg) !important;
+			}
+
+			&.active {
+				background-color: getVar(#{$name}-active-bg) !important;
+
+				&:hover {
+					background-color: getVar(#{$name}-active-hover-bg) !important;
+				}
+			}
+		}
+
+		&:not([disabled], [no-border]) {
+			&:hover {
+				background-color: getVar(#{$name}-hover-light-bg) !important;
+
+				.#{getClassName(icon-button)}:hover,
+				.#{getClassName(color-icon)}:hover {
+					background-color: getVar(#{$name}-hover-bg) !important;
+				}
+
+				.#{getClassName(helper)}:hover {
+					background-color: getVar(#{$name}-hover-bg) !important;
+				}
+			}
+
+			&.active:hover {
+				background-color: getVar(#{$name}-active-hover-light-bg) !important;
+
+				.#{getClassName(icon-button)}:hover,
+				.#{getClassName(color-icon)}:hover {
+					background-color: getVar(#{$name}-active-hover-bg) !important;
+				}
+
+				.#{getClassName(helper)}:hover {
+					background-color: getVar(#{$name}-active-hover-bg) !important;
+				}
+			}
+
+			&:hover,
+			&.active {
+				.#{getClassName(color-icon)} {
+					@include margin(px, $right: -1);
+				}
+
+				.#{getClassName(icon-button)} {
+					@include padding(px, $left: 1);
+				}
+
+				.#{getClassName(icon-button)},
+				.#{getClassName(color-icon)} {
+					@include border(
+						getVar(#{$name}-select-border),
+						getVar(#{$name}-select-border),
+						getVar(#{$name}-select-border)
+					);
+				}
+
+				.#{getClassName(helper)} {
+					@include border(
+						getVar(#{$name}-select-border),
+						$bottom: getVar(#{$name}-select-border),
+						$left: getVar(#{$name}-select-border)
+					);
+				}
+
+				.#{getClassName(color-icon)} + .#{getClassName(helper)} {
+					@include padding(null, $left: calc(0.25rem - 1px));
+				}
+
+				.#{getClassName(icon-button)} + .#{getClassName(helper)} {
+					@include margin(px, $left: -1);
+					@include padding(null, $left: 0.25rem);
+				}
+			}
+		}
+
+		&[disabled] {
+			@include font($color: getVar(#{$name}-disabled-font));
+			@include all-border(getVar(#{$name}-disabled-border));
+			background-color: getVar(#{$name}-disabled-bg);
+
+			svg {
+				fill: getVar(#{$name}-disabled-icon-fill);
+			}
+		}
+	}
+}

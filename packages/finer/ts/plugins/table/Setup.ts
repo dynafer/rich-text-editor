@@ -1,7 +1,6 @@
 import { Arr } from '@dynafer/utils';
 import Editor from '../../packages/Editor';
 import RegisterCommands from './format/Commands';
-import UI from './UI';
 import Table from './ui/Table';
 import TableMenu from './ui/TableMenu';
 
@@ -11,11 +10,9 @@ const Setup = (editor: Editor) => {
 	const toolsManager = self.Tools.DOM.Manager;
 	const formatUtils = self.Formatter.Utils;
 
-	const ui = UI(self);
-
 	const formatNames = ['Table'];
 
-	const parts = TableMenu(self, ui);
+	const parts = TableMenu(self);
 	toolsManager.Attach({
 		name: 'table',
 		partAttachers: [parts.Create],
@@ -27,7 +24,7 @@ const Setup = (editor: Editor) => {
 		switch (uiName) {
 			case formatNames[0]:
 				RegisterCommands(self);
-				Table(self, ui);
+				Table(self);
 				break;
 		}
 	};

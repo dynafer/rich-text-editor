@@ -34,10 +34,10 @@ const StyleFormat = (editor: Editor, detector: IFormatDetector): IFormatUIRegist
 	const StyleFormats: Record<string, IStyleFormatUI> = {
 		Alignment: {
 			Items: [
-				{ Format: Formats.Justify as IStyleFormat, Title: Finer.ILC.Get('format.alignJustify') ?? 'Justify', CommandName: 'Justify', Icon: 'AlignJustify', bDetector: true },
-				{ Format: Formats.AlignLeft as IStyleFormat[], Title: Finer.ILC.Get('format.alignLeft') ?? 'Align left', CommandName: 'AlignLeft', Icon: 'AlignLeft', bDetector: true },
-				{ Format: Formats.AlignCenter as IStyleFormat[], Title: Finer.ILC.Get('format.alignCenter') ?? 'Align center', CommandName: 'AlignCenter', Icon: 'AlignCenter', bDetector: true },
-				{ Format: Formats.AlignRight as IStyleFormat[], Title: Finer.ILC.Get('format.alignRight') ?? 'Align right', CommandName: 'AlignRight', Icon: 'AlignRight', bDetector: true },
+				{ Format: Formats.Justify as IStyleFormat, Title: Finer.ILC.Get('format.alignJustify', 'Justify'), CommandName: 'Justify', Icon: 'AlignJustify', bDetector: true },
+				{ Format: Formats.AlignLeft as IStyleFormat[], Title: Finer.ILC.Get('format.alignLeft', 'Align left'), CommandName: 'AlignLeft', Icon: 'AlignLeft', bDetector: true },
+				{ Format: Formats.AlignCenter as IStyleFormat[], Title: Finer.ILC.Get('format.alignCenter', 'Align center'), CommandName: 'AlignCenter', Icon: 'AlignCenter', bDetector: true },
+				{ Format: Formats.AlignRight as IStyleFormat[], Title: Finer.ILC.Get('format.alignRight', 'Align right'), CommandName: 'AlignRight', Icon: 'AlignRight', bDetector: true },
 			]
 		},
 		Indentation: {
@@ -47,14 +47,14 @@ const StyleFormat = (editor: Editor, detector: IFormatDetector): IFormatUIRegist
 			Items: [
 				{
 					Format: Formats.Outdent as IStyleFormat,
-					Title: Finer.ILC.Get('format.Outdent') ?? 'Outdent',
+					Title: Finer.ILC.Get('format.Outdent', 'Outdent'),
 					CommandName: 'Outdent',
 					Icon: 'Outdent',
 					bDetector: true,
 					bSubtract: true,
 					Keys: 'Shift+Tab'
 				},
-				{ Format: Formats.Indent as IStyleFormat, Title: Finer.ILC.Get('format.Indent') ?? 'Indent', CommandName: 'Indent', Icon: 'Indent', bDetector: false, Keys: 'Tab' },
+				{ Format: Formats.Indent as IStyleFormat, Title: Finer.ILC.Get('format.Indent', 'Indent'), CommandName: 'Indent', Icon: 'Indent', bDetector: false, Keys: 'Tab' },
 			]
 		}
 	};

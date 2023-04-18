@@ -7,7 +7,7 @@ const HorizontalLine = (editor: Editor) => {
 	const self = editor;
 
 	const Name = 'HorizontalLine';
-	const title = Finer.ILC.Get('toolbar.horizontal.line') ?? 'Horizontal Line';
+	const title = Finer.ILC.Get('toolbar.horizontal.line', 'Horizontal Line');
 
 	const createLine = (): HTMLElement => {
 		const figure = DOM.Element.Figure.Create('hr');

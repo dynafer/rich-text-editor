@@ -10,7 +10,7 @@ const NumberList = (editor: Editor, ui: IPluginListUI) => {
 	const uiName = 'NumberList';
 	const uiFormat: IPluginListFormatUI = {
 		Format: { Tag: 'ol', Switchable: blockFormats.List, Following: listSelector, UnsetSwitcher: 'p' },
-		Title: Finer.ILC.Get('plugins.lists.number') ?? 'Numbered List',
+		Title: Finer.ILC.Get('plugins.lists.number', 'Numbered List'),
 		Icon: 'OrderedList'
 	};
 

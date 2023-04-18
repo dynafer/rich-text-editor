@@ -33,9 +33,23 @@ export interface IFormatUIInputWrapOptions {
 	};
 }
 
+export interface IFormatUIIconWrapSet {
+	readonly Wrapper: HTMLElement,
+	readonly Button: HTMLElement,
+	readonly Helper: HTMLElement,
+}
+
 export interface IFormatUIInputWrapWithOptionList {
 	readonly OptionWrapper: HTMLElement,
 	readonly Input: HTMLInputElement,
+}
+
+export interface IFormatUIBindOptionList {
+	type: string,
+	activable: HTMLElement,
+	clickable: HTMLElement,
+	create: () => void,
+	root?: HTMLElement,
 }
 
 export interface IFormatUI {
@@ -51,14 +65,16 @@ export interface IFormatUI {
 	CreateIconGroup: () => HTMLElement,
 	CreateIconWrap: (title: string) => HTMLElement,
 	CreateHelper: (title: string) => HTMLElement,
+	CreateIconWrapSet: (title: string, icon: string) => IFormatUIIconWrapSet,
 	CreateInputWrap: (placeholder?: string) => IFormatUIInputWrap,
 	CreateInputWrapWithOptionList: (opts: IFormatUIInputWrapOptions) => IFormatUIInputWrapWithOptionList,
 	ToggleActivateClass: (selector: HTMLElement, bActive: boolean) => void,
 	HasActiveClass: (selector: HTMLElement) => boolean,
 	ToggleDisable: (selector: HTMLElement, bDisable: boolean) => void,
 	IsDisabled: (selector: HTMLElement) => boolean,
-	BindOptionListEvent: (editor: Editor, type: string, activable: HTMLElement, clickable: HTMLElement, create: () => void) => void,
+	BindOptionListEvent: (editor: Editor, opts: IFormatUIBindOptionList) => void,
 	SetOptionListCoordinate: (editor: Editor, name: string, selection: HTMLElement, optionList: HTMLElement) => void,
+	SetOptionListInToolsMenuCoordinate: (editor: Editor, selection: HTMLElement, optionList: HTMLElement) => void,
 	BindClickEvent: (selector: HTMLElement, callback: () => void) => void,
 	UnwrapSameInlineFormats: (editor: Editor, formats: IInlineFormat | IInlineFormat[]) => void,
 	RegisterCommand: (editor: Editor, name: string, command: (...args: never[]) => void) => void,
@@ -159,6 +175,20 @@ const FormatUI = (): IFormatUI => {
 		type: 'helper',
 		html: Finer.Icons.Get('AngleDown')
 	});
+
+	const CreateIconWrapSet = (title: string, icon: string): IFormatUIIconWrapSet => {
+		const Wrapper = CreateIconWrap(title);
+		const Button = CreateIconButton(title, icon);
+		const Helper = CreateHelper(title);
+
+		DOM.Insert(Wrapper, Button, Helper);
+
+		return {
+			Wrapper,
+			Button,
+			Helper,
+		};
+	};
 
 	const CreateInputWrap = (placeholder: string = ''): IFormatUIInputWrap => {
 		const Wrapper = Create({
@@ -275,12 +305,14 @@ const FormatUI = (): IFormatUI => {
 	const IsDisabled = (selector: HTMLElement): boolean =>
 		DOM.HasAttr(selector, DISABLED_ATTRIBUTE) || DOM.HasAttr(selector.parentElement, DISABLED_ATTRIBUTE);
 
-	const BindOptionListEvent = (editor: Editor, type: string, activable: HTMLElement, clickable: HTMLElement, create: () => void) => {
+	const BindOptionListEvent = (editor: Editor, opts: IFormatUIBindOptionList) => {
 		const self = editor;
+
+		const { type, activable, clickable, create, root } = opts;
 
 		const selectOptionList = (): Element | null => DOM.Select({
 			class: DOM.Utils.CreateUEID('options', false)
-		}, self.Frame.Root);
+		}, root ?? self.Frame.Root);
 		const hasTypeAttribute = (): boolean => !!selectOptionList() && DOM.GetAttr(selectOptionList(), 'data-type') === type;
 		const toggleEvents = (bOn: boolean, event: () => void) => {
 			Arr.Each(optionsActivableList, activableItem => ToggleActivateClass(activableItem, false));
@@ -338,6 +370,39 @@ const FormatUI = (): IFormatUI => {
 			left: `${x}px`,
 			top: `${y}px`
 		});
+	};
+
+	const SetOptionListInToolsMenuCoordinate = (editor: Editor, selection: HTMLElement, optionList: HTMLElement) => {
+		const self = editor;
+
+		const newStyles: Record<string, string> = {};
+
+		const selectionRect = DOM.GetRect(selection);
+		const rect = DOM.GetRect(optionList);
+		if (!selectionRect || !rect) return;
+
+		const group = selection.parentElement ?? selection;
+		const addableTop = Str.Contains(DOM.GetAttr(group, 'class') ?? '', 'group') ? group.offsetTop : 0;
+		const addableLeft = Str.Contains(DOM.GetAttr(group, 'class') ?? '', 'group') ? group.offsetLeft : 0;
+
+		const helper = DOM.Select<HTMLElement>({
+			class: DOM.Utils.CreateUEID('helper', false)
+		}, selection);
+
+		const helperLeft = helper?.offsetLeft ?? 0;
+		const helperWidth = helper?.offsetWidth ?? 0;
+
+		if (selectionRect.right + rect.width >= self.GetWin().innerWidth)
+			newStyles.left = `${selectionRect.width - rect.width + helperLeft + helperWidth}px`;
+		else
+			newStyles.left = `${addableLeft + helperLeft}px`;
+
+		if (selectionRect.bottom + rect.height + parseInt(DOM.GetStyle(self.DOM.Doc.body, 'margin-top', true)) >= self.GetWin().innerHeight)
+			newStyles.top = `${addableTop + selection.offsetTop - optionList.offsetHeight}px`;
+		else
+			newStyles.top = `${addableTop + selection.offsetTop + selection.offsetHeight}px`;
+
+		DOM.SetStyles(optionList, newStyles);
 	};
 
 	const BindClickEvent = (selector: HTMLElement, callback: () => void) =>
@@ -437,6 +502,7 @@ const FormatUI = (): IFormatUI => {
 		CreateIconGroup,
 		CreateIconWrap,
 		CreateHelper,
+		CreateIconWrapSet,
 		CreateInputWrap,
 		CreateInputWrapWithOptionList,
 		ToggleActivateClass,
@@ -445,6 +511,7 @@ const FormatUI = (): IFormatUI => {
 		IsDisabled,
 		BindOptionListEvent,
 		SetOptionListCoordinate,
+		SetOptionListInToolsMenuCoordinate,
 		BindClickEvent,
 		UnwrapSameInlineFormats,
 		RegisterCommand,

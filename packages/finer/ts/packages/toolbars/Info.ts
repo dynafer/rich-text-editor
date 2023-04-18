@@ -9,7 +9,7 @@ const Info = (editor: Editor) => {
 	const self = editor;
 
 	const Name = 'Info';
-	const title = Finer.ILC.Get('toolbar.info') ?? 'Information';
+	const title = Finer.ILC.Get('toolbar.info', 'Information');
 
 	const icons = {
 		Check: Finer.Icons.Get('Check'),
@@ -24,7 +24,7 @@ const Info = (editor: Editor) => {
 			Elements: [name],
 		});
 
-		const shortcuts = sketch(Finer.ILC.Get('toolbar.shortcuts') ?? 'Shortcuts', true);
+		const shortcuts = sketch(Finer.ILC.Get('toolbar.shortcuts', 'Shortcuts'), true);
 
 		shortcuts.Bind(ENativeEvents.click, event => {
 			PreventEvent(event);
@@ -75,7 +75,7 @@ const Info = (editor: Editor) => {
 			Attributes: {
 				type: 'button'
 			},
-			Elements: [Str.Merge(icons.Check, Finer.ILC.Get('confirm') ?? 'Confirm')],
+			Elements: [Str.Merge(icons.Check, Finer.ILC.Get('confirm', 'Confirm'))],
 			Events: [
 				['click', exit]
 			]

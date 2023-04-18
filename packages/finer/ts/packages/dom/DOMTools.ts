@@ -3,7 +3,7 @@ import Options from '../../Options';
 import Editor from '../Editor';
 import DefaultParts from './tools/DefaultParts';
 import ToolsManager, { IToolsManager } from './tools/ToolsManager';
-import { ADDABLE_TOOLS_MENU_TOP, ChangeAllPositions } from './tools/Utils';
+import { ADDABLE_TOOLS_MENU_TOP, ChangeAllPositions, ChangeToolsMenuOptionList } from './tools/Utils';
 
 export interface IDOMTools {
 	readonly Manager: IToolsManager,
@@ -38,6 +38,8 @@ const DOMTools = (editor: Editor): IDOMTools => {
 				: `${FigureElement.offsetTop - menu.offsetHeight - ADDABLE_TOOLS_MENU_TOP}px`;
 
 			DOM.SetStyle(menu, 'top', position);
+
+			ChangeToolsMenuOptionList(self, menu);
 		})
 	);
 

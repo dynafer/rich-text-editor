@@ -39,10 +39,12 @@ const TableStyles = (editor: Editor, format: IPluginTableCommand) => {
 		if (!caret) {
 			if (Arr.IsEmpty(cells)) return;
 			self.Utils.Caret.CleanRanges();
-			return DOM.Element.Table.ToggleSelectMultipleCells(true, cells);
+			DOM.Element.Table.ToggleSelectMultipleCells(true, cells);
+			return self.Utils.Shared.DispatchCaretChange();
 		}
 
 		self.Utils.Caret.UpdateRange(caret.Range.Clone());
+		self.Utils.Shared.DispatchCaretChange();
 	};
 
 	return {

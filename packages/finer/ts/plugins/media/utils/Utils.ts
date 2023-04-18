@@ -84,3 +84,5 @@ export const GetAllowedExtensions = (mimeTypes: string[], accept?: string | stri
 
 	return Str.Join(',', ...availableExtensions);
 };
+
+export const GetMenuText = (name: string, defaultText: string): string => Finer.ILC.Get(Str.Merge('plugins.tools.menu.', name), defaultText);

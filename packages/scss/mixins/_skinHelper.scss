@@ -1,0 +1,42 @@
+@mixin make-toolbar-item-variables($type: null, $bg, $border, $font, $icon, $lightBg: null) {
+	@if $type == null {
+		$type: '';
+	} @else {
+		$type: #{$type}-;
+	}
+
+	@if $lightBg != null {
+		#{getVarName(toolbar-item-#{$type}light-bg)}: $lightBg;
+	}
+
+	#{getVarName(toolbar-item-#{$type}bg)}: $bg;
+	#{getVarName(toolbar-item-#{$type}border)}: $border;
+	#{getVarName(toolbar-item-#{$type}font)}: $font;
+	#{getVarName(toolbar-item-#{$type}icon-fill)}: $icon;
+}
+
+@mixin make-button-variables($type: null, $bg, $border, $font, $icon) {
+	@if $type == null {
+		$type: '';
+	} @else {
+		$type: #{$type}-;
+	}
+
+	#{getVarName(button-#{$type}bg)}: $bg;
+	#{getVarName(button-#{$type}border)}: $border;
+	#{getVarName(button-#{$type}font)}: $font;
+	#{getVarName(button-#{$type}icon-fill)}: $icon;
+}
+
+@mixin make-tools-item-variables($type: null, $bg, $border, $font, $icon) {
+	@if $type == null {
+		$type: '';
+	} @else {
+		$type: #{$type}-;
+	}
+
+	#{getVarName(tools-menu-item-#{$type}bg)}: $bg;
+	#{getVarName(tools-menu-item-#{$type}border)}: $border;
+	#{getVarName(tools-menu-item-#{$type}font)}: $font;
+	#{getVarName(tools-menu-item-#{$type}icon-fill)}: $icon;
+}

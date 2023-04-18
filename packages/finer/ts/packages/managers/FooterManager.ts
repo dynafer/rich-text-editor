@@ -42,8 +42,8 @@ const FooterManager = (editor: Editor): IFooterManager | null => {
 	const navigation = create(navigationId);
 
 	const counter = create(counterId);
-	const wordCounterWrapper = createCounter(Finer.ILC.Get('counter.words') ?? 'Words', wordCounterId);
-	const totalCounterWrapper = createCounter(Finer.ILC.Get('counter.total') ?? 'Total', totalCounterId);
+	const wordCounterWrapper = createCounter(Finer.ILC.Get('counter.words', 'Words'), wordCounterId);
+	const totalCounterWrapper = createCounter(Finer.ILC.Get('counter.total', 'Total'), totalCounterId);
 	DOM.Insert(counter, wordCounterWrapper, totalCounterWrapper);
 
 	DOM.Insert(footer, navigation, counter);
@@ -57,7 +57,11 @@ const FooterManager = (editor: Editor): IFooterManager | null => {
 
 	const UpdateCounter = () => {
 		if (!regexBlockTags) regexBlockTags = new RegExp(`<\/?(${Str.Join('|', ...self.Formatter.Formats.AllBlockFormats)}).*?>`, 'g');
-		const texts = DOM.GetHTML(self.GetBody())
+		const clonedBody = DOM.Clone(self.GetBody(), true);
+		Arr.WhileShift(DOM.SelectAll({
+			attrs: { dataFixed: 'dom-tool' }
+		}, clonedBody), tools => DOM.Remove(tools));
+		const texts = DOM.GetHTML(clonedBody)
 			.replace(regexBlockTags, ' ')
 			.replace(/<\/?.*?>/g, '')
 			.replace(/\s{2,}/g, ' ')
