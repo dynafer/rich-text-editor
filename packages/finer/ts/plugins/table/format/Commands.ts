@@ -1,21 +1,22 @@
-import { Arr } from '@dynafer/utils';
+import { Arr, Obj } from '@dynafer/utils';
 import Editor from '../../../packages/Editor';
 import TableFormat from '../format/Table';
 import { IPluginTableCommand } from '../Type';
-import { COMMAND_NAMES_MAP } from '../Utils';
+import { COMMAND_NAMES_MAP, STYLE_COMMANDS } from '../Utils';
+import TableColumn from './TableColumn';
+import TableRow from './TableRow';
 import TableStyles from './TableStyles';
 
 const RegisterCommands = (editor: Editor) => {
 	const self = editor;
 	const DOM = self.DOM;
 
-	const styleCommands: IPluginTableCommand[] = [
-		{ Name: COMMAND_NAMES_MAP.FLOAT_LEFT, Styles: { float: 'left' }, SameStyles: ['margin-left', 'margin-right'], bAsText: true },
-		{ Name: COMMAND_NAMES_MAP.FLOAT_RIGHT, Styles: { float: 'right' }, SameStyles: ['margin-left', 'margin-right'], bAsText: true },
-		{ Name: COMMAND_NAMES_MAP.ALIGN_LEFT, Styles: { marginLeft: '0px', marginRight: 'auto' }, SameStyles: ['float'] },
-		{ Name: COMMAND_NAMES_MAP.ALIGN_CENTER, Styles: { marginLeft: 'auto', marginRight: 'auto' }, SameStyles: ['float'] },
-		{ Name: COMMAND_NAMES_MAP.ALIGN_RIGHT, Styles: { marginLeft: 'auto', marginRight: '0px' }, SameStyles: ['float'] },
-	];
+	const createCommand = (row: number, cell: number) => {
+		const tableFormat = TableFormat(self);
+		tableFormat.CreateFromCaret(row, cell);
+	};
+
+	const createRemoveCommand = (node: Node) => DOM.Element.Figure.Remove(self, node);
 
 	const createStyleCommand = (format: IPluginTableCommand) =>
 		(bActive: boolean, node: Node) => {
@@ -26,16 +27,28 @@ const RegisterCommands = (editor: Editor) => {
 			toggler.Toggle(bActive, FigureElement);
 		};
 
-	const createCommand = (row: number, cell: number) => {
-		const tableFormat = TableFormat(self);
-		tableFormat.CreateFromCaret(row, cell);
-	};
+	const createRowColumnCommand = (type: 'row' | 'column', key: string) => {
+		const formatterCreator = type === 'row' ? TableRow : TableColumn;
+		const formatter = formatterCreator(self);
 
-	const createRemoveCommand = (node: Node) => DOM.Element.Figure.Remove(self, node);
+		return (bAboveOrLeft: boolean) => {
+			switch (key) {
+				case 'INSERT':
+					return formatter.InsertFromCaret(bAboveOrLeft);
+				case 'SELECT':
+					return formatter.SelectFromCaret();
+				case 'DELETE':
+					return formatter.DeleteFromCaret();
+			}
+		};
+	};
 
 	self.Commander.Register(COMMAND_NAMES_MAP.TABLE_CREATE, createCommand);
 	self.Commander.Register(COMMAND_NAMES_MAP.TABLE_REMOVE, createRemoveCommand);
-	Arr.Each(styleCommands, command => self.Commander.Register(command.Name, createStyleCommand(command)));
+	Arr.Each(STYLE_COMMANDS, command => self.Commander.Register(command.Name, createStyleCommand(command)));
+
+	Obj.Entries(COMMAND_NAMES_MAP.ROW, (key, name) => self.Commander.Register(name, createRowColumnCommand('row', key)));
+	Obj.Entries(COMMAND_NAMES_MAP.COLUMN, (key, name) => self.Commander.Register(name, createRowColumnCommand('column', key)));
 };
 
 export default RegisterCommands;

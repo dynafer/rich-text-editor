@@ -1,7 +1,9 @@
+@import './ToolsMenu';
+
 @mixin dom-tools {
 	[data-fixed='dom-tool'] {
 		& {
-			z-index: 99999;
+			z-index: 9999;
 		}
 
 		[data-movable] {
@@ -11,7 +13,7 @@
 			@include square(calc(1rem - 6px));
 			@include height($line: 0);
 			cursor: move;
-			z-index: 99999;
+			z-index: 9999;
 
 			svg {
 				@include all-margin(0px);
@@ -44,7 +46,7 @@
 				[data-adjustable-line] {
 					@include position(absolute);
 					@include all-margin(0px);
-					z-index: 999999;
+					z-index: 99999;
 
 					&[data-adjusting] {
 						background-color: getVar(tools-default-color);
@@ -67,7 +69,7 @@
 					@include position(absolute);
 					@include all-margin(0px);
 					background-color: getVar(tools-default-color);
-					z-index: 999999;
+					z-index: 99999;
 				}
 
 				[data-adjustable-line='left'],
@@ -82,67 +84,6 @@
 			}
 		}
 
-		[data-tools-menu] {
-			@include position(absolute);
-			@include all-border(getVar(tools-menu-border));
-			@include round(getVar(tools-menu-radius));
-			@include all-padding(0.2rem);
-			@include flex(center, space-between);
-			@include height(1.6rem);
-			background-color: getVar(tools-menu-bg);
-			z-index: 99999;
-			gap: 0.5rem;
-
-			.#{getClassName(icon-group)} {
-				@include flex(center);
-
-				.#{getClassName(icon-button)} {
-					@include flex(center, $inline: true);
-					@include all-padding(0.2rem);
-					@include all-border(none);
-					@include font(getVar(tools-menu-item-font));
-					@include round(getVar(tools-menu-item-radius));
-					background-color: getVar(tools-menu-item-bg);
-					cursor: pointer;
-
-					svg {
-						@include square(1.2rem);
-						fill: getVar(tools-menu-item-icon-fill);
-					}
-
-					&[data-remove] {
-						&:hover {
-							background-color: getVar(tools-menu-item-remove-hover-bg);
-
-							svg {
-								fill: getVar(tools-menu-item-remove-hover-icon-fill);
-							}
-						}
-
-						svg {
-							fill: getVar(tools-menu-item-remove-icon-fill);
-						}
-					}
-
-					&:hover {
-						@include font(getVar(tools-menu-item-hover-font));
-						background-color: getVar(tools-menu-item-hover-bg);
-
-						svg {
-							fill: getVar(tools-menu-item-hover-icon-fill);
-						}
-					}
-
-					&.active {
-						@include font(getVar(tools-menu-item-active-font));
-						background-color: getVar(tools-menu-item-active-bg);
-
-						svg {
-							fill: getVar(tools-menu-item-active-icon-fill);
-						}
-					}
-				}
-			}
-		}
+		@include tools-menu;
 	}
 }

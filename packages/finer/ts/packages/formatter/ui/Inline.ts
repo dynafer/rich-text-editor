@@ -25,13 +25,13 @@ const Inline = (editor: Editor, detector: IFormatDetector): IFormatUIRegistryUni
 	const inlineFont = InlineFont(self, detector);
 
 	const InlineFormats: Record<string, IInlineFormatUI> = {
-		Bold: { Format: Formats.Bold as IInlineFormat[], Title: Finer.ILC.Get('format.bold') ?? 'Bold', CommandName: 'Bold', Icon: 'Bold', Keys: 'Ctrl+B' },
-		Italic: { Format: Formats.Italic as IInlineFormat[], Title: Finer.ILC.Get('format.italic') ?? 'Italic', CommandName: 'Italic', Icon: 'Italic', Keys: 'Ctrl+I' },
-		Strikethrough: { Format: Formats.Strikethrough as IInlineFormat[], Title: Finer.ILC.Get('format.strikethrough') ?? 'Strikethrough', CommandName: 'Strikethrough', Icon: 'Strikethrough' },
-		Subscript: { Format: Formats.Subscript as IInlineFormat, Title: Finer.ILC.Get('format.subscript') ?? 'Subscript', CommandName: 'Subscript', Icon: 'Subscript' },
-		Superscript: { Format: Formats.Superscript as IInlineFormat, Title: Finer.ILC.Get('format.superscript') ?? 'Superscript', CommandName: 'Superscript', Icon: 'Superscript' },
-		Underline: { Format: Formats.Underline as IInlineFormat[], Title: Finer.ILC.Get('format.underline') ?? 'Underline', CommandName: 'Underline', Icon: 'Underline', Keys: 'Ctrl+U' },
-		Code: { Format: Formats.Code as IInlineFormat, Title: Finer.ILC.Get('format.code') ?? 'Code', CommandName: 'Code', Icon: 'Code' },
+		Bold: { Format: Formats.Bold as IInlineFormat[], Title: Finer.ILC.Get('format.bold', 'Bold'), CommandName: 'Bold', Icon: 'Bold', Keys: 'Ctrl+B' },
+		Italic: { Format: Formats.Italic as IInlineFormat[], Title: Finer.ILC.Get('format.italic', 'Italic'), CommandName: 'Italic', Icon: 'Italic', Keys: 'Ctrl+I' },
+		Strikethrough: { Format: Formats.Strikethrough as IInlineFormat[], Title: Finer.ILC.Get('format.strikethrough', 'Strikethrough'), CommandName: 'Strikethrough', Icon: 'Strikethrough' },
+		Subscript: { Format: Formats.Subscript as IInlineFormat, Title: Finer.ILC.Get('format.subscript', 'Subscript'), CommandName: 'Subscript', Icon: 'Subscript' },
+		Superscript: { Format: Formats.Superscript as IInlineFormat, Title: Finer.ILC.Get('format.superscript', 'Superscript'), CommandName: 'Superscript', Icon: 'Superscript' },
+		Underline: { Format: Formats.Underline as IInlineFormat[], Title: Finer.ILC.Get('format.underline', 'Underline'), CommandName: 'Underline', Icon: 'Underline', Keys: 'Ctrl+U' },
+		Code: { Format: Formats.Code as IInlineFormat, Title: Finer.ILC.Get('format.code', 'Code'), CommandName: 'Code', Icon: 'Code' },
 	};
 
 	const UINames = Obj.Keys(InlineFormats);

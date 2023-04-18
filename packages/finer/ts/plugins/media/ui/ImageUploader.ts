@@ -17,7 +17,7 @@ const ImageUploader = (editor: Editor, ui: IPluginMediaUI) => {
 
 	const uiName = 'Image';
 	const uiFormat: IPluginsMediaFormatUI = {
-		Title: Finer.ILC.Get('plugins.media.image.title') ?? 'Insert/Upload an image',
+		Title: Finer.ILC.Get('plugins.media.image.title', 'Insert/Upload an image'),
 		Icon: 'Image'
 	};
 
@@ -71,8 +71,8 @@ const ImageUploader = (editor: Editor, ui: IPluginMediaUI) => {
 				self.Commander.Run(COMMAND_NAMES_MAP.IMAGE_REMOVE, figureElement);
 			};
 
-			const placeholderUpdate = Finer.ILC.Get('plugins.media.image.update') ?? 'Update the image URL';
-			const placeholderInsert = Finer.ILC.Get('plugins.media.image.insert') ?? 'Insert an image via URL';
+			const placeholderUpdate = Finer.ILC.Get('plugins.media.image.update', 'Update the image URL');
+			const placeholderInsert = Finer.ILC.Get('plugins.media.image.insert', 'Insert an image via URL');
 
 			const { OptionWrapper, Input } = formatUI.CreateInputWrapWithOptionList({
 				uiName,
@@ -82,10 +82,10 @@ const ImageUploader = (editor: Editor, ui: IPluginMediaUI) => {
 				src: bUpdatable ? figureElement.src : undefined,
 				texts: {
 					placeholder: bUpdatable ? placeholderUpdate : placeholderInsert,
-					cancel: Finer.ILC.Get('cancel') ?? 'Cancel',
-					insert: Finer.ILC.Get('insert') ?? 'Insert',
-					update: Finer.ILC.Get('update') ?? 'Update',
-					remove: Finer.ILC.Get('remove') ?? 'Remove',
+					cancel: Finer.ILC.Get('cancel', 'Cancel'),
+					insert: Finer.ILC.Get('insert', 'Insert'),
+					update: Finer.ILC.Get('update', 'Update'),
+					remove: Finer.ILC.Get('remove', 'Remove'),
 				}
 			});
 
@@ -100,7 +100,12 @@ const ImageUploader = (editor: Editor, ui: IPluginMediaUI) => {
 		self.GetBody().click();
 		fileInput.click();
 	}, iconWrap.Button);
-	formatUI.BindOptionListEvent(self, uiName, iconWrap.Wrapper, iconWrap.Helper, createOptionList(iconWrap.Wrapper));
+	formatUI.BindOptionListEvent(self, {
+		type: uiName,
+		activable: iconWrap.Wrapper,
+		clickable: iconWrap.Helper,
+		create: createOptionList(iconWrap.Wrapper)
+	});
 
 	self.Toolbar.Add(uiName, iconWrap.Wrapper);
 };

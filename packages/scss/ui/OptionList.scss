@@ -1,19 +1,11 @@
-.#{$projectName} {
-	.#{getClassName(options)} {
-		@include position(absolute);
-		@include width(fit-content, $min: getVar(toolbar-item-option-min-width));
-		@include margin($top: -1);
-		@include round(getVar(toolbar-item-option-radius));
-		@include all-border(getVar(toolbar-item-option-border));
-		box-shadow: 4px 4px 24px -3px rgba(0, 0, 0, 0.75);
-		user-select: none;
-		background-color: getVar(toolbar-item-option-bg);
-		z-index: 9999;
+@import '../mixins/_optionList';
 
-		.#{getClassName(option-item)} {
-			list-style: none;
-			white-space: nowrap;
-		}
+.#{$projectName} {
+	@include option-list(toolbar-item-option);
+
+	.#{getClassName(options)} {
+		@include width($min: getVar(toolbar-item-option-min-width));
+		z-index: 9999;
 
 		&[table='true'] {
 			& > .#{getClassName(item-group)} {
@@ -207,18 +199,9 @@
 		}
 
 		&:not([palette='true'], [table='true'], [url-input='true']) {
+			@include option-selection(toolbar-item, toolbar-item);
+
 			.#{getClassName(option-item)} {
-				@include flex(center, space-between);
-				@include height($min: 2.4rem);
-				@include all-padding(0 getVar(toolbar-item-option-padding));
-				@include all-border(getVar(toolbar-item-border));
-				@include font($color: getVar(toolbar-item-font));
-				cursor: pointer;
-
-				:not(svg) {
-					@include all-margin(unset);
-				}
-
 				h1 {
 					@include font(1.4rem);
 				}
@@ -239,9 +222,6 @@
 
 				&:focus,
 				&.active {
-					@include font($color: getVar(toolbar-item-active-font));
-					background-color: getVar(toolbar-item-active-bg);
-
 					svg {
 						@include font($color: getVar(toolbar-item-active-font));
 						fill: getVar(toolbar-item-active-icon-fill);
@@ -249,29 +229,21 @@
 					}
 
 					&:hover {
-						@include font($color: getVar(toolbar-item-active-hover-font));
-						background-color: getVar(toolbar-item-active-hover-bg);
-					}
-
-					svg {
-						@include font($color: getVar(toolbar-item-active-hover-font));
-						fill: getVar(toolbar-item-active-hover-icon-fill);
+						svg {
+							@include font($color: getVar(toolbar-item-active-hover-font));
+							fill: getVar(toolbar-item-active-hover-icon-fill);
+						}
 					}
 				}
 
 				&:not(.active) svg {
-					fill: transparent;
+					fill: transparent !important;
 				}
 
 				&:hover {
-					@include all-border(getVar(toolbar-item-hover-border));
-					@include font($color: getVar(toolbar-item-hover-font));
-					background-color: getVar(toolbar-item-hover-bg);
-					fill: getVar(toolbar-item-hover-icon-fill);
-				}
-
-				&:not(:first-child) {
-					@include margin(px, -1);
+					svg {
+						fill: getVar(toolbar-item-hover-icon-fill);
+					}
 				}
 			}
 		}

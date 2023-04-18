@@ -3,7 +3,7 @@ import { IDOMToolsPartAttacher } from '../../../packages/dom/tools/Types';
 import Editor from '../../../packages/Editor';
 import { IPluginMediaUI } from '../UI';
 import { IPluginMediaMenuFormatUI } from '../utils/Type';
-import { COMMAND_NAMES_MAP } from '../utils/Utils';
+import { COMMAND_NAMES_MAP, GetMenuText } from '../utils/Utils';
 
 export interface IMediaMenu {
 	Create: IDOMToolsPartAttacher,
@@ -13,24 +13,15 @@ const MediaMenu = (editor: Editor, ui: IPluginMediaUI): IMediaMenu => {
 	const self = editor;
 	const DOM = self.DOM;
 
-	const floatLeft = Finer.ILC.Get('plugins.tools.menu.floatLeft') ?? 'Align left with text wrapping';
-	const floatRight = Finer.ILC.Get('plugins.tools.menu.floatRight') ?? 'Align right with text wrapping';
-
-	const alignLeft = Finer.ILC.Get('plugins.tools.menu.alignLeft') ?? 'Align left with text break';
-	const alignCenter = Finer.ILC.Get('plugins.tools.menu.alignCenter') ?? 'Align center with text break';
-	const alignRight = Finer.ILC.Get('plugins.tools.menu.alignRight') ?? 'Align right with text break';
-
-	const removeFigure = Finer.ILC.Get('plugins.tools.menu.remove.figure') ?? 'Remove the figure';
-
 	const uiFormats: Record<string, IPluginMediaMenuFormatUI[]> = {
 		Float: [
-			{ Title: floatLeft, CommandName: COMMAND_NAMES_MAP.FLOAT_LEFT, Icon: 'MediaFloatLeft' },
-			{ Title: floatRight, CommandName: COMMAND_NAMES_MAP.FLOAT_RIGHT, Icon: 'MediaFloatRight' },
+			{ Title: GetMenuText('floatLeft', 'Align left with text wrapping'), CommandName: COMMAND_NAMES_MAP.FLOAT_LEFT, Icon: 'MediaFloatLeft' },
+			{ Title: GetMenuText('floatRight', 'Align right with text wrapping'), CommandName: COMMAND_NAMES_MAP.FLOAT_RIGHT, Icon: 'MediaFloatRight' },
 		],
 		Alignment: [
-			{ Title: alignLeft, CommandName: COMMAND_NAMES_MAP.ALIGN_LEFT, Icon: 'MediaAlignLeft' },
-			{ Title: alignCenter, CommandName: COMMAND_NAMES_MAP.ALIGN_CENTER, Icon: 'MediaAlignCenter' },
-			{ Title: alignRight, CommandName: COMMAND_NAMES_MAP.ALIGN_RIGHT, Icon: 'MediaAlignRight' },
+			{ Title: GetMenuText('alignLeft', 'Align left with text break'), CommandName: COMMAND_NAMES_MAP.ALIGN_LEFT, Icon: 'MediaAlignLeft' },
+			{ Title: GetMenuText('alignCenter', 'Align center with text break'), CommandName: COMMAND_NAMES_MAP.ALIGN_CENTER, Icon: 'MediaAlignCenter' },
+			{ Title: GetMenuText('alignRight', 'Align right with text break'), CommandName: COMMAND_NAMES_MAP.ALIGN_RIGHT, Icon: 'MediaAlignRight' },
 		]
 	};
 
@@ -79,7 +70,7 @@ const MediaMenu = (editor: Editor, ui: IPluginMediaUI): IMediaMenu => {
 		const button = DOM.Create('button', {
 			attrs: [
 				'data-remove',
-				{ title: removeFigure }
+				{ title: GetMenuText('remove.figure', 'Remove the figure') }
 			],
 			class: DOM.Utils.CreateUEID('icon-button', false),
 			html: Finer.Icons.Get(Finer.Icons.Get('Trash'))

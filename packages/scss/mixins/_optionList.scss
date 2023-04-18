@@ -1,0 +1,53 @@
+@mixin option-list($name) {
+	.#{getClassName(options)} {
+		@include position(absolute);
+		@include width(fit-content);
+		@include margin($top: -1);
+		@include all-border(getVar(#{$name}-border));
+		@include round(getVar(#{$name}-radius));
+		box-shadow: 4px 4px 24px -3px rgba(0, 0, 0, 0.75);
+		user-select: none;
+		background-color: getVar(#{$name}-bg);
+
+		.#{getClassName(option-item)} {
+			list-style: none;
+			white-space: nowrap;
+		}
+	}
+}
+
+@mixin option-selection($parentName, $name) {
+	.#{getClassName(option-item)} {
+		@include flex(center, space-between);
+		@include height($min: 2.4rem);
+		@include all-border(getVar(#{$parentName}-border));
+		@include all-padding(0 getVar(#{$name}-option-padding));
+		@include font($color: getVar(#{$parentName}-font));
+		cursor: pointer;
+
+		:not(svg) {
+			@include all-margin(unset);
+		}
+
+		&:focus,
+		&.active {
+			@include font($color: getVar(#{$name}-active-font));
+			background-color: getVar(#{$name}-active-bg);
+
+			&:hover {
+				@include font($color: getVar(#{$name}-active-hover-font));
+				background-color: getVar(#{$name}-active-hover-bg);
+			}
+		}
+
+		&:hover {
+			@include all-border(getVar(#{$name}-hover-border));
+			@include font($color: getVar(#{$name}-hover-font));
+			background-color: getVar(#{$name}-hover-bg);
+		}
+
+		&:not(:first-child) {
+			@include margin(px, -1);
+		}
+	}
+}

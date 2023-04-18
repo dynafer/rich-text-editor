@@ -1,10 +1,9 @@
 import { Arr } from '@dynafer/utils';
 import Editor from '../../../packages/Editor';
 import { IPluginsTableFormatUI } from '../Type';
-import { IPluginTableUI } from '../UI';
 import { COMMAND_NAMES_MAP } from '../Utils';
 
-const Table = (editor: Editor, ui: IPluginTableUI) => {
+const Table = (editor: Editor) => {
 	const self = editor;
 	const DOM = self.GetRootDOM();
 	const formatter = self.Formatter;
@@ -13,7 +12,7 @@ const Table = (editor: Editor, ui: IPluginTableUI) => {
 	const uiName = 'Table';
 	const uiFormat: IPluginsTableFormatUI = {
 		Format: { Tag: DOM.Element.Table.Selector },
-		Title: Finer.ILC.Get('plugins.table.title') ?? 'Create a table',
+		Title: Finer.ILC.Get('plugins.table.title', 'Create a table'),
 		Icon: 'Table'
 	};
 
@@ -106,11 +105,16 @@ const Table = (editor: Editor, ui: IPluginTableUI) => {
 			formatUI.SetOptionListCoordinate(self, uiName, wrapper, tableList);
 		};
 
-	const iconWrap = ui.CreateIconWrap(uiFormat);
+	const iconWrap = formatUI.CreateIconWrapSet(uiFormat.Title, uiFormat.Icon);
 
 	DOM.SetAttr(iconWrap.Wrapper, 'no-border');
 
-	formatUI.BindOptionListEvent(self, uiName, iconWrap.Wrapper, iconWrap.Wrapper, createOptionList(iconWrap.Wrapper));
+	formatUI.BindOptionListEvent(self, {
+		type: uiName,
+		activable: iconWrap.Wrapper,
+		clickable: iconWrap.Wrapper,
+		create: createOptionList(iconWrap.Wrapper)
+	});
 
 	self.Toolbar.Add(uiName, iconWrap.Wrapper);
 };

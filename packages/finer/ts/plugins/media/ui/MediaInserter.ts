@@ -11,7 +11,7 @@ const MediaInserter = (editor: Editor, ui: IPluginMediaUI) => {
 
 	const uiName = 'Media';
 	const uiFormat: IPluginsMediaFormatUI = {
-		Title: Finer.ILC.Get('plugins.media.title') ?? 'Insert/Edit a media',
+		Title: Finer.ILC.Get('plugins.media.title', 'Insert/Edit a media'),
 		Icon: 'Media'
 	};
 
@@ -31,8 +31,8 @@ const MediaInserter = (editor: Editor, ui: IPluginMediaUI) => {
 				self.Commander.Run(COMMAND_NAMES_MAP.MEDIA_REMOVE, figure);
 			};
 
-			const placeholderUpdate = Finer.ILC.Get('plugins.media.update') ?? 'Update the media URL';
-			const placeholderInsert = Finer.ILC.Get('plugins.media.insert') ?? 'Insert a media via URL';
+			const placeholderUpdate = Finer.ILC.Get('plugins.media.update', 'Update the media URL');
+			const placeholderInsert = Finer.ILC.Get('plugins.media.insert', 'Insert a media via URL');
 
 			const { OptionWrapper, Input } = formatUI.CreateInputWrapWithOptionList({
 				uiName,
@@ -42,10 +42,10 @@ const MediaInserter = (editor: Editor, ui: IPluginMediaUI) => {
 				src: bUpdatable ? figureElement.src : undefined,
 				texts: {
 					placeholder: bUpdatable ? placeholderUpdate : placeholderInsert,
-					cancel: Finer.ILC.Get('cancel') ?? 'Cancel',
-					insert: Finer.ILC.Get('insert') ?? 'Insert',
-					update: Finer.ILC.Get('update') ?? 'Update',
-					remove: Finer.ILC.Get('remove') ?? 'Remove',
+					cancel: Finer.ILC.Get('cancel', 'Cancel'),
+					insert: Finer.ILC.Get('insert', 'Insert'),
+					update: Finer.ILC.Get('update', 'Update'),
+					remove: Finer.ILC.Get('remove', 'Remove'),
 				}
 			});
 
@@ -58,7 +58,12 @@ const MediaInserter = (editor: Editor, ui: IPluginMediaUI) => {
 
 	DOM.SetAttr(iconWrap.Wrapper, 'no-border');
 
-	formatUI.BindOptionListEvent(self, uiName, iconWrap.Wrapper, iconWrap.Wrapper, createOptionList(iconWrap.Wrapper));
+	formatUI.BindOptionListEvent(self, {
+		type: uiName,
+		activable: iconWrap.Wrapper,
+		clickable: iconWrap.Wrapper,
+		create: createOptionList(iconWrap.Wrapper)
+	});
 
 	self.Toolbar.Add(uiName, iconWrap.Wrapper);
 };
