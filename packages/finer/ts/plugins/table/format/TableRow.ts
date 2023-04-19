@@ -73,7 +73,41 @@ const TableRow = (editor: Editor) => {
 	};
 
 	const InsertFromCaret = (bAbove: boolean) => {
-		// FIX ME:: insert rows
+		const caret = CaretUtils.Get();
+		const { rows, table, tableGrid } = getRowsWithGrid(caret ?? DOM.Element.Table.GetSelectedCells(self));
+		if (!rows || Arr.IsEmpty(rows) || !tableGrid || !table || !CanDeleteRowColumn(self, 'row', table)) return;
+
+		const copiedRange = caret?.Range.Clone();
+
+		const { Grid, TargetCellRowIndex, TargetCellIndex } = tableGrid;
+
+		let targetRow = DOM.Element.Table.GetClosestRow(Grid[TargetCellRowIndex][TargetCellIndex]);
+		if (!bAbove && !caret) {
+			for (let index = TargetCellRowIndex, length = Grid.length; index < length; ++index) {
+				const cell = Grid[index][TargetCellIndex] ?? null;
+				const row = DOM.Element.Table.GetClosestRow(cell);
+				if (!row || !Arr.Contains(rows, row) || index === length - 1) {
+					targetRow = row;
+					break;
+				}
+			}
+		}
+
+		const insert = bAbove ? DOM.InsertBefore : DOM.InsertAfter;
+
+		const newRow = DOM.Create(DOM.Element.Table.RowSelector);
+		for (let index = 0, length = Grid[0].length; index < length; ++index) {
+			const newColumn = DOM.Create('td', {
+				children: [self.CreateEmptyParagraph()]
+			});
+
+			DOM.Insert(newRow, newColumn);
+		}
+
+		insert(targetRow, newRow);
+
+		if (caret && copiedRange) CaretUtils.UpdateRange(copiedRange);
+		self.Utils.Shared.DispatchCaretChange();
 	};
 
 	const SelectFromCaret = () => {
