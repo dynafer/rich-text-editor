@@ -21,19 +21,19 @@ export interface ITable {
 	readonly RowSelector: string,
 	readonly CellSet: Set<string>,
 	readonly CellSelector: string,
-	Find: (from: EventTarget | Node) => IFoundTable,
-	GetAllOwnRows: (table: Element) => HTMLTableRowElement[],
-	GetAllOwnCells: (table: Node, row?: Element) => HTMLTableCellElement[],
-	GetSelectedCells: (editor: Editor, table?: Element, bSelected?: true | boolean) => HTMLTableCellElement[],
-	ToggleSelectCell: (bSelected: boolean, cell: Element) => void,
-	ToggleSelectMultipleCells: (bSelected: boolean, cells: Element[]) => void,
-	GetGridWithIndex: (table: Element, targetCell?: Element) => ITableGrid,
 	IsTable: <T extends Node>(selector?: T | EventTarget | null) => boolean,
 	IsTableRow: <T extends Node>(selector?: T | EventTarget | null) => boolean,
 	IsTableCell: <T extends Node>(selector?: T | EventTarget | null) => boolean,
 	GetClosest: <T extends Node>(selector?: T | EventTarget | null) => HTMLTableElement | T | null,
 	GetClosestRow: <T extends Node>(selector?: T | EventTarget | null) => HTMLTableRowElement | T | null,
 	GetClosestCell: <T extends Node>(selector?: T | EventTarget | null) => HTMLTableCellElement | T | null,
+	Find: (from: EventTarget | Node) => IFoundTable,
+	GetAllOwnRows: (table: Element) => HTMLTableRowElement[],
+	GetAllOwnCells: (tableOrRow: Node) => HTMLTableCellElement[],
+	GetSelectedCells: (editor: Editor, table?: Element, bSelected?: true | boolean) => HTMLTableCellElement[],
+	ToggleSelectCell: (bSelected: boolean, cell: Element) => void,
+	ToggleSelectMultipleCells: (bSelected: boolean, cells: Element[]) => void,
+	GetGridWithIndex: (table: Element, targetCell?: Element) => ITableGrid,
 }
 
 const Table = (): ITable => {
@@ -41,6 +41,24 @@ const Table = (): ITable => {
 	const RowSelector = 'tr';
 	const CellSet = new Set(['th', 'td']);
 	const CellSelector = Str.Join(',', ...CellSet);
+
+	const IsTable = <T extends Node>(selector?: T | EventTarget | null): boolean =>
+		!NodeType.IsNode(selector) ? false : DOMUtils.GetNodeName(selector) === Selector;
+
+	const IsTableRow = <T extends Node>(selector?: T | EventTarget | null): boolean =>
+		!NodeType.IsNode(selector) ? false : DOMUtils.GetNodeName(selector) === RowSelector;
+
+	const IsTableCell = <T extends Node>(selector?: T | EventTarget | null): boolean =>
+		!NodeType.IsNode(selector) ? false : CellSet.has(DOMUtils.GetNodeName(selector));
+
+	const GetClosest = <T extends Node>(selector?: T | EventTarget | null): HTMLTableElement | T | null =>
+		!NodeType.IsElement(selector) ? null : selector.closest(Selector);
+
+	const GetClosestRow = <T extends Node>(selector?: T | EventTarget | null): HTMLTableRowElement | T | null =>
+		!NodeType.IsElement(selector) ? null : selector.closest(RowSelector);
+
+	const GetClosestCell = <T extends Node>(selector?: T | EventTarget | null): HTMLTableCellElement | T | null =>
+		!NodeType.IsElement(selector) ? null : selector.closest<HTMLTableCellElement>(CellSelector);
 
 	const Find = (from: EventTarget | Node): IFoundTable => {
 		const bElement = NodeType.IsElement(from);
@@ -67,17 +85,16 @@ const Table = (): ITable => {
 		return rows;
 	};
 
-	const GetAllOwnCells = (table: Node, row?: Element): HTMLTableCellElement[] => {
-		if (!NodeType.IsElement(table)) return [];
+	const GetAllOwnCells = (tableOrRow?: Node): HTMLTableCellElement[] => {
+		if (!NodeType.IsElement(tableOrRow) || (!IsTable(tableOrRow) && !IsTableRow(tableOrRow))) return [];
 
-		const parent = row ?? table;
-		const selector = !!row ? RowSelector : Selector;
+		const selector = IsTableRow(tableOrRow) ? RowSelector : Selector;
 
-		const allCells = Arr.Convert(parent.querySelectorAll<HTMLTableCellElement>(CellSelector));
+		const allCells = Arr.Convert(tableOrRow.querySelectorAll<HTMLTableCellElement>(CellSelector));
 		const cells: HTMLTableCellElement[] = [];
 
 		Arr.WhileShift(allCells, cell => {
-			if (!cell || cell.closest(selector) !== parent) return;
+			if (!cell || cell.closest(selector) !== tableOrRow) return;
 			Arr.Push(cells, cell);
 		});
 
@@ -108,7 +125,7 @@ const Table = (): ITable => {
 
 		for (let rowIndex = 0, rowLength = rows.length; rowIndex < rowLength; ++rowIndex) {
 			const row = rows[rowIndex];
-			const cellsInRow = GetAllOwnCells(table, row);
+			const cellsInRow = GetAllOwnCells(row ?? table);
 
 			const cells: Element[] = [];
 			for (let cellIndex = 0, cellLength = cellsInRow.length; cellIndex < cellLength; ++cellIndex) {
@@ -130,7 +147,7 @@ const Table = (): ITable => {
 
 				Arr.Each(rowspans, rowspanIndex => {
 					if (rowIndex < rowspanIndex[0] || rowIndex > rowspanIndex[1] || cellIndex !== rowspanIndex[2]) return;
-					const rowspanTarget = GetAllOwnCells(table, rows[rowspanIndex[0] - 1])[rowspanIndex[2]];
+					const rowspanTarget = GetAllOwnCells(rows[rowspanIndex[0] - 1] ?? table)[rowspanIndex[2]];
 					if (!rowspanTarget) return;
 					Arr.Unshift(cells, rowspanTarget);
 				});
@@ -151,29 +168,17 @@ const Table = (): ITable => {
 		};
 	};
 
-	const IsTable = <T extends Node>(selector?: T | EventTarget | null): boolean =>
-		!NodeType.IsNode(selector) ? false : DOMUtils.GetNodeName(selector) === Selector;
-
-	const IsTableRow = <T extends Node>(selector?: T | EventTarget | null): boolean =>
-		!NodeType.IsNode(selector) ? false : DOMUtils.GetNodeName(selector) === RowSelector;
-
-	const IsTableCell = <T extends Node>(selector?: T | EventTarget | null): boolean =>
-		!NodeType.IsNode(selector) ? false : CellSet.has(DOMUtils.GetNodeName(selector));
-
-	const GetClosest = <T extends Node>(selector?: T | EventTarget | null): HTMLTableElement | T | null =>
-		!NodeType.IsElement(selector) ? null : selector.closest(Selector);
-
-	const GetClosestRow = <T extends Node>(selector?: T | EventTarget | null): HTMLTableRowElement | T | null =>
-		!NodeType.IsElement(selector) ? null : selector.closest(RowSelector);
-
-	const GetClosestCell = <T extends Node>(selector?: T | EventTarget | null): HTMLTableCellElement | T | null =>
-		!NodeType.IsElement(selector) ? null : selector.closest<HTMLTableCellElement>(CellSelector);
-
 	return {
 		Selector,
 		RowSelector,
 		CellSet,
 		CellSelector,
+		IsTable,
+		IsTableRow,
+		IsTableCell,
+		GetClosest,
+		GetClosestRow,
+		GetClosestCell,
 		Find,
 		GetAllOwnRows,
 		GetAllOwnCells,
@@ -181,12 +186,6 @@ const Table = (): ITable => {
 		ToggleSelectCell,
 		ToggleSelectMultipleCells,
 		GetGridWithIndex,
-		IsTable,
-		IsTableRow,
-		IsTableCell,
-		GetClosest,
-		GetClosestRow,
-		GetClosestCell,
 	};
 };
 

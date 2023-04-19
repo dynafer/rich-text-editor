@@ -104,6 +104,7 @@ $opposite: rgb(218, 218, 218);
 	@include make-tools-item-variables(remove-hover, $hoverDefault, $hoverDefault, #b83232, #b83232);
 	@include make-tools-item-variables(disabled, transparent, transparent, #707070, #707070);
 	#{getVarName(tools-menu-item-remove-icon-fill)}: #b83232;
+	#{getVarName(tools-menu-item-size)}: 1.6rem;
 	#{getVarName(tools-menu-item-option-padding)}: 0.5rem;
 
 	#{getVarName(format-code-hover-bg)}: $hoverDefault;

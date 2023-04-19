@@ -30,7 +30,7 @@ export interface IProcessorOption {
 		processor: TFormatProcessor,
 		bSkipFocus?: boolean,
 	})[],
-	afterProcessors?: (caret: ICaretData) => void,
+	after?: (caret: ICaretData) => void,
 }
 
 export interface IFormatUtils {
@@ -454,7 +454,7 @@ const FormatUtils = (): IFormatUtils => {
 	const SerialiseWithProcessors = (editor: Editor, options: IProcessorOption) => {
 		const self = editor;
 		const CaretUtils = self.Utils.Caret;
-		const { bWrap, value, tableProcessor, processors, afterProcessors } = options;
+		const { bWrap, value, tableProcessor, processors, after } = options;
 		self.Focus();
 
 		if (tableProcessor(bWrap, value)) return;
@@ -472,7 +472,7 @@ const FormatUtils = (): IFormatUtils => {
 			exit();
 		});
 
-		if (Type.IsFunction(afterProcessors)) afterProcessors(caret);
+		if (Type.IsFunction(after)) after(caret);
 		self.GetBody().normalize();
 	};
 

@@ -153,11 +153,9 @@ export enum EInputEventType {
 	formatFontName = 'formatFontName',
 }
 
-export interface IEventSetupCallback<K extends keyof GlobalEventHandlersEventMap> {
-	(editor: Editor, event: GlobalEventHandlersEventMap[K]): void;
-}
+export type TEventSetupCallback<K extends keyof GlobalEventHandlersEventMap> = (editor: Editor, event: GlobalEventHandlersEventMap[K]) => void;
 
-export const Setup = <K extends keyof GlobalEventHandlersEventMap>(editor: Editor, eventName: K, event: IEventSetupCallback<K>) =>
+export const Setup = <K extends keyof GlobalEventHandlersEventMap>(editor: Editor, eventName: K, event: TEventSetupCallback<K>) =>
 	editor.On(eventName, (evt: GlobalEventHandlersEventMap[K]) => event(editor, evt));
 
 export const PreventEvent = (event: Event) => {

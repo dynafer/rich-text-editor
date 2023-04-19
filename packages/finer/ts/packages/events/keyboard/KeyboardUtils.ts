@@ -1,6 +1,6 @@
 import { Type } from '@dynafer/utils';
 import Editor from '../../Editor';
-import { IEventSetupCallback, PreventEvent, Setup } from '../EventSetupUtils';
+import { PreventEvent, Setup, TEventSetupCallback } from '../EventSetupUtils';
 
 export enum EKeyCode {
 	ArrowUp = 'ArrowUp',
@@ -55,7 +55,7 @@ export enum EKeyCode {
 	KeyZ = 'KeyZ',
 }
 
-export const SetupKeyboard = <K extends keyof GlobalEventHandlersEventMap>(editor: Editor, eventName: K, keyCode: EKeyCode, callback: IEventSetupCallback<K>) => {
+export const SetupKeyboard = <K extends keyof GlobalEventHandlersEventMap>(editor: Editor, eventName: K, keyCode: EKeyCode, callback: TEventSetupCallback<K>) => {
 	const newEvent = (self: Editor, event: GlobalEventHandlersEventMap[K]) => {
 		const keyEvent = event as KeyboardEvent;
 		if (keyEvent.key !== keyCode && keyEvent.code !== keyCode) return;
@@ -65,7 +65,7 @@ export const SetupKeyboard = <K extends keyof GlobalEventHandlersEventMap>(edito
 	Setup(editor, eventName, newEvent);
 };
 
-export const SetupWith = <K extends keyof GlobalEventHandlersEventMap>(editor: Editor, eventName: K, keyCode: EKeyCode, option: Record<string, boolean>, callback: IEventSetupCallback<K>) => {
+export const SetupWith = <K extends keyof GlobalEventHandlersEventMap>(editor: Editor, eventName: K, keyCode: EKeyCode, option: Record<string, boolean>, callback: TEventSetupCallback<K>) => {
 	const { bCtrl, bAlt, bShift, bPrevent } = option;
 
 	const shouldStop = (bOption: boolean, bEventKey: boolean): boolean =>

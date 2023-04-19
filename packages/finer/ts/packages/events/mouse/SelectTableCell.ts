@@ -7,6 +7,12 @@ const SelectTableCell = (editor: Editor, event: MouseEvent | TouchEvent) => {
 	const DOM = self.DOM;
 	let bDragged = false;
 
+	const bTools = !!DOM.Closest(event.composedPath()[0] as Node, {
+		attrs: { dataFixed: 'dom-tool' }
+	});
+
+	if (bTools) return;
+
 	const selectedCells = DOM.Element.Table.GetSelectedCells(self);
 	DOM.Element.Table.ToggleSelectMultipleCells(false, selectedCells);
 

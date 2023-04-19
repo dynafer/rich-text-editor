@@ -12,7 +12,6 @@ const Input = (editor: Editor) => {
 	const DOM = self.DOM;
 	const CaretUtils = self.Utils.Caret;
 	const inputUtils = InputUtils(self);
-	const DOMTools = self.Tools.DOM;
 
 	let fakeFragment: DocumentFragment | null = null;
 	let lastChildName: string | null = null;
@@ -104,7 +103,7 @@ const Input = (editor: Editor) => {
 
 	const processInput = (event: InputEvent) => {
 		const clean = () => {
-			DOMTools.ChangePositions();
+			self.Utils.Shared.DispatchCaretChange();
 			lastChildName = null;
 		};
 

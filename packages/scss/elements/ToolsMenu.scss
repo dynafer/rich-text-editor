@@ -8,7 +8,7 @@
 		@include round(getVar(tools-menu-radius));
 		@include all-padding(0.2rem);
 		@include flex(center, space-between);
-		@include height(1.6rem);
+		@include height(calc(getVar(tools-menu-item-size) + 0.2rem));
 		background-color: getVar(tools-menu-bg);
 		box-shadow: 4px 4px 24px -3px rgba(0, 0, 0, 0.75);
 		z-index: 9999999;
@@ -42,6 +42,7 @@
 				@include flex(center, $inline: true);
 				@include all-padding(0.2rem);
 				@include round(getVar(tools-menu-item-radius));
+				@include height(getVar(tools-menu-item-size));
 
 				&[data-remove] {
 					&:hover {
@@ -88,6 +89,11 @@
 			@include icon-wrap(tools-menu-item);
 			.#{getClassName(icon-wrap)} {
 				@include all-border(none);
+				@include height(calc(getVar(tools-menu-item-size) + 0.1rem));
+
+				.#{getClassName(helper)} {
+					@include padding(px !important, $left: 0);
+				}
 			}
 		}
 

@@ -34,7 +34,6 @@ const TableStyles = (editor: Editor, format: IPluginTableCommand) => {
 
 		const toggle = bWrap ? wrapStyle : unwrapStyle;
 		toggle(table);
-		self.Tools.DOM.ChangePositions();
 
 		if (!caret) {
 			if (Arr.IsEmpty(cells)) return;

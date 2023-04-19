@@ -87,7 +87,8 @@ export interface IDom {
 	},
 	CloneAndInsert: (selector: NonNullable<TElement>, bDeep: boolean, ...insertions: (string | TElement)[]) => void,
 	Closest: {
-		<T extends Element>(selector: T | TElement, find: string | Omit<ICreateSelectorOption, 'styles'>): T | null;
+		<T extends keyof HTMLElementTagNameMap>(selector: TElement, find: T): HTMLElementTagNameMap[T];
+		<T extends Element>(selector: TElement, find: string | Omit<ICreateSelectorOption, 'styles'>): T;
 		(selector: TElement, find: string | Omit<ICreateSelectorOption, 'styles'>): Element | null;
 	},
 	ClosestByStyle: (selector: TElement, styles: string | (string | Record<string, string>)[] | Record<string, string>) => Element | null,
