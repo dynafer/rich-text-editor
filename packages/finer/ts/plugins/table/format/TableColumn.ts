@@ -71,7 +71,47 @@ const TableColumn = (editor: Editor) => {
 	};
 
 	const InsertFromCaret = (bLeft: boolean) => {
-		// FIX ME:: insert columns
+		const caret = CaretUtils.Get();
+		const { columns, table, tableGrid } = getColumnsWithGrid(caret ?? DOM.Element.Table.GetSelectedCells(self));
+		if (!columns || Arr.IsEmpty(columns) || !tableGrid || !table || !CanDeleteRowColumn(self, 'column', table)) return;
+
+		const copiedRange = caret?.Range.Clone();
+
+		const { Grid, TargetCellRowIndex, TargetCellIndex } = tableGrid;
+
+		let columnIndex = TargetCellIndex;
+		if (!bLeft && !caret) {
+			for (let index = TargetCellIndex, length = Grid[TargetCellRowIndex].length; index < length; ++index) {
+				const nextColumn = Grid[TargetCellRowIndex][index].nextElementSibling;
+				if (!nextColumn || !Arr.Contains(columns, nextColumn)) {
+					columnIndex = index;
+					break;
+				}
+			}
+		}
+
+		const addedColumns: HTMLTableCellElement[] = [];
+		Arr.Each(Grid, row => {
+			const column = row[columnIndex];
+			if (!column) return;
+
+			const sibling = bLeft ? column.previousElementSibling : column.nextElementSibling;
+			if (Arr.Contains(addedColumns, sibling)) return;
+
+			const newColumn = DOM.Create('td', {
+				children: [self.CreateEmptyParagraph()]
+			});
+
+			const insert = bLeft ? DOM.InsertBefore : DOM.InsertAfter;
+			insert(column, newColumn);
+
+			Arr.Push(addedColumns, newColumn);
+		});
+
+		Arr.Clean(addedColumns);
+
+		if (caret && copiedRange) CaretUtils.UpdateRange(copiedRange);
+		self.Utils.Shared.DispatchCaretChange();
 	};
 
 	const SelectFromCaret = () => {
