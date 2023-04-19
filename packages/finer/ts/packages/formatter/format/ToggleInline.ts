@@ -200,6 +200,7 @@ const ToggleInline = (editor: Editor, formats: IInlineFormat | IInlineFormat[]):
 				{ processor: sameNodeProcessor },
 				{ processor: rangeProcessor },
 			],
+			after: () => self.Tools.DOM.ChangePositions()
 		});
 
 	return {

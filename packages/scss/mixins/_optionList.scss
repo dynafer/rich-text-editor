@@ -49,5 +49,12 @@
 		&:not(:first-child) {
 			@include margin(px, -1);
 		}
+
+		&[disabled] {
+			@include all-border(getVar(#{$name}-disabled-border) !important);
+			@include font($color: getVar(#{$name}-disabled-font) !important);
+			background-color: getVar(#{$name}-disabled-bg) !important;
+			pointer-events: none;
+		}
 	}
 }

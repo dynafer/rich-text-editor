@@ -62,19 +62,13 @@ const Alignment = (editor: Editor, table: HTMLElement, tableMenu: HTMLElement): 
 		return foundFormat ?? uiFormats.Alignment[0];
 	};
 
-	const createOptions = (formats: IPluginTableMenuFormatUI[], activeFormat: IPluginTableMenuFormatUI): HTMLElement[] => {
+	const createOptions = (options: HTMLElement, formats: IPluginTableMenuFormatUI[], activeFormat: IPluginTableMenuFormatUI): HTMLElement[] => {
 		const icons: HTMLElement[] = [];
 
 		Arr.Each(formats, format => {
 			const { Title, CommandName, Icon } = format;
 
-			const button = DOM.Create('button', {
-				attrs: {
-					title: Title,
-				},
-				class: DOM.Utils.CreateUEID('icon-button', false),
-				html: Finer.Icons.Get(Icon)
-			});
+			const button = formatUI.CreateIconButton(Title, Icon);
 
 			if (activeFormat.CommandName === CommandName) formatUI.ToggleActivateClass(button, true);
 
@@ -84,7 +78,7 @@ const Alignment = (editor: Editor, table: HTMLElement, tableMenu: HTMLElement): 
 
 				const otherButtons = DOM.SelectAll<HTMLElement>({
 					class: DOM.Utils.CreateUEID('icon-button', false)
-				}, button.parentElement?.parentElement ?? null);
+				}, options);
 
 				Arr.Each(otherButtons, otherButton => formatUI.ToggleActivateClass(otherButton, false));
 
@@ -108,7 +102,7 @@ const Alignment = (editor: Editor, table: HTMLElement, tableMenu: HTMLElement): 
 				class: DOM.Utils.CreateUEID('icon-group', false)
 			});
 
-			DOM.Insert(group, ...createOptions(formats, foundFormat));
+			DOM.Insert(group, ...createOptions(options, formats, foundFormat));
 
 			DOM.Insert(options, group);
 		});
@@ -120,7 +114,9 @@ const Alignment = (editor: Editor, table: HTMLElement, tableMenu: HTMLElement): 
 		class: DOM.Utils.CreateUEID('icon-group', false)
 	});
 
-	const { Wrapper, Button } = formatUI.CreateIconWrapSet(uiTitle, findFormat(table).Icon);
+	const firstFormat = findFormat(table);
+	const { Wrapper, Button } = formatUI.CreateIconWrapSet(uiTitle, firstFormat.Icon);
+	DOM.SetAttr(Button, 'data-icon', firstFormat.Icon);
 	DOM.SetAttrs(Wrapper, [
 		'no-border',
 		{ dataType: uiType }
@@ -140,6 +136,8 @@ const Alignment = (editor: Editor, table: HTMLElement, tableMenu: HTMLElement): 
 
 	detector.Register(() => {
 		const foundFormat = findFormat(Wrapper);
+		if (DOM.GetAttr(Button, 'data-icon') === foundFormat.Icon) return;
+		DOM.SetAttr(Button, 'data-icon', foundFormat.Icon);
 		DOM.SetHTML(Button, Finer.Icons.Get(foundFormat.Icon));
 	});
 

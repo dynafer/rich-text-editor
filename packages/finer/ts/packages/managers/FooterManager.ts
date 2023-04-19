@@ -89,7 +89,7 @@ const FooterManager = (editor: Editor): IFooterManager | null => {
 					const table = DOM.Element.Table.GetClosest(target);
 					if (!table) return;
 
-					if (!bAlreadySelected) return DOM.Element.Table.ToggleSelectMultipleCells(true, DOM.Element.Table.GetAllOwnCells(table, target));
+					if (!bAlreadySelected) return DOM.Element.Table.ToggleSelectMultipleCells(true, DOM.Element.Table.GetAllOwnCells(target ?? table));
 
 					const rows: Element[] = [];
 					Arr.Each(cells, cell => {
@@ -99,7 +99,7 @@ const FooterManager = (editor: Editor): IFooterManager | null => {
 					});
 
 					const targetCells: Element[] = [];
-					Arr.Each(rows, row => Arr.Push(targetCells, ...DOM.Element.Table.GetAllOwnCells(table, row)));
+					Arr.Each(rows, row => Arr.Push(targetCells, ...DOM.Element.Table.GetAllOwnCells(row)));
 
 					return DOM.Element.Table.ToggleSelectMultipleCells(true, targetCells);
 				case 'cell':

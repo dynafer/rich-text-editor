@@ -28,7 +28,6 @@ const EnterEvent = (editor: Editor, event: KeyboardEvent) => {
 	newRange.SetStartToEnd(DOM.Utils.GetFirstChild(newParagraph), 0, 0);
 	CaretUtils.UpdateRange(newRange);
 
-	self.Tools.DOM.ChangePositions();
 	self.Utils.Shared.DispatchCaretChange([newParagraph]);
 };
 

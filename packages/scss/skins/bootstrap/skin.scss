@@ -102,6 +102,7 @@ $border: rgba(0, 0, 0, 0.125);
 	@include make-tools-item-variables(remove-hover, $dangerHover, $dangerHover, #fff, #fff);
 	@include make-tools-item-variables(disabled, transparent, $border, #707070, #707070);
 	#{getVarName(tools-menu-item-remove-icon-fill)}: $dangerHover;
+	#{getVarName(tools-menu-item-size)}: 1.6rem;
 	#{getVarName(tools-menu-item-option-padding)}: 0.5rem;
 
 	#{getVarName(format-code-hover-bg)}: $primaryHover;

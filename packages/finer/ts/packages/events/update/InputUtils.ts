@@ -10,7 +10,6 @@ const InputUtils = (editor: Editor) => {
 	const self = editor;
 	const DOM = self.DOM;
 	const CaretUtils = self.Utils.Caret;
-	const DOMTools = self.Tools.DOM;
 
 	const EditFigures = (fragment: DocumentFragment) => {
 		const figures = DOM.SelectAll<HTMLElement>({
@@ -266,7 +265,6 @@ const InputUtils = (editor: Editor) => {
 		FormatUtils.CleanDirtyWithCaret(self, caret);
 		CaretUtils.UpdateRange(newRange);
 
-		DOMTools.ChangePositions();
 		self.Utils.Shared.DispatchCaretChange();
 
 		self.Dispatch('Nodes:Insert:After', nodes);

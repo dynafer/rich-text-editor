@@ -15,10 +15,13 @@
 		}
 
 		& > * {
-			@include flex(center, center, $inline: true);
 			@include all-border(none);
 			@include font($color: getVar(#{$name}-font));
 			background-color: getVar(#{$name}-bg);
+
+			&:not(.#{getClassName(color-icon)}) {
+				@include flex(center, center, $inline: true);
+			}
 		}
 
 		.#{getClassName(color-icon)} {

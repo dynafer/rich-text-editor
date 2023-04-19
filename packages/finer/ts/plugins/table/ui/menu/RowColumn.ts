@@ -1,9 +1,9 @@
-import { Arr, Obj } from '@dynafer/utils';
+import { Arr, Obj, Str } from '@dynafer/utils';
 import Editor from '../../../../packages/Editor';
 import { IPluginTableMenuFormatUI } from '../../Type';
-import { COMMAND_NAMES_MAP, GetMenuText } from '../../Utils';
+import { CanDeleteRowColumn, COMMAND_NAMES_MAP, GetMenuText } from '../../Utils';
 
-interface IPluginRowColumnItems {
+interface IPluginRowColumnItem {
 	Label: string,
 	CommandName: string,
 	CommandArgs?: unknown[],
@@ -11,7 +11,7 @@ interface IPluginRowColumnItems {
 
 interface IPluginRowColumnFormatUI extends Omit<IPluginTableMenuFormatUI, 'CommandName'> {
 	Type: string,
-	Items: IPluginRowColumnItems[],
+	Items: IPluginRowColumnItem[],
 }
 
 const RowColumn = (editor: Editor, table: HTMLElement, tableMenu: HTMLElement): HTMLElement => {
@@ -44,7 +44,16 @@ const RowColumn = (editor: Editor, table: HTMLElement, tableMenu: HTMLElement): 
 		},
 	};
 
-	const createOptions = (formats: IPluginRowColumnItems[]): HTMLElement[] => {
+	const shouldDisable = (uiName: string, format: IPluginRowColumnItem): boolean => {
+		const { CommandName } = format;
+		if (!Str.Contains(Str.LowerCase(CommandName), 'delete')) return false;
+
+		const type = Str.Contains(Str.LowerCase(uiName), 'row') ? 'row' : 'column';
+
+		return !CanDeleteRowColumn(self, type, table);
+	};
+
+	const createOptions = (uiName: string, formats: IPluginRowColumnItem[]): HTMLElement[] => {
 		const items: HTMLElement[] = [];
 
 		Arr.Each(formats, format => {
@@ -52,7 +61,13 @@ const RowColumn = (editor: Editor, table: HTMLElement, tableMenu: HTMLElement): 
 
 			const item = formatUI.CreateOption(Label, Label, false, false);
 
-			formatUI.BindClickEvent(item, () => self.Commander.Run(CommandName, ...(CommandArgs ?? [])));
+			const bDisable = shouldDisable(uiName, format);
+			formatUI.ToggleDisable(item, bDisable);
+
+			if (!bDisable) formatUI.BindClickEvent(item, () => {
+				self.Commander.Run(CommandName, ...(CommandArgs ?? []));
+				self.GetBody().click();
+			});
 
 			Arr.Push(items, item);
 		});
@@ -60,8 +75,8 @@ const RowColumn = (editor: Editor, table: HTMLElement, tableMenu: HTMLElement): 
 		return items;
 	};
 
-	const createOptionList = (uiName: string, formats: IPluginRowColumnItems[]): HTMLElement => {
-		const options = formatUI.CreateOptionList(uiName, createOptions(formats));
+	const createOptionList = (uiName: string, formats: IPluginRowColumnItem[]): HTMLElement => {
+		const options = formatUI.CreateOptionList(uiName, createOptions(uiName, formats));
 
 		return options;
 	};

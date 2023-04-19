@@ -1,4 +1,5 @@
-import { Str } from '@dynafer/utils';
+import { Arr, Str } from '@dynafer/utils';
+import Editor from '../../packages/Editor';
 import { IPluginTableCommand } from './Type';
 
 const createCommandName = (name: string): string => Str.Join(':', 'Table', name);
@@ -35,3 +36,45 @@ export const STYLE_COMMANDS: IPluginTableCommand[] = [
 ];
 
 export const GetMenuText = (name: string, defaultText: string): string => Finer.ILC.Get(Str.Merge('plugins.tools.menu.', name), defaultText);
+
+export const CanDeleteRowColumn = (editor: Editor, type: 'row' | 'column', table: HTMLElement): boolean => {
+	const self = editor;
+	const DOM = self.DOM;
+
+	const selectedCells = DOM.Element.Table.GetSelectedCells(self, table);
+	if (Arr.IsEmpty(selectedCells)) {
+		if (type === 'row')
+			return DOM.Element.Table.GetAllOwnRows(table).length > 1;
+
+		const { Grid } = DOM.Element.Table.GetGridWithIndex(table);
+		for (let index = 0, length = Grid.length; index < length; ++index) {
+			if (Grid[index].length !== 1) continue;
+			return false;
+		}
+		return true;
+	}
+
+	const { Grid, TargetCellRowIndex, TargetCellIndex } = DOM.Element.Table.GetGridWithIndex(table, selectedCells[0]);
+	if (TargetCellRowIndex === -1 || TargetCellIndex === -1) return false;
+
+	if (type === 'row') {
+		if (TargetCellRowIndex > 0) return true;
+
+		const rows: HTMLTableRowElement[] = [];
+		Arr.WhileShift(selectedCells, cell => {
+			const row = DOM.Element.Table.GetClosestRow(cell);
+			if (!row || Arr.Contains(rows, row)) return;
+			Arr.Push(rows, row);
+		});
+
+		return Arr.IsEmpty(rows) ? false : Grid.length !== rows.length;
+	}
+
+	if (TargetCellIndex > 0) return true;
+
+	for (let columnIndex = TargetCellIndex, columnLength = Grid[TargetCellRowIndex].length; columnIndex < columnLength; ++columnIndex) {
+		if (!Arr.Contains(selectedCells, Grid[TargetCellRowIndex][columnIndex])) return true;
+	}
+
+	return false;
+};

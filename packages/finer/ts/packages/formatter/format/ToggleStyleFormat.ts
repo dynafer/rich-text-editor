@@ -100,7 +100,8 @@ const ToggleStyleFormat = (editor: Editor, formats: IStyleFormat | IStyleFormat[
 			processors: [
 				{ processor: sameLineProcessor },
 				{ processor: rangeProcessor },
-			]
+			],
+			after: () => self.Tools.DOM.ChangePositions()
 		});
 
 	const CalculateFromCaret = (value: string, bSubtract?: boolean) => {
