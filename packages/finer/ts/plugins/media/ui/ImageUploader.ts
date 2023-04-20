@@ -11,7 +11,7 @@ type TUploadCallback = TConfigurationCallback<IBlobList, string>;
 
 const ImageUploader = (editor: Editor, ui: IPluginMediaUI) => {
 	const self = editor;
-	const DOM = self.GetRootDOM();
+	const DOM = self.DOM;
 	const formatter = self.Formatter;
 	const formatUI = formatter.UI;
 
@@ -57,7 +57,7 @@ const ImageUploader = (editor: Editor, ui: IPluginMediaUI) => {
 	});
 
 	const createOptionList = (wrapper: HTMLElement) =>
-		() => {
+		(): HTMLElement => {
 			const figureElement = DOM.Element.Figure.SelectFigureElement<HTMLImageElement>(self.Tools.DOM.SelectFocused(false, 'media'));
 			const bUpdatable = DOM.Utils.IsImage(figureElement);
 
@@ -74,7 +74,7 @@ const ImageUploader = (editor: Editor, ui: IPluginMediaUI) => {
 			const placeholderUpdate = Finer.ILC.Get('plugins.media.image.update', 'Update the image URL');
 			const placeholderInsert = Finer.ILC.Get('plugins.media.image.insert', 'Insert an image via URL');
 
-			const { OptionWrapper, Input } = formatUI.CreateInputWrapWithOptionList({
+			const { OptionWrapper, Input } = formatUI.CreateInputWrapWithOptionList(self, {
 				uiName,
 				bUpdatable,
 				createCallback: createImage,
@@ -92,12 +92,14 @@ const ImageUploader = (editor: Editor, ui: IPluginMediaUI) => {
 			DOM.Insert(self.Frame.Root, OptionWrapper);
 			formatUI.SetOptionListCoordinate(self, uiName, wrapper, OptionWrapper);
 			Input.focus();
+
+			return OptionWrapper;
 		};
 
 	const iconWrap = ui.CreateFormatButton(uiFormat);
 
 	ui.BindClickEvent(() => {
-		self.GetBody().click();
+		formatUI.DestoryOpenedOptionList(self);
 		fileInput.click();
 	}, iconWrap.Button);
 	formatUI.BindOptionListEvent(self, {

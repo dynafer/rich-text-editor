@@ -65,8 +65,8 @@ const RowColumn = (editor: Editor, table: HTMLElement, tableMenu: HTMLElement): 
 			formatUI.ToggleDisable(item, bDisable);
 
 			if (!bDisable) formatUI.BindClickEvent(item, () => {
+				formatUI.DestoryOpenedOptionList(self);
 				self.Commander.Run(CommandName, ...(CommandArgs ?? []));
-				self.GetBody().click();
 			});
 
 			Arr.Push(items, item);
@@ -100,6 +100,7 @@ const RowColumn = (editor: Editor, table: HTMLElement, tableMenu: HTMLElement): 
 				const optionList = createOptionList(uiFormat.Type, uiFormat.Items);
 				DOM.Insert(tableMenu, optionList);
 				formatUI.SetOptionListInToolsMenuCoordinate(self, Wrapper, optionList);
+				return optionList;
 			},
 			root: tableMenu
 		});

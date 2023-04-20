@@ -20,7 +20,7 @@ export interface IPluginMediaUI {
 
 const UI = (editor: Editor): IPluginMediaUI => {
 	const self = editor;
-	const DOM = self.GetRootDOM();
+	const DOM = self.DOM;
 	const formatUI = self.Formatter.UI;
 
 	const ACTIVE_CLASS = formatUI.ACTIVE_CLASS;

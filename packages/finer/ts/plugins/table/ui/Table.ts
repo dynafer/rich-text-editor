@@ -5,7 +5,7 @@ import { COMMAND_NAMES_MAP } from '../Utils';
 
 const Table = (editor: Editor) => {
 	const self = editor;
-	const DOM = self.GetRootDOM();
+	const DOM = self.DOM;
 	const formatter = self.Formatter;
 	const formatUI = formatter.UI;
 
@@ -82,7 +82,7 @@ const Table = (editor: Editor) => {
 	};
 
 	const createOptionList = (wrapper: HTMLElement) =>
-		() => {
+		(): HTMLElement => {
 			const navigationWrapper = formatUI.Create({
 				tagName: formatter.Formats.ListItemSelector,
 				type: 'option-item',
@@ -103,6 +103,7 @@ const Table = (editor: Editor) => {
 
 			DOM.Insert(self.Frame.Root, tableList);
 			formatUI.SetOptionListCoordinate(self, uiName, wrapper, tableList);
+			return tableList;
 		};
 
 	const iconWrap = formatUI.CreateIconWrapSet(uiFormat.Title, uiFormat.Icon);

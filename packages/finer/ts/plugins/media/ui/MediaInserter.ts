@@ -5,7 +5,7 @@ import { COMMAND_NAMES_MAP } from '../utils/Utils';
 
 const MediaInserter = (editor: Editor, ui: IPluginMediaUI) => {
 	const self = editor;
-	const DOM = self.GetRootDOM();
+	const DOM = self.DOM;
 	const formatter = self.Formatter;
 	const formatUI = formatter.UI;
 
@@ -16,7 +16,7 @@ const MediaInserter = (editor: Editor, ui: IPluginMediaUI) => {
 	};
 
 	const createOptionList = (wrapper: HTMLElement) =>
-		() => {
+		(): HTMLElement => {
 			const figure = self.Tools.DOM.SelectFocused(false, 'media');
 			const figureElement = DOM.Element.Figure.SelectFigureElement<HTMLIFrameElement>(figure);
 			const bUpdatable = DOM.Element.Figure.IsFigure(figure) && (DOM.Utils.IsIFrame(figureElement) || DOM.Utils.IsVideo(figureElement));
@@ -34,7 +34,7 @@ const MediaInserter = (editor: Editor, ui: IPluginMediaUI) => {
 			const placeholderUpdate = Finer.ILC.Get('plugins.media.update', 'Update the media URL');
 			const placeholderInsert = Finer.ILC.Get('plugins.media.insert', 'Insert a media via URL');
 
-			const { OptionWrapper, Input } = formatUI.CreateInputWrapWithOptionList({
+			const { OptionWrapper, Input } = formatUI.CreateInputWrapWithOptionList(self, {
 				uiName,
 				bUpdatable,
 				createCallback: createMedia,
@@ -52,6 +52,7 @@ const MediaInserter = (editor: Editor, ui: IPluginMediaUI) => {
 			DOM.Insert(self.Frame.Root, OptionWrapper);
 			formatUI.SetOptionListCoordinate(self, uiName, wrapper, OptionWrapper);
 			Input.focus();
+			return OptionWrapper;
 		};
 
 	const iconWrap = ui.CreateFormatButton(uiFormat);

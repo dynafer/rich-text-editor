@@ -3,7 +3,7 @@ import Toggler from '../format/Toggler';
 
 const Link = (editor: Editor) => {
 	const self = editor;
-	const DOM = self.GetRootDOM();
+	const DOM = self.DOM;
 	const CaretUtils = self.Utils.Caret;
 	const formatter = self.Formatter;
 	const formats = formatter.Formats;
@@ -28,7 +28,7 @@ const Link = (editor: Editor) => {
 		return false;
 	};
 
-	const createOptionList = () => {
+	const createOptionList = (): HTMLElement => {
 		const caret = CaretUtils.Get();
 		const anchor = !caret
 			? null
@@ -43,7 +43,7 @@ const Link = (editor: Editor) => {
 		const placeholderUpdate = Finer.ILC.Get('plugins.link.update', 'Update the link');
 		const placeholderInsert = Finer.ILC.Get('plugins.link.insert', 'Insert a link');
 
-		const { OptionWrapper, Input } = formatter.UI.CreateInputWrapWithOptionList({
+		const { OptionWrapper, Input } = formatter.UI.CreateInputWrapWithOptionList(self, {
 			uiName,
 			bUpdatable,
 			createCallback: createAnchor,
@@ -61,6 +61,7 @@ const Link = (editor: Editor) => {
 		DOM.Insert(self.Frame.Root, OptionWrapper);
 		formatter.UI.SetOptionListCoordinate(self, uiName, iconButton, OptionWrapper);
 		Input.focus();
+		return OptionWrapper;
 	};
 
 	const command = (bWrap: boolean, url: string) => {

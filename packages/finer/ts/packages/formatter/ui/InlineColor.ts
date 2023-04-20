@@ -79,7 +79,7 @@ const InlineColor = (editor: Editor, detector: IFormatDetector): IFormatUIRegist
 				});
 				DOM.SetStyle(colorElement, 'background-color', rgbaString);
 				FormatUI.BindClickEvent(colorElement, () => {
-					DOM.Doc.body.click();
+					FormatUI.DestoryOpenedOptionList(self);
 					FormatUI.RunCommand<boolean | string>(self, uiName, true, rgbaString);
 				});
 
@@ -111,7 +111,7 @@ const InlineColor = (editor: Editor, detector: IFormatDetector): IFormatUIRegist
 		const resetButton = FormatUI.CreateOption(defaultColorHTML, defaultColorText, false, false);
 
 		FormatUI.BindClickEvent(DOM.Select<HTMLElement>('button', resetButton), () => {
-			DOM.Doc.body.click();
+			FormatUI.DestoryOpenedOptionList(self);
 			FormatUI.RunCommand<boolean | string>(self, uiName, false, DefaultColor);
 		});
 
@@ -133,7 +133,7 @@ const InlineColor = (editor: Editor, detector: IFormatDetector): IFormatUIRegist
 		DOM.Insert(footer, lastPickedList, moreButton);
 
 		FormatUI.BindClickEvent(moreButton, () => {
-			DOM.Doc.body.click();
+			FormatUI.DestoryOpenedOptionList(self);
 			ColorPicker.Create({
 				Icons: {
 					Check: Finer.Icons.Get('Check'),
@@ -153,7 +153,7 @@ const InlineColor = (editor: Editor, detector: IFormatDetector): IFormatUIRegist
 		return footer;
 	};
 
-	const createPalette = (uiName: string, uiFormat: IInlineFormatColorPickerUI, wrapper: HTMLElement) => {
+	const createPalette = (uiName: string, uiFormat: IInlineFormatColorPickerUI, wrapper: HTMLElement): HTMLElement => {
 		const resetButton = createResetButton(uiName, uiFormat);
 		const footer = createFooter(uiName, uiFormat);
 
@@ -162,6 +162,7 @@ const InlineColor = (editor: Editor, detector: IFormatDetector): IFormatUIRegist
 
 		DOM.Insert(self.Frame.Root, palette);
 		FormatUI.SetOptionListCoordinate(self, uiName, wrapper, palette);
+		return palette;
 	};
 
 	const createHelper = (uiName: string, uiFormat: IInlineFormatColorPickerUI, wrapper: HTMLElement): HTMLElement => {

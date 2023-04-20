@@ -126,10 +126,11 @@ const Alignment = (editor: Editor, table: HTMLElement, tableMenu: HTMLElement): 
 		type: uiType,
 		activable: Wrapper,
 		clickable: Wrapper,
-		create: () => {
+		create: (): HTMLElement => {
 			const optionList = createOptionList(uiType, Wrapper);
 			DOM.Insert(tableMenu, optionList);
 			formatUI.SetOptionListInToolsMenuCoordinate(self, Wrapper, optionList);
+			return optionList;
 		},
 		root: tableMenu
 	});
