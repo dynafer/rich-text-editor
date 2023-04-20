@@ -83,7 +83,7 @@ const Block = (editor: Editor, detector: IFormatDetector): IFormatUIRegistryUnit
 			self.Utils.Shared.DispatchCaretChange();
 		};
 
-	const createOptionsList = (selection: IFormatUISelection, uiName: string, uiFormat: IBlockFormatUI) => {
+	const createOptionsList = (selection: IFormatUISelection, uiName: string, uiFormat: IBlockFormatUI): HTMLElement => {
 		const optionElements: HTMLElement[] = [];
 		const caretNodes: Node[] = [];
 
@@ -97,7 +97,7 @@ const Block = (editor: Editor, detector: IFormatDetector): IFormatUIRegistryUnit
 			const optionElement = FormatUI.CreateOption(html, Title, bSelected);
 
 			FormatUI.BindClickEvent(optionElement, () => {
-				DOM.Doc.body.click();
+				FormatUI.DestoryOpenedOptionList(self);
 				FormatUI.RunCommand(self, createCommandName(uiName, CommandName), !bSelected);
 			});
 
@@ -107,6 +107,7 @@ const Block = (editor: Editor, detector: IFormatDetector): IFormatUIRegistryUnit
 		const optionList = FormatUI.CreateOptionList(uiName, optionElements);
 		DOM.Insert(self.Frame.Root, optionList);
 		FormatUI.SetOptionListCoordinate(self, uiName, selection.Selection, optionList);
+		return optionList;
 	};
 
 	const Create = (name: string): HTMLElement => {

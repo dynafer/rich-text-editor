@@ -18,8 +18,7 @@ const FormatDetector = (editor: Editor): IFormatDetector => {
 		const promises: Promise<void>[] = [];
 		Arr.Each(detections, detection => Arr.Push(promises, detection(paths)));
 
-		Promise.all(promises)
-			.finally(() => { });
+		void Promise.all(promises);
 	});
 
 	const Register = (callback: TFormatDetectCallback) => {

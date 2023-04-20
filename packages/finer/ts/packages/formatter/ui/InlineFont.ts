@@ -111,7 +111,7 @@ const InlineFont = (editor: Editor, detector: IFormatDetector): IFormatUIRegistr
 
 			FormatUI.RegisterCommand(self, uiName, command);
 			FormatUI.BindClickEvent(optionElement, () => {
-				DOM.Doc.body.click();
+				FormatUI.DestoryOpenedOptionList(self);
 				command(!bSelected);
 			});
 
@@ -123,10 +123,11 @@ const InlineFont = (editor: Editor, detector: IFormatDetector): IFormatUIRegistr
 		return optionElements;
 	};
 
-	const createOptionsList = (selection: IFormatUISelection, uiName: string, optionElements: HTMLElement[]) => {
+	const createOptionsList = (selection: IFormatUISelection, uiName: string, optionElements: HTMLElement[]): HTMLElement => {
 		const optionList = FormatUI.CreateOptionList(uiName, optionElements);
 		DOM.Insert(self.Frame.Root, optionList);
 		FormatUI.SetOptionListCoordinate(self, uiName, selection.Selection, optionList);
+		return optionList;
 	};
 
 	const getCurrentStyle = (format: IInlineFormat, options: Record<string, string>, nodes: Node[]): string => {
@@ -163,7 +164,7 @@ const InlineFont = (editor: Editor, detector: IFormatDetector): IFormatUIRegistr
 			clickable: selection.Selection,
 			create: () => {
 				const optionElements = createOptionElements(uiName, uiFormat, DOM.GetText(selection.Label), setLabelText);
-				createOptionsList(selection, uiName, optionElements);
+				return createOptionsList(selection, uiName, optionElements);
 			}
 		});
 

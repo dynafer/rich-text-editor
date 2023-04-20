@@ -96,6 +96,10 @@ class Editor {
 	}
 
 	public IsDestroyed(): boolean { return this.mbDestroyed; }
+	public Destroy() {
+		this.mbDestroyed = true;
+		EditorDestroy.Destroy(this);
+	}
 
 	public IsAdjusting(): boolean { return this.mbAdjusting; }
 	public SetAdjusting(bAdjusting: boolean) { this.mbAdjusting = bAdjusting; }
@@ -111,8 +115,6 @@ class Editor {
 	public SetWin(win: Window) { this.mWin = win as Window & typeof globalThis ?? window; }
 	public GetWin(): Window & typeof globalThis { return this.mWin; }
 	public GetRootWin(): Window & typeof globalThis { return window; }
-
-	public GetRootDOM(): IDom { return DOM; }
 
 	public SaveScrollPosition() {
 		this.mScrollX = this.DOM.GetRoot().scrollLeft;
@@ -157,6 +159,7 @@ class Editor {
 		this.GetWin().requestAnimationFrame(animate);
 	}
 
+	public IsFocused(): boolean { return DOM.HasClass(this.Frame.Container, 'focused'); }
 	public Focus() {
 		this.SaveScrollPosition();
 		const caret = this.Utils.Caret.Get();
@@ -179,8 +182,6 @@ class Editor {
 		this.ScrollSavedPosition();
 	}
 
-	public IsFocused(): boolean { return DOM.HasClass(this.Frame.Container, 'focused'); }
-
 	public CreateEmptyParagraph(): HTMLElement {
 		return this.DOM.Create('p', {
 			html: '<br>'
@@ -189,11 +190,6 @@ class Editor {
 
 	public InitContent(html: string = '<p><br></p>') {
 		this.DOM.SetHTML(this.GetBody(), html);
-	}
-
-	public Destroy() {
-		this.mbDestroyed = true;
-		EditorDestroy.Destroy(this);
 	}
 
 	public SetContent(html: string) {
