@@ -89,5 +89,5 @@ export const SetupWith = <K extends keyof GlobalEventHandlersEventMap>(editor: E
 	Setup(editor, eventName, newEvent);
 };
 
-export const IsTableFigure = (editor: Editor, node: Node): boolean =>
-	editor.DOM.Element.Figure.IsFigure(node) && editor.DOM.HasAttr(node, 'type', editor.DOM.Element.Table.Selector);
+export const IsFigure = (editor: Editor, node: Node): boolean =>
+	editor.DOM.Element.Figure.Is(node) && editor.DOM.HasAttr(node, 'type', editor.DOM.Element.Table.Selector);

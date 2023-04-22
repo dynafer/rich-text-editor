@@ -1,7 +1,7 @@
 import Editor from '../Editor';
 
 export interface ICommander {
-	commands: Record<string, (...args: never[]) => void>,
+	Commands: Record<string, (...args: never[]) => void>,
 	Run: <T>(name: string, ...args: T[]) => void,
 	Register: <T extends (...args: never[]) => void>(name: string, command: (...args: Parameters<T>) => void) => void,
 }
@@ -9,26 +9,26 @@ export interface ICommander {
 const Commander = (editor: Editor): ICommander => {
 	const self = editor;
 
-	const commands: Record<string, (...args: never[]) => void> = {};
+	const Commands: Record<string, (...args: never[]) => void> = {};
 
-	const IsRegistered = (name: string): boolean => !!commands[name];
+	const IsRegistered = (name: string): boolean => !!Commands[name];
 
 	const Run = <T>(name: string, ...args: T[]) => {
-		if (!IsRegistered(name)) return;
+		if (!IsRegistered(name) || self.IsReadOnly()) return;
 
 		self.Dispatch('Command:Before', name);
-		commands[name](...args as never[]);
+		Commands[name](...args as never[]);
 		self.Dispatch('Command:After', name);
 	};
 
 	const Register = <T extends (...args: never[]) => void>(name: string, command: (...args: Parameters<T>) => void) => {
 		if (IsRegistered(name)) return;
 
-		commands[name] = command as (...args: never[]) => void;
+		Commands[name] = command as (...args: never[]) => void;
 	};
 
 	return {
-		commands,
+		Commands,
 		Run,
 		Register,
 	};

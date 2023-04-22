@@ -27,9 +27,9 @@ const SelectTableCell = (editor: Editor, event: MouseEvent | TouchEvent) => {
 	if (TargetCellIndex === -1) return;
 
 	const moveEvent = (e: MouseEvent | TouchEvent) => {
-		const currentCell = DOM.Element.Table.GetClosestCell(e.composedPath()[0]);
+		const currentCell = DOM.Element.Table.FindClosestCell(e.composedPath()[0]);
 		const currentRow = currentCell?.parentElement;
-		if (!currentCell || !currentRow || currentCell === Cell || !DOM.Element.Table.IsTableRow(currentRow)) {
+		if (!currentCell || !currentRow || currentCell === Cell || !DOM.Element.Table.IsRow(currentRow)) {
 			if (!bDragged) return;
 
 			self.Utils.Caret.CleanRanges();

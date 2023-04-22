@@ -34,7 +34,7 @@ const HorizontalLine = (editor: Editor) => {
 		const caret = CaretUtils.Get();
 		if (!caret) {
 			const cells = DOM.Element.Table.GetSelectedCells(self);
-			const figure = DOM.Element.Figure.GetClosest(cells[0] ?? null);
+			const figure = DOM.Element.Figure.FindClosest(cells[0] ?? null);
 			DOM.InsertAfter(figure ?? self.GetBody(), horizontalLine);
 			return finish();
 		}
@@ -45,8 +45,8 @@ const HorizontalLine = (editor: Editor) => {
 		const { StartBlock, EndBlock } = self.Utils.Shared.SplitLines(caret.Start.Node, caret.Start.Offset);
 		DOM.InsertAfter(StartBlock ?? caret.Start.Path[0], EndBlock, horizontalLine);
 
-		if (!DOM.Element.Figure.IsFigure(StartBlock) && Str.IsEmpty(DOM.GetText(StartBlock))) DOM.Remove(StartBlock);
-		if (!DOM.Element.Figure.IsFigure(EndBlock) && Str.IsEmpty(DOM.GetText(EndBlock))) DOM.Remove(EndBlock);
+		if (!DOM.Element.Figure.Is(StartBlock) && Str.IsEmpty(DOM.GetText(StartBlock))) DOM.Remove(StartBlock);
+		if (!DOM.Element.Figure.Is(EndBlock) && Str.IsEmpty(DOM.GetText(EndBlock))) DOM.Remove(EndBlock);
 
 		finish();
 	};

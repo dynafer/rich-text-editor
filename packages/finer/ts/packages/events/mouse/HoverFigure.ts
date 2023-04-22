@@ -18,7 +18,7 @@ const HoverFigure = (editor: Editor, event: MouseEvent) => {
 
 	let target: HTMLElement | undefined;
 	Arr.Each(tools, tool => {
-		if (DOM.Element.Figure.GetClosest(tool) !== Figure) return;
+		if (DOM.Element.Figure.FindClosest(tool) !== Figure) return;
 		target = tool;
 	});
 	DOMTools.HideAll(target);

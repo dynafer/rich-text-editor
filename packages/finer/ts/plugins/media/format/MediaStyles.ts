@@ -9,7 +9,7 @@ const MediaStyles = (editor: Editor, format: IPluginMediaCommand) => {
 	const { Styles, SameStyles, bAsText } = format;
 
 	const wrapStyle = (media: HTMLElement): HTMLElement | null => {
-		const figure = DOM.Element.Figure.GetClosest(media);
+		const figure = DOM.Element.Figure.FindClosest(media);
 		if (!figure) return null;
 
 		DOM.RemoveStyles(figure, ...SameStyles);
@@ -21,7 +21,7 @@ const MediaStyles = (editor: Editor, format: IPluginMediaCommand) => {
 	};
 
 	const unwrapStyle = (media: HTMLElement): HTMLElement | null => {
-		const figure = DOM.Element.Figure.GetClosest(media);
+		const figure = DOM.Element.Figure.FindClosest(media);
 		if (!figure) return null;
 
 		if (bAsText) DOM.RemoveAttr(figure, Options.ATTRIBUTE_AS_TEXT);

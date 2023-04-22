@@ -85,7 +85,7 @@ const Unwrapper = (editor: Editor, format: IPluginListFormat) => {
 		const target = formatUtils.GetParentIfText(node);
 
 		const oldList = DOM.Closest(target, Tag);
-		const table = DOM.Element.Table.GetClosest(target);
+		const table = DOM.Element.Table.FindClosest(target);
 		if (!oldList || !!table) return;
 
 		const children = DOM.GetChildNodes(oldList);
@@ -100,7 +100,7 @@ const Unwrapper = (editor: Editor, format: IPluginListFormat) => {
 		const target = formatUtils.GetParentIfText(caret.Start.Node);
 
 		const oldList = DOM.Closest(target, Tag);
-		const table = DOM.Element.Table.GetClosest(target);
+		const table = DOM.Element.Table.FindClosest(target);
 		if (!oldList && !table) return false;
 
 		if (table) {
@@ -111,7 +111,7 @@ const Unwrapper = (editor: Editor, format: IPluginListFormat) => {
 			}
 		}
 
-		const tableCell = DOM.Element.Table.GetClosestCell(target);
+		const tableCell = DOM.Element.Table.FindClosestCell(target);
 		if (!tableCell && oldList) return unwrap(oldList, caret.Start.Node, caret.End.Node);
 
 		if (!tableCell) return false;

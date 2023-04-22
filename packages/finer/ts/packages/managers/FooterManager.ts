@@ -3,9 +3,11 @@ import { Arr, Str } from '@dynafer/utils';
 import DOM from '../dom/DOM';
 import Editor from '../Editor';
 import { ENativeEvents, PreventEvent } from '../events/EventSetupUtils';
+import { AllBlockFormats } from '../formatter/Format';
 
 export interface IFooterManager {
 	UpdateCounter: () => void,
+	CleanNavigation: () => void,
 }
 
 const navigationId = DOM.Utils.CreateUEID('navigation', false);
@@ -56,11 +58,9 @@ const FooterManager = (editor: Editor): IFooterManager | null => {
 	let regexBlockTags: RegExp;
 
 	const UpdateCounter = () => {
-		if (!regexBlockTags) regexBlockTags = new RegExp(`<\/?(${Str.Join('|', ...self.Formatter.Formats.AllBlockFormats)}).*?>`, 'g');
+		if (!regexBlockTags) regexBlockTags = new RegExp(`<\/?(${Str.Join('|', ...AllBlockFormats)}).*?>`, 'g');
 		const clonedBody = DOM.Clone(self.GetBody(), true);
-		Arr.WhileShift(DOM.SelectAll({
-			attrs: { dataFixed: 'dom-tool' }
-		}, clonedBody), tools => DOM.Remove(tools));
+		Arr.WhileShift(DOM.SelectAll({ attrs: { dataFixed: 'dom-tool' } }, clonedBody), tools => DOM.Remove(tools));
 		const texts = DOM.GetHTML(clonedBody)
 			.replace(regexBlockTags, ' ')
 			.replace(/<\/?.*?>/g, '')
@@ -73,6 +73,8 @@ const FooterManager = (editor: Editor): IFooterManager | null => {
 		DOM.SetText(wordCounter, Str.Commaize(words));
 		DOM.SetText(totalCounter, Str.Commaize(total));
 	};
+
+	const CleanNavigation = () => DOM.RemoveChildren(navigation, true);
 
 	const navigationClickEvent = (target: Element) => {
 		const newRange = self.Utils.Range();
@@ -96,14 +98,14 @@ const FooterManager = (editor: Editor): IFooterManager | null => {
 				case 'table':
 					return DOM.Element.Table.ToggleSelectMultipleCells(true, DOM.Element.Table.GetAllOwnCells(target));
 				case 'row':
-					const table = DOM.Element.Table.GetClosest(target);
+					const table = DOM.Element.Table.FindClosest(target);
 					if (!table) return;
 
 					if (!bAlreadySelected) return DOM.Element.Table.ToggleSelectMultipleCells(true, DOM.Element.Table.GetAllOwnCells(target ?? table));
 
 					const rows: Element[] = [];
 					Arr.Each(cells, cell => {
-						const row = DOM.Element.Table.GetClosestRow(cell);
+						const row = DOM.Element.Table.FindClosestRow(cell);
 						if (!row || Arr.Contains(rows, row)) return;
 						Arr.Push(rows, row);
 					});
@@ -118,23 +120,23 @@ const FooterManager = (editor: Editor): IFooterManager | null => {
 			}
 		};
 
-		if (DOM.Element.Table.IsTable(target)) {
+		if (DOM.Element.Table.Is(target)) {
 			selectCells('table');
 			return finish();
 		}
 
-		if (DOM.Element.Table.IsTableRow(target)) {
+		if (DOM.Element.Table.IsRow(target)) {
 			selectCells('row');
 			return finish();
 		}
 
-		if (DOM.Element.Table.IsTableCell(target)) {
+		if (DOM.Element.Table.IsCell(target)) {
 			selectCells('cell');
 			return finish();
 		}
 
 
-		if (DOM.Element.Figure.IsFigure(target)) {
+		if (DOM.Element.Figure.Is(target)) {
 			newRange.SetStartToEnd(target, 1, 1);
 			return updateRange();
 		}
@@ -153,12 +155,12 @@ const FooterManager = (editor: Editor): IFooterManager | null => {
 	};
 
 	const createNavigationItems = (elements: Element[]) => {
-		DOM.RemoveChildren(navigation, true);
+		CleanNavigation();
 		Arr.Each(elements, element => {
 			if (NodeType.IsText(element) || DOM.Utils.IsBr(element)) return;
 
 			let elementName = DOM.Utils.GetNodeName(element);
-			if (DOM.Element.Figure.IsFigure(element)) {
+			if (DOM.Element.Figure.Is(element)) {
 				const figureElement = DOM.Element.Figure.SelectFigureElement(element);
 				if (figureElement)
 					elementName = Str.Merge(elementName, '<', DOM.Utils.GetNodeName(figureElement), '>');
@@ -194,6 +196,7 @@ const FooterManager = (editor: Editor): IFooterManager | null => {
 
 	return {
 		UpdateCounter,
+		CleanNavigation,
 	};
 };
 

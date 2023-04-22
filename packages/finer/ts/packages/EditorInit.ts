@@ -1,12 +1,10 @@
 import { Type } from '@dynafer/utils';
 import Editor from './Editor';
-import { IEditorConfiguration } from './EditorConfigure';
+import { TConfigurationKey } from './EditorConfigure';
 
-export interface IEditorInit {
-	(config: IEditorConfiguration): Promise<Editor>;
-}
+export type TEditorInit = (config: Record<string, TConfigurationKey>) => Promise<Editor>;
 
-const EditorInit = (config: IEditorConfiguration): Promise<Editor> => {
+const EditorInit = (config: Record<string, TConfigurationKey>): Promise<Editor> => {
 	const before = (): Promise<void> => {
 		const iconName = Type.IsString(config.iconPack) ? config.iconPack : 'default';
 

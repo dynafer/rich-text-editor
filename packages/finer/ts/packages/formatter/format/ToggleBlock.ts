@@ -40,7 +40,7 @@ const ToggleBlock = (editor: Editor, format: IBlockFormat): IToggleBlock => {
 		const startElement = FormatUtils.GetParentIfText(caret.Start.Node);
 
 		if (caret.Start.Node === caret.End.Node
-			|| (!DOM.Element.Table.GetClosest(startElement) && !DOM.Closest(startElement, { tagName: Arr.Convert(AddInside) }))
+			|| (!DOM.Element.Table.FindClosest(startElement) && !DOM.Closest(startElement, { tagName: Arr.Convert(AddInside) }))
 		) {
 			Toggler.Toggle(bWrap, format, DOM.GetChildNodes(caret.Start.Node, false)[0] ?? caret.Start.Node);
 			return true;

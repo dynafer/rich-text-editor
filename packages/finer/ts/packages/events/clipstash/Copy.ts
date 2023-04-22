@@ -15,7 +15,7 @@ const Copy = (editor: Editor, event: ClipboardEvent) => {
 		const cells = DOM.Element.Table.GetSelectedCells(self);
 		if (Arr.IsEmpty(cells)) return;
 
-		const actualTable = DOM.Element.Table.GetClosest(cells[0]);
+		const actualTable = DOM.Element.Table.FindClosest(cells[0]);
 		if (!actualTable) return;
 
 		PreventEvent(event);
@@ -42,7 +42,7 @@ const Copy = (editor: Editor, event: ClipboardEvent) => {
 	const bCut = event.type === ENativeEvents.cut;
 
 	if (!caret.IsRange()) {
-		if (!DOM.Element.Figure.IsFigure(caret.Start.Node)) return;
+		if (!DOM.Element.Figure.Is(caret.Start.Node)) return;
 
 		const figureElement = DOM.Element.Figure.SelectFigureElement(caret.Start.Node);
 		if (!figureElement) return;

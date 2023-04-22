@@ -72,8 +72,8 @@ const DOMTools = (editor: Editor): IDOMTools => {
 		const focused = SelectFocused();
 
 		const isSkippable = (tools: HTMLElement): boolean =>
-			(!!focused && DOM.Utils.IsChildOf(tools, focused) && DOM.Element.Figure.GetClosest(tools) === focused)
-			|| (!!except && DOM.Utils.IsChildOf(tools, except) && DOM.Element.Figure.GetClosest(tools) === focused);
+			(!!focused && DOM.Utils.IsChildOf(tools, focused) && DOM.Element.Figure.FindClosest(tools) === focused)
+			|| (!!except && DOM.Utils.IsChildOf(tools, except) && DOM.Element.Figure.FindClosest(tools) === focused);
 
 		Arr.Each(toolList, tools => {
 			if (isSkippable(tools)) return;

@@ -27,7 +27,7 @@ const Input = (editor: Editor) => {
 
 		const node = !caret ? cells[0] : FormatUtils.GetParentIfText(caret.Start.Node);
 		if (!caret) {
-			const figure = DOM.Element.Figure.GetClosest(node);
+			const figure = DOM.Element.Figure.FindClosest(node);
 			if (!figure) return;
 
 			caret = CaretUtils.CreateFake(figure, 0, figure, 0);

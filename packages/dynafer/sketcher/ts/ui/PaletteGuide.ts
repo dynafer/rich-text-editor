@@ -1,5 +1,5 @@
 import { Style } from '@dynafer/dom-control';
-import { Arr, Instance, Str } from '@dynafer/utils';
+import { Arr, Obj, Str } from '@dynafer/utils';
 import { IUISchemaMap } from '../types/UISchema';
 import { IUISettingMap } from '../types/UISetting';
 import { GetLimitation } from '../utils/UIUtils';
@@ -54,12 +54,13 @@ const PaletteGuide = (setting: IUISettingMap['PaletteGuide']): IUISchemaMap['Pal
 		if (Arr.Contains(startEvents, type)) bDragging = true;
 		if (Arr.Contains(moveEvents, type) && !bDragging) return;
 
-		if (Instance.Is(event, MouseEvent) && event.buttons === 0) {
+		if (Obj.HasProperty<MouseEvent>(event, 'buttons') && event.buttons === 0) {
 			bDragging = false;
 			return;
 		}
 
-		const eventItem = Instance.Is(event, TouchEvent) ? event.touches[0] : event;
+		const eventItem = Obj.HasProperty<TouchEvent>(event, 'touches') ? event.touches.item(0) : event;
+		if (!eventItem) return;
 		SetGuidance(eventItem.clientX - guide.parentElement.offsetLeft, eventItem.clientY - guide.parentElement.offsetTop);
 	};
 

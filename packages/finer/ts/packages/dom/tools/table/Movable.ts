@@ -70,7 +70,7 @@ const Movable = (editor: Editor, table: HTMLElement): HTMLElement => {
 			const caret = CaretUtils.Get();
 			if (!caret) return moveToSavedPoint(true);
 
-			const closestTable = DOM.Element.Table.GetClosest(FormatUtils.GetParentIfText(caret.Start.Node));
+			const closestTable = DOM.Element.Table.FindClosest(FormatUtils.GetParentIfText(caret.Start.Node));
 			if (closestTable === FigureElement) return moveToSavedPoint(true);
 
 			const bPointLine = caret.SameRoot === caret.Start.Path[0];

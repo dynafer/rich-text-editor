@@ -16,39 +16,47 @@
 	}
 }
 
-@mixin tag-styles {
+@mixin tag-selectable-styles($condition) {
+	a {
+		text-decoration: none;
+	}
+
 	code {
 		@include padding(rem, $right: 0.2, $left: 0.2);
 		background-color: #dee2e6;
-
-		&:hover {
-			background-color: getVar(format-code-hover-bg);
-		}
-
-		&[data-focused] {
-			background-color: getVar(format-code-focused-bg);
-		}
 	}
 
+	&#{$condition} {
+		a {
+			&:hover {
+				background-color: getVar(format-anchor-hover-bg);
+				text-decoration: underline;
+			}
+
+			&[data-focused] {
+				background-color: getVar(format-anchor-focused-bg);
+				text-decoration: underline;
+			}
+		}
+
+		code {
+			&:hover {
+				background-color: getVar(format-code-hover-bg);
+			}
+
+			&[data-focused] {
+				background-color: getVar(format-code-focused-bg);
+			}
+		}
+	}
+}
+
+@mixin tag-styles {
 	blockquote {
 		@include padding(rem, $left: 2, $right: 2);
 		@include border($left: #ccc, $size: 5px);
 		@include margin($left: 0, $right: 0);
 		font-style: italic;
-	}
-
-	a {
-		text-decoration: none;
-
-		&:hover {
-			background-color: getVar(format-anchor-hover-bg);
-			text-decoration: underline;
-		}
-
-		&[data-focused] {
-			background-color: getVar(format-anchor-focused-bg);
-			text-decoration: underline;
-		}
 	}
 
 	figure {
@@ -200,6 +208,9 @@
 	@include all-margin(1rem);
 	@include word-break;
 	@include tag-styles;
+	@include tag-selectable-styles('[contenteditable=' true ']');
+
+	cursor: text;
 
 	* {
 		color: revert;

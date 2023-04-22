@@ -53,7 +53,7 @@ const Unwrapper = (editor: Editor, utils: IAnchorUtils) => {
 		const newRange = RangeUtils();
 
 		const closestAnchor = DOM.Closest(formatUtils.GetParentIfText(splitedTextNode), 'a');
-		const until = utils.GetClosestBlock(splitedTextNode);
+		const until = utils.ClosestBlock(splitedTextNode);
 
 		if (!closestAnchor || !until) return false;
 
@@ -94,8 +94,8 @@ const Unwrapper = (editor: Editor, utils: IAnchorUtils) => {
 		caret.Range.SetStart(startNode, startNode === caret.Start.Node ? caret.Start.Offset : 0);
 		caret.Range.SetEnd(endNode, endNode.textContent?.length ?? 0);
 
-		const startUntil = utils.GetClosestBlock(startNode);
-		const endUntil = utils.GetClosestBlock(endNode);
+		const startUntil = utils.ClosestBlock(startNode);
+		const endUntil = utils.ClosestBlock(endNode);
 		if (!startUntil || !endUntil) return false;
 
 		if (startUntil === endUntil) {

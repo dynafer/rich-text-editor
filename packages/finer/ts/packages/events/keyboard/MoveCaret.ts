@@ -38,7 +38,7 @@ const MoveCaret = (editor: Editor, event: KeyboardEvent) => {
 	const moveUtils = MoveUtils(self, event);
 
 	const moveOrDeleteInFigure = (): boolean => {
-		if (!DOM.Element.Figure.IsFigure(caret.Start.Node)) return false;
+		if (!DOM.Element.Figure.Is(caret.Start.Node)) return false;
 
 		const { Figure, FigureType, FigureElement } = DOM.Element.Figure.Find<HTMLElement>(caret.Start.Node);
 		if (!Figure || !FigureType || !FigureElement) return false;
@@ -51,7 +51,7 @@ const MoveCaret = (editor: Editor, event: KeyboardEvent) => {
 				const newParagraph = self.CreateEmptyParagraph();
 				DOM.InsertAfter(Figure, newParagraph);
 				moveUtils.UpdateRange(DOM.Utils.GetFirstChild(newParagraph) as Element, 0);
-			} else if (DOM.Element.Figure.IsFigure(sibling)) {
+			} else if (DOM.Element.Figure.Is(sibling)) {
 				moveUtils.UpdateRange(sibling, bPrevious ? 1 : 0);
 			} else {
 				moveUtils.UpdateRangeWithDescendants(sibling, sibling, bPrevious);
@@ -60,7 +60,7 @@ const MoveCaret = (editor: Editor, event: KeyboardEvent) => {
 			return true;
 		}
 
-		if (DOM.Element.Table.IsTable(FigureElement)) return false;
+		if (DOM.Element.Table.Is(FigureElement)) return false;
 
 		if ((bLeft && caret.Start.Offset !== 0) || (bRight && caret.Start.Offset !== 1)) {
 			moveUtils.UpdateRange(Figure, bLeft ? 0 : 1);
@@ -104,7 +104,7 @@ const MoveCaret = (editor: Editor, event: KeyboardEvent) => {
 			checker = lineSibling;
 		}
 
-		if (!DOM.Element.Figure.IsFigure(checker)) return;
+		if (!DOM.Element.Figure.Is(checker)) return;
 
 		const offset = bBackward ? 1 : 0;
 		moveUtils.UpdateRange(checker, offset);

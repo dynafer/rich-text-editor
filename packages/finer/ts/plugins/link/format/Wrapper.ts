@@ -95,7 +95,7 @@ const Wrapper = (editor: Editor, utils: IAnchorUtils) => {
 		const newRange = RangeUtils();
 
 		const closestAnchor = DOM.Closest(formatUtils.GetParentIfText(splitedTextNode), 'a');
-		const until = utils.GetClosestBlock(splitedTextNode);
+		const until = utils.ClosestBlock(splitedTextNode);
 
 		if (!closestAnchor || !until) {
 			const cloned = DOM.Clone(splitedTextNode);
@@ -149,8 +149,8 @@ const Wrapper = (editor: Editor, utils: IAnchorUtils) => {
 		caret.Range.SetStart(startNode, startOffset);
 		caret.Range.SetEnd(endNode, endOffset);
 
-		const startUntil = utils.GetClosestBlock(startNode);
-		const endUntil = utils.GetClosestBlock(endNode);
+		const startUntil = utils.ClosestBlock(startNode);
+		const endUntil = utils.ClosestBlock(endNode);
 		if (!startUntil || !endUntil) return false;
 
 		if (startUntil === endUntil) {

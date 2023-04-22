@@ -155,7 +155,7 @@ const StyleFormat = (editor: Editor, detector: IFormatDetector): IFormatUIRegist
 
 				FormatUI.RegisterKeyboardEvent(self, Keys, event => {
 					if (FormatUI.IsDisabled(button)) return;
-					const figure = DOM.Element.Figure.GetClosest(event.target);
+					const figure = DOM.Element.Figure.FindClosest(event.target);
 					if (figure) return;
 					eventCallback();
 				});

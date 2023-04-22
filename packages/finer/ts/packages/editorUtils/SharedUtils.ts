@@ -48,7 +48,7 @@ const SharedUtils = (editor: Editor): ISharedUtils => {
 			EndBlock,
 		};
 
-		const until = DOM.Element.Table.GetClosestCell(FormatUtils.GetParentIfText(node)) ?? self.GetBody();
+		const until = DOM.Element.Table.FindClosestCell(FormatUtils.GetParentIfText(node)) ?? self.GetBody();
 		const nextText = node.splitText(offset);
 		const nextTextParent = nextText.parentNode;
 

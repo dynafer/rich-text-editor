@@ -19,7 +19,7 @@ const MediaInserter = (editor: Editor, ui: IPluginMediaUI) => {
 		(): HTMLElement => {
 			const figure = self.Tools.DOM.SelectFocused(false, 'media');
 			const figureElement = DOM.Element.Figure.SelectFigureElement<HTMLIFrameElement>(figure);
-			const bUpdatable = DOM.Element.Figure.IsFigure(figure) && (DOM.Utils.IsIFrame(figureElement) || DOM.Utils.IsVideo(figureElement));
+			const bUpdatable = DOM.Element.Figure.Is(figure) && (DOM.Utils.IsIFrame(figureElement) || DOM.Utils.IsVideo(figureElement));
 
 			const createMedia = (input: HTMLInputElement) => {
 				const commandName = !bUpdatable ? COMMAND_NAMES_MAP.MEDIA_CREATE : COMMAND_NAMES_MAP.MEDIA_UPDATE;

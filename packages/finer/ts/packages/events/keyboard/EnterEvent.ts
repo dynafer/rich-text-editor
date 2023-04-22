@@ -10,7 +10,7 @@ const EnterEvent = (editor: Editor, event: KeyboardEvent) => {
 	if (event.key !== EKeyCode.Enter && event.code !== EKeyCode.Enter) return;
 
 	const caret = CaretUtils.Get();
-	if (!caret || caret.IsRange() || !DOM.Element.Figure.IsFigure(caret.Start.Node)) return;
+	if (!caret || caret.IsRange() || !DOM.Element.Figure.Is(caret.Start.Node)) return;
 
 	PreventEvent(event);
 

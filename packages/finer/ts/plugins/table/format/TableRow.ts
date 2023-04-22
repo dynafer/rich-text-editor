@@ -17,7 +17,7 @@ const TableRow = (editor: Editor) => {
 
 	const getRows = (pointer: ICaretData | HTMLTableCellElement[]): HTMLTableRowElement[] | null => {
 		if (!Type.IsArray(pointer)) {
-			const row = DOM.Element.Table.GetClosestRow<HTMLTableRowElement>(self.Formatter.Utils.GetParentIfText(pointer.Start.Node));
+			const row = DOM.Element.Table.FindClosestRow<HTMLTableRowElement>(self.Formatter.Utils.GetParentIfText(pointer.Start.Node));
 			return !row ? null : [row];
 		}
 
@@ -25,7 +25,7 @@ const TableRow = (editor: Editor) => {
 
 		const rows: HTMLTableRowElement[] = [];
 		Arr.Each(pointer, cell => {
-			const row = DOM.Element.Table.GetClosestRow(cell);
+			const row = DOM.Element.Table.FindClosestRow(cell);
 			if (!row || Arr.Contains(rows, row)) return;
 			Arr.Push(rows, row);
 		});
@@ -53,14 +53,14 @@ const TableRow = (editor: Editor) => {
 
 		if (Arr.IsEmpty(pointer)) return {};
 
-		const table = DOM.Element.Table.GetClosest<HTMLTableElement>(pointer[0]);
+		const table = DOM.Element.Table.FindClosest<HTMLTableElement>(pointer[0]);
 		if (!table) return {};
 
 		const tableGrid = DOM.Element.Table.GetGridWithIndex(table, pointer[0]);
 		if (tableGrid.TargetCellRowIndex === -1 || tableGrid.TargetCellIndex === -1) return {};
 
 		Arr.Each(pointer, cell => {
-			const row = DOM.Element.Table.GetClosestRow(cell);
+			const row = DOM.Element.Table.FindClosestRow(cell);
 			if (!row || Arr.Contains(rows, row)) return;
 			Arr.Push(rows, row);
 		});
@@ -81,11 +81,11 @@ const TableRow = (editor: Editor) => {
 
 		const { Grid, TargetCellRowIndex, TargetCellIndex } = tableGrid;
 
-		let targetRow = DOM.Element.Table.GetClosestRow(Grid[TargetCellRowIndex][TargetCellIndex]);
+		let targetRow = DOM.Element.Table.FindClosestRow(Grid[TargetCellRowIndex][TargetCellIndex]);
 		if (!bAbove && !caret) {
 			for (let index = TargetCellRowIndex, length = Grid.length; index < length; ++index) {
 				const cell = Grid[index][TargetCellIndex] ?? null;
-				const row = DOM.Element.Table.GetClosestRow(cell);
+				const row = DOM.Element.Table.FindClosestRow(cell);
 				if (!row || !Arr.Contains(rows, row) || index === length - 1) {
 					targetRow = row;
 					break;
@@ -129,7 +129,7 @@ const TableRow = (editor: Editor) => {
 		let futureCaretTarget: Node | null = null;
 		for (let index = TargetCellRowIndex, length = Grid.length; index < length; ++index) {
 			const cell = Grid[index][TargetCellIndex] ?? null;
-			const row = DOM.Element.Table.GetClosestRow(cell);
+			const row = DOM.Element.Table.FindClosestRow(cell);
 			if (!row || !Arr.Contains(rows, row)) {
 				futureCaretTarget = cell;
 				break;

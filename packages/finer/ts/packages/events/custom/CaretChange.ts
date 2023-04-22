@@ -50,9 +50,9 @@ const CaretChange = (editor: Editor) => {
 		});
 
 		Arr.WhileShift(figureElements, element => {
-			if (DOM.Element.Figure.IsFigure(element)) return;
+			if (DOM.Element.Figure.Is(element)) return;
 
-			const currentFigure = DOM.Element.Figure.GetClosest(element);
+			const currentFigure = DOM.Element.Figure.FindClosest(element);
 
 			const figureType = DOM.Element.Figure.FindType(DOM.Utils.GetNodeName(element));
 			const figure = currentFigure ?? DOM.Element.Figure.Create(figureType);
@@ -81,12 +81,12 @@ const CaretChange = (editor: Editor) => {
 
 		DOMTools.UnsetAllFocused(Figure);
 
-		const bNotNodeFigure = !!Figure && !!caret?.IsRange() && DOM.Element.Figure.GetClosest(node) !== Figure;
+		const bNotNodeFigure = !!Figure && !!caret?.IsRange() && DOM.Element.Figure.FindClosest(node) !== Figure;
 		if (!Figure || !FigureElement || bNotNodeFigure) return;
 
 		let newRange: IRangeUtils | null = null;
 
-		if (!DOM.Element.Table.IsTable(FigureElement) && (caret.Start.Node === Figure || caret.End.Node === Figure)) {
+		if (!DOM.Element.Table.Is(FigureElement) && (caret.Start.Node === Figure || caret.End.Node === Figure)) {
 			caret.Range.SetStartToEnd(Figure, caret.Start.Offset, caret.Start.Offset);
 			newRange = caret.Range.Clone();
 		}
@@ -103,7 +103,7 @@ const CaretChange = (editor: Editor) => {
 		const caret = CaretUtils.Get();
 		if (!caret) return;
 
-		const focusableSet = self.Formatter.Formats.BlockFormatTags.Focusable;
+		const focusableSet = BlockFormatTags.Focusable;
 
 		Arr.Each(DOM.SelectAll(Str.Join(',', ...focusableSet)), focused => DOM.RemoveAttr(focused, Options.ATTRIBUTE_FOCUSED));
 

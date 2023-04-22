@@ -34,7 +34,7 @@ const FormatUnwrapper = (editor: Editor): IFormatUnwrapper => {
 		const addInsideSelector = Str.Join(',', ...AddInside);
 		const oldElement = FormatUtils.GetParentIfText(node);
 
-		if (!DOM.Closest(oldElement, addInsideSelector) || DOM.Element.Table.GetClosestCell(oldElement)) {
+		if (!DOM.Closest(oldElement, addInsideSelector) || DOM.Element.Table.FindClosestCell(oldElement)) {
 			const blockElement = DOM.Closest(oldElement, Tag);
 			if (!blockElement) return true;
 
@@ -102,7 +102,7 @@ const FormatUnwrapper = (editor: Editor): IFormatUnwrapper => {
 
 			for (let index = 0, length = children.length; index < length; ++index) {
 				const child = children[index];
-				if (DOM.HasAttr(child, 'marker') || DOM.Element.Figure.IsFigure(child)) {
+				if (DOM.HasAttr(child, 'marker') || DOM.Element.Figure.Is(child)) {
 					Arr.Push(replacedNodes, child);
 					continue;
 				}

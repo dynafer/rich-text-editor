@@ -55,7 +55,7 @@ export const CreateHistoryPath = (editor: Editor, data: TCreateHistoryData): THi
 	const self = editor;
 
 	if (Type.IsArray(data)) {
-		const table = DOM.Element.Table.GetClosest(data[0] ?? null);
+		const table = DOM.Element.Table.FindClosest(data[0] ?? null);
 		if (Arr.IsEmpty(data) || !table) return null;
 
 		const path: number[] = getPath(table, self.GetBody());
