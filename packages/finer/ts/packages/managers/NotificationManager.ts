@@ -1,4 +1,4 @@
-import { Arr } from '@dynafer/utils';
+import { Arr, Str } from '@dynafer/utils';
 import DOM from '../dom/DOM';
 import Editor from '../Editor';
 import { ENativeEvents } from '../events/EventSetupUtils';
@@ -43,11 +43,11 @@ const NotificationManager = (editor: Editor): INotificationManager => {
 
 		const wrapper = DOM.Create('div', {
 			attrs: {
-				id: createName('message')
+				id: createName('message'),
+				type: Str.LowerCase(ENotificationStatus[type]),
 			},
 			class: [
 				createName('message'),
-				createName(`message-${ENotificationStatus[type]}`),
 			],
 			children: [
 				DOM.Create('div', {
@@ -70,9 +70,16 @@ const NotificationManager = (editor: Editor): INotificationManager => {
 			const index: number = stacks.indexOf(wrapper);
 			Arr.Remove(stacks, index);
 
-			DOM.Remove(wrapper, true);
+			const bLast = Arr.IsEmpty(stacks);
 
-			Hide();
+			DOM.AddClass(wrapper, 'fade-out');
+
+			let fadeOut: NodeJS.Timeout | undefined = setTimeout(() => {
+				DOM.Remove(wrapper, true);
+				if (bLast) Hide();
+				clearTimeout(fadeOut);
+				fadeOut = undefined;
+			}, 450);
 		});
 
 		DOM.Insert(notification, wrapper);

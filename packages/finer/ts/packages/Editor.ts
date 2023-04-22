@@ -1,4 +1,4 @@
-import { Arr, Str, Utils } from '@dynafer/utils';
+import { Arr, Obj, Str, Type, Utils } from '@dynafer/utils';
 import Options from '..//Options';
 import Commander, { ICommander } from './commander/Commander';
 import DOM, { IDom, TEventListener } from './dom/DOM';
@@ -261,6 +261,18 @@ class Editor {
 
 	public GetShortcuts(): IShortcuts[] {
 		return this.mShortcuts;
+	}
+
+	public Lang(key: string, defaultText: string, replacers?: string[]): string {
+		let text = Finer.ILC.Get(this.Config.Language as string, key) ?? defaultText;
+		if (!Type.IsArray(replacers)) return text;
+
+		Obj.Entries(replacers, (index, replacer) => {
+			if (!Type.IsString(replacer)) return;
+			text = text.replace(`{${index}}`, replacer);
+		});
+
+		return text;
 	}
 
 	private toggleLoading(status: ELoadingStatus) {

@@ -1,4 +1,5 @@
 import { Arr, Str, Type } from '@dynafer/utils';
+import Editor from '../../../packages/Editor';
 import { IFileSize } from './Type';
 
 const createCommandName = (name: string): string => Str.Join(':', 'Media', name);
@@ -85,4 +86,4 @@ export const GetAllowedExtensions = (mimeTypes: string[], accept?: string | stri
 	return Str.Join(',', ...availableExtensions);
 };
 
-export const GetMenuText = (name: string, defaultText: string): string => Finer.ILC.Get(Str.Merge('plugins.tools.menu.', name), defaultText);
+export const GetMenuText = (editor: Editor, name: string, defaultText: string): string => editor.Lang(Str.Merge('plugins.tools.menu.', name), defaultText);

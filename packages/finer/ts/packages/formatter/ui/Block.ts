@@ -29,23 +29,23 @@ const Block = (editor: Editor, detector: IFormatDetector): IFormatUIRegistryUnit
 		HeadingStyle: {
 			bPreview: true,
 			Items: [
-				{ Format: Formats.Paragraph as IBlockFormat, Title: Finer.ILC.Get('format.normal', 'Normal'), CommandName: 'Normal' },
-				{ Format: Formats.Heading1 as IBlockFormat, Title: Finer.ILC.Get('format.heading1', 'Heading1'), CommandName: 'Heading1', Keys: 'Alt+Shift+1' },
-				{ Format: Formats.Heading2 as IBlockFormat, Title: Finer.ILC.Get('format.heading2', 'Heading2'), CommandName: 'Heading2', Keys: 'Alt+Shift+2' },
-				{ Format: Formats.Heading3 as IBlockFormat, Title: Finer.ILC.Get('format.heading3', 'Heading3'), CommandName: 'Heading3', Keys: 'Alt+Shift+3' },
-				{ Format: Formats.Heading4 as IBlockFormat, Title: Finer.ILC.Get('format.heading4', 'Heading4'), CommandName: 'Heading4', Keys: 'Alt+Shift+4' },
-				{ Format: Formats.Heading5 as IBlockFormat, Title: Finer.ILC.Get('format.heading5', 'Heading5'), CommandName: 'Heading5', Keys: 'Alt+Shift+5' },
-				{ Format: Formats.Heading6 as IBlockFormat, Title: Finer.ILC.Get('format.heading6', 'Heading6'), CommandName: 'Heading6', Keys: 'Alt+Shift+6' },
+				{ Format: Formats.Paragraph as IBlockFormat, Title: self.Lang('format.normal', 'Normal'), CommandName: 'Normal' },
+				{ Format: Formats.Heading1 as IBlockFormat, Title: self.Lang('format.heading1', 'Heading1'), CommandName: 'Heading1', Keys: 'Alt+Shift+1' },
+				{ Format: Formats.Heading2 as IBlockFormat, Title: self.Lang('format.heading2', 'Heading2'), CommandName: 'Heading2', Keys: 'Alt+Shift+2' },
+				{ Format: Formats.Heading3 as IBlockFormat, Title: self.Lang('format.heading3', 'Heading3'), CommandName: 'Heading3', Keys: 'Alt+Shift+3' },
+				{ Format: Formats.Heading4 as IBlockFormat, Title: self.Lang('format.heading4', 'Heading4'), CommandName: 'Heading4', Keys: 'Alt+Shift+4' },
+				{ Format: Formats.Heading5 as IBlockFormat, Title: self.Lang('format.heading5', 'Heading5'), CommandName: 'Heading5', Keys: 'Alt+Shift+5' },
+				{ Format: Formats.Heading6 as IBlockFormat, Title: self.Lang('format.heading6', 'Heading6'), CommandName: 'Heading6', Keys: 'Alt+Shift+6' },
 			],
 			DisableList: AllDisableList
 		},
 		BlockStyle: {
 			bPreview: false,
 			Items: [
-				{ Format: Formats.Paragraph as IBlockFormat, Title: Finer.ILC.Get('format.paragraph', 'Paragraph'), CommandName: 'Paragraph' },
-				{ Format: Formats.Div as IBlockFormat, Title: Finer.ILC.Get('format.div', 'Div'), CommandName: 'Div' },
-				{ Format: Formats.Blockquote as IBlockFormat, Title: Finer.ILC.Get('format.blockquote', 'Blockquote'), CommandName: 'Blockquote' },
-				{ Format: Formats.Pre as IBlockFormat, Title: Finer.ILC.Get('format.pre', 'Pre'), CommandName: 'Pre' },
+				{ Format: Formats.Paragraph as IBlockFormat, Title: self.Lang('format.paragraph', 'Paragraph'), CommandName: 'Paragraph' },
+				{ Format: Formats.Div as IBlockFormat, Title: self.Lang('format.div', 'Div'), CommandName: 'Div' },
+				{ Format: Formats.Blockquote as IBlockFormat, Title: self.Lang('format.blockquote', 'Blockquote'), CommandName: 'Blockquote' },
+				{ Format: Formats.Pre as IBlockFormat, Title: self.Lang('format.pre', 'Pre'), CommandName: 'Pre' },
 			],
 			DisableList: AllDisableList
 		},

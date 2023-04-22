@@ -26,14 +26,14 @@ const InlineColor = (editor: Editor, detector: IFormatDetector): IFormatUIRegist
 	const ColorFormats: Record<string, IInlineFormatColorPickerUI> = {
 		ForeColor: {
 			Format: Formats.ForeColor as IInlineFormat,
-			Title: Finer.ILC.Get('format.textColor', 'Text color'),
+			Title: self.Lang('format.textColor', 'Text color'),
 			DefaultColor: ColorPicker.Utils.RGBA.ToRGB(255, 0, 0),
 			Icon: 'ColorA',
 			LastPicked: [],
 		},
 		BackColor: {
 			Format: Formats.BackColor as IInlineFormat,
-			Title: Finer.ILC.Get('format.backColor', 'Back color'),
+			Title: self.Lang('format.backColor', 'Back color'),
 			DefaultColor: ColorPicker.Utils.RGBA.ToRGB(255, 0, 0),
 			Icon: 'Fill',
 			LastPicked: [],
@@ -102,7 +102,7 @@ const InlineColor = (editor: Editor, detector: IFormatDetector): IFormatUIRegist
 	const createResetButton = (uiName: string, uiFormat: IInlineFormatColorPickerUI): HTMLElement => {
 		const { DefaultColor } = uiFormat;
 
-		const defaultColorText = Finer.ILC.Get('format.color.default', 'Default color');
+		const defaultColorText = self.Lang('format.color.default', 'Default color');
 		const defaultColorHTML = DOM.Utils.WrapTagHTML('button', Str.Merge(
 			DOM.Utils.WrapTagHTML('div', ''),
 			DOM.Utils.WrapTagHTML('span', defaultColorText)
@@ -121,7 +121,7 @@ const InlineColor = (editor: Editor, detector: IFormatDetector): IFormatUIRegist
 	const createFooter = (uiName: string, uiFormat: IInlineFormatColorPickerUI): HTMLElement => {
 		const { LastPicked } = uiFormat;
 
-		const moreText = Finer.ILC.Get('more', 'More');
+		const moreText = self.Lang('more', 'More');
 
 		const footer = FormatUI.CreateOption('', moreText, false, false);
 		const lastPickedList = FormatUI.CreateItemGroup();
@@ -140,9 +140,9 @@ const InlineColor = (editor: Editor, detector: IFormatDetector): IFormatUIRegist
 					Close: Finer.Icons.Get('Close')
 				},
 				Texts: {
-					Title: Finer.ILC.Get('colorpicker', 'Color Picker'),
-					Cancel: Finer.ILC.Get('cancel', 'Cancel'),
-					Apply: Finer.ILC.Get('apply', 'Apply'),
+					Title: self.Lang('colorpicker', 'Color Picker'),
+					Cancel: self.Lang('cancel', 'Cancel'),
+					Apply: self.Lang('apply', 'Apply'),
 				},
 				Pick: (rgb: string) => FormatUI.RunCommand<boolean | string>(self, uiName, true, rgb),
 			});

@@ -7,8 +7,8 @@ const UndoRedo = (editor: Editor) => {
 	const self = editor;
 
 	const formats = [
-		{ Name: UNDO_COMMAND_NAME, Title: Finer.ILC.Get('toolbar.undo', 'Undo'), CommandName: UNDO_COMMAND_NAME, Keys: 'Ctrl+Z' },
-		{ Name: REDO_COMMAND_NAME, Title: Finer.ILC.Get('toolbar.redo', 'Redo'), CommandName: REDO_COMMAND_NAME, Keys: 'Ctrl+Shift+Z' },
+		{ Name: UNDO_COMMAND_NAME, Title: self.Lang('toolbar.undo', 'Undo'), CommandName: UNDO_COMMAND_NAME, Keys: 'Ctrl+Z' },
+		{ Name: REDO_COMMAND_NAME, Title: self.Lang('toolbar.redo', 'Redo'), CommandName: REDO_COMMAND_NAME, Keys: 'Ctrl+Shift+Z' },
 	];
 
 	const Create = (index: number) => {

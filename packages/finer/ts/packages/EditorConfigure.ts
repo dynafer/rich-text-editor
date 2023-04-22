@@ -66,10 +66,10 @@ const Configure = (config: Record<string, TConfigurationKey>): IConfiguration =>
 	let ToolbarStyle: string = Str.UpperCase(Type.IsString(config.toolbarStyle) ? config.toolbarStyle : EToolbarStyle.SCROLL);
 	if (!EToolbarStyle[ToolbarStyle as EToolbarStyle]) ToolbarStyle = EToolbarStyle.SCROLL;
 
-	const excludedDefaultConfiguration: Record<string, TConfigurationKey> = {};
+	const otherConfigurations: Record<string, TConfigurationKey> = {};
 	Obj.Entries(config, (key, value) => {
 		if (Arr.Contains(DEFAULT_CONFIGS, key)) return;
-		excludedDefaultConfiguration[Str.CapitaliseFirst(Str.UnderlineToCapital(key))] = value;
+		otherConfigurations[Str.CapitaliseFirst(Str.UnderlineToCapital(key))] = value;
 	});
 
 	const skin = config.skin;
@@ -89,7 +89,7 @@ const Configure = (config: Record<string, TConfigurationKey>): IConfiguration =>
 		ToolbarStyle,
 		Skin,
 		ShowFooter,
-		...excludedDefaultConfiguration
+		...otherConfigurations
 	};
 
 	Object.freeze(configuration);

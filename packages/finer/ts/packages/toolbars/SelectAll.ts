@@ -7,7 +7,7 @@ const SelectAll = (editor: Editor) => {
 	const self = editor;
 
 	const Name = 'SelectAll';
-	const title = Finer.ILC.Get('toolbar.select.all', 'Select all');
+	const title = self.Lang('toolbar.select.all', 'Select all');
 
 	const Create = (): HTMLElement => {
 		const button = FormatUI.CreateIconButton(title, Name);

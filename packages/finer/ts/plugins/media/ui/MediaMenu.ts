@@ -15,13 +15,13 @@ const MediaMenu = (editor: Editor, ui: IPluginMediaUI): IMediaMenu => {
 
 	const uiFormats: Record<string, IPluginMediaMenuFormatUI[]> = {
 		Float: [
-			{ Title: GetMenuText('floatLeft', 'Align left with text wrapping'), CommandName: COMMAND_NAMES_MAP.FLOAT_LEFT, Icon: 'MediaFloatLeft' },
-			{ Title: GetMenuText('floatRight', 'Align right with text wrapping'), CommandName: COMMAND_NAMES_MAP.FLOAT_RIGHT, Icon: 'MediaFloatRight' },
+			{ Title: GetMenuText(self, 'floatLeft', 'Align left with text wrapping'), CommandName: COMMAND_NAMES_MAP.FLOAT_LEFT, Icon: 'MediaFloatLeft' },
+			{ Title: GetMenuText(self, 'floatRight', 'Align right with text wrapping'), CommandName: COMMAND_NAMES_MAP.FLOAT_RIGHT, Icon: 'MediaFloatRight' },
 		],
 		Alignment: [
-			{ Title: GetMenuText('alignLeft', 'Align left with text break'), CommandName: COMMAND_NAMES_MAP.ALIGN_LEFT, Icon: 'MediaAlignLeft' },
-			{ Title: GetMenuText('alignCenter', 'Align center with text break'), CommandName: COMMAND_NAMES_MAP.ALIGN_CENTER, Icon: 'MediaAlignCenter' },
-			{ Title: GetMenuText('alignRight', 'Align right with text break'), CommandName: COMMAND_NAMES_MAP.ALIGN_RIGHT, Icon: 'MediaAlignRight' },
+			{ Title: GetMenuText(self, 'alignLeft', 'Align left with text break'), CommandName: COMMAND_NAMES_MAP.ALIGN_LEFT, Icon: 'MediaAlignLeft' },
+			{ Title: GetMenuText(self, 'alignCenter', 'Align center with text break'), CommandName: COMMAND_NAMES_MAP.ALIGN_CENTER, Icon: 'MediaAlignCenter' },
+			{ Title: GetMenuText(self, 'alignRight', 'Align right with text break'), CommandName: COMMAND_NAMES_MAP.ALIGN_RIGHT, Icon: 'MediaAlignRight' },
 		]
 	};
 
@@ -70,7 +70,7 @@ const MediaMenu = (editor: Editor, ui: IPluginMediaUI): IMediaMenu => {
 		const button = DOM.Create('button', {
 			attrs: [
 				'data-remove',
-				{ title: GetMenuText('remove.figure', 'Remove the figure') }
+				{ title: GetMenuText(self, 'remove.figure', 'Remove the figure') }
 			],
 			class: DOM.Utils.CreateUEID('icon-button', false),
 			html: Finer.Icons.Get(Finer.Icons.Get('Trash'))

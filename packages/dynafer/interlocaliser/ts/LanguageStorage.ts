@@ -1,16 +1,19 @@
-import { Obj } from '@dynafer/utils';
+import { Obj, Type } from '@dynafer/utils';
 
 const LanguageStorage = () => {
-	const languageMap: Record<string, string> = {};
+	const languageMap: Record<string, Record<string, string>> = {};
 
-	const Add = (key: string, value: string) => {
-		languageMap[key] = value;
+	const Add = (language: string, key: string, value: string) => {
+		if (!Type.IsString(language)) return;
+
+		if (!languageMap[language]) languageMap[language] = {};
+		languageMap[language][key] = value;
 	};
 
-	const AddMap = (map: Record<string, string>) =>
-		Obj.Entries(map, (key, value) => Add(key, value));
+	const AddMap = (language: string, map: Record<string, string>) =>
+		Obj.Entries(map, (key, value) => Add(language, key, value));
 
-	const Get = (key: string): string | null => languageMap[key] ?? null;
+	const Get = (language: string, key: string): string | null => languageMap[language]?.[key] ?? null;
 
 	const Remove = (key: string): boolean => delete languageMap?.[key];
 

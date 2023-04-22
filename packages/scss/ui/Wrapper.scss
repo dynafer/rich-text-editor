@@ -9,15 +9,27 @@
 		@include position(relative);
 
 		.#{getClassName(notification)} {
-			@include position(absolute, 0, 50%);
-			transform: translateX(-50%);
+			@include position(absolute, $bottom: 1rem, $right: 1rem);
 
 			.#{getClassName(notification-message)} {
 				@include flex($justify: space-between);
 				@include all-padding(0.5rem);
 				@include round(0.5rem);
 				@include font(1.15rem);
-				background-color: rgba(220, 213, 150, 1);
+				animation: fade-in 0.5s ease-in;
+				box-shadow: 4px 4px 24px -3px rgba(0, 0, 0, 0.75);
+
+				&[type='warning'] {
+					background-color: rgba(255, 244, 149, 0.5);
+				}
+
+				&[type='error'] {
+					background-color: rgb(207, 57, 57, 0.5);
+				}
+
+				&.fade-out {
+					animation: fade-out 0.5s ease-out;
+				}
 
 				.#{getClassName(notification-message-font)} {
 					@include padding(rem, $right: 0.5);
@@ -34,6 +46,10 @@
 					svg {
 						@include square(1.15rem);
 					}
+				}
+
+				&:not(:first-child) {
+					@include margin(rem, 0.5);
 				}
 			}
 		}

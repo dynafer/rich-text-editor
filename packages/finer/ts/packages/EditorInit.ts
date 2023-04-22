@@ -5,14 +5,19 @@ import { TConfigurationKey } from './EditorConfigure';
 export type TEditorInit = (config: Record<string, TConfigurationKey>) => Promise<Editor>;
 
 const EditorInit = (config: Record<string, TConfigurationKey>): Promise<Editor> => {
+	if (!Type.IsString(config.iconPack)) config.iconPack = 'default';
+
 	const before = (): Promise<void> => {
-		const iconName = Type.IsString(config.iconPack) ? config.iconPack : 'default';
+		const iconName = config.iconPack as string;
 
 		return new Promise((resolve, reject) => {
 			Finer.Loaders.Icon.Load(iconName)
 				.catch(() => reject(`Icon.${iconName}: failed to load the icon pack`))
 				.then(() => {
-					if (!Type.IsString(config.language)) return resolve();
+					if (!Type.IsString(config.language)) {
+						config.language = 'en-GB';
+						return resolve();
+					}
 					return resolve(Finer.Loaders.Language.Load(config.language));
 				})
 				.catch(() => reject(`Language.${config.language}: failed to load the language pack`));

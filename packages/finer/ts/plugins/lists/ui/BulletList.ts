@@ -10,7 +10,7 @@ const BulletList = (editor: Editor, ui: IPluginListUI) => {
 	const uiName = 'BulletList';
 	const uiFormat: IPluginListFormatUI = {
 		Format: { Tag: 'ul', Switchable: blockFormats.List, Following: listSelector, UnsetSwitcher: 'p' },
-		Title: Finer.ILC.Get('plugins.lists.bullet', 'Bulleted List'),
+		Title: self.Lang('plugins.lists.bullet', 'Bulleted List'),
 		Icon: 'UnorderedList'
 	};
 

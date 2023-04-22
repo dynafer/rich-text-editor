@@ -17,7 +17,7 @@ const ImageUploader = (editor: Editor, ui: IPluginMediaUI) => {
 
 	const uiName = 'Image';
 	const uiFormat: IPluginsMediaFormatUI = {
-		Title: Finer.ILC.Get('plugins.media.image.title', 'Insert/Upload an image'),
+		Title: self.Lang('plugins.media.image.title', 'Insert/Upload an image'),
 		Icon: 'Image'
 	};
 
@@ -71,8 +71,8 @@ const ImageUploader = (editor: Editor, ui: IPluginMediaUI) => {
 				self.Commander.Run(COMMAND_NAMES_MAP.IMAGE_REMOVE, figureElement);
 			};
 
-			const placeholderUpdate = Finer.ILC.Get('plugins.media.image.update', 'Update the image URL');
-			const placeholderInsert = Finer.ILC.Get('plugins.media.image.insert', 'Insert an image via URL');
+			const placeholderUpdate = self.Lang('plugins.media.image.update', 'Update the image URL');
+			const placeholderInsert = self.Lang('plugins.media.image.insert', 'Insert an image via URL');
 
 			const { OptionWrapper, Input } = formatUI.CreateInputWrapWithOptionList(self, {
 				uiName,
@@ -82,10 +82,10 @@ const ImageUploader = (editor: Editor, ui: IPluginMediaUI) => {
 				src: bUpdatable ? figureElement.src : undefined,
 				texts: {
 					placeholder: bUpdatable ? placeholderUpdate : placeholderInsert,
-					cancel: Finer.ILC.Get('cancel', 'Cancel'),
-					insert: Finer.ILC.Get('insert', 'Insert'),
-					update: Finer.ILC.Get('update', 'Update'),
-					remove: Finer.ILC.Get('remove', 'Remove'),
+					cancel: self.Lang('cancel', 'Cancel'),
+					insert: self.Lang('insert', 'Insert'),
+					update: self.Lang('update', 'Update'),
+					remove: self.Lang('remove', 'Remove'),
 				}
 			});
 
