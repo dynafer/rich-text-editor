@@ -76,15 +76,15 @@ const ToolsManager = (editor: Editor): IToolsManager => {
 
 		if (!bAll && !!parent) {
 			const allTools = DOM.SelectAll(selectOption, parent);
-			const figure = DOM.Element.Figure.IsFigure(parent)
+			const figure = DOM.Element.Figure.Is(parent)
 				? parent
-				: (DOM.Element.Figure.GetClosest(parent) ?? DOM.Select(DOM.Element.Figure.Selector, parent));
+				: (DOM.Element.Figure.FindClosest(parent) ?? DOM.Select(DOM.Element.Figure.Selector, parent));
 
 			if (!figure) return null as T extends true ? HTMLElement[] : (HTMLElement | null);
 
 			for (let index = 0, length = allTools.length; index < length; ++index) {
 				const tools = allTools[index];
-				if (DOM.Element.Figure.GetClosest(tools) !== figure || !DOM.Utils.IsChildOf(tools, figure)) continue;
+				if (DOM.Element.Figure.FindClosest(tools) !== figure || !DOM.Utils.IsChildOf(tools, figure)) continue;
 				return tools as T extends true ? HTMLElement[] : (HTMLElement | null);
 			}
 		}

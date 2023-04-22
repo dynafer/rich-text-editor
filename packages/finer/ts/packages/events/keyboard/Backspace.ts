@@ -1,6 +1,6 @@
 import { NodeType } from '@dynafer/dom-control';
 import Editor from '../../Editor';
-import { IsTableFigure } from './KeyboardUtils';
+import { IsFigure } from './KeyboardUtils';
 
 const Backspace = (editor: Editor) => {
 	const self = editor;
@@ -15,7 +15,7 @@ const Backspace = (editor: Editor) => {
 
 	if (lines[lines.length - 1] !== currentLine
 		|| !DOM.Utils.IsTextEmpty(currentLine)
-		|| IsTableFigure(self, currentLine)) return;
+		|| IsFigure(self, currentLine)) return;
 
 	DOM.Remove(currentLine);
 

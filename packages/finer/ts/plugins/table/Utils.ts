@@ -62,7 +62,7 @@ export const CanDeleteRowColumn = (editor: Editor, type: 'row' | 'column', table
 
 		const rows: HTMLTableRowElement[] = [];
 		Arr.WhileShift(selectedCells, cell => {
-			const row = DOM.Element.Table.GetClosestRow(cell);
+			const row = DOM.Element.Table.FindClosestRow(cell);
 			if (!row || Arr.Contains(rows, row)) return;
 			Arr.Push(rows, row);
 		});

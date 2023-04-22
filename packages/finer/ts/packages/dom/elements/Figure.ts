@@ -25,8 +25,8 @@ export interface IFigure {
 		<T extends Element>(from: EventTarget | Node): IFoundFigure<T>;
 		(from: EventTarget | Node): IFoundFigure<Element>;
 	},
-	IsFigure: (selector?: Node | EventTarget | null) => selector is HTMLElement,
-	GetClosest: <T extends Node>(selector?: T | EventTarget | null) => HTMLElement | T | null,
+	Is: (selector?: Node | EventTarget | null) => selector is HTMLElement,
+	FindClosest: <T extends Node>(selector?: T | EventTarget | null) => HTMLElement | T | null,
 	Remove: (editor: Editor, target: Node) => void,
 }
 
@@ -89,17 +89,17 @@ const Figure = (): IFigure => {
 		};
 	};
 
-	const IsFigure = (selector?: Node | EventTarget | null): selector is HTMLElement =>
+	const Is = (selector?: Node | EventTarget | null): selector is HTMLElement =>
 		!NodeType.IsNode(selector) ? false : DOMUtils.GetNodeName(selector) === Selector;
 
-	const GetClosest = <T extends Node>(selector?: T | EventTarget | null): HTMLElement | T | null =>
+	const FindClosest = <T extends Node>(selector?: T | EventTarget | null): HTMLElement | T | null =>
 		!NodeType.IsElement(selector) ? null : selector.closest(Selector);
 
 	const Remove = (editor: Editor, target: Node) => {
 		const self = editor;
 		const DOM = self.DOM;
 
-		const figure = GetClosest<HTMLElement>(target);
+		const figure = FindClosest<HTMLElement>(target);
 		if (!figure) return;
 
 		const newRange = self.Utils.Range();
@@ -127,8 +127,8 @@ const Figure = (): IFigure => {
 		Create,
 		SelectFigureElement,
 		Find,
-		IsFigure,
-		GetClosest,
+		Is,
+		FindClosest,
 		Remove,
 	};
 };

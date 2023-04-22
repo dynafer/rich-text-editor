@@ -21,12 +21,12 @@ export interface ITable {
 	readonly RowSelector: string,
 	readonly CellSet: Set<string>,
 	readonly CellSelector: string,
-	IsTable: <T extends Node>(selector?: T | EventTarget | null) => boolean,
-	IsTableRow: <T extends Node>(selector?: T | EventTarget | null) => boolean,
-	IsTableCell: <T extends Node>(selector?: T | EventTarget | null) => boolean,
-	GetClosest: <T extends Node>(selector?: T | EventTarget | null) => HTMLTableElement | T | null,
-	GetClosestRow: <T extends Node>(selector?: T | EventTarget | null) => HTMLTableRowElement | T | null,
-	GetClosestCell: <T extends Node>(selector?: T | EventTarget | null) => HTMLTableCellElement | T | null,
+	Is: <T extends Node>(selector?: T | EventTarget | null) => boolean,
+	IsRow: <T extends Node>(selector?: T | EventTarget | null) => boolean,
+	IsCell: <T extends Node>(selector?: T | EventTarget | null) => boolean,
+	FindClosest: <T extends Node>(selector?: T | EventTarget | null) => HTMLTableElement | T | null,
+	FindClosestRow: <T extends Node>(selector?: T | EventTarget | null) => HTMLTableRowElement | T | null,
+	FindClosestCell: <T extends Node>(selector?: T | EventTarget | null) => HTMLTableCellElement | T | null,
 	Find: (from: EventTarget | Node) => IFoundTable,
 	GetAllOwnRows: (table: Element) => HTMLTableRowElement[],
 	GetAllOwnCells: (tableOrRow: Node) => HTMLTableCellElement[],
@@ -42,22 +42,22 @@ const Table = (): ITable => {
 	const CellSet = new Set(['th', 'td']);
 	const CellSelector = Str.Join(',', ...CellSet);
 
-	const IsTable = <T extends Node>(selector?: T | EventTarget | null): boolean =>
+	const Is = <T extends Node>(selector?: T | EventTarget | null): boolean =>
 		!NodeType.IsNode(selector) ? false : DOMUtils.GetNodeName(selector) === Selector;
 
-	const IsTableRow = <T extends Node>(selector?: T | EventTarget | null): boolean =>
+	const IsRow = <T extends Node>(selector?: T | EventTarget | null): boolean =>
 		!NodeType.IsNode(selector) ? false : DOMUtils.GetNodeName(selector) === RowSelector;
 
-	const IsTableCell = <T extends Node>(selector?: T | EventTarget | null): boolean =>
+	const IsCell = <T extends Node>(selector?: T | EventTarget | null): boolean =>
 		!NodeType.IsNode(selector) ? false : CellSet.has(DOMUtils.GetNodeName(selector));
 
-	const GetClosest = <T extends Node>(selector?: T | EventTarget | null): HTMLTableElement | T | null =>
+	const FindClosest = <T extends Node>(selector?: T | EventTarget | null): HTMLTableElement | T | null =>
 		!NodeType.IsElement(selector) ? null : selector.closest(Selector);
 
-	const GetClosestRow = <T extends Node>(selector?: T | EventTarget | null): HTMLTableRowElement | T | null =>
+	const FindClosestRow = <T extends Node>(selector?: T | EventTarget | null): HTMLTableRowElement | T | null =>
 		!NodeType.IsElement(selector) ? null : selector.closest(RowSelector);
 
-	const GetClosestCell = <T extends Node>(selector?: T | EventTarget | null): HTMLTableCellElement | T | null =>
+	const FindClosestCell = <T extends Node>(selector?: T | EventTarget | null): HTMLTableCellElement | T | null =>
 		!NodeType.IsElement(selector) ? null : selector.closest<HTMLTableCellElement>(CellSelector);
 
 	const Find = (from: EventTarget | Node): IFoundTable => {
@@ -86,9 +86,9 @@ const Table = (): ITable => {
 	};
 
 	const GetAllOwnCells = (tableOrRow?: Node): HTMLTableCellElement[] => {
-		if (!NodeType.IsElement(tableOrRow) || (!IsTable(tableOrRow) && !IsTableRow(tableOrRow))) return [];
+		if (!NodeType.IsElement(tableOrRow) || (!Is(tableOrRow) && !IsRow(tableOrRow))) return [];
 
-		const selector = IsTableRow(tableOrRow) ? RowSelector : Selector;
+		const selector = IsRow(tableOrRow) ? RowSelector : Selector;
 
 		const allCells = Arr.Convert(tableOrRow.querySelectorAll<HTMLTableCellElement>(CellSelector));
 		const cells: HTMLTableCellElement[] = [];
@@ -173,12 +173,12 @@ const Table = (): ITable => {
 		RowSelector,
 		CellSet,
 		CellSelector,
-		IsTable,
-		IsTableRow,
-		IsTableCell,
-		GetClosest,
-		GetClosestRow,
-		GetClosestCell,
+		Is,
+		IsRow,
+		IsCell,
+		FindClosest,
+		FindClosestRow,
+		FindClosestCell,
 		Find,
 		GetAllOwnRows,
 		GetAllOwnCells,

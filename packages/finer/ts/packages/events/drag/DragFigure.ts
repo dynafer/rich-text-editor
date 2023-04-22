@@ -12,7 +12,7 @@ const DragMedia = (editor: Editor, event: DragEvent) => {
 	if (!NodeType.IsNode(target)) return;
 
 	const targetName = DOM.Utils.GetNodeName(target);
-	const bFigure = DOM.Element.Figure.IsFigure(target);
+	const bFigure = DOM.Element.Figure.Is(target);
 	if ((!DOM.Element.Figure.FigureTypeSetMap.media.has(targetName)
 		&& !DOM.Element.Figure.FigureTypeSetMap.hr.has(targetName))
 		&& !bFigure
@@ -28,7 +28,7 @@ const DragMedia = (editor: Editor, event: DragEvent) => {
 
 	const moveCaret = (startBlock: Node | null, endBlock: Node | null) => {
 		let figure = Figure ?? figureElement.parentElement;
-		if (!DOM.Element.Figure.IsFigure(figure)) {
+		if (!DOM.Element.Figure.Is(figure)) {
 			const figureType = DOM.Element.Figure.FindType(targetName);
 			figure = DOM.Element.Figure.Create(targetName);
 			DOM.Insert(figure, figureElement);
@@ -50,7 +50,7 @@ const DragMedia = (editor: Editor, event: DragEvent) => {
 		const caret = CaretUtils.Get();
 		if (!caret) return;
 
-		const closestFigure = DOM.Element.Figure.GetClosest(FormatUtils.GetParentIfText(caret.Start.Node));
+		const closestFigure = DOM.Element.Figure.FindClosest(FormatUtils.GetParentIfText(caret.Start.Node));
 		if (closestFigure === (figureElement.parentElement ?? figureElement)) return;
 
 		if (!NodeType.IsText(caret.SameRoot)) return moveCaret(caret.Start.Path[0], null);

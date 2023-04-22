@@ -20,7 +20,7 @@ const MoveUtils = (editor: Editor, event: KeyboardEvent) => {
 	const UpdateRangeWithDescendants = (figure: Node, target: Element, bBackward: boolean) => {
 		const getChild = bBackward ? DOM.Utils.GetLastChild : DOM.Utils.GetFirstChild;
 		let child = getChild(target);
-		if (child && DOM.Element.Figure.IsFigure(child)) return UpdateRange(child, bBackward ? 1 : 0);
+		if (child && DOM.Element.Figure.Is(child)) return UpdateRange(child, bBackward ? 1 : 0);
 
 		child = getChild(child, true);
 

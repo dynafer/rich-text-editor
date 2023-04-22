@@ -78,7 +78,7 @@ const CaretUtils = (editor: Editor): ICaretUtils => {
 			}
 		}
 
-		if (!bRange && AllBlockFormats.has(nodeName) && !DOM.Element.Figure.IsFigure(node)) {
+		if (!bRange && AllBlockFormats.has(nodeName) && !DOM.Element.Figure.Is(node)) {
 			const getChild = bStart ? DOM.Utils.GetFirstChild : DOM.Utils.GetLastChild;
 			const deepestChild = getChild(node, true);
 			if (deepestChild) node = deepestChild;

@@ -10,9 +10,9 @@ const MoveInTable = (editor: Editor, event: MouseEvent) => {
 	const target = event.target as Element;
 
 	const { Figure, FigureElement } = DOM.Element.Figure.Find<HTMLElement>(target);
-	if (!Figure || !FigureElement || !DOM.Element.Table.IsTable(FigureElement)) return;
+	if (!Figure || !FigureElement || !DOM.Element.Table.Is(FigureElement)) return;
 
-	const targetCell = DOM.Element.Table.GetClosestCell<HTMLElement>(target);
+	const targetCell = DOM.Element.Table.FindClosestCell<HTMLElement>(target);
 	if (!targetCell) return;
 
 	const selectAdjustable = (type: 'width' | 'height'): HTMLElement => DOM.Select<HTMLElement>({

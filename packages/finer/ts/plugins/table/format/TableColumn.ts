@@ -40,7 +40,7 @@ const TableColumn = (editor: Editor) => {
 
 		if (Arr.IsEmpty(pointer)) return {};
 
-		const table = DOM.Element.Table.GetClosest<HTMLTableElement>(pointer[0]);
+		const table = DOM.Element.Table.FindClosest<HTMLTableElement>(pointer[0]);
 		if (!table) return {};
 
 		const tableGrid = DOM.Element.Table.GetGridWithIndex(table, pointer[0]);

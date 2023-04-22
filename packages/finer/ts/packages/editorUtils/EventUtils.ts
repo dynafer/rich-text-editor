@@ -29,12 +29,15 @@ const EventUtils = (editor: Editor): IEventUtils => {
 	const GetEvents = (eventName: string): IEvent[] => events[eventName] ?? [];
 	const Has = (eventName: string): boolean => !!events[eventName];
 
-	const initNative = (eventName: string) => DOM.On(self.GetBody(), eventName, evt =>
-		Arr.Each(GetEvents(eventName), (event, exit) => {
-			if (evt.defaultPrevented) return exit();
-			event(evt);
-		})
-	);
+	const initNative = (eventName: string) =>
+		DOM.On(self.GetBody(), eventName, evt => {
+			if (self.IsReadOnly()) return;
+
+			Arr.Each(GetEvents(eventName), (event, exit) => {
+				if (evt.defaultPrevented) return exit();
+				event(evt);
+			});
+		});
 
 	const addNative = (eventName: string) => {
 		if (!ENativeEvents[eventName as ENativeEvents] || Has(eventName) || Arr.Contains(pendingNatives, eventName)) return;
@@ -74,7 +77,7 @@ const EventUtils = (editor: Editor): IEventUtils => {
 		});
 
 	const Dispatch = (eventName: string, ...params: unknown[]) => {
-		if (!Has(eventName)) return;
+		if (!Has(eventName) || self.IsReadOnly()) return;
 
 		const eventList: Promise<void>[] = [];
 		Arr.Each(events[eventName], event =>

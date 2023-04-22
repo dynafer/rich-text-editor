@@ -148,7 +148,7 @@ const Wrapper = (editor: Editor, format: IPluginListFormat) => {
 			return wrapBlock(blockNode);
 		}
 
-		const table = DOM.Element.Table.GetClosest(target);
+		const table = DOM.Element.Table.FindClosest(target);
 		if (!!table) return;
 
 		const follower = DOM.Closest(target, Following);
@@ -234,7 +234,7 @@ const Wrapper = (editor: Editor, format: IPluginListFormat) => {
 			return true;
 		}
 
-		const table = DOM.Element.Table.GetClosest(startNode);
+		const table = DOM.Element.Table.FindClosest(startNode);
 		if (!!table) {
 			const selectedTableItems = DOM.Element.Table.GetSelectedCells(self, table);
 			if (!Arr.IsEmpty(selectedTableItems)) {
@@ -272,7 +272,7 @@ const Wrapper = (editor: Editor, format: IPluginListFormat) => {
 			if (bStart) return true;
 		}
 
-		const bRootTableCell = DOM.Element.Table.GetClosestCell(startNode) === DOM.Element.Table.GetClosestCell(endNode);
+		const bRootTableCell = DOM.Element.Table.FindClosestCell(startNode) === DOM.Element.Table.FindClosestCell(endNode);
 		if (!bRootTableCell) return true;
 
 		wrapNodesInTableCell(caret.SameRoot, caret.Start.Node, caret.End.Node);

@@ -26,7 +26,7 @@ const InputUtils = (editor: Editor) => {
 		}, fragment);
 
 		Arr.WhileShift(figureElements, element => {
-			if (DOM.Element.Table.IsTable(element)) {
+			if (DOM.Element.Table.Is(element)) {
 				const columnGroups = DOM.SelectAll('colgroup', element);
 				Arr.WhileShift(columnGroups, columnGroup => DOM.Remove(columnGroup));
 				DOM.SetAttrs(element, {
@@ -52,7 +52,7 @@ const InputUtils = (editor: Editor) => {
 
 				DOM.RemoveAttrs(element, 'width', 'height');
 			}
-			if (!!DOM.Element.Figure.GetClosest(element)) return;
+			if (!!DOM.Element.Figure.FindClosest(element)) return;
 
 			const figure = DOM.Element.Figure.Create(DOM.Utils.GetNodeName(element));
 			DOM.CloneAndInsert(figure, true, element);
@@ -118,7 +118,7 @@ const InputUtils = (editor: Editor) => {
 					}
 				}
 
-				if (DOM.Element.Figure.IsFigure(startParent) && !DOM.Element.Table.IsTable(DOM.Element.Figure.SelectFigureElement(startParent))) {
+				if (DOM.Element.Figure.Is(startParent) && !DOM.Element.Table.Is(DOM.Element.Figure.SelectFigureElement(startParent))) {
 					previousBlock = node;
 					return DOM.InsertAfter(startParent, node);
 				}
@@ -252,7 +252,7 @@ const InputUtils = (editor: Editor) => {
 		if (lastChild) {
 			const childName = DOM.Utils.GetNodeName(lastChild);
 			if (BlockFormatTags.Figures.has(childName)) {
-				const child = DOM.Element.Figure.IsFigure(lastChild) ? lastChild : lastChild.parentElement as Node;
+				const child = DOM.Element.Figure.Is(lastChild) ? lastChild : lastChild.parentElement as Node;
 				newRange.SetStartToEnd(child, 0, 0);
 			} else {
 				const offset = NodeType.IsText(lastChild) ? lastChild.length : 0;

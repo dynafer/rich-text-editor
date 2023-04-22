@@ -1,6 +1,6 @@
 import Interlocaliser, { IInterlocaliser } from '@dynafer/interlocaliser';
 import Options, { IOptions } from './Options';
-import EditorInit, { IEditorInit } from './packages/EditorInit';
+import EditorInit, { TEditorInit } from './packages/EditorInit';
 import { ENativeEvents, PreventEvent } from './packages/events/EventSetupUtils';
 import { EKeyCode } from './packages/events/keyboard/KeyboardUtils';
 import PluginLoader, { IPluginLoader } from './packages/loaders/PluginLoader';
@@ -23,7 +23,7 @@ interface IFiner {
 	readonly KeyCode: Record<EKeyCode, EKeyCode>,
 	readonly ILC: IInterlocaliser,
 	PreventEvent: EventListener,
-	Init: IEditorInit,
+	Init: TEditorInit,
 }
 
 const Finer: IFiner = {

@@ -9,7 +9,7 @@ const TableStyles = (editor: Editor, format: IPluginTableCommand) => {
 	const { Styles, SameStyles, bAsText } = format;
 
 	const wrapStyle = (table: HTMLElement) => {
-		const figure = DOM.Element.Figure.GetClosest(table);
+		const figure = DOM.Element.Figure.FindClosest(table);
 		if (!figure) return;
 
 		DOM.RemoveStyles(figure, ...SameStyles);
@@ -20,7 +20,7 @@ const TableStyles = (editor: Editor, format: IPluginTableCommand) => {
 	};
 
 	const unwrapStyle = (table: HTMLElement) => {
-		const figure = DOM.Element.Figure.GetClosest(table);
+		const figure = DOM.Element.Figure.FindClosest(table);
 		if (!figure) return;
 
 		if (bAsText) DOM.RemoveAttr(figure, Options.ATTRIBUTE_AS_TEXT);

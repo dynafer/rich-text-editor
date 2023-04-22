@@ -137,7 +137,7 @@ const FormatUtils = (): IFormatUtils => {
 				|| DOM.Utils.IsBr(DOM.Utils.GetFirstChild(target, true))
 				|| DOM.HasAttr(target, 'caret')
 				|| DOM.HasAttr(target, 'marker')
-				|| DOM.Element.Figure.IsFigure(target)
+				|| DOM.Element.Figure.Is(target)
 				|| AllBlockFormats.has(DOM.Utils.GetNodeName(target));
 
 			if (!target) return result;
@@ -187,13 +187,13 @@ const FormatUtils = (): IFormatUtils => {
 		const endBlock = DOM.Closest(endParent, blockSelector) ?? DOM.Closest(endParent, followingItemsSelector) ?? caret.End.Path[0];
 
 		if (startBlock === endBlock) {
-			if (DOM.Element.Figure.IsFigure(startBlock)) return;
+			if (DOM.Element.Figure.Is(startBlock)) return;
 			return CleanDirty(self, DOM.GetChildNodes(startBlock));
 		}
 
 		const children: Node[] = [];
-		if (!DOM.Element.Figure.IsFigure(startBlock)) Arr.Push(children, ...DOM.GetChildNodes(startBlock));
-		if (!DOM.Element.Figure.IsFigure(endBlock)) Arr.Push(children, ...DOM.GetChildNodes(endBlock));
+		if (!DOM.Element.Figure.Is(startBlock)) Arr.Push(children, ...DOM.GetChildNodes(startBlock));
+		if (!DOM.Element.Figure.Is(endBlock)) Arr.Push(children, ...DOM.GetChildNodes(endBlock));
 
 		DoWithShallowMarking(self, caret, () => CleanDirty(self, children));
 	};
@@ -234,7 +234,7 @@ const FormatUtils = (): IFormatUtils => {
 
 		if (BlockFormatTags.Figures.has(startNodeName) || BlockFormatTags.Figures.has(endNodeName)) {
 			const newMarker = create();
-			if (DOM.Element.Figure.IsFigure(startNode) || DOM.Element.Figure.IsFigure(endNode)) {
+			if (DOM.Element.Figure.Is(startNode) || DOM.Element.Figure.Is(endNode)) {
 				const { FigureElement } = DOM.Element.Figure.Find(startNode);
 				if (!FigureElement) return null;
 				startNode = FigureElement;
@@ -302,7 +302,7 @@ const FormatUtils = (): IFormatUtils => {
 
 			const getRelativeNode = (node: Node): Node => {
 				if (!BlockFormatTags.Figures.has(DOM.Utils.GetNodeName(node))) return getTextOrBrNode(node);
-				if (node.parentNode && !DOM.Element.Figure.IsFigure(node)) return node.parentNode;
+				if (node.parentNode && !DOM.Element.Figure.Is(node)) return node.parentNode;
 				return node;
 			};
 
@@ -431,7 +431,7 @@ const FormatUtils = (): IFormatUtils => {
 	const ExceptNodes = (editor: Editor, node: Node, root: Node, bPrevious: boolean = false): Node[] => {
 		const self = editor;
 
-		const tableNode = DOM.Element.Table.GetClosest(GetParentIfText(root));
+		const tableNode = DOM.Element.Table.FindClosest(GetParentIfText(root));
 		if (!!tableNode) {
 			const nodes: Node[] = [];
 			Arr.Push(nodes, ...DOM.Element.Table.GetSelectedCells(self, tableNode, false), ...getNodesInRoot(node, root, bPrevious));
@@ -445,7 +445,7 @@ const FormatUtils = (): IFormatUtils => {
 		const self = editor;
 
 		const element = GetParentIfText(caret.Start.Node);
-		if (!DOM.Element.Figure.IsFigure(element)) return false;
+		if (!DOM.Element.Figure.Is(element)) return false;
 
 		self.Utils.Shared.DispatchCaretChange([element]);
 		return true;

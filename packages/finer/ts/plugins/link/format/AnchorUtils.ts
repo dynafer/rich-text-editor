@@ -3,7 +3,7 @@ import { Arr, Type } from '@dynafer/utils';
 import Editor from '../../../packages/Editor';
 
 export interface IAnchorUtils {
-	GetClosestBlock: (node: Node) => Node | null,
+	ClosestBlock: (node: Node) => Node | null,
 	UnwrapAnchor: (targetAnchor: Node) => void,
 	TrimTextsRangeEdge: (node: Node, offset: number, bPrevious?: boolean) => Node,
 	FindSibling: (node: Node, bPrevious: boolean) => Node | null,
@@ -17,7 +17,7 @@ const AnchorUtils = (editor: Editor): IAnchorUtils => {
 	const formats = self.Formatter.Formats;
 	const formatUtils = self.Formatter.Utils;
 
-	const GetClosestBlock = (node: Node): Node | null =>
+	const ClosestBlock = (node: Node): Node | null =>
 		DOM.Closest(formatUtils.GetParentIfText(node), { tagName: Arr.Convert(formats.BlockFormatTags.Block) })
 		?? DOM.Closest(formatUtils.GetParentIfText(node), formats.ListItemSelector);
 
@@ -119,7 +119,7 @@ const AnchorUtils = (editor: Editor): IAnchorUtils => {
 	};
 
 	return {
-		GetClosestBlock,
+		ClosestBlock,
 		UnwrapAnchor,
 		TrimTextsRangeEdge,
 		FindSibling,

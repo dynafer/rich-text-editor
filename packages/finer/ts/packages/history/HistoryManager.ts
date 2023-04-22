@@ -24,7 +24,7 @@ export interface IHistoryManager {
 
 const HistoryManager = (editor: Editor): IHistoryManager => {
 	const self = editor;
-	const histories: IHistoryRecord[] = [];
+	const Histories: IHistoryRecord[] = [];
 	const flags: Record<string, number> = {};
 	const archiver = HistoryArchiver(self);
 
@@ -36,7 +36,7 @@ const HistoryManager = (editor: Editor): IHistoryManager => {
 	const IsTexting = (): boolean => bTexting;
 
 	const CanUndo = (): boolean => currentIndex > 0;
-	const CanRedo = (): boolean => currentIndex < histories.length - 1;
+	const CanRedo = (): boolean => currentIndex < Histories.length - 1;
 
 	const Flag = (): string => {
 		flagId = Utils.CreateUUID();
@@ -51,25 +51,25 @@ const HistoryManager = (editor: Editor): IHistoryManager => {
 
 	const Record = (history: IHistoryRecord) => {
 		++currentIndex;
-		histories.splice(currentIndex, histories.length, history);
+		Histories.splice(currentIndex, Histories.length, history);
 		if (!flagId) return;
 		flags[flagId] = currentIndex;
 	};
 
 	const AddUndoPath = (path: THistoryPath) => {
-		if (!histories[currentIndex]) return;
-		histories[currentIndex].undo = path;
+		if (!Histories[currentIndex]) return;
+		Histories[currentIndex].undo = path;
 	};
 
 	const Clean = () => {
-		Arr.Clean(histories);
+		Arr.Clean(Histories);
 		currentIndex = -1;
 	};
 
 	const Undo = () => {
 		if (!CanUndo()) return;
 		--currentIndex;
-		const history = histories[currentIndex];
+		const history = Histories[currentIndex];
 		if (history.undo) Revert(self, history.data, history.undo);
 		self.Utils.Shared.DispatchCaretChange();
 	};
@@ -77,7 +77,7 @@ const HistoryManager = (editor: Editor): IHistoryManager => {
 	const Redo = () => {
 		if (!CanRedo()) return;
 		++currentIndex;
-		const history = histories[currentIndex];
+		const history = Histories[currentIndex];
 		Revert(self, history.data, history.redo);
 		self.Utils.Shared.DispatchCaretChange();
 	};
@@ -85,13 +85,13 @@ const HistoryManager = (editor: Editor): IHistoryManager => {
 	const CreateData = (): string => GetHTMLHistory(self);
 
 	const ChangeData = (flag: string, data: string) => {
-		if (!flags[flag] || !histories[flags[flag]]) return;
-		histories[flags[flag]].data = data;
+		if (!flags[flag] || !Histories[flags[flag]]) return;
+		Histories[flags[flag]].data = data;
 	};
 
 	return {
 		Archiver: archiver,
-		Histories: histories,
+		Histories,
 		SetTexting,
 		IsTexting,
 		CanUndo,

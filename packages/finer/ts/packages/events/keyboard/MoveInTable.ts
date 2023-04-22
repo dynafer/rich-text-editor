@@ -55,7 +55,7 @@ const MoveInTable = (editor: Editor, event: KeyboardEvent, caret: ICaretData): b
 
 		if ((bLeft || bRight) && !moveUtils.IsLastOffset(targetNode, targetOffset, bBackward)) return true;
 
-		if (DOM.Element.Figure.IsFigure(nextLine) && !DOM.Element.Table.IsTable(nextLine))
+		if (DOM.Element.Figure.Is(nextLine) && !DOM.Element.Table.Is(nextLine))
 			moveUtils.UpdateRange(nextLine, bBackward ? 1 : 0);
 
 		return true;
@@ -72,7 +72,7 @@ const MoveInTable = (editor: Editor, event: KeyboardEvent, caret: ICaretData): b
 
 		const siblingRowIndex = TargetCellRowIndex + (bUp ? -1 : 1);
 		if (siblingRowIndex < 0 || siblingRowIndex >= Grid.length) {
-			const figure = DOM.Element.Figure.GetClosest(currentCell);
+			const figure = DOM.Element.Figure.FindClosest(currentCell);
 			if (!figure) return false;
 
 			moveUtils.UpdateRange(figure, bUp ? 0 : 1);
@@ -99,7 +99,7 @@ const MoveInTable = (editor: Editor, event: KeyboardEvent, caret: ICaretData): b
 
 		if (TargetCellRowIndex === edgeRowIndex && TargetCellIndex === edgeCellIndex) {
 			PreventEvent(event);
-			const figure = DOM.Element.Figure.GetClosest(currentCell);
+			const figure = DOM.Element.Figure.FindClosest(currentCell);
 			if (!figure) return false;
 
 			moveUtils.UpdateRange(figure, bLeft ? 0 : 1);
@@ -122,7 +122,7 @@ const MoveInTable = (editor: Editor, event: KeyboardEvent, caret: ICaretData): b
 		const nextCell = Grid[currentRowIndex]?.[currentCellIndex];
 
 		if (!nextCell) {
-			const figure = DOM.Element.Figure.GetClosest(currentCell);
+			const figure = DOM.Element.Figure.FindClosest(currentCell);
 			if (!figure) return false;
 
 			moveUtils.UpdateRange(figure, bLeft ? 0 : 1);
@@ -133,7 +133,7 @@ const MoveInTable = (editor: Editor, event: KeyboardEvent, caret: ICaretData): b
 		return true;
 	};
 
-	if (DOM.Element.Figure.IsFigure(caret.Start.Node)) {
+	if (DOM.Element.Figure.Is(caret.Start.Node)) {
 		if ((bBackward && caret.Start.Offset === 0) || (!bBackward && caret.Start.Offset === 1)) {
 			moveUtils.UpdateRangeWithFigure(caret.Start.Node, bBackward);
 			return true;

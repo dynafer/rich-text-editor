@@ -1,9 +1,9 @@
-import { Arr, Str } from '@dynafer/utils';
+import { Arr, Str, Utils } from '@dynafer/utils';
 import Options from '..//Options';
 import Commander, { ICommander } from './commander/Commander';
 import DOM, { IDom, TEventListener } from './dom/DOM';
 import { IDOMTools } from './dom/DOMTools';
-import Configure, { IConfiguration, IEditorConfiguration } from './EditorConfigure';
+import Configure, { IConfiguration, TConfigurationKey } from './EditorConfigure';
 import EditorDestroy from './EditorDestroy';
 import EditorFrame, { IEditorFrame } from './EditorFrame';
 import EditorSetup from './EditorSetup';
@@ -28,12 +28,8 @@ interface IEditorTools {
 	readonly DOM: IDOMTools,
 }
 
-export interface IEditorConstructor {
-	new(config: IEditorConfiguration): Editor;
-}
-
 class Editor {
-	public readonly Id: string;
+	public readonly Id: string = Utils.CreateUUID();
 	public readonly Config: IConfiguration;
 	public readonly Frame: IEditorFrame;
 	public readonly History: IHistoryManager;
@@ -52,13 +48,13 @@ class Editor {
 	private mBody!: HTMLElement;
 	private mScrollX: number = -1;
 	private mScrollY: number = -1;
-	private mbDestroyed: boolean = false;
 	private mbAdjusting: boolean = false;
+	private mbDestroyed: boolean = false;
+	private mbReadOnly: boolean = false;
 
-	public constructor(config: IEditorConfiguration) {
+	public constructor(config: Record<string, TConfigurationKey>) {
 		const configuration: IConfiguration = Configure(config);
 
-		this.Id = configuration.Id;
 		this.Config = configuration;
 		this.Frame = EditorFrame(configuration);
 		this.Utils = EditorUtils(this);
@@ -68,7 +64,7 @@ class Editor {
 		this.Toolbar = EditorToolbar(this);
 
 		EditorSetup(this)
-			.then(() => this.setLoading(ELoadingStatus.HIDE))
+			.then(() => this.toggleLoading(ELoadingStatus.HIDE))
 			.catch(error => this.Notify(ENotificationStatus.ERROR, error, true));
 	}
 
@@ -95,14 +91,51 @@ class Editor {
 		this.DOM.Dispatch(this.GetBody(), eventName);
 	}
 
+	// adjusting getter and setter
+	public IsAdjusting(): boolean { return this.mbAdjusting; }
+	public SetAdjusting(bAdjusting: boolean) { this.mbAdjusting = bAdjusting; }
+
+	// destroyed getter
 	public IsDestroyed(): boolean { return this.mbDestroyed; }
 	public Destroy() {
 		this.mbDestroyed = true;
 		EditorDestroy.Destroy(this);
 	}
 
-	public IsAdjusting(): boolean { return this.mbAdjusting; }
-	public SetAdjusting(bAdjusting: boolean) { this.mbAdjusting = bAdjusting; }
+	// readonly getter and setter
+	public IsReadOnly(): boolean { return this.mbReadOnly; }
+	public SetReadOnly(bReadOnly: boolean) {
+		const editables = [
+			this.GetBody(),
+			...this.DOM.SelectAll({
+				attrs: { contenteditable: bReadOnly ? 'true' : 'false' }
+			})
+		];
+
+		Arr.WhileShift(editables, editable => {
+			if (DOM.Element.Figure.Is(editable)) return;
+			DOM.SetAttr(editable, 'contenteditable', bReadOnly ? 'false' : 'true');
+		});
+
+		if (bReadOnly) {
+			DOM.Element.Table.ToggleSelectMultipleCells(false, DOM.Element.Table.GetSelectedCells(this));
+			this.Tools.DOM.UnsetAllFocused();
+			this.Footer?.CleanNavigation();
+		}
+
+		Arr.WhileShift(DOM.SelectAll<HTMLElement>('button', this.Frame.Toolbar), formatters =>
+			this.Formatter.UI.ToggleDisable(formatters, bReadOnly)
+		);
+
+		this.mbReadOnly = bReadOnly;
+		if (bReadOnly) return this.Utils.Caret.CleanRanges();
+
+		const newRange = this.Utils.Range();
+		const firstChild = DOM.Utils.GetFirstChild(this.GetBody());
+		if (firstChild) newRange.SetStartToEnd(firstChild, 0, 0);
+		this.Utils.Caret.UpdateRange(newRange);
+		this.Utils.Shared.DispatchCaretChange();
+	}
 
 	public IsIFrame(): boolean {
 		return DOM.Utils.IsIFrame(this.Frame.Container);
@@ -112,15 +145,15 @@ class Editor {
 	public SetBody(body: HTMLElement) { this.mBody = body; }
 	public GetBody(): HTMLElement { return this.mBody; }
 
+	// window getter and setter
 	public SetWin(win: Window) { this.mWin = win as Window & typeof globalThis ?? window; }
 	public GetWin(): Window & typeof globalThis { return this.mWin; }
-	public GetRootWin(): Window & typeof globalThis { return window; }
 
+	// scrollX and scrollY getter and setter
 	public SaveScrollPosition() {
 		this.mScrollX = this.DOM.GetRoot().scrollLeft;
 		this.mScrollY = this.DOM.GetRoot().scrollTop;
 	}
-
 	public ScrollSavedPosition() {
 		if (this.mScrollX !== -1) this.DOM.GetRoot().scroll({ left: this.mScrollX });
 		if (this.mScrollY !== -1) this.DOM.GetRoot().scroll({ top: this.mScrollY });
@@ -159,6 +192,7 @@ class Editor {
 		this.GetWin().requestAnimationFrame(animate);
 	}
 
+	// focused getter
 	public IsFocused(): boolean { return DOM.HasClass(this.Frame.Container, 'focused'); }
 	public Focus() {
 		this.SaveScrollPosition();
@@ -188,15 +222,11 @@ class Editor {
 		});
 	}
 
-	public InitContent(html: string = '<p><br></p>') {
-		this.DOM.SetHTML(this.GetBody(), html);
+	// content getter and setter
+	public SetContent(html: string = '<p><br></p>') {
+		this.DOM.SetHTML(this.GetBody(), Str.IsEmpty(html) ? '<p><br></p>' : html);
 	}
-
-	public SetContent(html: string) {
-		if (Str.IsEmpty(html)) return this.InitContent();
-		this.InitContent(html);
-	}
-
+	public InitContent() { this.SetContent(); }
 	public GetContent(): string {
 		const fake = DOM.Create('div');
 		DOM.CloneAndInsert(fake, true, ...this.GetLines());
@@ -233,7 +263,7 @@ class Editor {
 		return this.mShortcuts;
 	}
 
-	private setLoading(status: ELoadingStatus) {
+	private toggleLoading(status: ELoadingStatus) {
 		const toggle = status === ELoadingStatus.HIDE ? DOM.Hide : DOM.Show;
 		toggle(this.Frame.Loading);
 	}
