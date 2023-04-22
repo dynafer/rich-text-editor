@@ -11,7 +11,7 @@ const Link = (editor: Editor) => {
 
 	const uiName = 'Link';
 	const uiFormat = {
-		Title: Finer.ILC.Get('plugins.link.title', 'Insert/Edit a link'),
+		Title: self.Lang('plugins.link.title', 'Insert/Edit a link'),
 		CommandName: 'Hyperlink',
 		Icon: 'Hyperlink'
 	};
@@ -40,8 +40,8 @@ const Link = (editor: Editor) => {
 		const createAnchor = (input: HTMLInputElement) => formatter.UI.RunCommand<boolean | string>(self, uiFormat.CommandName, true, input?.value);
 		const removeAnchor = () => formatter.UI.RunCommand(self, uiFormat.CommandName, false);
 
-		const placeholderUpdate = Finer.ILC.Get('plugins.link.update', 'Update the link');
-		const placeholderInsert = Finer.ILC.Get('plugins.link.insert', 'Insert a link');
+		const placeholderUpdate = self.Lang('plugins.link.update', 'Update the link');
+		const placeholderInsert = self.Lang('plugins.link.insert', 'Insert a link');
 
 		const { OptionWrapper, Input } = formatter.UI.CreateInputWrapWithOptionList(self, {
 			uiName,
@@ -51,10 +51,10 @@ const Link = (editor: Editor) => {
 			src: bUpdatable ? anchor.href : undefined,
 			texts: {
 				placeholder: bUpdatable ? placeholderUpdate : placeholderInsert,
-				cancel: Finer.ILC.Get('cancel', 'Cancel'),
-				insert: Finer.ILC.Get('insert', 'Insert'),
-				update: Finer.ILC.Get('update', 'Update'),
-				remove: Finer.ILC.Get('remove', 'Remove'),
+				cancel: self.Lang('cancel', 'Cancel'),
+				insert: self.Lang('insert', 'Insert'),
+				update: self.Lang('update', 'Update'),
+				remove: self.Lang('remove', 'Remove'),
 			}
 		});
 

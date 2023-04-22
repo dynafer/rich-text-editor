@@ -22,24 +22,24 @@ const RowColumn = (editor: Editor, table: HTMLElement, tableMenu: HTMLElement): 
 	const uiFormats: Record<string, IPluginRowColumnFormatUI> = {
 		Row: {
 			Type: 'TableRow',
-			Title: GetMenuText('table.row', 'Table Row'),
+			Title: GetMenuText(self, 'table.row', 'Table Row'),
 			Icon: 'TableRow',
 			Items: [
-				{ Label: GetMenuText('table.row.insert.above', 'Insert row above'), CommandName: COMMAND_NAMES_MAP.ROW.INSERT, CommandArgs: [true] },
-				{ Label: GetMenuText('table.row.insert.below', 'Insert row below'), CommandName: COMMAND_NAMES_MAP.ROW.INSERT, CommandArgs: [false] },
-				{ Label: GetMenuText('table.row.select', 'Select row'), CommandName: COMMAND_NAMES_MAP.ROW.SELECT },
-				{ Label: GetMenuText('table.row.delete', 'Delete row'), CommandName: COMMAND_NAMES_MAP.ROW.DELETE },
+				{ Label: GetMenuText(self, 'table.row.insert.above', 'Insert row above'), CommandName: COMMAND_NAMES_MAP.ROW.INSERT, CommandArgs: [true] },
+				{ Label: GetMenuText(self, 'table.row.insert.below', 'Insert row below'), CommandName: COMMAND_NAMES_MAP.ROW.INSERT, CommandArgs: [false] },
+				{ Label: GetMenuText(self, 'table.row.select', 'Select row'), CommandName: COMMAND_NAMES_MAP.ROW.SELECT },
+				{ Label: GetMenuText(self, 'table.row.delete', 'Delete row'), CommandName: COMMAND_NAMES_MAP.ROW.DELETE },
 			]
 		},
 		Column: {
 			Type: 'TableColumn',
-			Title: GetMenuText('table.column', 'Table Column'),
+			Title: GetMenuText(self, 'table.column', 'Table Column'),
 			Icon: 'TableColumn',
 			Items: [
-				{ Label: GetMenuText('table.column.insert.left', 'Insert column left'), CommandName: COMMAND_NAMES_MAP.COLUMN.INSERT, CommandArgs: [true] },
-				{ Label: GetMenuText('table.column.insert.right', 'Insert column right'), CommandName: COMMAND_NAMES_MAP.COLUMN.INSERT, CommandArgs: [false] },
-				{ Label: GetMenuText('table.column.select', 'Select column'), CommandName: COMMAND_NAMES_MAP.COLUMN.SELECT },
-				{ Label: GetMenuText('table.column.delete', 'Delete column'), CommandName: COMMAND_NAMES_MAP.COLUMN.DELETE },
+				{ Label: GetMenuText(self, 'table.column.insert.left', 'Insert column left'), CommandName: COMMAND_NAMES_MAP.COLUMN.INSERT, CommandArgs: [true] },
+				{ Label: GetMenuText(self, 'table.column.insert.right', 'Insert column right'), CommandName: COMMAND_NAMES_MAP.COLUMN.INSERT, CommandArgs: [false] },
+				{ Label: GetMenuText(self, 'table.column.select', 'Select column'), CommandName: COMMAND_NAMES_MAP.COLUMN.SELECT },
+				{ Label: GetMenuText(self, 'table.column.delete', 'Delete column'), CommandName: COMMAND_NAMES_MAP.COLUMN.DELETE },
 			]
 		},
 	};

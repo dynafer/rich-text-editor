@@ -18,7 +18,7 @@ const TableMenu = (editor: Editor): ITableMenu => {
 			class: DOM.Utils.CreateUEID('icon-group', false)
 		});
 
-		const button = formatUI.CreateIconButton(GetMenuText('remove.figure', 'Remove the figure'), 'Trash');
+		const button = formatUI.CreateIconButton(GetMenuText(self, 'remove.figure', 'Remove the figure'), 'Trash');
 		DOM.SetAttr(button, 'data-remove');
 
 		formatUI.BindClickEvent(button, () => self.Commander.Run(COMMAND_NAMES_MAP.TABLE_REMOVE, tableMenu));

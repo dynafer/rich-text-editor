@@ -12,7 +12,7 @@ const Table = (editor: Editor) => {
 	const uiName = 'Table';
 	const uiFormat: IPluginsTableFormatUI = {
 		Format: { Tag: DOM.Element.Table.Selector },
-		Title: Finer.ILC.Get('plugins.table.title', 'Create a table'),
+		Title: self.Lang('plugins.table.title', 'Create a table'),
 		Icon: 'Table'
 	};
 

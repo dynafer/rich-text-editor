@@ -44,8 +44,8 @@ const FooterManager = (editor: Editor): IFooterManager | null => {
 	const navigation = create(navigationId);
 
 	const counter = create(counterId);
-	const wordCounterWrapper = createCounter(Finer.ILC.Get('counter.words', 'Words'), wordCounterId);
-	const totalCounterWrapper = createCounter(Finer.ILC.Get('counter.total', 'Total'), totalCounterId);
+	const wordCounterWrapper = createCounter(self.Lang('counter.words', 'Words'), wordCounterId);
+	const totalCounterWrapper = createCounter(self.Lang('counter.total', 'Total'), totalCounterId);
 	DOM.Insert(counter, wordCounterWrapper, totalCounterWrapper);
 
 	DOM.Insert(footer, navigation, counter);

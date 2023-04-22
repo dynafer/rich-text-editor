@@ -26,7 +26,7 @@ const InlineFont = (editor: Editor, detector: IFormatDetector): IFormatUIRegistr
 	const FontFormats: Record<string, IInlineFormatFontUI> = {
 		FontSize: {
 			Format: Formats.FontSize as IInlineFormat,
-			Title: Finer.ILC.Get('format.fontSize', 'Font size'),
+			Title: self.Lang('format.fontSize', 'Font size'),
 			bPreview: false,
 			DefaultOptions: ['9pt', '10pt', '12pt', '18pt', '24pt', '48pt'],
 			ConfigName: 'FontSizeOptions',
@@ -34,7 +34,7 @@ const InlineFont = (editor: Editor, detector: IFormatDetector): IFormatUIRegistr
 		},
 		FontFamily: {
 			Format: Formats.FontFamily as IInlineFormat,
-			Title: Finer.ILC.Get('format.fontFamily', 'Font family'),
+			Title: self.Lang('format.fontFamily', 'Font family'),
 			bPreview: true,
 			DefaultOptions: {
 				Arial: 'arial, sans-serif',
@@ -157,7 +157,7 @@ const InlineFont = (editor: Editor, detector: IFormatDetector): IFormatUIRegistr
 		uiFormat.Options = labelledConfig;
 
 		const systemStyle = getCurrentStyle(uiFormat.Format, uiFormat.Options, [self.GetBody()]);
-		const defaultValue = uiName === 'FontFamily' ? (Finer.ILC.Get('format.font.default', 'Default Font')) : systemStyle;
+		const defaultValue = uiName === 'FontFamily' ? (self.Lang('format.font.default', 'Default Font')) : systemStyle;
 
 		const setLabelText = (value?: string) =>
 			DOM.SetText(selection.Label, (!value || Str.IsEmpty(value)) ? defaultValue : value);
