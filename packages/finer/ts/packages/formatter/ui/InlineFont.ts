@@ -74,8 +74,12 @@ const InlineFont = (editor: Editor, detector: IFormatDetector): IFormatUIRegistr
 			if (!element) return false;
 			const detectedValue = getFirstValue(DOM.GetStyle(element, styleName, bBody));
 
+			const numberValue = Str.Contains(detectedValue, 'pt')
+				? FormatUtils.ConvertPointsToPixel(parseFloat(detectedValue))
+				: parseFloat(detectedValue);
+
 			return Str.LowerCase(detectedValue) === Str.LowerCase(convertedValue.toString())
-				|| parseFloat(detectedValue) === convertedValue;
+				|| (!bNumber ? false : numberValue === convertedValue);
 		};
 
 		for (let index = 0, length = nodes.length; index < length; ++index) {

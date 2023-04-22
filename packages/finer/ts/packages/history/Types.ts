@@ -1,7 +1,7 @@
 import { ICaretData } from '../editorUtils/caret/CaretUtils';
 
 interface IHistory {
-	readonly data: string,
+	data: string,
 }
 
 interface IHistoryCaret {

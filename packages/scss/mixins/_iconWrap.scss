@@ -14,9 +14,10 @@
 			pointer-events: none;
 		}
 
-		& > * {
+		& > button:not([disabled]) {
 			@include all-border(none);
 			@include font($color: getVar(#{$name}-font));
+			@include height(100%);
 			background-color: getVar(#{$name}-bg);
 
 			&:not(.#{getClassName(color-icon)}) {
@@ -24,13 +25,14 @@
 			}
 		}
 
-		.#{getClassName(color-icon)} {
+		& > .#{getClassName(color-icon)}:not([disabled]),
+		& > .#{getClassName(icon-button)}:not([disabled]) {
 			@include round(getVar(#{$name}-radius) 0px 0px getVar(#{$name}-radius));
+			@include border($right: transparent);
 		}
 
-		.#{getClassName(icon-button)} {
+		& > .#{getClassName(icon-button)} {
 			@include all-margin(0);
-			@include round(getVar(#{$name}-radius) 0px 0px getVar(#{$name}-radius));
 		}
 
 		& > .#{getClassName(helper)} {
@@ -42,21 +44,27 @@
 			}
 		}
 
-		&:not([disabled]):hover {
+		&:not([disabled]) {
 			svg {
-				fill: getVar(#{$name}-hover-icon-fill);
-			}
-		}
-
-		&:not([disabled]):focus,
-		&:not([disabled]).active {
-			svg {
-				fill: getVar(#{$name}-active-icon-fill);
+				fill: getVar(#{$name}-icon-fill);
 			}
 
 			&:hover {
 				svg {
-					fill: getVar(#{$name}-active-hover-icon-fill);
+					fill: getVar(#{$name}-hover-icon-fill);
+				}
+			}
+
+			&:not([disabled]):focus,
+			&:not([disabled]).active {
+				svg {
+					fill: getVar(#{$name}-active-icon-fill);
+				}
+
+				&:hover {
+					svg {
+						fill: getVar(#{$name}-active-hover-icon-fill);
+					}
 				}
 			}
 		}
@@ -68,79 +76,52 @@
 			}
 
 			&:hover {
-				background-color: getVar(#{$name}-hover-bg) !important;
+				background-color: getVar(#{$name}-hover-bg);
 			}
 
 			&.active {
-				background-color: getVar(#{$name}-active-bg) !important;
+				background-color: getVar(#{$name}-active-bg);
 
 				&:hover {
-					background-color: getVar(#{$name}-active-hover-bg) !important;
+					background-color: getVar(#{$name}-active-hover-bg);
 				}
 			}
 		}
 
 		&:not([disabled], [no-border]) {
 			&:hover {
-				background-color: getVar(#{$name}-hover-light-bg) !important;
+				background-color: getVar(#{$name}-hover-light-bg);
 
 				.#{getClassName(icon-button)}:hover,
 				.#{getClassName(color-icon)}:hover {
-					background-color: getVar(#{$name}-hover-bg) !important;
+					background-color: getVar(#{$name}-hover-bg);
 				}
 
 				.#{getClassName(helper)}:hover {
-					background-color: getVar(#{$name}-hover-bg) !important;
+					background-color: getVar(#{$name}-hover-bg);
 				}
 			}
 
+			&:focus:hover,
 			&.active:hover {
-				background-color: getVar(#{$name}-active-hover-light-bg) !important;
+				background-color: getVar(#{$name}-active-hover-light-bg);
 
 				.#{getClassName(icon-button)}:hover,
 				.#{getClassName(color-icon)}:hover {
-					background-color: getVar(#{$name}-active-hover-bg) !important;
+					background-color: getVar(#{$name}-active-hover-bg);
 				}
 
 				.#{getClassName(helper)}:hover {
-					background-color: getVar(#{$name}-active-hover-bg) !important;
+					background-color: getVar(#{$name}-active-hover-bg);
 				}
 			}
 
 			&:hover,
-			&.active {
-				.#{getClassName(color-icon)} {
-					@include margin(px, $right: -1);
-				}
-
-				.#{getClassName(icon-button)} {
-					@include padding(px, $left: 1);
-				}
-
+			&.active,
+			&.active:hover {
 				.#{getClassName(icon-button)},
 				.#{getClassName(color-icon)} {
-					@include border(
-						getVar(#{$name}-select-border),
-						getVar(#{$name}-select-border),
-						getVar(#{$name}-select-border)
-					);
-				}
-
-				.#{getClassName(helper)} {
-					@include border(
-						getVar(#{$name}-select-border),
-						$bottom: getVar(#{$name}-select-border),
-						$left: getVar(#{$name}-select-border)
-					);
-				}
-
-				.#{getClassName(color-icon)} + .#{getClassName(helper)} {
-					@include padding(null, $left: calc(0.25rem - 1px));
-				}
-
-				.#{getClassName(icon-button)} + .#{getClassName(helper)} {
-					@include margin(px, $left: -1);
-					@include padding(null, $left: 0.25rem);
+					@include border($right: getVar(#{$name}-select-border));
 				}
 			}
 		}

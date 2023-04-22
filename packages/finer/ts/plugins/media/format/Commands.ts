@@ -66,6 +66,18 @@ const Commands = (editor: Editor) => {
 		};
 	};
 
+	const createImageLoadCallback = (total: number) => {
+		const flagId = self.History.Flag();
+		let numLoaded = 0;
+
+		return () => {
+			++numLoaded;
+			if (total > numLoaded) return;
+			self.History.ChangeData(flagId, self.History.CreateData());
+			self.History.Unflag();
+		};
+	};
+
 	const createImageCommand = (url: string) => {
 		const mediaFormat = Media(self);
 		mediaFormat.CreateViaURL(url, { tagName: 'img' });
@@ -76,7 +88,10 @@ const Commands = (editor: Editor) => {
 		const files = BlobList(...fileList);
 
 		const mediaFormat = Media(self);
-		mediaFormat.CreateFromFiles(files, allowedExtensions, { tagName: 'img' });
+		mediaFormat.CreateFromFiles(files, allowedExtensions, {
+			tagName: 'img',
+			loadCallback: createImageLoadCallback(files.GetLength()),
+		});
 	};
 
 	const createImageUpdateCommand = (url: string, node: Node) => {
@@ -85,7 +100,7 @@ const Commands = (editor: Editor) => {
 
 		const mediaFormat = Media(self);
 		FigureElement.src = url;
-		mediaFormat.OnLoadAndErrorEvents(FigureElement);
+		mediaFormat.OnLoadAndErrorEvents(FigureElement, createImageLoadCallback(1));
 	};
 
 	const createMediaCommand = (url: string) => {

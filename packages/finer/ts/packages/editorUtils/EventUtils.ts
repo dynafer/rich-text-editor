@@ -1,27 +1,59 @@
+import { NodeType } from '@dynafer/dom-control';
 import { Arr, Obj } from '@dynafer/utils';
+import DOM from '../dom/DOM';
+import Editor from '../Editor';
+import { ENativeEvents } from '../events/EventSetupUtils';
 
 export interface IEvent<T = unknown> {
 	(...params: T[]): void;
 }
 
 export interface IEventUtils {
+	Get: () => Record<string, IEvent[]>,
+	GetEvents: (eventName: string) => IEvent[],
 	Has: (eventName: string) => boolean,
-	On: (eventName: string, event: IEvent) => void,
+	Resolve: () => void,
+	On: (eventName: string, event: IEvent, bFirst?: boolean) => void,
 	Off: (eventName: string, event: IEvent) => void,
 	OffAll: () => void,
 	Dispatch: (eventName: string, ...params: unknown[]) => void,
-	Get: () => Record<string, IEvent[]>,
 }
 
-const EventUtils = (): IEventUtils => {
-	const events: Record<string, IEvent[]> = {};
+const EventUtils = (editor: Editor): IEventUtils => {
+	const self = editor;
 
+	const events: Record<string, IEvent[]> = {};
+	const pendingNatives: ENativeEvents[] = [];
+
+	const Get = (): Record<string, IEvent[]> => events;
+	const GetEvents = (eventName: string): IEvent[] => events[eventName] ?? [];
 	const Has = (eventName: string): boolean => !!events[eventName];
 
-	const On = (eventName: string, event: IEvent) => {
+	const initNative = (eventName: string) => DOM.On(self.GetBody(), eventName, evt =>
+		Arr.Each(GetEvents(eventName), (event, exit) => {
+			if (evt.defaultPrevented) return exit();
+			event(evt);
+		})
+	);
+
+	const addNative = (eventName: string) => {
+		if (!ENativeEvents[eventName as ENativeEvents] || Has(eventName) || Arr.Contains(pendingNatives, eventName)) return;
+		if (!NodeType.IsElement(self.GetBody())) return Arr.Push(pendingNatives, eventName);
+		initNative(eventName);
+	};
+
+	const Resolve = () => {
+		if (!NodeType.IsElement(self.GetBody())) return;
+		Arr.WhileShift(pendingNatives, eventName => initNative(eventName));
+	};
+
+	const On = (eventName: string, event: IEvent, bFirst: boolean = false) => {
+		addNative(eventName);
+
 		if (!Has(eventName)) events[eventName] = [];
 
-		Arr.Push(events[eventName], event);
+		const add = bFirst ? Arr.Unshift : Arr.Push;
+		add(events[eventName], event);
 	};
 
 	const Off = (eventName: string, event: IEvent) => {
@@ -56,15 +88,15 @@ const EventUtils = (): IEventUtils => {
 			.catch(console.error);
 	};
 
-	const Get = (): Record<string, IEvent[]> => events;
-
 	return {
+		Get,
+		GetEvents,
 		Has,
+		Resolve,
 		On,
 		Off,
 		OffAll,
 		Dispatch,
-		Get,
 	};
 };
 

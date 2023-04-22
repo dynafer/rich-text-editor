@@ -1,3 +1,4 @@
+@import '../mixins/_iconButton';
 @import '../mixins/_iconWrap';
 
 .#{$projectName} {
@@ -19,27 +20,7 @@
 		}
 
 		button {
-			@include all-border(getVar(toolbar-item-border));
-			@include height(getVar(toolbar-item-size));
-			background-color: getVar(toolbar-item-bg);
-			outline: none;
-			cursor: pointer;
-
-			&[disabled] {
-				cursor: default;
-				pointer-events: none;
-			}
-		}
-
-		& > :not(.#{getClassName(toolbar-group)}),
-		.#{getClassName(icon-group)} > *,
-		& > .#{getClassName(toolbar-group)} > *,
-		.#{getClassName(icon-wrap)} > .#{getClassName(icon-button)} {
-			@include flex(center, center, $inline: true);
-			@include round(getVar(toolbar-item-radius));
-			@include all-padding(unset);
-			@include font($color: getVar(toolbar-item-font));
-			background-color: getVar(toolbar-item-bg);
+			@include icon-button(toolbar);
 		}
 
 		.#{getClassName(icon-button)} {
@@ -55,6 +36,8 @@
 
 		.#{getClassName(icon-wrap)} {
 			.#{getClassName(color-icon)} {
+				display: block;
+
 				svg {
 					@include square(getVar(toolbar-icon-size));
 				}
@@ -117,52 +100,6 @@
 
 		& > :last-child {
 			@include margin(rem, $right: 0.2);
-		}
-
-		& > :not(.#{getClassName(toolbar-group)}, .#{getClassName(icon-group)}, [disabled]):hover,
-		.#{getClassName(icon-group)} > :not([disabled]):hover,
-		& > .#{getClassName(toolbar-group)} > :not([disabled]):hover {
-			@include font($color: getVar(toolbar-item-hover-font));
-			@include all-border(getVar(toolbar-item-hover-border));
-			background-color: getVar(toolbar-item-hover-bg);
-		}
-
-		& > :focus:not(.#{getClassName(toolbar-group)}),
-		.#{getClassName(icon-group)} > :not([disabled]):focus,
-		& > .#{getClassName(toolbar-group)} > :focus,
-		& > .active:not(.#{getClassName(toolbar-group)}),
-		.#{getClassName(icon-group)} > :not([disabled]).active,
-		& > .#{getClassName(toolbar-group)} > .active {
-			@include font($color: getVar(toolbar-item-active-font));
-			@include all-border(getVar(toolbar-item-active-border));
-			background-color: getVar(toolbar-item-active-bg);
-
-			&:hover {
-				@include font($color: getVar(toolbar-item-active-hover-font));
-				@include all-border(getVar(toolbar-item-active-hover-border));
-				background-color: getVar(toolbar-item-active-hover-bg);
-			}
-		}
-
-		svg {
-			fill: getVar(toolbar-item-icon-fill);
-		}
-
-		*:hover {
-			& > svg {
-				fill: getVar(toolbar-item-hover-icon-fill);
-			}
-		}
-
-		*:focus,
-		*.active {
-			& > svg {
-				fill: getVar(toolbar-item-active-icon-fill);
-			}
-
-			&:hover > svg {
-				fill: getVar(toolbar-item-active-hover-icon-fill);
-			}
 		}
 
 		[disabled] {

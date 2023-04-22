@@ -76,11 +76,11 @@ class Editor {
 		this.Notification.Dispatch(type, text, bDestroy);
 	}
 
-	public On<K extends keyof GlobalEventHandlersEventMap>(eventName: K, event: TEventListener<K>): void;
-	public On(eventName: string, event: IEvent): void;
-	public On<T = unknown>(eventName: string, event: IEvent<T>): void;
-	public On(eventName: string, event: IEvent) {
-		this.Utils.Event.On(eventName, event);
+	public On<K extends keyof GlobalEventHandlersEventMap>(eventName: K, event: TEventListener<K>, bFirst?: boolean): void;
+	public On(eventName: string, event: IEvent, bFirst?: boolean): void;
+	public On<T = unknown>(eventName: string, event: IEvent<T>, bFirst?: boolean): void;
+	public On(eventName: string, event: IEvent, bFirst: boolean = false) {
+		this.Utils.Event.On(eventName, event, bFirst);
 	}
 
 	public Off<K extends keyof GlobalEventHandlersEventMap>(eventName: K, event: TEventListener<K>): void;
