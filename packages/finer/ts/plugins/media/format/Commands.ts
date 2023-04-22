@@ -1,4 +1,4 @@
-import { Arr } from '@dynafer/utils';
+import { Arr, Type } from '@dynafer/utils';
 import Editor from '../../../packages/Editor';
 import BlobList from '../utils/BlobList';
 import { IPluginMediaCommand } from '../utils/Type';
@@ -35,8 +35,21 @@ const Commands = (editor: Editor) => {
 			toggler.Toggle(bActive, FigureElement);
 		};
 
-	const createLoadCallback = (width: number, height: number) =>
-		(media: HTMLElement) => {
+	const createLoadCallback = (total: number, callback?: (media: HTMLElement) => void) => {
+		const flagId = self.History.Flag();
+		let numLoaded = 0;
+
+		return (media: HTMLElement) => {
+			if (Type.IsFunction(callback)) callback(media);
+			++numLoaded;
+			if (total > numLoaded) return;
+			self.History.ChangeData(flagId, self.History.CreateData());
+			self.History.Unflag();
+		};
+	};
+
+	const createMediaLoadCallback = (width: number, height: number) =>
+		createLoadCallback(1, (media: HTMLElement) => {
 			if (DOM.Utils.IsVideo(media)) {
 				media.controls = true;
 				return;
@@ -50,7 +63,7 @@ const Commands = (editor: Editor) => {
 				width: `${width}px`,
 				height: `${height}px`,
 			});
-		};
+		});
 
 	const getMatchedURL = (url: string): IMatchedURL => {
 		const matchedURL = URLMatcher.Match(url);
@@ -66,18 +79,6 @@ const Commands = (editor: Editor) => {
 		};
 	};
 
-	const createImageLoadCallback = (total: number) => {
-		const flagId = self.History.Flag();
-		let numLoaded = 0;
-
-		return () => {
-			++numLoaded;
-			if (total > numLoaded) return;
-			self.History.ChangeData(flagId, self.History.CreateData());
-			self.History.Unflag();
-		};
-	};
-
 	const createImageCommand = (url: string) => {
 		const mediaFormat = Media(self);
 		mediaFormat.CreateViaURL(url, { tagName: 'img' });
@@ -90,7 +91,7 @@ const Commands = (editor: Editor) => {
 		const mediaFormat = Media(self);
 		mediaFormat.CreateFromFiles(files, allowedExtensions, {
 			tagName: 'img',
-			loadCallback: createImageLoadCallback(files.GetLength()),
+			loadCallback: createLoadCallback(files.GetLength()),
 		});
 	};
 
@@ -100,7 +101,7 @@ const Commands = (editor: Editor) => {
 
 		const mediaFormat = Media(self);
 		FigureElement.src = url;
-		mediaFormat.OnLoadAndErrorEvents(FigureElement, createImageLoadCallback(1));
+		mediaFormat.OnLoadAndErrorEvents(FigureElement, createLoadCallback(1));
 	};
 
 	const createMediaCommand = (url: string) => {
@@ -109,7 +110,7 @@ const Commands = (editor: Editor) => {
 
 		mediaFormat.CreateViaURL(matchedURL.URL, {
 			tagName: matchedURL.format,
-			loadCallback: createLoadCallback(matchedURL.width, matchedURL.height)
+			loadCallback: createMediaLoadCallback(matchedURL.width, matchedURL.height)
 		});
 	};
 
@@ -120,7 +121,7 @@ const Commands = (editor: Editor) => {
 		const mediaFormat = Media(self);
 		const matchedURL = getMatchedURL(url);
 
-		const loadCallback = createLoadCallback(matchedURL.width, matchedURL.height);
+		const loadCallback = createMediaLoadCallback(matchedURL.width, matchedURL.height);
 
 		if (DOM.Utils.GetNodeName(FigureElement) === matchedURL.format) {
 			FigureElement.src = matchedURL.URL;
