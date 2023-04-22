@@ -77,6 +77,16 @@ const FooterManager = (editor: Editor): IFooterManager | null => {
 	const navigationClickEvent = (target: Element) => {
 		const newRange = self.Utils.Range();
 
+		const finish = () => {
+			self.Utils.Shared.DispatchCaretChange();
+			self.Focus();
+		};
+
+		const updateRange = () => {
+			self.Utils.Caret.UpdateRange(newRange);
+			finish();
+		};
+
 		const selectCells = (type: 'table' | 'row' | 'cell') => {
 			const cells = DOM.Element.Table.GetSelectedCells(self);
 			const bAlreadySelected = !Arr.IsEmpty(cells);
@@ -108,15 +118,21 @@ const FooterManager = (editor: Editor): IFooterManager | null => {
 			}
 		};
 
-		const updateRange = () => {
-			self.Utils.Caret.UpdateRange(newRange);
-			self.Utils.Shared.DispatchCaretChange();
-			self.Focus();
-		};
+		if (DOM.Element.Table.IsTable(target)) {
+			selectCells('table');
+			return finish();
+		}
 
-		if (DOM.Element.Table.IsTable(target)) return selectCells('table');
-		if (DOM.Element.Table.IsTableRow(target)) return selectCells('row');
-		if (DOM.Element.Table.IsTableCell(target)) return selectCells('cell');
+		if (DOM.Element.Table.IsTableRow(target)) {
+			selectCells('row');
+			return finish();
+		}
+
+		if (DOM.Element.Table.IsTableCell(target)) {
+			selectCells('cell');
+			return finish();
+		}
+
 
 		if (DOM.Element.Figure.IsFigure(target)) {
 			newRange.SetStartToEnd(target, 1, 1);

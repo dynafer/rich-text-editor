@@ -1,3 +1,4 @@
+@import '../mixins/_iconButton';
 @import '../mixins/_iconWrap';
 @import '../mixins/_optionList';
 
@@ -18,31 +19,19 @@
 			@include flex(center);
 			@include position(relative);
 
-			button {
-				@include all-border(none);
-				@include height(getVar(tools-menu-item-size));
-				background-color: getVar(tools-menu-item-bg);
-				outline: none;
-				cursor: pointer;
-
-				&[disabled] {
-					cursor: default;
-					pointer-events: none;
-				}
-			}
-
 			.#{getClassName(icon-button)} {
 				svg {
 					@include square(1.2rem);
-					fill: getVar(tools-menu-item-icon-fill);
 				}
 			}
 
+			button {
+				@include icon-button(tools-menu);
+			}
+
 			& > .#{getClassName(icon-button)} {
-				@include flex(center, $inline: true);
 				@include all-padding(0.2rem);
-				@include round(getVar(tools-menu-item-radius));
-				@include height(getVar(tools-menu-item-size));
+				@include all-border(none, $important: true);
 
 				&[data-remove] {
 					&:hover {
@@ -57,38 +46,11 @@
 						fill: getVar(tools-menu-item-remove-icon-fill);
 					}
 				}
-
-				&:hover {
-					@include font(getVar(tools-menu-item-hover-font));
-					background-color: getVar(tools-menu-item-hover-bg);
-
-					svg {
-						fill: getVar(tools-menu-item-hover-icon-fill);
-					}
-				}
-
-				&.active {
-					@include font(getVar(tools-menu-item-active-font));
-					background-color: getVar(tools-menu-item-active-bg);
-
-					svg {
-						fill: getVar(tools-menu-item-active-icon-fill);
-					}
-
-					&:hover {
-						@include font(getVar(tools-menu-item-active-hover-font));
-						background-color: getVar(tools-menu-item-active-hover-bg);
-
-						svg {
-							fill: getVar(tools-menu-item-active-hover-icon-fill);
-						}
-					}
-				}
 			}
 
 			@include icon-wrap(tools-menu-item);
 			.#{getClassName(icon-wrap)} {
-				@include all-border(none);
+				@include all-border(none, $important: true);
 				@include height(calc(getVar(tools-menu-item-size) + 0.1rem));
 
 				.#{getClassName(helper)} {

@@ -57,11 +57,15 @@ export const MoveToCurrentPoint = (editor: Editor, table: HTMLElement, point: TC
 
 	if (Type.IsArray(point)) {
 		DOM.Element.Table.ToggleSelectMultipleCells(true, point);
+		CaretUtils.CleanRanges();
 		point = undefined;
 		return;
 	}
 
-	CaretUtils.UpdateRange(point.Range.Clone());
+	const newRange = self.Utils.Range();
+	newRange.SetStart(point.Start.Node, DOM.Utils.IsBr(point.Start.Node) ? 0 : point.Start.Offset);
+	newRange.SetEnd(point.End.Node, DOM.Utils.IsBr(point.End.Node) ? 0 : point.End.Offset);
+	CaretUtils.UpdateRange(newRange);
 };
 
 export const CreateFakeFigure = (editor: Editor, figure: HTMLElement, figureElement: HTMLElement): IFakeFigure => {

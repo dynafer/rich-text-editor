@@ -1,6 +1,5 @@
-import { Arr, Obj, Str, Type } from '@dynafer/utils';
+import { Arr, Str, Type } from '@dynafer/utils';
 import Editor from '../Editor';
-import { ENativeEvents } from '../events/EventSetupUtils';
 import { ENotificationStatus } from './NotificationManager';
 
 export interface IPluginManager {
@@ -12,7 +11,6 @@ export interface IPluginManager {
 
 const PluginManager = (editor: Editor): IPluginManager => {
 	const self = editor;
-	const DOM = self.DOM;
 
 	const plugins: Record<string, (<T>(...args: T[]) => void)> = {};
 
@@ -40,15 +38,7 @@ const PluginManager = (editor: Editor): IPluginManager => {
 
 			Promise.all(attachPlugins)
 				.catch(error => reject(error))
-				.finally(() => {
-					const events = self.Utils.Event.Get();
-					Obj.Entries(events, (key, eventList) => {
-						if (!ENativeEvents[key as ENativeEvents]) return;
-						const body = self.IsIFrame() ? DOM.GetRoot() : self.GetBody();
-						DOM.On(body, key, evt => Arr.Each(eventList, event => event(evt)));
-					});
-					resolve();
-				});
+				.finally(resolve);
 		});
 
 	return {

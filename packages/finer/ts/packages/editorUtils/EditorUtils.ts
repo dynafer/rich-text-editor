@@ -17,7 +17,7 @@ const EditorUtils = (editor: Editor): IEditorUtils => ({
 		const win = editor.GetWin();
 		return RangeUtils(range ?? new win.Range());
 	},
-	Event: EventUtils(),
+	Event: EventUtils(editor),
 	Shared: SharedUtils(editor),
 });
 

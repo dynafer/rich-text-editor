@@ -45,7 +45,7 @@ const DragMedia = (editor: Editor, event: DragEvent) => {
 
 	const dropMedia = (e: InputEvent) => {
 		PreventEvent(e);
-		DOM.Off(self.GetBody(), ENativeEvents.beforeinput, dropMedia);
+		self.Off(ENativeEvents.beforeinput, dropMedia);
 
 		const caret = CaretUtils.Get();
 		if (!caret) return;
@@ -59,7 +59,7 @@ const DragMedia = (editor: Editor, event: DragEvent) => {
 		moveCaret(StartBlock, EndBlock);
 	};
 
-	DOM.On(self.GetBody(), ENativeEvents.beforeinput, dropMedia);
+	self.On(ENativeEvents.beforeinput, dropMedia, true);
 };
 
 export default DragMedia;

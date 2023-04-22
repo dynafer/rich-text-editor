@@ -3,3 +3,7 @@ export const GCD = (num1: number, num2: number): number =>
 
 export const RoundDecimal = (num: number, decimal: number = 2): number =>
 	Math.round(num * (10 ** decimal)) / (10 ** decimal);
+
+export const Percent = (num: number, comparison: number): number => num / comparison * 100;
+
+export const RevertPercent = (num: number, comparison: number): number => num * comparison / 100;

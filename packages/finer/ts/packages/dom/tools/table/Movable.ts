@@ -62,13 +62,12 @@ const Movable = (editor: Editor, table: HTMLElement): HTMLElement => {
 
 		const dropEvent = (e: InputEvent) => {
 			PreventEvent(e);
-			DOM.Off(self.GetBody(), ENativeEvents.beforeinput, dropEvent);
+			self.Off(ENativeEvents.beforeinput, dropEvent);
 
 			if (e.target === self.GetBody()) return moveToSavedPoint(true);
 
 			DOM.Element.Table.ToggleSelectMultipleCells(false, cells);
 			const caret = CaretUtils.Get();
-			DOM.Element.Table.ToggleSelectMultipleCells(true, cells);
 			if (!caret) return moveToSavedPoint(true);
 
 			const closestTable = DOM.Element.Table.GetClosest(FormatUtils.GetParentIfText(caret.Start.Node));
@@ -94,7 +93,7 @@ const Movable = (editor: Editor, table: HTMLElement): HTMLElement => {
 			moveToSavedPoint(false);
 		};
 
-		DOM.On(self.GetBody(), ENativeEvents.beforeinput, dropEvent);
+		self.On(ENativeEvents.beforeinput, dropEvent, true);
 	});
 
 	return movable;

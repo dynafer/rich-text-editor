@@ -8,7 +8,7 @@ const Footer = (icons: Record<string, string>, texts: Record<string, string>, ca
 			Attributes: {
 				type: 'button'
 			},
-			Elements: [Str.Merge(icons.Close, texts.Cancel)],
+			Elements: [Str.Merge(icons.Close, '<span>', texts.Cancel, '</span>')],
 			Events: [
 				['click', cancel]
 			]
@@ -18,7 +18,7 @@ const Footer = (icons: Record<string, string>, texts: Record<string, string>, ca
 			Attributes: {
 				type: 'button'
 			},
-			Elements: [Str.Merge(icons.Check, texts.Apply)],
+			Elements: [Str.Merge(icons.Check, '<span>', texts.Apply, '</span>')],
 			Events: [
 				['click', pick]
 			]

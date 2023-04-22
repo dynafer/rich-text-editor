@@ -1,5 +1,5 @@
 import { NodeType } from '@dynafer/dom-control';
-import { Arr, Obj, Str, Type } from '@dynafer/utils';
+import { Arr, Formula, Obj, Str, Type } from '@dynafer/utils';
 import DOM from '../dom/DOM';
 import Editor from '../Editor';
 import { ICaretData } from '../editorUtils/caret/CaretUtils';
@@ -62,8 +62,8 @@ const FormatUtils = (): IFormatUtils => {
 
 	const GetPixelString = (value: number): string => `${value}px`;
 	const GetPixcelFromRoot = (): string => GetPixelString(STANDARD_PIXEL_FROM_ROOT);
-	const ConvertPointsToPixel = (value: number): number => Math.round(value * STANDARD_PIXEL_FROM_POINTS * 100) / 100;
-	const ConvertPixelToPoints = (value: number): number => Math.round(value * STANDARD_POINTS_FROM_PIXEL * 100) / 100;
+	const ConvertPointsToPixel = (value: number): number => Formula.RoundDecimal(value * STANDARD_PIXEL_FROM_POINTS);
+	const ConvertPixelToPoints = (value: number): number => Formula.RoundDecimal(value * STANDARD_POINTS_FROM_PIXEL);
 	const MultiplyPixelSize = (value: number): number => value * STANDARD_PIXEL_FROM_ROOT;
 
 	const GetFormatName = (finder: string, names: string[]): string => {

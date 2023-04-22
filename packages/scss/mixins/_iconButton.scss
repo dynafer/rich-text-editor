@@ -1,0 +1,73 @@
+@mixin icon-button($type: null) {
+	@if $type == null {
+		$type: '';
+	} @else {
+		$type: #{$type}-item-;
+	}
+
+	@include flex(center, center, $inline: true);
+	@include height(getVar(#{$type}size));
+	@include round(getVar(#{$type}radius));
+	@include font($color: getVar(#{$type}font));
+	background-color: getVar(#{$type}bg);
+	outline: none;
+
+	@include all-border(getVar(#{$type}border));
+	background-color: getVar(#{$type}bg);
+	cursor: pointer;
+
+	* {
+		cursor: pointer;
+	}
+
+	svg {
+		fill: getVar(#{$type}icon-fill);
+	}
+
+	&:hover {
+		@include all-border(getVar(#{$type}hover-border));
+		@include font($color: getVar(#{$type}hover-font));
+		background-color: getVar(#{$type}hover-bg);
+
+		svg {
+			fill: getVar(#{$type}hover-icon-fill);
+		}
+	}
+
+	*:focus,
+	&.active {
+		@include all-border(getVar(#{$type}active-border));
+		@include font($color: getVar(#{$type}active-font));
+		background-color: getVar(#{$type}active-bg);
+
+		svg {
+			fill: getVar(#{$type}active-icon-fill);
+		}
+
+		&:hover {
+			@include all-border(getVar(#{$type}active-hover-border));
+			@include font($color: getVar(#{$type}active-hover-font));
+			background-color: getVar(#{$type}active-hover-bg);
+
+			svg {
+				fill: getVar(#{$type}active-hover-icon-fill);
+			}
+		}
+	}
+
+	span {
+		@include font(inherit, inherit, inherit);
+	}
+
+	&[disabled] {
+		@include all-border(getVar(#{$type}disabled-border));
+		@include font($color: getVar(#{$type}disabled-font));
+		background-color: getVar(#{$type}disabled-bg);
+		cursor: default;
+		pointer-events: none;
+
+		svg {
+			fill: getVar(#{$type}disabled-icon-fill);
+		}
+	}
+}

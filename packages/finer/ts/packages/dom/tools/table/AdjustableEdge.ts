@@ -1,4 +1,4 @@
-import { Arr, Str, Type } from '@dynafer/utils';
+import { Arr, Formula, Str, Type } from '@dynafer/utils';
 import Editor from '../../../Editor';
 import { CreateAdjustableEdgeSize, GetClientSize, RegisterAdjustingEvents, StartAdjustment } from '../Utils';
 import { CreateCurrentPoint, CreateFakeFigure, MakeAbsolute, MoveToCurrentPoint, ResetAbsolute, WalkGrid } from './TableToolsUtils';
@@ -71,8 +71,8 @@ const AdjustableEdge = (editor: Editor, table: HTMLElement): HTMLElement => {
 
 		WalkGrid(Grid, cell =>
 			Arr.Push(dumpStyles, [cell, {
-				width: `${GetClientSize(self, cell, 'width') / oldWidth * 100}%`,
-				height: `${GetClientSize(self, cell, 'height') / oldHeight * 100}%`,
+				width: `${Formula.Percent(GetClientSize(self, cell, 'width'), oldWidth)}%`,
+				height: `${Formula.Percent(GetClientSize(self, cell, 'height'), oldHeight)}%`,
 			}])
 		);
 

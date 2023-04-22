@@ -111,11 +111,16 @@
 	@include check-null(color, $color);
 }
 
-@mixin all-border($color, $size: 1px, $style: solid) {
-	@if $color == none {
-		border: none;
+@mixin all-border($color, $size: 1px, $style: solid, $important: false) {
+	@if $important == true {
+		$important: '!important';
 	} @else {
-		border: #{$size} #{$style} #{$color};
+		$important: '';
+	}
+	@if $color == none {
+		border: none #{$important};
+	} @else {
+		border: #{$size} #{$style} #{$color} #{$important};
 	}
 }
 
@@ -150,7 +155,6 @@
 	@include round(getVar(button-radius));
 	@include all-margin(0.25rem);
 	@include padding(rem, 0.25, 0.4, 0.25, 0.4);
-	@include font(1rem);
 	@include flex(center, space-between, $inline: true);
 	cursor: pointer;
 	outline: none;
@@ -158,6 +162,10 @@
 	svg {
 		@include square(1rem);
 		@include margin(rem, $right: 0.25);
+	}
+
+	span {
+		@include font(inherit, inherit, inherit);
 	}
 }
 
@@ -195,6 +203,16 @@
 
 			svg {
 				fill: getVar(button-#{$type}active-icon-fill);
+			}
+
+			&:hover {
+				@include all-border(getVar(button-#{$type}active-hover-border));
+				@include font($color: getVar(button-#{$type}active-hover-font));
+				background-color: getVar(button-#{$type}active-hover-bg);
+
+				svg {
+					fill: getVar(button-#{$type}active-hover-icon-fill);
+				}
 			}
 		}
 	}
