@@ -1,5 +1,5 @@
 import { Str } from '@dynafer/utils';
-import Options, { EModeEditor } from '../Options';
+import Options, { EEditorMode } from '../Options';
 import DOM from './dom/DOM';
 import { IConfiguration } from './EditorConfigure';
 
@@ -16,7 +16,7 @@ const EditorFrame = (config: IConfiguration): IEditorFrame => {
 	const Root = DOM.Create('div', {
 		attrs: {
 			id: DOM.Utils.CreateUEID(),
-			mode: EModeEditor[config.Mode],
+			mode: EEditorMode[config.Mode],
 		},
 		styles: {
 			width: config.Width,
@@ -50,7 +50,7 @@ const EditorFrame = (config: IConfiguration): IEditorFrame => {
 	});
 
 	const containerId = DOM.Utils.CreateUEID('container', false);
-	const Container = DOM.Create(DOM.Utils.GetModeTag(config.Mode), {
+	const Container = DOM.Create(Options.GetModeTag(config.Mode), {
 		attrs: {
 			id: containerId,
 		},

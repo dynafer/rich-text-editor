@@ -53,19 +53,19 @@
 				}
 			}
 		}
+	}
 
-		.#{getClassName(container)} {
-			@include all-border(transparent);
-			@include width(calc(100% - 2px));
-			@include margin(px, $left: 1);
-			outline: getVar(editor-border) 1px solid;
-			background-color: getVar(editor-bg);
-			user-select: none;
+	.#{getClassName(container)} {
+		@include all-border(transparent);
+		@include width(calc(100% - 2px));
+		@include margin(px, $left: 1);
+		outline: getVar(editor-border) 1px solid;
+		background-color: getVar(editor-bg);
+		user-select: none;
 
-			&.focused {
-				@include all-border(getVar(editor-focused-border));
-				outline-color: getVar(editor-focused-border);
-			}
+		&.focused {
+			@include all-border(getVar(editor-focused-border));
+			outline-color: getVar(editor-focused-border);
 		}
 	}
 }

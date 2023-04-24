@@ -1,6 +1,6 @@
 import { NodeType } from '@dynafer/dom-control';
 import { Arr, Obj, Str, Type, Utils } from '@dynafer/utils';
-import Options, { EModeEditor } from '../../Options';
+import Options from '../../Options';
 
 export const REGEX_EMPTY_TEXT = /(%EF%BB%BF|%0A)/gi;
 export const REGEX_COMMENTS = /<!--.*?-->/gs;
@@ -20,7 +20,6 @@ export interface ICreateSelectorOption {
 
 export interface IDOMUtils {
 	CreateUEID: (id?: string, bAddNum?: boolean) => string,
-	GetModeTag: (mode: EModeEditor) => string,
 	GetEmptyString: () => string,
 	GetNodeName: (selector: Node | null) => string,
 	IsAnchor: (selector: Node | null) => selector is HTMLAnchorElement,
@@ -49,16 +48,6 @@ export interface IDOMUtils {
 const DOMUtils = (): IDOMUtils => {
 	const CreateUEID = (id: string = '', bAddNum: boolean = true): string =>
 		Utils.CreateUEID(Str.IsEmpty(id) ? Options.PROJECT_NAME : `${Options.PROJECT_NAME}-${id}`, bAddNum);
-
-	const GetModeTag = (mode: EModeEditor): string => {
-		switch (mode) {
-			case EModeEditor.inline:
-				return 'div';
-			case EModeEditor.classic:
-			default:
-				return 'iframe';
-		}
-	};
 
 	const GetEmptyString = (): string => EMPTY_HEX_CODE;
 
@@ -189,7 +178,6 @@ const DOMUtils = (): IDOMUtils => {
 
 	return {
 		CreateUEID,
-		GetModeTag,
 		GetEmptyString,
 		GetNodeName,
 		IsAnchor,

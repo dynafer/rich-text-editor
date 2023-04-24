@@ -1,6 +1,6 @@
 import { NodeType } from '@dynafer/dom-control';
 import { Arr, Obj, Str, Type } from '@dynafer/utils';
-import { EModeEditor } from '../Options';
+import { EEditorMode } from '../Options';
 import DOM from './dom/DOM';
 import { EToolbarStyle } from './EditorToolbar';
 
@@ -11,7 +11,7 @@ export type TConfigurationKey<A = unknown, R = unknown> = TConfigurationCommon<A
 
 export interface IConfiguration {
 	readonly Selector: HTMLElement,
-	readonly Mode: EModeEditor,
+	readonly Mode: EEditorMode,
 	readonly Width: string,
 	readonly Height: string,
 	readonly Toolbar: string[],
@@ -31,14 +31,14 @@ const Configure = (config: Record<string, TConfigurationKey>): IConfiguration =>
 	const Selector = config.selector;
 	DOM.Hide(Selector);
 
-	const mode = Str.LowerCase(config.mode as string ?? EModeEditor.classic);
-	if (!Type.IsString(mode) || !EModeEditor[mode as EModeEditor])
+	const mode = Str.LowerCase(config.mode as string ?? EEditorMode.classic);
+	if (!Type.IsString(mode) || !EEditorMode[mode as EEditorMode])
 		throw new Error(`Configuration: ${mode} mode doesn't exist.`);
 
-	const Mode = EModeEditor[mode as EModeEditor];
+	const Mode = EEditorMode[mode as EEditorMode];
 
 	const Width = config.width as string ?? '100%';
-	const defaultHeight = Mode === EModeEditor.classic ? '400px' : 'auto';
+	const defaultHeight = Mode === EEditorMode.classic ? '400px' : 'auto';
 	const Height = config.height as string ?? defaultHeight;
 
 	const Plugins = config.plugins as string[] ?? [];

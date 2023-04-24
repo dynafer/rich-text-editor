@@ -9,7 +9,7 @@ Arr.Each(document.head.querySelectorAll('script'), (loadedScript, exit) => {
 	exit();
 });
 
-export enum EModeEditor {
+export enum EEditorMode {
 	classic = 'classic',
 	inline = 'inline',
 }
@@ -24,6 +24,7 @@ export interface IOptions {
 	readonly ATTRIBUTE_AS_TEXT: string,
 	readonly URLS: Record<string, string>,
 	JoinURL: (type: string, name: string) => string,
+	GetModeTag: (mode: EEditorMode) => string,
 }
 
 const Options = (): IOptions => {
@@ -63,6 +64,16 @@ const Options = (): IOptions => {
 		}
 	};
 
+	const GetModeTag = (mode: EEditorMode): string => {
+		switch (mode) {
+			case EEditorMode.inline:
+				return 'div';
+			case EEditorMode.classic:
+			default:
+				return 'iframe';
+		}
+	};
+
 	return {
 		PROJECT_NAME,
 		SHORT_NAME,
@@ -73,6 +84,7 @@ const Options = (): IOptions => {
 		ATTRIBUTE_AS_TEXT,
 		URLS,
 		JoinURL,
+		GetModeTag,
 	};
 };
 
