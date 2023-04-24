@@ -1,4 +1,5 @@
 import { NodeType } from '@dynafer/dom-control';
+import { Str } from '@dynafer/utils';
 import Editor from '../../Editor';
 import { IsFigure } from './KeyboardUtils';
 
@@ -14,7 +15,7 @@ const Backspace = (editor: Editor) => {
 	const currentLine = caret.Start.Path[0];
 
 	if (lines[lines.length - 1] !== currentLine
-		|| !DOM.Utils.IsTextEmpty(currentLine)
+		|| !Str.IsEmpty(DOM.GetText(currentLine))
 		|| IsFigure(self, currentLine)) return;
 
 	DOM.Remove(currentLine);
