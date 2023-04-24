@@ -3,7 +3,7 @@ import Options from '..//Options';
 import Commander, { ICommander } from './commander/Commander';
 import DOM, { IDom, TEventListener } from './dom/DOM';
 import { IDOMTools } from './dom/DOMTools';
-import Configure, { IConfiguration, TConfigurationKey } from './EditorConfigure';
+import { IConfiguration } from './EditorConfigure';
 import EditorDestroy from './EditorDestroy';
 import EditorFrame, { IEditorFrame } from './EditorFrame';
 import EditorSetup from './EditorSetup';
@@ -52,11 +52,10 @@ class Editor {
 	private mbDestroyed: boolean = false;
 	private mbReadOnly: boolean = false;
 
-	public constructor(config: Record<string, TConfigurationKey>) {
-		const configuration: IConfiguration = Configure(config);
+	public constructor(config: IConfiguration) {
+		this.Config = config;
 
-		this.Config = configuration;
-		this.Frame = EditorFrame(configuration);
+		this.Frame = EditorFrame(config);
 		this.Utils = EditorUtils(this);
 		this.Commander = Commander(this);
 		this.History = HistorySetup(this);

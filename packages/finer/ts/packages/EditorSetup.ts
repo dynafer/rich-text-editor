@@ -1,9 +1,9 @@
 import { NodeType } from '@dynafer/dom-control';
 import { Str } from '@dynafer/utils';
-import Options from '../Options';
 import DOM from './dom/DOM';
 import DOMTools from './dom/DOMTools';
 import Editor from './Editor';
+import EditorContainer from './EditorContainer';
 import EventSetup from './events/EventSetup';
 import { ENativeEvents } from './events/EventSetupUtils';
 import Formatter from './formatter/Formatter';
@@ -16,43 +16,24 @@ const EditorSetup = (editor: Editor): Promise<void> => {
 	const frame = self.Frame;
 	const config = self.Config;
 
-	const bodyId = DOM.Utils.CreateUEID('editor-body', false);
-	const editorDefaultId = DOM.Utils.CreateUEID('editor-default', false);
-	const editorDefaultCss = `<link id="${editorDefaultId}" rel="stylesheet" href="${Options.JoinURL('css', 'skins/Editor')}">`;
+	const editorContainer = EditorContainer(config.Skin);
 
-	const skinId = DOM.Utils.CreateUEID('skin', false);
-	const skinLink = `<link id="${skinId}" rel="stylesheet" href="${Options.JoinURL('css', `skins/${config.Skin}/skin`)}">`;
+	const setupContainer = (): HTMLElement | null => {
+		const container = frame.Container;
 
-	const createIframe = (): HTMLElement => {
-		const container = frame.Container as HTMLIFrameElement;
+		if (DOM.Utils.IsIFrame(container)) {
+			self.SetWin(container.contentWindow as Window & typeof globalThis);
 
-		self.SetWin(container.contentWindow as Window & typeof globalThis);
+			self.DOM = DOM.New({
+				document: container.contentDocument,
+				bEditor: true,
+				bSelfBody: true,
+			});
 
-		self.DOM = DOM.New({
-			document: container.contentDocument,
-			bEditor: true,
-			bSelfBody: true,
-		});
+			return editorContainer.IFrame(container);
+		}
 
-		const iframeHTML = Str.Merge('<!DOCTYPE html>',
-			'<html>',
-			`<head>${skinLink}${editorDefaultCss}</head>`,
-			`<body id="${bodyId}" contenteditable="true"></body>`,
-			'</html>');
-
-		container.contentDocument?.write(iframeHTML);
-		container.contentDocument?.close();
-
-		return self.DOM.Doc.body;
-	};
-
-	const createDiv = (): HTMLElement => {
-		const containerBody = DOM.Create('div', {
-			attrs: {
-				id: bodyId,
-				contenteditable: 'true'
-			}
-		});
+		const containerBody = editorContainer.Div(container);
 
 		self.DOM = DOM.New({
 			bEditor: true,
@@ -66,10 +47,11 @@ const EditorSetup = (editor: Editor): Promise<void> => {
 	};
 
 	const setEditorBody = () => {
-		const body = self.IsIFrame() ? createIframe() : createDiv();
+		const body = setupContainer();
+		if (!body) throw new Error('Error occurred during setup Editor body');
 
-		if (!DOM.Select({ id: editorDefaultId }, DOM.Doc.head)) DOM.Insert(DOM.Doc.head, editorDefaultCss);
-		if (!DOM.Select({ id: skinId }, DOM.Doc.head)) DOM.Insert(DOM.Doc.head, skinLink);
+		if (!DOM.Select({ id: editorContainer.DefaultCSSId }, DOM.Doc.head)) DOM.Insert(DOM.Doc.head, editorContainer.DefaultCss);
+		if (!DOM.Select({ id: editorContainer.SkinCSSId }, DOM.Doc.head)) DOM.Insert(DOM.Doc.head, editorContainer.SkinCSSLink);
 
 		let initialContent: string;
 		if (DOM.Utils.IsTextArea(config.Selector)) {

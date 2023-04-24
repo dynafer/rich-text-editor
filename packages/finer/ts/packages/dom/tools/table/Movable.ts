@@ -17,7 +17,7 @@ const Movable = (editor: Editor, table: HTMLElement): HTMLElement => {
 			'data-movable',
 			{
 				draggable: 'true',
-				title: 'Move a table',
+				title: self.Lang('plugins.tools.menu.table.move', 'Move a table'),
 			},
 		],
 		styles: {
@@ -27,7 +27,9 @@ const Movable = (editor: Editor, table: HTMLElement): HTMLElement => {
 	});
 
 	DOM.On(movable, ENativeEvents.mouseup, (event: MouseEvent) => {
-		const { Figure, FigureElement } = DOM.Element.Figure.Find<HTMLElement>(event.target as Node);
+		if (!event.target) return;
+
+		const { Figure, FigureElement } = DOM.Element.Figure.Find<HTMLElement>(event.target);
 		if (!Figure || !FigureElement) return;
 
 		const cells = DOM.Element.Table.GetAllOwnCells(FigureElement);

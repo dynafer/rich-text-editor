@@ -7,12 +7,13 @@ export interface IEditorDestroy {
 
 const EditorDestroy = (): IEditorDestroy => {
 	const Destroy = (editor: Editor) => {
+		DOM.EventUtils.Destroy();
 		if (editor.IsIFrame()) DOM.Remove(editor.DOM.GetRoot());
 		DOM.Remove(editor.Frame.Root, true);
 	};
 
 	return {
-		Destroy
+		Destroy,
 	};
 };
 
