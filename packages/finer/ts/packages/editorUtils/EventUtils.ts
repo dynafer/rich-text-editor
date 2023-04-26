@@ -33,6 +33,9 @@ const EventUtils = (editor: Editor): IEventUtils => {
 		DOM.On(self.GetBody(), eventName, evt => {
 			if (self.IsReadOnly()) return;
 
+			self.DOM.EventUtils.FindAndUnbindDetached()
+				.catch(console.error);
+
 			Arr.Each(GetEvents(eventName), (event, exit) => {
 				if (evt.defaultPrevented) return exit();
 				event(evt);
@@ -78,6 +81,9 @@ const EventUtils = (editor: Editor): IEventUtils => {
 
 	const Dispatch = (eventName: string, ...params: unknown[]) => {
 		if (!Has(eventName) || self.IsReadOnly()) return;
+
+		self.DOM.EventUtils.FindAndUnbindDetached()
+			.catch(console.error);
 
 		const eventList: Promise<void>[] = [];
 		Arr.Each(events[eventName], event =>

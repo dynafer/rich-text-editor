@@ -1,3 +1,4 @@
+import { NodeType } from '@dynafer/dom-control';
 import { Arr, Obj, Type, Utils } from '@dynafer/utils';
 
 export type TEventTarget = (Window & typeof globalThis) | Document | Element;
@@ -12,6 +13,7 @@ export interface IDOMEventUtils {
 	Bind: (target: TEventTarget, eventName: string, event: EventListener) => void,
 	Unbind: (target: TEventTarget, eventName: string, event: EventListener) => void,
 	UnbindAll: (target: TEventTarget, eventName?: string) => void,
+	FindAndUnbindDetached: () => Promise<void>,
 	Destroy: () => void,
 }
 
@@ -79,6 +81,14 @@ const DOMEventUtils = (): IDOMEventUtils => {
 		delete boundaries?.[boundaryId];
 	};
 
+	const FindAndUnbindDetached = (): Promise<void> =>
+		new Promise(() =>
+			Arr.WhileShift(Obj.Values(boundaries), boundary => {
+				if (!NodeType.IsElement(boundary.element) || boundary.element.ownerDocument.contains(boundary.element)) return;
+				UnbindAll(boundary.element);
+			})
+		);
+
 	const Destroy = () =>
 		Obj.Values(boundaries, boundEvent => UnbindAll(boundEvent.element));
 
@@ -87,6 +97,7 @@ const DOMEventUtils = (): IDOMEventUtils => {
 		Bind,
 		Unbind,
 		UnbindAll,
+		FindAndUnbindDetached,
 		Destroy,
 	};
 };
