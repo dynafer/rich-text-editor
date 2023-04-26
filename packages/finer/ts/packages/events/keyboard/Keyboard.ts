@@ -2,6 +2,7 @@ import Editor from '../../Editor';
 import { ENativeEvents, Setup } from '../EventSetupUtils';
 import Backspace from './Backspace';
 import DefaultEvent from './Default';
+import DeleteInTableCells from './DeleteInTableCells';
 import EnterEvent from './EnterEvent';
 import { EKeyCode, SetupKeyboard, SetupWith } from './KeyboardUtils';
 import MoveCaret from './MoveCaret';
@@ -14,6 +15,7 @@ const Keyboard = (editor: Editor) => {
 	Setup(self, ENativeEvents.keyup, DefaultEvent);
 	Setup(self, ENativeEvents.keypress, DefaultEvent);
 	Setup(self, ENativeEvents.keydown, DefaultEvent);
+	Setup(self, ENativeEvents.keydown, DeleteInTableCells);
 
 	Setup(self, ENativeEvents.keydown, MoveCaret);
 
