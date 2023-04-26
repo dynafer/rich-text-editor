@@ -10,6 +10,11 @@ export enum ENotificationStatus {
 }
 
 interface INotificationManager {
+	readonly STATUS_MAP: {
+		readonly DEFAULT: ENotificationStatus.DEFAULT;
+		readonly WARNING: ENotificationStatus.WARNING;
+		readonly ERROR: ENotificationStatus.ERROR;
+	},
 	Show: () => void,
 	Hide: () => void,
 	Dispatch: (type: ENotificationStatus, text: string, bDestroy?: boolean) => void,
@@ -87,6 +92,7 @@ const NotificationManager = (editor: Editor): INotificationManager => {
 	};
 
 	return {
+		STATUS_MAP: ENotificationStatus,
 		Show,
 		Hide,
 		Dispatch,
