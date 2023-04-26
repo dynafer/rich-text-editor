@@ -1,3 +1,5 @@
+import { NodeType } from '@dynafer/dom-control';
+
 export interface IRangeUtils {
 	Get: () => Range,
 	GetRect: () => DOMRect,
@@ -18,6 +20,13 @@ export interface IRangeUtils {
 }
 
 const RangeUtils = (range: Range = new Range()): IRangeUtils => {
+	const getOffset = (node: Node, offset: number): number => {
+		if (!NodeType.IsText(node)) return offset;
+		if (node.length < offset) return node.length;
+		if (offset < 0) return 0;
+		return offset;
+	};
+
 	const Get = (): Range => range;
 	const GetRect = (): DOMRect => range.getBoundingClientRect();
 	const Insert = (node: Node) => range.insertNode(node);
@@ -25,10 +34,10 @@ const RangeUtils = (range: Range = new Range()): IRangeUtils => {
 	const CloneContents = (): DocumentFragment => range.cloneContents();
 	const DeleteContents = () => range.deleteContents();
 	const Clone = (): IRangeUtils => RangeUtils(range.cloneRange());
-	const SetStart = (node: Node, offset: number) => range.setStart(node, offset);
+	const SetStart = (node: Node, offset: number) => range.setStart(node, getOffset(node, offset));
 	const SetStartBefore = (node: Node) => range.setStartBefore(node);
 	const SetStartAfter = (node: Node) => range.setStartAfter(node);
-	const SetEnd = (node: Node, offset: number) => range.setEnd(node, offset);
+	const SetEnd = (node: Node, offset: number) => range.setEnd(node, getOffset(node, offset));
 	const SetEndBefore = (node: Node) => range.setEndBefore(node);
 	const SetEndAfter = (node: Node) => range.setEndAfter(node);
 	const Select = (node: Node) => range.selectNode(node);

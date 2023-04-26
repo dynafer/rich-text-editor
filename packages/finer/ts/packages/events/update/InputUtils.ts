@@ -166,16 +166,43 @@ const InputUtils = (editor: Editor) => {
 		return previousBlock;
 	};
 
+	const insertInlines = (caret: ICaretData, fragment: DocumentFragment): Node | null => {
+		const firstChild = DOM.Utils.GetFirstChild(fragment);
+		const lastChild = DOM.Utils.GetLastChild(fragment);
+
+		const lastChildForCaret = DOM.Utils.GetLastChild(fragment, true);
+		caret.Range.Insert(fragment);
+
+		if (firstChild?.parentElement !== self.GetBody() && lastChild?.parentElement !== self.GetBody())
+			return lastChildForCaret;
+
+		const targetInsert = firstChild?.previousSibling ?? lastChild?.nextSibling ?? self.GetBody();
+		const insert = targetInsert === lastChild?.nextSibling
+			? DOM.InsertBefore
+			: (targetInsert === firstChild?.previousSibling
+				? DOM.InsertAfter
+				: DOM.Insert);
+
+		const paragraph = self.CreateEmptyParagraph();
+		DOM.Remove(DOM.Utils.GetFirstChild(paragraph));
+		let node = firstChild;
+		while (node) {
+			const nextSibling = node.nextSibling;
+			DOM.Insert(paragraph, node);
+			if (node === lastChild) break;
+			node = nextSibling;
+		}
+
+		insert(targetInsert, paragraph);
+		return lastChildForCaret;
+	};
+
 	const InsertFragment = (caret: ICaretData, fragment: DocumentFragment): Node | null => {
 		const blockElements = DOM.SelectAll({
 			tagName: Arr.Convert(AllBlockFormats)
 		}, fragment);
 
-		if (Arr.IsEmpty(blockElements)) {
-			const lastChild = DOM.Utils.GetLastChild(fragment, true);
-			caret.Range.Insert(fragment);
-			return lastChild;
-		}
+		if (Arr.IsEmpty(blockElements)) return insertInlines(caret, fragment);
 
 		Arr.Clean(blockElements);
 		return DOM.Utils.GetLastChild(insertBlocks(caret, fragment), true);

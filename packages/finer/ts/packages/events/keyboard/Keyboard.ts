@@ -5,6 +5,7 @@ import DefaultEvent from './Default';
 import EnterEvent from './EnterEvent';
 import { EKeyCode, SetupKeyboard, SetupWith } from './KeyboardUtils';
 import MoveCaret from './MoveCaret';
+import SelectAll from './SelectAll';
 
 const Keyboard = (editor: Editor) => {
 	const self = editor;
@@ -30,7 +31,7 @@ const Keyboard = (editor: Editor) => {
 
 	SetupKeyboard(self, ENativeEvents.keydown, EKeyCode.Backspace, Backspace);
 
-	SetupWith(self, ENativeEvents.keyup, EKeyCode.KeyA, { bCtrl: true }, caretChangeEvent);
+	SetupWith(self, ENativeEvents.keyup, EKeyCode.KeyA, { bCtrl: true }, SelectAll);
 };
 
 export default Keyboard;
