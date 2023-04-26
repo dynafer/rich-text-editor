@@ -2,7 +2,9 @@ import { NodeType } from '@dynafer/dom-control';
 import { Arr } from '@dynafer/utils';
 import DOM from '../dom/DOM';
 import Editor from '../Editor';
+import { BlockFormatTags } from '../formatter/Format';
 import FormatUtils from '../formatter/FormatUtils';
+import { ICaretData } from './caret/CaretUtils';
 
 interface ISplitedLines {
 	readonly StartBlock: Node | null,
@@ -12,6 +14,7 @@ interface ISplitedLines {
 export interface ISharedUtils {
 	DispatchCaretChange: (paths?: Node[]) => void,
 	SplitLines: (node: Node, offset: number) => ISplitedLines,
+	DeleteRange: (caret: ICaretData | null) => void,
 }
 
 const SharedUtils = (editor: Editor): ISharedUtils => {
@@ -86,9 +89,34 @@ const SharedUtils = (editor: Editor): ISharedUtils => {
 		};
 	};
 
+	const DeleteRange = (caret: ICaretData | null) => {
+		if (!caret?.IsRange()) return;
+
+		const bInBlock = !!DOM.Closest(FormatUtils.GetParentIfText(caret.SameRoot), { tagName: Arr.Convert(BlockFormatTags.Block) });
+		if (caret.Start.Node === caret.End.Node || bInBlock) return caret.Range.DeleteContents();
+
+		const lines = self.GetLines(false);
+		const firstChild = DOM.Utils.GetFirstChild(lines[0], true);
+		const lastChild = DOM.Utils.GetLastChild(lines[lines.length - 1], true);
+
+		const bSelectedAll = firstChild === caret.Start.Node
+			&& caret.Start.Offset === 0
+			&& lastChild === caret.End.Node
+			&& (NodeType.IsText(lastChild) ? lastChild.length : 0) === caret.End.Offset;
+
+		caret.Range.DeleteContents();
+
+		if (!bSelectedAll) return;
+		while (lines.length > 1) {
+			const line = lines[1] ?? null;
+			DOM.Remove(line, true);
+		}
+	};
+
 	return {
 		DispatchCaretChange,
 		SplitLines,
+		DeleteRange,
 	};
 };
 

@@ -39,7 +39,7 @@ const HorizontalLine = (editor: Editor) => {
 			return finish();
 		}
 
-		caret.Range.DeleteContents();
+		self.Utils.Shared.DeleteRange(caret);
 		CaretUtils.Refresh();
 
 		const { StartBlock, EndBlock } = self.Utils.Shared.SplitLines(caret.Start.Node, caret.Start.Offset);

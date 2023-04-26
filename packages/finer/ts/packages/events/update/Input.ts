@@ -39,7 +39,7 @@ const Input = (editor: Editor) => {
 	const getAsStringCallback = (html: string) =>
 		(caret: ICaretData | null) => {
 			if (!caret) return;
-			caret.Range.DeleteContents();
+			self.Utils.Shared.DeleteRange(caret);
 			FormatUtils.CleanDirtyWithCaret(self, caret);
 			fakeFragment = inputUtils.ConvertHTMLToFragment(html);
 		};

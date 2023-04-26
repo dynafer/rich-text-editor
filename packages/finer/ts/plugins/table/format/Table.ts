@@ -59,7 +59,7 @@ const TableFormat = (editor: Editor) => {
 			return finish();
 		}
 
-		caret.Range.DeleteContents();
+		self.Utils.Shared.DeleteRange(caret);
 
 		const { StartBlock, EndBlock } = self.Utils.Shared.SplitLines(caret.Start.Node, caret.Start.Offset);
 

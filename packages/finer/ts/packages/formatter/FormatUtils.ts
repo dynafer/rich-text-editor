@@ -115,9 +115,11 @@ const FormatUtils = (): IFormatUtils => {
 		callback();
 
 		const newRange = self.Utils.Range();
-		newRange.SetStart(startMarker.nextSibling as Element, caret.Start.Offset);
-		newRange.SetEnd(endMarker.previousSibling as Element, caret.End.Offset);
-		self.Utils.Caret.UpdateRange(newRange);
+		if (startMarker.nextSibling && endMarker.previousSibling) {
+			newRange.SetStart(startMarker.nextSibling, caret.Start.Offset);
+			newRange.SetEnd(endMarker.previousSibling, caret.End.Offset);
+			self.Utils.Caret.UpdateRange(newRange);
+		}
 
 		DOM.Remove(startMarker);
 		DOM.Remove(endMarker);

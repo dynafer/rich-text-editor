@@ -14,8 +14,14 @@ const Paste = (editor: Editor, event: ClipboardEvent) => {
 
 	const caret = CaretUtils.Get();
 	const cells = DOM.Element.Table.GetSelectedCells(self);
-	const { Figure } = DOM.Element.Figure.Find(!caret ? (cells[0] ?? null) : FormatUtils.GetParentIfText(caret.Start.Node));
-	if (!Figure) return;
+	const { Figure, FigureElement } = DOM.Element.Figure.Find(!caret ? (cells[0] ?? null) : FormatUtils.GetParentIfText(caret.Start.Node));
+	if (!Figure || !FigureElement) return;
+
+	if (
+		DOM.Element.Table.Is(FigureElement)
+		&& caret
+		&& DOM.Element.Table.FindClosestCell(FormatUtils.GetParentIfText(caret.SameRoot))
+	) return;
 
 	const callback = (html: string) => {
 		const fakeCaret = CaretUtils.CreateFake(Figure, 0, Figure, 0);
