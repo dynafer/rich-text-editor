@@ -6,8 +6,8 @@ import BlobList, { IBlobList } from '../utils/BlobList';
 import { IPluginsMediaFormatUI } from '../utils/Type';
 import { COMMAND_NAMES_MAP, GetAllowedExtensions } from '../utils/Utils';
 
-type TImageConfiguration = TConfigurationCommon<IBlobList, string>;
-type TUploadCallback = TConfigurationCallback<IBlobList, string>;
+type TImageConfiguration = TConfigurationCommon<IBlobList, Promise<string>>;
+type TUploadCallback = TConfigurationCallback<IBlobList, Promise<string>>;
 
 const ImageUploader = (editor: Editor, ui: IPluginMediaUI) => {
 	const self = editor;
@@ -49,11 +49,15 @@ const ImageUploader = (editor: Editor, ui: IPluginMediaUI) => {
 		if (!fileList) return;
 
 		const files = Arr.Convert(bMultiple ? fileList : [fileList[0]]);
-		self.Commander.Run<File[] | string>(COMMAND_NAMES_MAP.IMAGE_UPLOAD, files, allowedExtensions);
-		fileInput.value = '';
+		if (!Type.IsFunction(uploadCallback)) {
+			self.Commander.Run<File[] | string>(COMMAND_NAMES_MAP.IMAGE_UPLOAD, files, allowedExtensions);
+			fileInput.value = '';
+			return;
+		}
 
-		if (!Type.IsFunction(uploadCallback)) return;
-		uploadCallback(BlobList(...files));
+		uploadCallback(BlobList(...files))
+			.then(url => self.Commander.Run<File[] | string>(COMMAND_NAMES_MAP.IMAGE_CREATE, url))
+			.catch(error => self.Notification.Dispatch(self.Notification.STATUS_MAP.ERROR, error, false));
 	});
 
 	const createOptionList = (wrapper: HTMLElement) =>
