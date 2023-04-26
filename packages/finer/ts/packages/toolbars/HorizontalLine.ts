@@ -40,7 +40,6 @@ const HorizontalLine = (editor: Editor) => {
 		}
 
 		self.Utils.Shared.DeleteRange(caret);
-		CaretUtils.Refresh();
 
 		const { StartBlock, EndBlock } = self.Utils.Shared.SplitLines(caret.Start.Node, caret.Start.Offset);
 		DOM.InsertAfter(StartBlock ?? caret.Start.Path[0], EndBlock, horizontalLine);
