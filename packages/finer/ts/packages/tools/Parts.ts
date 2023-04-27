@@ -1,12 +1,12 @@
 import { Arr, Type } from '@dynafer/utils';
 import Options from '../../Options';
 import Editor from '../Editor';
-import DefaultParts from './tools/DefaultParts';
-import ToolsManager, { IToolsManager } from './tools/ToolsManager';
-import { ADDABLE_TOOLS_MENU_TOP, ChangeAllPositions, ChangeToolsMenuOptionList } from './tools/Utils';
+import DefaultParts from './parts/DefaultParts';
+import PartsManager, { IPartsManager } from './parts/PartsManager';
+import { ADDABLE_TOOLS_MENU_TOP, ChangeAllPositions, ChangePartsMenuOptionList } from './parts/Utils';
 
-export interface IDOMTools {
-	readonly Manager: IToolsManager,
+export interface IPartsTool {
+	readonly Manager: IPartsManager,
 	Create: (type: string, element: HTMLElement) => HTMLElement | null,
 	RemoveAll: () => void,
 	SelectFocused: <T extends boolean = false>(bAll?: T | false, type?: string) => T extends false ? (HTMLElement | null) : HTMLElement[],
@@ -16,17 +16,17 @@ export interface IDOMTools {
 	ChangePositions: () => void,
 }
 
-const DOMTools = (editor: Editor): IDOMTools => {
+const PartsTool = (editor: Editor): IPartsTool => {
 	const self = editor;
 	const DOM = self.DOM;
-	const Manager = ToolsManager(self);
+	const Manager = PartsManager(self);
 
-	// Register default tools
+	// Register default parts
 	Manager.Attach(DefaultParts.Media);
 	Manager.Attach(DefaultParts.Table);
 
 	DOM.On(self.GetWin(), Finer.NativeEventMap.scroll, () =>
-		Arr.Each(DOM.SelectAll<HTMLElement>({ attrs: ['data-tools-menu'] }), menu => {
+		Arr.Each(DOM.SelectAll<HTMLElement>({ attrs: ['data-parts-menu'] }), menu => {
 			const { Figure, FigureElement } = DOM.Element.Figure.Find<HTMLElement>(menu);
 			if (!Figure || !FigureElement) return;
 
@@ -39,7 +39,7 @@ const DOMTools = (editor: Editor): IDOMTools => {
 
 			DOM.SetStyle(menu, 'top', position);
 
-			ChangeToolsMenuOptionList(self, menu);
+			ChangePartsMenuOptionList(self, menu);
 		})
 	);
 
@@ -47,9 +47,9 @@ const DOMTools = (editor: Editor): IDOMTools => {
 		Manager.Create(type, element);
 
 	const RemoveAll = () => {
-		const toolList = Manager.SelectTools(true);
+		const partsList = Manager.SelectParts(true);
 
-		Arr.Each(toolList, tools => DOM.Remove(tools, true));
+		Arr.Each(partsList, parts => DOM.Remove(parts, true));
 	};
 
 	const SelectFocused = <T extends boolean = false>(bAll: T | false = false, type?: string): T extends false ? (HTMLElement | null) : HTMLElement[] => {
@@ -63,21 +63,21 @@ const DOMTools = (editor: Editor): IDOMTools => {
 		if (target) return DOM.Show(target);
 		const focused = SelectFocused();
 		if (!focused) return;
-		DOM.Show(target ?? Manager.SelectTools(false, focused));
+		DOM.Show(target ?? Manager.SelectParts(false, focused));
 	};
 
 	const HideAll = (except?: Element | null) => {
-		const toolList = Manager.SelectTools(true);
+		const toolList = Manager.SelectParts(true);
 
 		const focused = SelectFocused();
 
-		const isSkippable = (tools: HTMLElement): boolean =>
-			(!!focused && DOM.Utils.IsChildOf(tools, focused) && DOM.Element.Figure.FindClosest(tools) === focused)
-			|| (!!except && DOM.Utils.IsChildOf(tools, except) && DOM.Element.Figure.FindClosest(tools) === focused);
+		const isSkippable = (parts: HTMLElement): boolean =>
+			(!!focused && DOM.Utils.IsChildOf(parts, focused) && DOM.Element.Figure.FindClosest(parts) === focused)
+			|| (!!except && DOM.Utils.IsChildOf(parts, except) && DOM.Element.Figure.FindClosest(parts) === focused);
 
-		Arr.Each(toolList, tools => {
-			if (isSkippable(tools)) return;
-			DOM.Hide(tools);
+		Arr.Each(toolList, parts => {
+			if (isSkippable(parts)) return;
+			DOM.Hide(parts);
 		});
 	};
 
@@ -110,4 +110,4 @@ const DOMTools = (editor: Editor): IDOMTools => {
 	};
 };
 
-export default DOMTools;
+export default PartsTool;

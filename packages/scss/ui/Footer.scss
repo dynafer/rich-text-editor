@@ -38,6 +38,7 @@
 
 		.#{getClassName(counter)} {
 			@include flex(center);
+			@include margin(rem, $right: 1);
 
 			.#{getClassName(counter-wrap)} {
 				@include flex(center);

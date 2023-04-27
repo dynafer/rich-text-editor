@@ -147,7 +147,7 @@ const DOMUtils = (): IDOMUtils => {
 		return selector;
 	};
 
-	const isDOMTools = (node: Node | null): node is Element => NodeType.IsElement(node) && node.getAttribute('data-fixed') === 'dom-tool';
+	const isDOMTools = (node: Node | null): node is Element => NodeType.IsElement(node) && node.getAttribute('data-fixed') === 'parts-tool';
 
 	const getDeepestChild = (node: Node, bFirst: boolean): Node | null => {
 		let child: Node | null = node;

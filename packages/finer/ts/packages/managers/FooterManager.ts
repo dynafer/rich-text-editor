@@ -60,7 +60,7 @@ const FooterManager = (editor: Editor): IFooterManager | null => {
 	const UpdateCounter = () => {
 		if (!regexBlockTags) regexBlockTags = new RegExp(`<\/?(${Str.Join('|', ...AllBlockFormats)}).*?>`, 'g');
 		const clonedBody = DOM.Clone(self.GetBody(), true);
-		Arr.WhileShift(DOM.SelectAll({ attrs: { dataFixed: 'dom-tool' } }, clonedBody), tools => DOM.Remove(tools));
+		Arr.WhileShift(self.Tools.Parts.Manager.SelectParts(true, clonedBody), Parts => DOM.Remove(Parts));
 		const texts = DOM.GetHTML(clonedBody)
 			.replace(regexBlockTags, ' ')
 			.replace(/<\/?.*?>/g, '')
@@ -79,15 +79,13 @@ const FooterManager = (editor: Editor): IFooterManager | null => {
 	const navigationClickEvent = (target: Element) => {
 		const newRange = self.Utils.Range();
 
-		const finish = () => {
+		const finish = (callback: () => void) => {
+			callback();
 			self.Utils.Shared.DispatchCaretChange();
 			self.Focus();
 		};
 
-		const updateRange = () => {
-			self.Utils.Caret.UpdateRange(newRange);
-			finish();
-		};
+		const updateRange = () => finish(() => self.Utils.Caret.UpdateRange(newRange));
 
 		const selectCells = (type: 'table' | 'row' | 'cell') => {
 			const cells = DOM.Element.Table.GetSelectedCells(self);
@@ -120,21 +118,9 @@ const FooterManager = (editor: Editor): IFooterManager | null => {
 			}
 		};
 
-		if (DOM.Element.Table.Is(target)) {
-			selectCells('table');
-			return finish();
-		}
-
-		if (DOM.Element.Table.IsRow(target)) {
-			selectCells('row');
-			return finish();
-		}
-
-		if (DOM.Element.Table.IsCell(target)) {
-			selectCells('cell');
-			return finish();
-		}
-
+		if (DOM.Element.Table.Is(target)) return finish(() => selectCells('table'));
+		if (DOM.Element.Table.IsRow(target)) return finish(() => selectCells('row'));
+		if (DOM.Element.Table.IsCell(target)) return finish(() => selectCells('cell'));
 
 		if (DOM.Element.Figure.Is(target)) {
 			newRange.SetStartToEnd(target, 1, 1);

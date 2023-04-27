@@ -62,7 +62,7 @@ const ImageUploader = (editor: Editor, ui: IPluginMediaUI) => {
 
 	const createOptionList = (wrapper: HTMLElement) =>
 		(): HTMLElement => {
-			const figureElement = DOM.Element.Figure.SelectFigureElement<HTMLImageElement>(self.Tools.DOM.SelectFocused(false, 'media'));
+			const figureElement = DOM.Element.Figure.SelectFigureElement<HTMLImageElement>(self.Tools.Parts.SelectFocused(false, 'media'));
 			const bUpdatable = DOM.Utils.IsImage(figureElement);
 
 			const createImage = (input: HTMLInputElement) => {

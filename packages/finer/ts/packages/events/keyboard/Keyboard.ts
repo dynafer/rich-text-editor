@@ -11,6 +11,11 @@ import SelectAll from './SelectAll';
 const Keyboard = (editor: Editor) => {
 	const self = editor;
 	const caretChangeEvent = () => self.Utils.Shared.DispatchCaretChange();
+	const deleteEvent = () => {
+		self.DOM.EventUtils.FindAndUnbindDetached()
+			.catch(console.error);
+	};
+
 
 	Setup(self, ENativeEvents.keyup, DefaultEvent);
 	Setup(self, ENativeEvents.keypress, DefaultEvent);
@@ -20,6 +25,9 @@ const Keyboard = (editor: Editor) => {
 	Setup(self, ENativeEvents.keydown, MoveCaret);
 
 	SetupKeyboard(self, ENativeEvents.keydown, EKeyCode.Enter, EnterEvent);
+
+	SetupKeyboard(self, ENativeEvents.keyup, EKeyCode.Backspace, deleteEvent);
+	SetupKeyboard(self, ENativeEvents.keyup, EKeyCode.Delete, deleteEvent);
 
 	SetupKeyboard(self, ENativeEvents.keyup, EKeyCode.ArrowUp, caretChangeEvent);
 	SetupKeyboard(self, ENativeEvents.keyup, EKeyCode.ArrowDown, caretChangeEvent);

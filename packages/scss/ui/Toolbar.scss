@@ -112,4 +112,11 @@
 			}
 		}
 	}
+
+	@include mobile {
+		.#{getClassName(toolbar)} {
+			@include flex(center, $wrap: nowrap);
+			overflow: auto hidden;
+		}
+	}
 }

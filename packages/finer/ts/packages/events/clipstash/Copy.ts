@@ -88,8 +88,8 @@ const Copy = (editor: Editor, event: ClipboardEvent) => {
 
 	const fragment = inputUtils.GetProcessedFragment(caret, bCut);
 
-	const tools = self.Tools.DOM.Manager.SelectTools(true, fragment);
-	Arr.Each(tools, tool => DOM.Remove(tool));
+	const parts = self.Tools.Parts.Manager.SelectParts(true, fragment);
+	Arr.Each(parts, part => DOM.Remove(part));
 
 	const dummyFragment = DOM.Create('fragment');
 	DOM.Insert(dummyFragment, ...DOM.GetChildNodes(fragment));

@@ -7,13 +7,13 @@ import TableMenu from './ui/TableMenu';
 const Setup = (editor: Editor) => {
 	const self = editor;
 	const pluginManager = self.Plugin;
-	const toolsManager = self.Tools.DOM.Manager;
+	const partsManager = self.Tools.Parts.Manager;
 	const formatUtils = self.Formatter.Utils;
 
 	const formatNames = ['Table'];
 
 	const parts = TableMenu(self);
-	toolsManager.Attach({
+	partsManager.Attach({
 		name: 'table',
 		partAttachers: [parts.Create],
 	});

@@ -1,8 +1,8 @@
 import { Arr, Type } from '@dynafer/utils';
 import Options from '../../../../Options';
+import { ITableGrid } from '../../../dom/elements/Table';
 import Editor from '../../../Editor';
 import { ICaretData } from '../../../editorUtils/caret/CaretUtils';
-import { ITableGrid } from '../../elements/Table';
 
 type TCurrentPoint = ICaretData | HTMLElement[] | null | undefined;
 

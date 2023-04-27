@@ -2,7 +2,6 @@ import { Arr, Obj, Str, Type, Utils } from '@dynafer/utils';
 import Options from '..//Options';
 import Commander, { ICommander } from './commander/Commander';
 import DOM, { IDom, TEventListener } from './dom/DOM';
-import { IDOMTools } from './dom/DOMTools';
 import { IConfiguration } from './EditorConfigure';
 import EditorDestroy from './EditorDestroy';
 import EditorFrame, { IEditorFrame } from './EditorFrame';
@@ -18,6 +17,9 @@ import { IFooterManager } from './managers/FooterManager';
 import { ENotificationStatus, INotificationManager, NotificationManager } from './managers/NotificationManager';
 import { IPluginManager } from './managers/PluginManager';
 import { IShortcuts } from './toolbars/Types';
+import { IPartsTool } from './tools/Parts';
+import { IResizerTool } from './tools/Resizer';
+import { IResizeOption } from './tools/types/ResizerType';
 
 enum ELoadingStatus {
 	SHOW = 'SHOW',
@@ -25,7 +27,8 @@ enum ELoadingStatus {
 }
 
 interface IEditorTools {
-	readonly DOM: IDOMTools,
+	readonly Parts: IPartsTool,
+	readonly Resizer: IResizerTool,
 }
 
 class Editor {
@@ -118,7 +121,7 @@ class Editor {
 
 		if (bReadOnly) {
 			DOM.Element.Table.ToggleSelectMultipleCells(false, DOM.Element.Table.GetSelectedCells(this));
-			this.Tools.DOM.UnsetAllFocused();
+			this.Tools.Parts.UnsetAllFocused();
 			this.Footer?.CleanNavigation();
 		}
 
@@ -229,7 +232,7 @@ class Editor {
 	public GetContent(): string {
 		const fake = DOM.Create('div');
 		DOM.CloneAndInsert(fake, true, ...this.GetLines());
-		Arr.WhileShift(DOM.SelectAll({ attrs: { dataFixed: 'dom-tool' } }, fake), tools => DOM.Remove(tools));
+		Arr.WhileShift(this.Tools.Parts.Manager.SelectParts(true, fake), parts => DOM.Remove(parts));
 		Arr.WhileShift(DOM.SelectAll({ attrs: [Options.ATTRIBUTE_EDITOR_STYLE] }, fake), styleElems => DOM.RemoveAttr(styleElems, Options.ATTRIBUTE_EDITOR_STYLE));
 		const html = DOM.GetHTML(fake);
 		DOM.Remove(fake);
@@ -260,6 +263,10 @@ class Editor {
 
 	public GetShortcuts(): IShortcuts[] {
 		return this.mShortcuts;
+	}
+
+	public Resize(opts: IResizeOption) {
+		this.Tools.Resizer.Resize(opts);
 	}
 
 	public Lang(key: string, defaultText: string, replacers?: string[]): string {

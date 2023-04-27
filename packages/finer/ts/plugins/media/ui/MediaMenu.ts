@@ -1,12 +1,12 @@
 import { Arr, Obj } from '@dynafer/utils';
-import { IDOMToolsPartAttacher } from '../../../packages/dom/tools/Types';
 import Editor from '../../../packages/Editor';
+import { IPartsToolAttacher } from '../../../packages/tools/types/PartsType';
 import { IPluginMediaUI } from '../UI';
 import { IPluginMediaMenuFormatUI } from '../utils/Type';
 import { COMMAND_NAMES_MAP, GetMenuText } from '../utils/Utils';
 
 export interface IMediaMenu {
-	Create: IDOMToolsPartAttacher,
+	Create: IPartsToolAttacher,
 }
 
 const MediaMenu = (editor: Editor, ui: IPluginMediaUI): IMediaMenu => {
@@ -86,9 +86,9 @@ const MediaMenu = (editor: Editor, ui: IPluginMediaUI): IMediaMenu => {
 		return group;
 	};
 
-	const Create: IDOMToolsPartAttacher = (): HTMLElement => {
+	const Create: IPartsToolAttacher = (): HTMLElement => {
 		const mediaMenu = DOM.Create('div', {
-			attrs: ['data-tools-menu']
+			attrs: ['data-parts-menu']
 		});
 
 		Obj.Values(uiFormats, formats => DOM.Insert(mediaMenu, createGroup(mediaMenu, formats)));

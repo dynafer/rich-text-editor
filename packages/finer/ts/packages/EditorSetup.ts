@@ -1,7 +1,6 @@
 import { NodeType } from '@dynafer/dom-control';
 import { Str } from '@dynafer/utils';
 import DOM from './dom/DOM';
-import DOMTools from './dom/DOMTools';
 import Editor from './Editor';
 import EditorContainer from './EditorContainer';
 import EventSetup from './events/EventSetup';
@@ -10,6 +9,8 @@ import Formatter from './formatter/Formatter';
 import { CreateHistoryPath, GetHTMLHistory } from './history/Utils';
 import FooterManager from './managers/FooterManager';
 import PluginManager from './managers/PluginManager';
+import PartsTool from './tools/Parts';
+import Resizer from './tools/Resizer';
 
 const EditorSetup = (editor: Editor): Promise<void> => {
 	const self = editor;
@@ -76,7 +77,8 @@ const EditorSetup = (editor: Editor): Promise<void> => {
 		});
 
 		self.Tools = {
-			DOM: DOMTools(self)
+			Parts: PartsTool(self),
+			Resizer: Resizer(self),
 		};
 
 		self.Plugin = PluginManager(self);

@@ -11,7 +11,7 @@ import URLMatcher from './utils/URLMatcher';
 const Setup = (editor: Editor) => {
 	const self = editor;
 	const pluginManager = self.Plugin;
-	const toolsManager = self.Tools.DOM.Manager;
+	const partsManager = self.Tools.Parts.Manager;
 	const formatUtils = self.Formatter.Utils;
 
 	const ui = UI(self);
@@ -19,7 +19,7 @@ const Setup = (editor: Editor) => {
 	const formatNames = ['Image', 'Media'];
 
 	const parts = MediaMenu(self, ui);
-	toolsManager.Attach({
+	partsManager.Attach({
 		name: 'media',
 		partAttachers: [parts.Create],
 	});

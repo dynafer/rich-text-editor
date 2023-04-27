@@ -45,7 +45,7 @@ export const GetHTMLHistory = (editor: Editor): string => {
 	const self = editor;
 	const fake = DOM.Create('div');
 	DOM.CloneAndInsert(fake, true, ...self.GetLines());
-	Arr.WhileShift(DOM.SelectAll({ attrs: { dataFixed: 'dom-tool' } }, fake), tools => DOM.Remove(tools));
+	Arr.WhileShift(self.Tools.Parts.Manager.SelectParts(true, fake), parts => DOM.Remove(parts));
 	const html = DOM.GetHTML(fake);
 	DOM.Remove(fake);
 	return html;
@@ -111,7 +111,7 @@ export const Revert = (editor: Editor, data: string, history: Exclude<THistoryPa
 
 	const { type, info } = history;
 
-	Arr.WhileShift(self.DOM.SelectAll({ attrs: { dataFixed: 'dom-tool' } }), tools => DOM.Remove(tools, true));
+	Arr.WhileShift(self.Tools.Parts.Manager.SelectParts(true), parts => DOM.Remove(parts, true));
 	self.SetContent(data);
 
 	const newRange = self.Utils.Range();
@@ -137,5 +137,5 @@ export const Revert = (editor: Editor, data: string, history: Exclude<THistoryPa
 
 	if (type !== 'cells') CaretUtils.UpdateRange(newRange);
 	self.Utils.Shared.DispatchCaretChange();
-	self.Tools.DOM.ChangePositions();
+	self.Tools.Parts.ChangePositions();
 };

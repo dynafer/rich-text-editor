@@ -33,7 +33,7 @@ const Setup = (editor: Editor): IHistoryManager => {
 	});
 
 	const moveByHand = (event: MouseEvent | TouchEvent) => {
-		if (!NodeType.IsNode(event.target) || DOM.Closest(event.target, { attrs: { dataFixed: 'dom-tool' } })) return;
+		if (!NodeType.IsNode(event.target) || DOM.Closest(event.target, { attrs: { dataFixed: 'parts-tool' } })) return;
 		if (!historyManager.IsTexting()) return;
 		archiver.History.Record();
 		historyManager.SetTexting(false);

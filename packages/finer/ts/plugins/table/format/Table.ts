@@ -17,7 +17,7 @@ const TableFormat = (editor: Editor) => {
 			},
 		});
 
-		const tools = self.Tools.DOM.Create('table', table);
+		const parts = self.Tools.Parts.Create('table', table);
 
 		let firstCellParagraph: HTMLElement = table;
 
@@ -36,11 +36,11 @@ const TableFormat = (editor: Editor) => {
 			DOM.Insert(table, tr);
 		}
 
-		DOM.Insert(figure, table, tools);
+		DOM.Insert(figure, table, parts);
 
 		self.Focus();
 
-		self.Tools.DOM.UnsetAllFocused();
+		self.Tools.Parts.UnsetAllFocused();
 
 		const caret = CaretUtils.Get();
 		const lines = self.GetLines();

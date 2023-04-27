@@ -35,7 +35,7 @@ export const STYLE_COMMANDS: IPluginTableCommand[] = [
 	{ Name: COMMAND_NAMES_MAP.ALIGN_RIGHT, Styles: { marginLeft: 'auto', marginRight: '0px' }, SameStyles: ['float'] },
 ];
 
-export const GetMenuText = (editor: Editor, name: string, defaultText: string): string => editor.Lang(Str.Merge('plugins.tools.menu.', name), defaultText);
+export const GetMenuText = (editor: Editor, name: string, defaultText: string): string => editor.Lang(Str.Merge('plugins.parts.menu.', name), defaultText);
 
 export const CanDeleteRowColumn = (editor: Editor, type: 'row' | 'column', table: HTMLElement): boolean => {
 	const self = editor;

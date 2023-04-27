@@ -1,11 +1,11 @@
-import { IDOMToolsPartAttacher } from '../../../packages/dom/tools/Types';
 import Editor from '../../../packages/Editor';
+import { IPartsToolAttacher } from '../../../packages/tools/types/PartsType';
 import { COMMAND_NAMES_MAP, GetMenuText } from '../Utils';
 import Alignment from './menu/Alignment';
 import RowColumn from './menu/RowColumn';
 
 export interface ITableMenu {
-	Create: IDOMToolsPartAttacher,
+	Create: IPartsToolAttacher,
 }
 
 const TableMenu = (editor: Editor): ITableMenu => {
@@ -28,9 +28,9 @@ const TableMenu = (editor: Editor): ITableMenu => {
 		return group;
 	};
 
-	const Create: IDOMToolsPartAttacher = (e: Editor, table: HTMLElement): HTMLElement => {
+	const Create: IPartsToolAttacher = (e: Editor, table: HTMLElement): HTMLElement => {
 		const tableMenu = DOM.Create('div', {
-			attrs: ['data-tools-menu']
+			attrs: ['data-parts-menu']
 		});
 
 		DOM.Insert(tableMenu, Alignment(self, table, tableMenu), RowColumn(self, table, tableMenu), createGroupWithoutFormat(tableMenu));

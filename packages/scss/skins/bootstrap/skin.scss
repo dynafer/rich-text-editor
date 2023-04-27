@@ -84,26 +84,26 @@ $border: rgba(0, 0, 0, 0.125);
 
 	#{getVarName(hover-color)}: $primaryHover;
 	#{getVarName(selected-color)}: $primaryActive;
-	#{getVarName(tools-default-color)}: $primary;
-	#{getVarName(tools-opposite-color)}: #000;
+	#{getVarName(parts-default-color)}: $primary;
+	#{getVarName(parts-opposite-color)}: #000;
 
-	#{getVarName(tools-size-navigation-bg)}: rgba(0, 0, 0, 0.6);
-	#{getVarName(tools-size-navigation-font)}: #fff;
+	#{getVarName(parts-size-navigation-bg)}: rgba(0, 0, 0, 0.6);
+	#{getVarName(parts-size-navigation-font)}: #fff;
 
-	#{getVarName(tools-menu-bg)}: #fff;
-	#{getVarName(tools-menu-border)}: $border;
-	#{getVarName(tools-menu-radius)}: 0.25rem;
+	#{getVarName(parts-menu-bg)}: #fff;
+	#{getVarName(parts-menu-border)}: $border;
+	#{getVarName(parts-menu-radius)}: 0.25rem;
 
-	#{getVarName(tools-menu-item-radius)}: 0.25rem;
-	@include make-tools-item-variables(null, transparent, $border, #000, #000);
-	@include make-tools-item-variables(hover, #f8f9fa, $border, #495057, #495057);
-	@include make-tools-item-variables(active, $primary, $primary, #fff, #fff);
-	@include make-tools-item-variables(active-hover, $primaryHover, $primaryHover, #fff, #fff);
-	@include make-tools-item-variables(remove-hover, $dangerHover, $dangerHover, #fff, #fff);
-	@include make-tools-item-variables(disabled, transparent, $border, #707070, #707070);
-	#{getVarName(tools-menu-item-remove-icon-fill)}: $dangerHover;
-	#{getVarName(tools-menu-item-size)}: 1.6rem;
-	#{getVarName(tools-menu-item-option-padding)}: 0.5rem;
+	#{getVarName(parts-menu-item-radius)}: 0.25rem;
+	@include make-parts-item-variables(null, transparent, $border, #000, #000);
+	@include make-parts-item-variables(hover, #f8f9fa, $border, #495057, #495057);
+	@include make-parts-item-variables(active, $primary, $primary, #fff, #fff);
+	@include make-parts-item-variables(active-hover, $primaryHover, $primaryHover, #fff, #fff);
+	@include make-parts-item-variables(remove-hover, $dangerHover, $dangerHover, #fff, #fff);
+	@include make-parts-item-variables(disabled, transparent, $border, #707070, #707070);
+	#{getVarName(parts-menu-item-remove-icon-fill)}: $dangerHover;
+	#{getVarName(parts-menu-item-size)}: 1.6rem;
+	#{getVarName(parts-menu-item-option-padding)}: 0.5rem;
 
 	#{getVarName(format-code-hover-bg)}: $primaryHover;
 	#{getVarName(format-code-focused-bg)}: $primaryActive;
