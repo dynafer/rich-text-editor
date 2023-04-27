@@ -13,6 +13,7 @@ $opposite: rgb(218, 218, 218);
 .#{getClassName(options)} * {
 	#{getVarName(toolbar-bg)}: #282827;
 	#{getVarName(toolbar-border)}: #353535;
+	#{getVarName(toolbar-trace-bg)}: #282827;
 
 	#{getVarName(toolbar-item-size)}: 1.625rem;
 	#{getVarName(toolbar-item-radius)}: 0.25rem;

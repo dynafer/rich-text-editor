@@ -1,6 +1,4 @@
 .#{$projectName} {
-	@include position(relative);
-
 	&[mode='classic'] {
 		.#{getClassName(container)} {
 			@include margin(rem, $bottom: -0.25);

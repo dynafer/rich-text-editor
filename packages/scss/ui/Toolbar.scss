@@ -19,6 +19,12 @@
 			overflow: hidden;
 		}
 
+		&[inline-trace] {
+			@include position(fixed);
+			background-color: getVar(toolbar-trace-bg);
+			z-index: 99999999;
+		}
+
 		button {
 			@include icon-button(toolbar);
 		}
