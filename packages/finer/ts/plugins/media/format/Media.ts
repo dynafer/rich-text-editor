@@ -19,14 +19,14 @@ export interface IFormatMedia {
 const Media = (editor: Editor): IFormatMedia => {
 	const self = editor;
 	const DOM = self.DOM;
-	const DOMTools = self.Tools.DOM;
+	const PartsTool = self.Tools.Parts;
 	const CaretUtils = self.Utils.Caret;
 	const formatter = self.Formatter;
 
 	const completeCreation = (...figures: HTMLElement[]) => {
 		self.Focus();
 
-		DOMTools.UnsetAllFocused();
+		PartsTool.UnsetAllFocused();
 
 		const caret = CaretUtils.Get();
 		const lines = self.GetLines();
@@ -66,7 +66,7 @@ const Media = (editor: Editor): IFormatMedia => {
 	const OnLoadAndErrorEvents = (media: HTMLElement, loadCallback?: (media: HTMLElement) => void) => {
 		const loadOrErrorEvent = () => {
 			if (Type.IsFunction(loadCallback)) loadCallback(media);
-			DOMTools.ChangePositions();
+			PartsTool.ChangePositions();
 			DOM.Off(media, Finer.NativeEventMap.loadeddata, loadOrErrorEvent);
 			DOM.Off(media, Finer.NativeEventMap.load, loadOrErrorEvent);
 			DOM.Off(media, Finer.NativeEventMap.error, loadOrErrorEvent);
@@ -94,8 +94,8 @@ const Media = (editor: Editor): IFormatMedia => {
 
 		Arr.Each(DOM.GetChildren(figure), removable => DOM.Remove(removable, true));
 		const media = createMedia(opts);
-		const tools = self.Tools.DOM.Create('media', media);
-		DOM.Insert(figure, media, tools);
+		const parts = PartsTool.Create('media', media);
+		DOM.Insert(figure, media, parts);
 		OnLoadAndErrorEvents(media, loadCallback);
 	};
 
@@ -109,12 +109,12 @@ const Media = (editor: Editor): IFormatMedia => {
 		opts.attrs.src = url;
 		const media = createMedia(opts);
 
-		const tools = DOMTools.Create('media', media);
+		const parts = PartsTool.Create('media', media);
 
 		OnLoadAndErrorEvents(media, loadCallback);
 
 		media.src = new URL(media.src).href;
-		DOM.Insert(figure, media, tools);
+		DOM.Insert(figure, media, parts);
 
 		completeCreation(figure);
 	};
@@ -133,7 +133,7 @@ const Media = (editor: Editor): IFormatMedia => {
 			opts.attrs.title = file.GetName();
 			const media = createMedia(opts);
 
-			const tools = DOMTools.Create('media', media);
+			const parts = PartsTool.Create('media', media);
 
 			file.Read('DataURL', result => {
 				if (!Type.IsString(result)) return DOM.Remove(figure, true);
@@ -143,7 +143,7 @@ const Media = (editor: Editor): IFormatMedia => {
 				OnLoadAndErrorEvents(media, loadCallback);
 			});
 
-			DOM.Insert(figure, media, tools);
+			DOM.Insert(figure, media, parts);
 
 			Arr.Push(figures, figure);
 		});

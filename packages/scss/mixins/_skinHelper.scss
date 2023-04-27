@@ -28,15 +28,15 @@
 	#{getVarName(button-#{$type}icon-fill)}: $icon;
 }
 
-@mixin make-tools-item-variables($type: null, $bg, $border, $font, $icon) {
+@mixin make-parts-item-variables($type: null, $bg, $border, $font, $icon) {
 	@if $type == null {
 		$type: '';
 	} @else {
 		$type: #{$type}-;
 	}
 
-	#{getVarName(tools-menu-item-#{$type}bg)}: $bg;
-	#{getVarName(tools-menu-item-#{$type}border)}: $border;
-	#{getVarName(tools-menu-item-#{$type}font)}: $font;
-	#{getVarName(tools-menu-item-#{$type}icon-fill)}: $icon;
+	#{getVarName(parts-menu-item-#{$type}bg)}: $bg;
+	#{getVarName(parts-menu-item-#{$type}border)}: $border;
+	#{getVarName(parts-menu-item-#{$type}font)}: $font;
+	#{getVarName(parts-menu-item-#{$type}icon-fill)}: $icon;
 }

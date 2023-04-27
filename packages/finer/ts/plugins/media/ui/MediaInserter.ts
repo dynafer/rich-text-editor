@@ -17,7 +17,7 @@ const MediaInserter = (editor: Editor, ui: IPluginMediaUI) => {
 
 	const createOptionList = (wrapper: HTMLElement) =>
 		(): HTMLElement => {
-			const figure = self.Tools.DOM.SelectFocused(false, 'media');
+			const figure = self.Tools.Parts.SelectFocused(false, 'media');
 			const figureElement = DOM.Element.Figure.SelectFigureElement<HTMLIFrameElement>(figure);
 			const bUpdatable = DOM.Element.Figure.Is(figure) && (DOM.Utils.IsIFrame(figureElement) || DOM.Utils.IsVideo(figureElement));
 

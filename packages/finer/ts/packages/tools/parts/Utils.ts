@@ -1,8 +1,8 @@
 import { NodeType } from '@dynafer/dom-control';
-import { Arr, Obj } from '@dynafer/utils';
+import { Arr } from '@dynafer/utils';
 import Options from '../../../Options';
 import Editor from '../../Editor';
-import { ENativeEvents, PreventEvent } from '../../events/EventSetupUtils';
+import { RegisterMoveFinishEvents, RegisterStartEvent } from '../Utils';
 
 type TStartAdjustingEvent = (event: MouseEvent | Touch, figure: HTMLElement, figureElement: HTMLElement) => void;
 type TAdjustingCallback = (event: MouseEvent | Touch) => void;
@@ -33,17 +33,15 @@ const getToolsMenu = (editor: Editor, target: HTMLElement): HTMLElement | null =
 	const { Figure } = DOM.Element.Figure.Find<HTMLElement>(target);
 	if (!Figure) return null;
 
-	return DOM.Select<HTMLElement>({ attrs: ['data-tools-menu'] }, Figure);
+	return DOM.Select<HTMLElement>({ attrs: ['data-parts-menu'] }, Figure);
 };
 
 export const StartAdjustment = (editor: Editor, callback: TStartAdjustingEvent, ...targets: Element[]) => {
 	const self = editor;
 	const DOM = self.DOM;
 
-	const startAdjusting = (evt: MouseEvent | TouchEvent) => {
-		PreventEvent(evt);
-		const event = !Obj.HasProperty<TouchEvent>(evt, 'touches') ? evt : evt.touches.item(0);
-		if (!event || !NodeType.IsNode(event.target)) return;
+	const startAdjusting = (event: MouseEvent | Touch) => {
+		if (!NodeType.IsNode(event.target)) return;
 
 		const { Figure, FigureElement } = DOM.Element.Figure.Find<HTMLElement>(event.target);
 		if (!Figure || !FigureElement) return;
@@ -52,8 +50,7 @@ export const StartAdjustment = (editor: Editor, callback: TStartAdjustingEvent, 
 		callback(event, Figure, FigureElement);
 	};
 
-	Arr.Each(targets, target => DOM.On(target, ENativeEvents.mousedown, startAdjusting));
-	Arr.Each(targets, target => DOM.On(target, ENativeEvents.touchstart, startAdjusting));
+	RegisterStartEvent(self, startAdjusting, ...targets);
 };
 
 export const RegisterAdjustingEvents = (editor: Editor, target: HTMLElement, adjustCallback: TAdjustingCallback, finishCallback: TAdjustingCallback) => {
@@ -63,45 +60,23 @@ export const RegisterAdjustingEvents = (editor: Editor, target: HTMLElement, adj
 	self.SetAdjusting(true);
 	DOM.Hide(getToolsMenu(self, target));
 
-	const boundEvents: [(Window & typeof globalThis), ENativeEvents, EventListener][] = [];
-
-	const removeEvents = () => Arr.WhileShift(boundEvents, boundEvent => DOM.Off(boundEvent[0], boundEvent[1], boundEvent[2]));
-
-	const adjust = (evt: MouseEvent | TouchEvent) => {
-		PreventEvent(evt);
-		const event = !Obj.HasProperty<TouchEvent>(evt, 'touches') ? evt : evt.touches.item(0);
-		if (!event) return;
-
+	const move = (event: MouseEvent | Touch) => {
 		self.Dispatch('Tools:Adjust:Move', target);
 		adjustCallback(event);
 	};
 
-	const finish = (evt: MouseEvent | TouchEvent) => {
-		PreventEvent(evt);
-		const event = !Obj.HasProperty<TouchEvent>(evt, 'touches') ? evt : evt.touches.item(0);
-		if (!event) return;
-
+	const finish = (event: MouseEvent | Touch) => {
 		finishCallback(event);
-		removeEvents();
 		self.SetAdjusting(false);
 		self.Dispatch('Tools:Adjust:Finish', target);
 		DOM.Show(getToolsMenu(self, target));
-		self.Tools.DOM.ChangePositions();
+		self.Tools.Parts.ChangePositions();
 	};
 
-	Arr.Push(boundEvents,
-		[self.GetWin(), ENativeEvents.mousemove, adjust],
-		[self.GetWin(), ENativeEvents.touchmove, adjust],
-		[self.GetWin(), ENativeEvents.mouseup, finish],
-		[self.GetWin(), ENativeEvents.touchend, finish],
-		[window, ENativeEvents.mouseup, finish],
-		[window, ENativeEvents.touchend, finish],
-	);
-
-	Arr.Each(boundEvents, boundEvent => DOM.On(boundEvent[0], boundEvent[1], boundEvent[2]));
+	RegisterMoveFinishEvents(self, move, finish);
 };
 
-export const ChangeToolsMenuOptionList = (editor: Editor, menu: HTMLElement) => {
+export const ChangePartsMenuOptionList = (editor: Editor, menu: HTMLElement) => {
 	const self = editor;
 	const DOM = self.DOM;
 
@@ -128,20 +103,20 @@ export const ChangeAllPositions = (editor: Editor) => {
 	const self = editor;
 	const DOM = self.DOM;
 
-	const figureTools = self.Tools.DOM.Manager.SelectTools(true);
+	const figureTools = self.Tools.Parts.Manager.SelectParts(true);
 
-	Arr.Each(figureTools, tools => {
-		if (DOM.IsHidden(tools)) return;
+	Arr.Each(figureTools, parts => {
+		if (DOM.IsHidden(parts)) return;
 
-		const { Figure, FigureType, FigureElement } = DOM.Element.Figure.Find<HTMLElement>(tools);
+		const { Figure, FigureType, FigureElement } = DOM.Element.Figure.Find<HTMLElement>(parts);
 		if (!Figure || !FigureType || !FigureElement) return;
 
-		Arr.Each(DOM.SelectAll({ attrs: ['data-movable'] }, tools), movable =>
+		Arr.Each(DOM.SelectAll({ attrs: ['data-movable'] }, parts), movable =>
 			DOM.SetStyle(movable, 'left', CreateMovableHorizontalSize(FigureElement.offsetLeft + FigureElement.offsetWidth / 2, true))
 		);
 
 		const attributeLine = 'data-adjustable-line';
-		Arr.Each(DOM.SelectAll({ attrs: [attributeLine] }, tools), line => {
+		Arr.Each(DOM.SelectAll({ attrs: [attributeLine] }, parts), line => {
 			const styles: Record<string, string> = {};
 			const lineType = DOM.GetAttr(line, attributeLine);
 
@@ -165,7 +140,7 @@ export const ChangeAllPositions = (editor: Editor) => {
 			DOM.SetStyles(line, styles);
 		});
 
-		Arr.Each(DOM.SelectAll({ attrs: ['data-adjustable-edge'] }, tools), edge => {
+		Arr.Each(DOM.SelectAll({ attrs: ['data-adjustable-edge'] }, parts), edge => {
 			const bLeft = DOM.HasAttr(edge, 'data-horizontal', 'left');
 			const bTop = DOM.HasAttr(edge, 'data-vertical', 'top');
 
@@ -175,7 +150,7 @@ export const ChangeAllPositions = (editor: Editor) => {
 			});
 		});
 
-		Arr.Each(DOM.SelectAll<HTMLElement>({ attrs: ['data-tools-menu'] }, tools), menu => {
+		Arr.Each(DOM.SelectAll<HTMLElement>({ attrs: ['data-parts-menu'] }, parts), menu => {
 			if (!DOM.HasAttr(Figure, Options.ATTRIBUTE_FOCUSED)) return DOM.Hide(menu);
 			DOM.Show(menu);
 
@@ -207,7 +182,7 @@ export const ChangeAllPositions = (editor: Editor) => {
 
 			DOM.SetStyles(menu, newStyles);
 
-			ChangeToolsMenuOptionList(self, menu);
+			ChangePartsMenuOptionList(self, menu);
 		});
 	});
 };

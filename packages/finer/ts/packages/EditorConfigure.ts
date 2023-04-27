@@ -9,6 +9,8 @@ export type TConfigurationCommon<A, R> = string | string[] | TConfigurationCallb
 export type TConfigurationMap<A, R> = Record<string, TConfigurationCommon<A, R>>;
 export type TConfigurationKey<A = unknown, R = unknown> = TConfigurationCommon<A, R> | TConfigurationMap<A, R> | TConfigurationMap<A, R>[] | HTMLElement | RegExp | boolean;
 
+export type TConfigurationResizable = 'horizontal' | 'vertical' | 'all';
+
 export interface IConfiguration {
 	readonly Selector: HTMLElement,
 	readonly Mode: EEditorMode,
@@ -20,11 +22,12 @@ export interface IConfiguration {
 	readonly Plugins: string[],
 	readonly Skin: string,
 	readonly ShowFooter: boolean,
+	readonly Resizable: TConfigurationResizable,
 	readonly [key: Capitalize<string>]: TConfigurationKey,
 }
 
 const Configure = (config: Record<string, TConfigurationKey>): IConfiguration => {
-	const DEFAULT_CONFIGS: string[] = ['selector', 'mode', 'width', 'height', 'plugins', 'toolbar', 'toolbarGroup', 'toolbarStyle', 'skin', 'showFooter'];
+	const DEFAULT_CONFIGS: string[] = ['selector', 'mode', 'width', 'height', 'plugins', 'toolbar', 'toolbarGroup', 'toolbarStyle', 'skin', 'showFooter', 'resizable'];
 
 	if (!config.selector || !NodeType.IsElement(config.selector)) throw new Error('Configuration: selector must be an provided.');
 
@@ -76,7 +79,12 @@ const Configure = (config: Record<string, TConfigurationKey>): IConfiguration =>
 	const Skin = skin && Type.IsString(skin) && !Str.IsEmpty(skin) ? skin : 'simple';
 
 	const showFooter = config.showFooter;
-	const ShowFooter = showFooter && Type.IsBoolean(showFooter) ? showFooter : true;
+	const ShowFooter = Type.IsBoolean(showFooter) ? showFooter : true;
+
+	const resizable = config.resizable;
+	const Resizable = Mode !== EEditorMode.inline && Type.IsString(resizable) && Arr.Contains(['horizontal', 'vertical', 'all'], resizable)
+		? resizable as TConfigurationResizable
+		: 'vertical';
 
 	const configuration: IConfiguration = {
 		Selector,
@@ -89,6 +97,7 @@ const Configure = (config: Record<string, TConfigurationKey>): IConfiguration =>
 		ToolbarStyle,
 		Skin,
 		ShowFooter,
+		Resizable,
 		...otherConfigurations
 	};
 

@@ -78,7 +78,7 @@ const InlineFont = (editor: Editor, detector: IFormatDetector): IFormatUIRegistr
 				? FormatUtils.ConvertPointsToPixel(parseFloat(detectedValue))
 				: parseFloat(detectedValue);
 
-			return Str.LowerCase(detectedValue) === Str.LowerCase(convertedValue.toString())
+			return Str.LowerCase(detectedValue) === Str.LowerCase(convertedValue)
 				|| (!bNumber ? false : numberValue === convertedValue);
 		};
 

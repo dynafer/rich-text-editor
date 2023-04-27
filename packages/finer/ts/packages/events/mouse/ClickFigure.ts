@@ -4,12 +4,12 @@ import Editor from '../../Editor';
 const ClickFigure = (editor: Editor, event: MouseEvent | TouchEvent) => {
 	const self = editor;
 	const DOM = self.DOM;
-	const DOMTools = self.Tools.DOM;
+	const PartsTool = self.Tools.Parts;
 
 	if (self.IsAdjusting() || !event.composedPath()[0]) return;
 
 	const { Figure, FigureType, FigureElement } = DOM.Element.Figure.Find<HTMLElement>(event.composedPath()[0]);
-	if (!Figure || !FigureType || !FigureElement) return DOMTools.HideAll();
+	if (!Figure || !FigureType || !FigureElement) return PartsTool.HideAll();
 
 	if (FigureType !== 'table') {
 		const newRange = self.Utils.Range();
@@ -19,7 +19,7 @@ const ClickFigure = (editor: Editor, event: MouseEvent | TouchEvent) => {
 	}
 
 	DOM.SetAttr(Figure, Options.ATTRIBUTE_FOCUSED);
-	DOMTools.ChangePositions();
+	PartsTool.ChangePositions();
 };
 
 export default ClickFigure;

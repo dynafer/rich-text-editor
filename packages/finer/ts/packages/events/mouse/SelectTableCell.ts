@@ -8,7 +8,7 @@ const SelectTableCell = (editor: Editor, event: MouseEvent | TouchEvent) => {
 	let bDragged = false;
 
 	const bTools = !!DOM.Closest(event.composedPath()[0] as Node, {
-		attrs: { dataFixed: 'dom-tool' }
+		attrs: { dataFixed: 'parts-tool' }
 	});
 
 	if (bTools) return;

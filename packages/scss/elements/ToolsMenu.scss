@@ -2,15 +2,15 @@
 @import '../mixins/_iconWrap';
 @import '../mixins/_optionList';
 
-@mixin tools-menu {
-	[data-tools-menu] {
+@mixin parts-menu {
+	[data-parts-menu] {
 		@include position(absolute);
-		@include all-border(getVar(tools-menu-border));
-		@include round(getVar(tools-menu-radius));
+		@include all-border(getVar(parts-menu-border));
+		@include round(getVar(parts-menu-radius));
 		@include all-padding(0.2rem);
 		@include flex(center, space-between);
-		@include height(calc(getVar(tools-menu-item-size) + 0.2rem));
-		background-color: getVar(tools-menu-bg);
+		@include height(calc(getVar(parts-menu-item-size) + 0.2rem));
+		background-color: getVar(parts-menu-bg);
 		box-shadow: 4px 4px 24px -3px rgba(0, 0, 0, 0.75);
 		z-index: 9999999;
 		gap: 0.5rem;
@@ -26,7 +26,7 @@
 			}
 
 			button {
-				@include icon-button(tools-menu);
+				@include icon-button(parts-menu);
 			}
 
 			& > .#{getClassName(icon-button)} {
@@ -35,23 +35,23 @@
 
 				&[data-remove] {
 					&:hover {
-						background-color: getVar(tools-menu-item-remove-hover-bg);
+						background-color: getVar(parts-menu-item-remove-hover-bg);
 
 						svg {
-							fill: getVar(tools-menu-item-remove-hover-icon-fill);
+							fill: getVar(parts-menu-item-remove-hover-icon-fill);
 						}
 					}
 
 					svg {
-						fill: getVar(tools-menu-item-remove-icon-fill);
+						fill: getVar(parts-menu-item-remove-icon-fill);
 					}
 				}
 			}
 
-			@include icon-wrap(tools-menu-item);
+			@include icon-wrap(parts-menu-item);
 			.#{getClassName(icon-wrap)} {
 				@include all-border(none, $important: true);
-				@include height(calc(getVar(tools-menu-item-size) + 0.1rem));
+				@include height(calc(getVar(parts-menu-item-size) + 0.1rem));
 
 				.#{getClassName(helper)} {
 					@include padding(px !important, $left: 0);
@@ -59,7 +59,7 @@
 			}
 		}
 
-		@include option-list(tools-menu);
+		@include option-list(parts-menu);
 
 		.#{getClassName(options)} {
 			&[icon-group='true'] {
@@ -69,7 +69,7 @@
 			}
 
 			&:not([icon-group='true']) {
-				@include option-selection(tools-menu, tools-menu-item);
+				@include option-selection(parts-menu, parts-menu-item);
 			}
 		}
 	}

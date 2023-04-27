@@ -1,5 +1,5 @@
-import { CreateAdjustableLineSize } from '../../dom/tools/Utils';
 import Editor from '../../Editor';
+import { CreateAdjustableLineSize } from '../../tools/parts/Utils';
 
 const MoveInTable = (editor: Editor, event: MouseEvent) => {
 	const self = editor;

@@ -5,16 +5,16 @@ const REGEX_COMMAIZE_NUMBER: RegExp = /\B(?=(\d{3})+(?!\d))/g;
 
 export const IsEmpty: (value: unknown) => boolean = (value) => IsString(value) && value.length === 0;
 
-export const LowerCase = (value: string): string => value.toLowerCase();
-export const UpperCase = (value: string): string => value.toUpperCase();
+export const LowerCase = (value: string | number): string => value.toString().toLowerCase();
+export const UpperCase = (value: string | number): string => value.toString().toUpperCase();
 export const Contains = (value: string, expect: string | RegExp): boolean =>
 	IsString(expect) ? value.includes(expect) : expect.test(value);
 
-export const Padding = (value: number | string, length: number = 2, pad: number | string = '0'): string =>
+export const Padding = (value: string | number, length: number = 2, pad: string | number = '0'): string =>
 	value.toString().padStart(length, pad.toString());
 
-export const Join = (attacher: string, ...args: string[]): string => args.join(attacher);
-export const Merge = (...args: string[]): string => Join('', ...args);
+export const Join = (attacher: string, ...args: (string | number)[]): string => args.join(attacher);
+export const Merge = (...args: (string | number)[]): string => Join('', ...args);
 
 export const CapitaliseFirst = (value: string): string =>
 	!IsString(value) || IsEmpty(value) ? '' : Merge(UpperCase(value.slice(0, 1)), value.slice(1, value.length));

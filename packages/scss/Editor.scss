@@ -39,10 +39,10 @@
 	}
 }
 
-.#{getClassName(tools-size-navigation)} {
+.#{getClassName(parts-size-navigation)} {
 	@include position(absolute, 0, 0);
-	@include font($color: getVar(tools-size-navigation-font));
+	@include font($color: getVar(parts-size-navigation-font));
 	@include all-padding(0.25rem);
-	background-color: getVar(tools-size-navigation-bg);
+	background-color: getVar(parts-size-navigation-bg);
 	white-space: nowrap;
 }

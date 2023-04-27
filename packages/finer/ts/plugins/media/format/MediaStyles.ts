@@ -34,7 +34,7 @@ const MediaStyles = (editor: Editor, format: IPluginMediaCommand) => {
 		const toggle = bWrap ? wrapStyle : unwrapStyle;
 		const figure = toggle(media);
 		if (figure) return self.Utils.Shared.DispatchCaretChange([figure]);
-		self.Tools.DOM.ChangePositions();
+		self.Tools.Parts.ChangePositions();
 	};
 
 	return {

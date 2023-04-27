@@ -10,6 +10,7 @@ export interface IEditorFrame {
 	readonly Wrapper: HTMLElement,
 	readonly Container: HTMLElement | HTMLIFrameElement,
 	readonly Loading: HTMLElement,
+	readonly Resizer: HTMLElement | null,
 }
 
 const EditorFrame = (config: IConfiguration): IEditorFrame => {
@@ -80,10 +81,15 @@ const EditorFrame = (config: IConfiguration): IEditorFrame => {
 		]
 	});
 
+	const Resizer = config.Mode !== EEditorMode.inline && config.Resizable ? DOM.Create('div', {
+		class: DOM.Utils.CreateUEID('resizer', false),
+		html: Finer.Icons.Get('Resize'),
+	}) : null;
+
 	DOM.Hide(Notification);
 
 	DOM.Insert(Wrapper, Notification, Container);
-	DOM.Insert(Root, Toolbar, Wrapper, LoadingWrap);
+	DOM.Insert(Root, Toolbar, Wrapper, LoadingWrap, Resizer);
 	DOM.InsertAfter(config.Selector, Root);
 
 	return {
@@ -93,6 +99,7 @@ const EditorFrame = (config: IConfiguration): IEditorFrame => {
 		Wrapper,
 		Container,
 		Loading: LoadingWrap,
+		Resizer,
 	};
 };
 

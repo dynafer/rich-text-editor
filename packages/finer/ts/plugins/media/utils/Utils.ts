@@ -86,4 +86,4 @@ export const GetAllowedExtensions = (mimeTypes: string[], accept?: string | stri
 	return Str.Join(',', ...availableExtensions);
 };
 
-export const GetMenuText = (editor: Editor, name: string, defaultText: string): string => editor.Lang(Str.Merge('plugins.tools.menu.', name), defaultText);
+export const GetMenuText = (editor: Editor, name: string, defaultText: string): string => editor.Lang(Str.Merge('plugins.parts.menu.', name), defaultText);

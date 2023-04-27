@@ -1,36 +1,36 @@
 import { NodeType } from '@dynafer/dom-control';
 import { Arr, Type } from '@dynafer/utils';
 import Editor from '../../Editor';
-import { IDOMToolsPartAttacher } from './Types';
+import { IPartsToolAttacher } from '../types/PartsType';
 
 type TPartPositionListener = (editor: Editor) => void;
 
-export interface IDOMToolsOption<T = unknown> {
+export interface IPartsToolOption<T = unknown> {
 	name: string,
-	partAttachers: IDOMToolsPartAttacher<T> | IDOMToolsPartAttacher<T>[],
+	partAttachers: IPartsToolAttacher<T> | IPartsToolAttacher<T>[],
 	partPositionListeners?: TPartPositionListener | TPartPositionListener[],
 }
 
-export interface IToolsManager {
+export interface IPartsManager {
 	IsAttached: (name: string) => boolean,
-	Attach: <T = unknown>(opts: IDOMToolsOption<T>) => void,
-	Detach: <T = unknown>(opts: IDOMToolsOption<T>) => void,
+	Attach: <T = unknown>(opts: IPartsToolOption<T>) => void,
+	Detach: <T = unknown>(opts: IPartsToolOption<T>) => void,
 	Create: (name: string, element: HTMLElement) => HTMLElement,
-	SelectTools: <T extends boolean>(bAll: T, parent?: Node) => T extends true ? HTMLElement[] : (HTMLElement | null),
-	IsTools: (selector?: Node | EventTarget | null) => boolean,
+	SelectParts: <T extends boolean>(bAll: T, parent?: Node) => T extends true ? HTMLElement[] : (HTMLElement | null),
+	IsParts: (selector?: Node | EventTarget | null) => boolean,
 	ChangePositions: () => void,
 }
 
-const ToolsManager = (editor: Editor): IToolsManager => {
+const PartsManager = (editor: Editor): IPartsManager => {
 	const self = editor;
 	const DOM = self.DOM;
 
-	const attachedPartTools: Record<string, IDOMToolsPartAttacher[]> = {};
+	const attachedPartTools: Record<string, IPartsToolAttacher[]> = {};
 	const partListeners: TPartPositionListener[] = [];
 
 	const IsAttached = (name: string): boolean => !!attachedPartTools[name];
 
-	const Attach = <T = unknown>(opts: IDOMToolsOption<T>) => {
+	const Attach = <T = unknown>(opts: IPartsToolOption<T>) => {
 		const { name, partAttachers, partPositionListeners } = opts;
 
 		if (!attachedPartTools[name]) attachedPartTools[name] = [];
@@ -40,7 +40,7 @@ const ToolsManager = (editor: Editor): IToolsManager => {
 		Arr.Push(partListeners, ...(Type.IsArray(partPositionListeners) ? partPositionListeners : [partPositionListeners]));
 	};
 
-	const Detach = <T = unknown>(opts: IDOMToolsOption<T>) => {
+	const Detach = <T = unknown>(opts: IPartsToolOption<T>) => {
 		const { name, partAttachers, partPositionListeners } = opts;
 
 		if (IsAttached(name)) {
@@ -56,36 +56,36 @@ const ToolsManager = (editor: Editor): IToolsManager => {
 	};
 
 	const Create = (name: string, element: HTMLElement): HTMLElement => {
-		const tools = DOM.Create('div', {
+		const parts = DOM.Create('div', {
 			attrs: {
 				dataType: `${name}-tool`,
-				dataFixed: 'dom-tool',
+				dataFixed: 'parts-tool',
 			},
 		});
 
-		const parts: HTMLElement[] = [];
-		if (attachedPartTools[name]) Arr.Each(attachedPartTools[name], create => Arr.Push(parts, create(self, element)));
+		const partList: HTMLElement[] = [];
+		if (attachedPartTools[name]) Arr.Each(attachedPartTools[name], create => Arr.Push(partList, create(self, element)));
 
-		DOM.Insert(tools, ...parts);
+		DOM.Insert(parts, ...partList);
 
-		return tools;
+		return parts;
 	};
 
-	const SelectTools = <T extends boolean>(bAll: T, parent?: Node): T extends true ? HTMLElement[] : (HTMLElement | null) => {
-		const selectOption = { attrs: { dataFixed: 'dom-tool' } };
+	const SelectParts = <T extends boolean>(bAll: T, parent?: Node): T extends true ? HTMLElement[] : (HTMLElement | null) => {
+		const selectOption = { attrs: { dataFixed: 'parts-tool' } };
 
 		if (!bAll && !!parent) {
-			const allTools = DOM.SelectAll(selectOption, parent);
+			const allParts = DOM.SelectAll(selectOption, parent);
 			const figure = DOM.Element.Figure.Is(parent)
 				? parent
 				: (DOM.Element.Figure.FindClosest(parent) ?? DOM.Select(DOM.Element.Figure.Selector, parent));
 
 			if (!figure) return null as T extends true ? HTMLElement[] : (HTMLElement | null);
 
-			for (let index = 0, length = allTools.length; index < length; ++index) {
-				const tools = allTools[index];
-				if (DOM.Element.Figure.FindClosest(tools) !== figure || !DOM.Utils.IsChildOf(tools, figure)) continue;
-				return tools as T extends true ? HTMLElement[] : (HTMLElement | null);
+			for (let index = 0, length = allParts.length; index < length; ++index) {
+				const parts = allParts[index];
+				if (DOM.Element.Figure.FindClosest(parts) !== figure || !DOM.Utils.IsChildOf(parts, figure)) continue;
+				return parts as T extends true ? HTMLElement[] : (HTMLElement | null);
 			}
 		}
 
@@ -94,8 +94,8 @@ const ToolsManager = (editor: Editor): IToolsManager => {
 		return select(selectOption, parent) as T extends true ? HTMLElement[] : (HTMLElement | null);
 	};
 
-	const IsTools = (selector?: Node | EventTarget | null): boolean =>
-		!NodeType.IsNode(selector) ? false : DOM.HasAttr(selector, 'data-fixed', 'dom-tool');
+	const IsParts = (selector?: Node | EventTarget | null): boolean =>
+		!NodeType.IsNode(selector) ? false : DOM.HasAttr(selector, 'data-fixed', 'parts-tool');
 
 	const ChangePositions = () => Arr.Each(partListeners, listener => listener(self));
 
@@ -104,10 +104,10 @@ const ToolsManager = (editor: Editor): IToolsManager => {
 		Attach,
 		Detach,
 		Create,
-		SelectTools,
-		IsTools,
+		SelectParts,
+		IsParts,
 		ChangePositions,
 	};
 };
 
-export default ToolsManager;
+export default PartsManager;

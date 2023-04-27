@@ -1,6 +1,6 @@
 import { Formula } from '@dynafer/utils';
+import DOM from '../../../dom/DOM';
 import Editor from '../../../Editor';
-import DOM from '../../DOM';
 
 const STANDARD_IFRAME_WIDTH = 560;
 const STANDARD_IFRAME_HEIGHT = 315;
@@ -16,7 +16,7 @@ const AdjustingNavigation = (editor: Editor, media: HTMLElement, fakeMedia: HTML
 			: 0;
 
 	const navigation = DOM.Create('div', {
-		class: DOM.Utils.CreateUEID('tools-size-navigation', false),
+		class: DOM.Utils.CreateUEID('parts-size-navigation', false),
 	});
 
 	const getOriginalSize = (type: 'width' | 'height'): number => {

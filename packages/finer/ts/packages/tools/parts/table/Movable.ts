@@ -17,7 +17,7 @@ const Movable = (editor: Editor, table: HTMLElement): HTMLElement => {
 			'data-movable',
 			{
 				draggable: 'true',
-				title: self.Lang('plugins.tools.menu.table.move', 'Move a table'),
+				title: self.Lang('plugins.parts.menu.table.move', 'Move a table'),
 			},
 		],
 		styles: {

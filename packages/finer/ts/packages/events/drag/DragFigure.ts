@@ -33,8 +33,8 @@ const DragMedia = (editor: Editor, event: DragEvent) => {
 			figure = DOM.Element.Figure.Create(targetName);
 			DOM.Insert(figure, figureElement);
 
-			const tools = self.Tools.DOM.Create(figureType, figureElement);
-			DOM.Insert(figure, tools);
+			const parts = self.Tools.Parts.Create(figureType, figureElement);
+			DOM.Insert(figure, parts);
 		}
 
 		DOM.InsertAfter(startBlock, endBlock, figure);

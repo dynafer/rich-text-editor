@@ -10,7 +10,7 @@ const CaretChange = (editor: Editor) => {
 	const self = editor;
 	const DOM = self.DOM;
 	const CaretUtils = self.Utils.Caret;
-	const DOMTools = self.Tools.DOM;
+	const PartsTool = self.Tools.Parts;
 
 	const removeCaretPointers = (paths: Node[]) => {
 		const caretPointers = DOM.SelectAll({
@@ -62,10 +62,10 @@ const CaretChange = (editor: Editor) => {
 				DOM.Insert(figure, element);
 			}
 
-			if (!!DOMTools.Manager.SelectTools(false, figure)) return;
+			if (!!PartsTool.Manager.SelectParts(false, figure)) return;
 
-			const tools = DOMTools.Create(figureType, element);
-			DOM.Insert(figure, tools);
+			const parts = PartsTool.Create(figureType, element);
+			DOM.Insert(figure, parts);
 		});
 	};
 
@@ -79,7 +79,7 @@ const CaretChange = (editor: Editor) => {
 
 		const { Figure, FigureElement } = DOM.Element.Figure.Find(node);
 
-		DOMTools.UnsetAllFocused(Figure);
+		PartsTool.UnsetAllFocused(Figure);
 
 		const bNotNodeFigure = !!Figure && !!caret?.IsRange() && DOM.Element.Figure.FindClosest(node) !== Figure;
 		if (!Figure || !FigureElement || bNotNodeFigure) return;
@@ -94,7 +94,7 @@ const CaretChange = (editor: Editor) => {
 		if (newRange) CaretUtils.UpdateRange(newRange);
 
 		if (!DOM.HasAttr(Figure, Options.ATTRIBUTE_FOCUSED)) DOM.SetAttr(Figure, Options.ATTRIBUTE_FOCUSED);
-		DOMTools.ChangePositions();
+		PartsTool.ChangePositions();
 	};
 
 	const setFocusInline = () => {
@@ -126,7 +126,7 @@ const CaretChange = (editor: Editor) => {
 
 	const listener = (): IEvent<Node[]> =>
 		(paths: Node[]) => {
-			DOMTools.ChangePositions();
+			PartsTool.ChangePositions();
 			removeCaretPointers(paths);
 			wrapFigure();
 			setFocusFigure();
