@@ -81,7 +81,7 @@ const EditorFrame = (config: IConfiguration): IEditorFrame => {
 		]
 	});
 
-	const Resizer = config.Mode !== EEditorMode.inline && config.Resizable ? DOM.Create('div', {
+	const Resizer = config.Mode !== EEditorMode.inline && config.Resizable ? DOM.Create('button', {
 		class: DOM.Utils.CreateUEID('resizer', false),
 		html: Finer.Icons.Get('Resize'),
 	}) : null;
