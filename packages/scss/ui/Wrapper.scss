@@ -71,7 +71,10 @@
 
 	.#{getClassName(resizer)} {
 		@include position(absolute, $bottom: 0, $right: 0);
-		@include square(1rem);
+		@include square(calc(1rem + 2px));
+		@include all-padding(0);
+		@include all-border(transparent);
+		background-color: transparent;
 		cursor: nw-resize;
 
 		svg {
