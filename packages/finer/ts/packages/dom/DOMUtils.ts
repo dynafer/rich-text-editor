@@ -1,5 +1,5 @@
 import { NodeType } from '@dynafer/dom-control';
-import { Arr, Obj, Str, Type, Utils } from '@dynafer/utils';
+import { Arr, Obj, Str, Type, UID } from '@dynafer/utils';
 import Options from '../../Options';
 
 export const REGEX_EMPTY_TEXT = /(%EF%BB%BF|%0A)/gi;
@@ -47,7 +47,7 @@ export interface IDOMUtils {
 
 const DOMUtils = (): IDOMUtils => {
 	const CreateUEID = (id: string = '', bAddNum: boolean = true): string =>
-		Utils.CreateUEID(Str.IsEmpty(id) ? Options.PROJECT_NAME : `${Options.PROJECT_NAME}-${id}`, bAddNum);
+		UID.CreateUEID(Str.IsEmpty(id) ? Options.PROJECT_NAME : `${Options.PROJECT_NAME}-${id}`, bAddNum);
 
 	const GetEmptyString = (): string => EMPTY_HEX_CODE;
 

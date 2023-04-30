@@ -1,5 +1,5 @@
 import { NodeType } from '@dynafer/dom-control';
-import { Arr, Obj, Type, Utils } from '@dynafer/utils';
+import { Arr, Obj, Type, UID } from '@dynafer/utils';
 
 export type TEventTarget = (Window & typeof globalThis) | Document | Element;
 
@@ -26,7 +26,7 @@ const DOMEventUtils = (): IDOMEventUtils => {
 
 	const getElementBoundaryId = (target: TEventTarget): string => {
 		const bHasId = hasElementBoundaryId(target);
-		const boundaryId = Obj.GetProperty<string>(target, propertyName) ?? Utils.CreateUUID();
+		const boundaryId = Obj.GetProperty<string>(target, propertyName) ?? UID.CreateUUID();
 		if (!bHasId) Obj.SetProperty(target, propertyName, boundaryId);
 		return boundaryId;
 	};
