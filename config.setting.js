@@ -12,7 +12,7 @@ const PLUGIN_NAMES = fs.readdirSync(path.join(PACKAGE_PATH, './finer/ts/plugins'
 
 const SCSS_PATH = path.join(PACKAGE_PATH, './scss');
 
-const DeleteMapFile = (extenstion, name = '') => {
+const deleteMapFile = (extenstion, name = '') => {
 	const dirPath = name !== '' ? path.join(OUTPUT_PATH, './plugins') : OUTPUT_PATH;
 	const fileName = name !== '' ? `${name}/${name}` : PROJECT_NAME;
 	const filePath = `./${fileName}.${extenstion}.map`;
@@ -24,17 +24,41 @@ const DeleteMapFile = (extenstion, name = '') => {
 const DeleteMapFiles = () => {
 	for (let index = 0, length = PLUGIN_NAMES.length; index < length; ++index) {
 		const name = PLUGIN_NAMES[index];
-		DeleteMapFile('js', name);
-		DeleteMapFile('min.js', name);
+		deleteMapFile('js', name);
+		deleteMapFile('min.js', name);
 	}
 
-	DeleteMapFile('js');
-	DeleteMapFile('min.js');
-	DeleteMapFile('min.css');
+	deleteMapFile('js');
+	deleteMapFile('min.js');
+	deleteMapFile('min.css');
+};
+
+const GetJestARGVs = () => {
+	const options = {
+		preset: 'ts-jest',
+		testEnvironment: 'node',
+		testMatch: '**/packages/**/test/All.test.ts',
+		detectOpenHandles: true,
+		silent: true,
+		moduleNameMapper: {
+			'@dynafer/utils': '<rootDir>/packages/dynafer/utils/ts/Index.ts',
+		},
+	};
+
+	const argvs = [];
+	Object.entries(options, ([key, value]) => {
+		argvs.push(`--${key}`);
+		if (typeof value === 'boolean') return;
+		if (typeof value === 'string') return argvs.push(value);
+		argvs.push(JSON.stringify(value));
+	});
+
+	return argvs;
 };
 
 module.exports = {
 	DeleteMapFiles,
+	GetJestARGVs,
 	GLOBAL_NAME,
 	INPUT_NAME,
 	OUTPUT_PATH,
