@@ -3,7 +3,6 @@ import { Arr } from '@dynafer/utils';
 import Editor from '../../Editor';
 import { BlockFormatTags, ListItemSelector } from '../../formatter/Format';
 import FormatUtils from '../../formatter/FormatUtils';
-import { PreventEvent } from '../EventSetupUtils';
 import { EKeyCode } from './KeyboardUtils';
 import MoveInTable from './MoveInTable';
 import MoveUtils from './MoveUtils';
@@ -44,7 +43,8 @@ const MoveCaret = (editor: Editor, event: KeyboardEvent) => {
 		if (!Figure || !FigureType || !FigureElement) return false;
 
 		if (bBackspace || bDelete) {
-			PreventEvent(event);
+			self.History.Archiver.Path.Record();
+			self.History.Archiver.Path.Archive();
 			const bPrevious = !!Figure.previousElementSibling;
 			const sibling = Figure.previousElementSibling ?? Figure.nextElementSibling;
 			if (!sibling) {
@@ -57,6 +57,7 @@ const MoveCaret = (editor: Editor, event: KeyboardEvent) => {
 				moveUtils.UpdateRangeWithDescendants(sibling, sibling, bPrevious);
 			}
 			DOM.Remove(Figure, true);
+			self.History.Archiver.History.Record();
 			return true;
 		}
 
