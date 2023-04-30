@@ -53,25 +53,18 @@ const Resizer = (editor: Editor): IResizerTool => {
 				const currentOffsetX = e.pageX;
 				const currentOffsetY = e.pageY;
 
+				const calculatedX = currentOffsetX - startOffsetX;
+				const calculatedY = currentOffsetY - startOffsetY;
+
 				const resizeOption: IResizeOption = {};
 
-				if (currentOffsetX <= minimumOffsetX) {
-					resizeOption.width = EDITOR_MINIMUM_WIDTH;
-					startOffsetX = minimumOffsetX;
-				} else {
-					const calculatedX = currentOffsetX - startOffsetX;
-					resizeOption.width = self.Frame.Root.offsetWidth + calculatedX;
-					startOffsetX = currentOffsetX;
-				}
+				const bMinimumWidth = currentOffsetX <= minimumOffsetX;
+				resizeOption.width = bMinimumWidth ? EDITOR_MINIMUM_WIDTH : (self.Frame.Root.offsetWidth + calculatedX);
+				startOffsetX = bMinimumWidth ? minimumOffsetX : currentOffsetX;
 
-				if (currentOffsetY <= minimumOffsetY) {
-					resizeOption.height = EDITOR_MINIMUM_HEIGHT;
-					startOffsetY = minimumOffsetY;
-				} else {
-					const calculatedY = currentOffsetY - startOffsetY;
-					resizeOption.height = self.Frame.Container.offsetHeight + calculatedY;
-					startOffsetY = currentOffsetY;
-				}
+				const bMinimumHeight = currentOffsetY <= minimumOffsetY;
+				resizeOption.height = bMinimumHeight ? EDITOR_MINIMUM_HEIGHT : (self.Frame.Container.offsetHeight + calculatedY);
+				startOffsetY = bMinimumHeight ? minimumOffsetY : currentOffsetY;
 
 				Resize(resizeOption);
 			};

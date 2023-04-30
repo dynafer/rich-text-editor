@@ -9,7 +9,7 @@ export type TConfigurationCommon<A, R> = string | string[] | TConfigurationCallb
 export type TConfigurationMap<A, R> = Record<string, TConfigurationCommon<A, R>>;
 export type TConfigurationKey<A = unknown, R = unknown> = TConfigurationCommon<A, R> | TConfigurationMap<A, R> | TConfigurationMap<A, R>[] | HTMLElement | RegExp | boolean;
 
-export type TConfigurationResizable = 'horizontal' | 'vertical' | 'all';
+export type TConfigurationResizable = 'horizontal' | 'vertical' | 'all' | false;
 
 export interface IConfiguration {
 	readonly Selector: HTMLElement,
@@ -82,9 +82,12 @@ const Configure = (config: Record<string, TConfigurationKey>): IConfiguration =>
 	const ShowFooter = Type.IsBoolean(showFooter) ? showFooter : true;
 
 	const resizable = config.resizable;
-	const Resizable = Mode !== EEditorMode.inline && Type.IsString(resizable) && Arr.Contains(['horizontal', 'vertical', 'all'], resizable)
-		? resizable as TConfigurationResizable
-		: 'vertical';
+	let Resizable: TConfigurationResizable = 'vertical';
+	if (Mode !== EEditorMode.inline) {
+		if (Type.IsBoolean(resizable) && !resizable) Resizable = false;
+		if (Type.IsString(resizable) && Arr.Contains(['horizontal', 'vertical', 'all'], resizable))
+			Resizable = resizable as TConfigurationResizable;
+	}
 
 	const configuration: IConfiguration = {
 		Selector,
