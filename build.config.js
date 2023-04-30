@@ -2,6 +2,7 @@ const { nodeResolve } = require('@rollup/plugin-node-resolve');
 const fs = require('fs');
 const path = require('path');
 const { DeleteMapFiles, GLOBAL_NAME, INPUT_NAME, OUTPUT_PATH, PACKAGE_PATH, PLUGIN_NAMES, PROJECT_NAME, SCSS_PATH } = require('./config.setting');
+const jest = require('jest');
 
 module.exports = async (runner, config) => {
 	const Command = runner.Command;
@@ -14,6 +15,8 @@ module.exports = async (runner, config) => {
 		if (!fs.existsSync(OUTPUT_PATH)) fs.mkdirSync(OUTPUT_PATH);
 		if (!fs.existsSync(path.join(OUTPUT_PATH, './skins'))) fs.mkdirSync(path.join(OUTPUT_PATH, './skins'));
 	});
+
+	await Task.Run(async () => await jest.run(['--preset', 'ts-jest', '--testEnvironment', 'node', '--testMatch **/packages/**/test/all.test.ts', '--detectOpenHandles', '--silent']));
 
 	await Command.Run({
 		command: 'yarn run lint',

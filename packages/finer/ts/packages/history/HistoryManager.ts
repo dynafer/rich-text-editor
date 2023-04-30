@@ -1,4 +1,4 @@
-import { Arr, Utils } from '@dynafer/utils';
+import { Arr, UID } from '@dynafer/utils';
 import Editor from '../Editor';
 import HistoryArchiver, { IHistoryArchiver } from './Archiver';
 import { IHistoryRecord, THistoryPath } from './Types';
@@ -39,7 +39,7 @@ const HistoryManager = (editor: Editor): IHistoryManager => {
 	const CanRedo = (): boolean => currentIndex < Histories.length - 1;
 
 	const Flag = (): string => {
-		flagId = Utils.CreateUUID();
+		flagId = UID.CreateUUID();
 		return flagId;
 	};
 

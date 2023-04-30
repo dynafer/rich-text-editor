@@ -1,4 +1,4 @@
-import { Arr, Obj, Str, Type, Utils } from '@dynafer/utils';
+import { Arr, Obj, Str, Type, UID } from '@dynafer/utils';
 import Options from '..//Options';
 import Commander, { ICommander } from './commander/Commander';
 import DOM, { IDom, TEventListener } from './dom/DOM';
@@ -32,7 +32,7 @@ interface IEditorTools {
 }
 
 class Editor {
-	public readonly Id: string = Utils.CreateUUID();
+	public readonly Id: string = UID.CreateUUID();
 	public readonly Config: IConfiguration;
 	public readonly Frame: IEditorFrame;
 	public readonly History: IHistoryManager;

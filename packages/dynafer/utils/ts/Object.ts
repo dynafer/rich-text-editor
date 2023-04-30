@@ -45,7 +45,7 @@ export const Values = <T>(obj: Record<string, T> | ArrayLike<T>, callback?: (val
 	return values;
 };
 
-export const SetProperty = (obj: unknown, key: string, value: string) => {
+export const SetProperty = (obj: unknown, key: string, value: unknown) => {
 	const assigned = Object.assign(obj ?? {}) as Record<string, unknown>;
 	if (IsUndefined(assigned) || IsNull(assigned) || !IsObject(assigned)) return;
 	assigned[key] = value;

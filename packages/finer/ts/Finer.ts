@@ -1,4 +1,5 @@
 import Interlocaliser, { IInterlocaliser } from '@dynafer/interlocaliser';
+import * as Utils from '@dynafer/utils';
 import Options, { IOptions } from './Options';
 import EditorInit, { TEditorInit } from './packages/EditorInit';
 import { ENativeEvents, PreventEvent } from './packages/events/EventSetupUtils';
@@ -22,6 +23,14 @@ interface IFiner {
 	readonly NativeEventMap: Record<ENativeEvents, ENativeEvents>,
 	readonly KeyCode: Record<EKeyCode, EKeyCode>,
 	readonly ILC: IInterlocaliser,
+	readonly Utils: {
+		Arr: typeof Utils.Arr,
+		Formula: typeof Utils.Formula,
+		Obj: typeof Utils.Obj,
+		Str: typeof Utils.Str,
+		Type: typeof Utils.Type,
+		UID: typeof Utils.UID,
+	},
 	PreventEvent: EventListener,
 	Init: TEditorInit,
 }
@@ -37,6 +46,7 @@ const Finer: IFiner = {
 	NativeEventMap: ENativeEvents,
 	KeyCode: EKeyCode,
 	ILC: Interlocaliser,
+	Utils,
 	PreventEvent,
 	Init: EditorInit,
 };

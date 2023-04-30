@@ -16,7 +16,7 @@ export const Padding = (value: string | number, length: number = 2, pad: string 
 export const Join = (attacher: string, ...args: (string | number)[]): string => args.join(attacher);
 export const Merge = (...args: (string | number)[]): string => Join('', ...args);
 
-export const CapitaliseFirst = (value: string): string =>
+export const CapitaliseFirst = (value: unknown): string =>
 	!IsString(value) || IsEmpty(value) ? '' : Merge(UpperCase(value.slice(0, 1)), value.slice(1, value.length));
 
 const capitalTo = (to: string, value: string): string =>
