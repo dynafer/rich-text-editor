@@ -36,7 +36,7 @@ const DeleteMapFiles = () => {
 const GetJestARGVs = () => {
 	const options = {
 		preset: 'ts-jest',
-		testEnvironment: 'node',
+		testEnvironment: 'jest-environment-jsdom',
 		testMatch: '**/packages/**/test/All.test.ts',
 		detectOpenHandles: true,
 		silent: true,
