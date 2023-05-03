@@ -1,6 +1,6 @@
 import { Sketcher } from '../ts/Sketcher';
 
-const TextSketcher = () =>
+const TestSketcher = () =>
 	describe('@dynafer/sketcher/Sketcher', () => {
 		it('should create a DOMFactory with the given settings', () => {
 			const sketch = Sketcher.SketchOne({
@@ -43,4 +43,4 @@ const TextSketcher = () =>
 		});
 	});
 
-export default TextSketcher;
+export default TestSketcher;
