@@ -1,6 +1,6 @@
 import { DOMFactory } from '../ts/Sketcher';
 
-const TextDOMFactory = () =>
+const TestDOMFactory = () =>
 	describe('@dynafer/sketcher/DOMFactory', () => {
 		let factory: DOMFactory;
 
@@ -53,4 +53,4 @@ const TextDOMFactory = () =>
 		});
 	});
 
-export default TextDOMFactory;
+export default TestDOMFactory;

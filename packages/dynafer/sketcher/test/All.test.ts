@@ -1,5 +1,7 @@
-import TextDOMFactory from './DOMFactory.test';
+import TestDOMFactory from './DOMFactory.test';
+import TestSketcher from './Sketcher.test';
 
 describe('@dynafer/sketcher', () => {
-	TextDOMFactory();
+	TestDOMFactory();
+	TestSketcher();
 });
