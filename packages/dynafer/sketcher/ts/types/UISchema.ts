@@ -1,8 +1,8 @@
-import { IDOMFactory } from '../dom/DOMFactory';
+import DOMFactory from '../dom/DOMFactory';
 
 export interface IUISchemaBase<K extends HTMLElement> {
-	readonly Schema: IDOMFactory,
-	readonly Self: IDOMFactory<K>,
+	readonly Schema: DOMFactory,
+	readonly Self: DOMFactory<K>,
 }
 
 export interface IInputSchema extends IUISchemaBase<HTMLInputElement> {
@@ -11,13 +11,13 @@ export interface IInputSchema extends IUISchemaBase<HTMLInputElement> {
 }
 
 export interface IModalSchema extends IUISchemaBase<HTMLElement> {
-	readonly Header: IDOMFactory,
-	readonly Body: IDOMFactory,
-	readonly Footer: IDOMFactory,
+	readonly Header: DOMFactory,
+	readonly Body: DOMFactory,
+	readonly Footer: DOMFactory,
 }
 
 export interface IPaletteSchema extends IUISchemaBase<HTMLElement> {
-	readonly Self: IDOMFactory<HTMLCanvasElement>,
+	readonly Self: DOMFactory<HTMLCanvasElement>,
 	CreateGradient: (x0: number, y0: number, x1: number, y1: number) => CanvasGradient,
 	ColorStop: (gradient: CanvasGradient, stops: [number, string][]) => void,
 	Fill: (style: string | CanvasGradient | CanvasPattern) => void,

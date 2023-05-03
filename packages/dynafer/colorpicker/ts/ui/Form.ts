@@ -1,11 +1,11 @@
-import { IDOMFactory, Sketcher } from '@dynafer/sketcher';
+import { DOMFactory, Sketcher } from '@dynafer/sketcher';
 import { CreateName, RGBA } from '../utils/Utils';
 import Hue from './Hue';
 import Navigation, { INavigation } from './Navigation';
 import Palette, { IPalette } from './Palette';
 
 export interface IColorPickerForm {
-	readonly Form: IDOMFactory,
+	readonly Form: DOMFactory,
 	readonly Navigation: INavigation,
 }
 

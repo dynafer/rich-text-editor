@@ -1,7 +1,7 @@
-import { IDOMFactory, Sketcher } from '@dynafer/sketcher';
+import { DOMFactory, Sketcher } from '@dynafer/sketcher';
 import { Str } from '@dynafer/utils';
 
-const Footer = (icons: Record<string, string>, texts: Record<string, string>, cancel: () => void, pick: () => void): IDOMFactory[] => {
+const Footer = (icons: Record<string, string>, texts: Record<string, string>, cancel: () => void, pick: () => void): DOMFactory[] => {
 	const footer = Sketcher.Sketch([
 		{
 			TagName: 'button',

@@ -1,7 +1,7 @@
-import { IDOMFactory, Sketcher } from '@dynafer/sketcher';
+import { DOMFactory, Sketcher } from '@dynafer/sketcher';
 import { CreateName, IRGBA, RGBA } from '../utils/Utils';
 
-export interface IHue extends IDOMFactory {
+export interface IHue extends DOMFactory {
 	UpdateGuide: (rgb: IRGBA) => void,
 }
 
@@ -21,7 +21,7 @@ const Hue = (width: number, height: number, afterSelected: (bChangeBright: boole
 	const schema = Sketcher.SketchOne({
 		TagName: CreateName('hue'),
 		Elements: [palette.Self, guidance.Self]
-	});
+	}) as IHue;
 
 	const gradient = palette.CreateGradient(0, 0, 0, height);
 	palette.ColorStop(gradient, [
@@ -35,12 +35,9 @@ const Hue = (width: number, height: number, afterSelected: (bChangeBright: boole
 	]);
 	palette.FillRect(gradient);
 
-	const UpdateGuide = (rgb: IRGBA) => guidance.SetGuidance(0, Math.round(height / 360 * RGBA.ToHSV(rgb).Hue));
+	schema.UpdateGuide = (rgb: IRGBA) => guidance.SetGuidance(0, Math.round(height / 360 * RGBA.ToHSV(rgb).Hue));
 
-	return {
-		...schema,
-		UpdateGuide,
-	};
+	return schema;
 };
 
 export default Hue;

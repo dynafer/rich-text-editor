@@ -1,4 +1,4 @@
-import { IDOMFactory, Sketcher } from '@dynafer/sketcher';
+import { DOMFactory, Sketcher } from '@dynafer/sketcher';
 import { Arr, Str } from '@dynafer/utils';
 import DOM from '../dom/DOM';
 import Editor from '../Editor';
@@ -16,8 +16,8 @@ const Info = (editor: Editor) => {
 		Close: Finer.Icons.Get('Close')
 	};
 
-	const getNavigation = (content: IDOMFactory): IDOMFactory => {
-		const sketch = (name: string, bActive: boolean): IDOMFactory => Sketcher.SketchOne({
+	const getNavigation = (content: DOMFactory): DOMFactory => {
+		const sketch = (name: string, bActive: boolean): DOMFactory => Sketcher.SketchOne({
 			TagName: 'button',
 			Attributes: { type: 'button' },
 			Classes: bActive ? ['active'] : [],
@@ -38,7 +38,7 @@ const Info = (editor: Editor) => {
 		});
 	};
 
-	const getContent = (): IDOMFactory => {
+	const getContent = (): DOMFactory => {
 		const shortcuts: string[] = [];
 
 		Arr.Each(self.GetShortcuts(), shortcut => {
@@ -59,7 +59,7 @@ const Info = (editor: Editor) => {
 		});
 	};
 
-	const getBody = (): IDOMFactory => {
+	const getBody = (): DOMFactory => {
 		const content = getContent();
 		const navigation = getNavigation(content);
 
@@ -69,7 +69,7 @@ const Info = (editor: Editor) => {
 		});
 	};
 
-	const getFooter = (exit: () => void): IDOMFactory =>
+	const getFooter = (exit: () => void): DOMFactory =>
 		Sketcher.SketchOne({
 			TagName: 'button',
 			Attributes: {

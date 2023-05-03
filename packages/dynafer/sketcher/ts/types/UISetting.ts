@@ -1,18 +1,18 @@
-import { IDOMFactory } from '../dom/DOMFactory';
+import DOMFactory from '../dom/DOMFactory';
 
 export interface ISketcherSetting<T extends HTMLElement = HTMLElement> {
 	TagName: string,
 	Attributes?: Record<string, string>,
 	Classes?: string[],
 	Events?: [string, EventListener][],
-	Elements?: (string | IDOMFactory<T> | ISketcherSetting)[],
+	Elements?: (string | DOMFactory<T> | ISketcherSetting)[],
 }
 
 export interface IModalSetting<T extends HTMLElement = HTMLElement> extends Pick<ISketcherSetting, 'Events'> {
 	Title: string,
 	Icons: Record<string, string>,
-	Body?: IDOMFactory<T> | IDOMFactory[],
-	Footer?: IDOMFactory<T> | IDOMFactory[],
+	Body?: DOMFactory<T> | DOMFactory[],
+	Footer?: DOMFactory<T> | DOMFactory[],
 }
 
 export interface IInputSetting extends Pick<ISketcherSetting, 'Events'> {
@@ -27,7 +27,7 @@ export interface IPaletteSetting extends Pick<ISketcherSetting, 'Events'> {
 }
 
 export interface IPaletteGuideSetting extends Pick<ISketcherSetting, 'Events'> {
-	Palette: IDOMFactory<HTMLCanvasElement>,
+	Palette: DOMFactory<HTMLCanvasElement>,
 	bOnlyVertical: boolean,
 	Guiding: () => void,
 }

@@ -37,11 +37,15 @@ const GetJestARGVs = () => {
 	const options = {
 		preset: 'ts-jest',
 		testEnvironment: 'jest-environment-jsdom',
-		testMatch: '**/packages/**/test/All.test.ts',
+		testMatch: '<rootDir>/packages/**/test/All.test.ts',
 		detectOpenHandles: true,
 		silent: true,
 		moduleNameMapper: {
-			'@dynafer/utils': '<rootDir>/packages/dynafer/utils/ts/Index.ts',
+			'@dynafer/colorpicker': ['<rootDir>/packages/dynafer/colorpicker/ts/ColorPicker.ts'],
+			'@dynafer/dom-control': ['<rootDir>/packages/dynafer/dom-control/ts/DOMControl.ts'],
+			'@dynafer/interlocaliser': ['<rootDir>/packages/dynafer/interlocaliser/ts/Interlocaliser.ts'],
+			'@dynafer/sketcher': ['<rootDir>/packages/dynafer/sketcher/ts/Sketcher.ts'],
+			'@dynafer/utils': ['<rootDir>/packages/dynafer/utils/ts/Index.ts'],
 		},
 	};
 

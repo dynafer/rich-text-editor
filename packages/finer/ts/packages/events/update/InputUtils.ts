@@ -103,6 +103,12 @@ const InputUtils = (editor: Editor) => {
 		const startParent = FormatUtils.GetParentIfText(caret.Start.Node);
 		const blockSelectors = Str.Join(',', ...BlockFormatTags.Block);
 
+		if (startParent === self.GetBody()) {
+			const lines = self.GetLines();
+			if (lines.length === 1 && Arr.IsEmpty(DOM.GetChildNodes(lines[0]))) DOM.Remove(lines[0]);
+			Arr.Clean(lines);
+		}
+
 		let bFirst = true;
 		let previousBlock: Node = startParent;
 		Arr.WhileShift(nodes, node => {
@@ -120,7 +126,8 @@ const InputUtils = (editor: Editor) => {
 
 				if (DOM.Element.Figure.Is(startParent) && !DOM.Element.Table.Is(DOM.Element.Figure.SelectFigureElement(startParent))) {
 					previousBlock = node;
-					return DOM.InsertAfter(startParent, node);
+					const insert = startParent === self.GetBody() ? DOM.Insert : DOM.InsertAfter;
+					return insert(startParent, node);
 				}
 			}
 
@@ -142,7 +149,8 @@ const InputUtils = (editor: Editor) => {
 				}
 			}
 
-			DOM.InsertAfter(previousBlock, node);
+			const insert = previousBlock === self.GetBody() ? DOM.Insert : DOM.InsertAfter;
+			insert(previousBlock, node);
 			previousBlock = node;
 		});
 
