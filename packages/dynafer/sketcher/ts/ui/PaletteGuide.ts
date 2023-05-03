@@ -9,9 +9,7 @@ const PaletteGuide = (setting: IUISettingMap['PaletteGuide']): IUISchemaMap['Pal
 	const { Palette, bOnlyVertical, Events, Guiding } = setting;
 	const schema = Sketcher.SketchOne({
 		TagName: 'div',
-		Attributes: {
-			draggable: 'false',
-		},
+		Attributes: { draggable: 'false', },
 		Events,
 	});
 

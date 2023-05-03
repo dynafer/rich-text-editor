@@ -19,7 +19,8 @@ export const SetMultiple = (selector: TElement, attrs: TAttributeSetter) => {
 			Obj.Entries(attr, (name, value) => Set(selector, name, value));
 		});
 
-	if (Type.IsObject(attrs)) return Obj.Entries(attrs, (attr, value) => Set(selector, attr, value));
+	if (!Type.IsObject(attrs)) return;
+	Obj.Entries(attrs, (attr, value) => Set(selector, attr, value));
 };
 
 

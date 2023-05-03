@@ -147,13 +147,13 @@ const DOMUtils = (): IDOMUtils => {
 		return selector;
 	};
 
-	const isDOMTools = (node: Node | null): node is Element => NodeType.IsElement(node) && node.getAttribute('data-fixed') === 'parts-tool';
+	const isPartsTool = (node: Node | null): node is Element => NodeType.IsElement(node) && node.getAttribute('data-fixed') === 'parts-tool';
 
 	const getDeepestChild = (node: Node, bFirst: boolean): Node | null => {
 		let child: Node | null = node;
 
 		while (child) {
-			if (isDOMTools(child)) child = child.previousElementSibling;
+			if (isPartsTool(child)) child = child.previousElementSibling;
 			const nextChild: Node | null = (bFirst ? child?.firstChild : child?.lastChild) ?? null;
 			if (!nextChild) break;
 			child = nextChild;
@@ -164,14 +164,14 @@ const DOMUtils = (): IDOMUtils => {
 
 	const GetFirstChild = (node: Node | null, bDeep: boolean = false): Node | null => {
 		if (!NodeType.IsNode(node)) return null;
-		if (!bDeep) return isDOMTools(node.firstChild) ? null : node.firstChild;
+		if (!bDeep) return isPartsTool(node.firstChild) ? null : node.firstChild;
 
 		return getDeepestChild(node, true);
 	};
 
 	const GetLastChild = (node: Node | null, bDeep: boolean = false): Node | null => {
 		if (!NodeType.IsNode(node)) return null;
-		if (!bDeep) return isDOMTools(node.lastChild) ? node.lastChild.previousElementSibling : node.lastChild;
+		if (!bDeep) return isPartsTool(node.lastChild) ? node.lastChild.previousElementSibling : node.lastChild;
 
 		return getDeepestChild(node, false);
 	};

@@ -1,7 +1,7 @@
-import { IDOMFactory, Sketcher } from '@dynafer/sketcher';
+import { DOMFactory, Sketcher } from '@dynafer/sketcher';
 import { CreateName, IRGBA, RGBA } from '../utils/Utils';
 
-export interface IPalette extends IDOMFactory {
+export interface IPalette extends DOMFactory<HTMLCanvasElement> {
 	GetColor: () => IRGBA,
 	ChangeColor: (rgb: IRGBA) => void,
 	UpdateGuide: (rgb: IRGBA) => void,
@@ -23,11 +23,11 @@ const Palette = (width: number, height: number, afterSelected: (bChangeBright: b
 	const schema = Sketcher.SketchOne({
 		TagName: CreateName('palette'),
 		Elements: [palette.Self, guidance.Self]
-	});
+	}) as IPalette;
 
-	const GetColor = (): IRGBA => RGBA.ToMap(...palette.GetRGB(guidance.GetX(), guidance.GetY()));
+	schema.GetColor = (): IRGBA => RGBA.ToMap(...palette.GetRGB(guidance.GetX(), guidance.GetY()));
 
-	const ChangeColor = (rgb: IRGBA) => {
+	schema.ChangeColor = (rgb: IRGBA) => {
 		palette.FillRect(RGBA.ToString(rgb));
 
 		const gradientWhite = palette.CreateGradient(0, 0, width, 0);
@@ -45,17 +45,12 @@ const Palette = (width: number, height: number, afterSelected: (bChangeBright: b
 		palette.FillRect(gradientBlack);
 	};
 
-	const UpdateGuide = (rgb: IRGBA) => {
+	schema.UpdateGuide = (rgb: IRGBA) => {
 		const hsv = RGBA.ToHSV(rgb);
 		guidance.SetGuidance(Math.round(width / 100 * hsv.Saturation), Math.round(height / 100 * (100 - hsv.Value)));
 	};
 
-	return {
-		...schema,
-		GetColor,
-		ChangeColor,
-		UpdateGuide,
-	};
+	return schema;
 };
 
 export default Palette;

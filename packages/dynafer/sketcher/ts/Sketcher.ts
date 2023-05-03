@@ -1,4 +1,4 @@
-import DOMFactory, { IDOMFactory } from './dom/DOMFactory';
+import DOMFactory from './dom/DOMFactory';
 import Input from './ui/Input';
 import Modal from './ui/Modal';
 import Palette from './ui/Palette';
@@ -19,6 +19,4 @@ export * as Schema from './types/UISchema';
 export {
 	Sketcher,
 	DOMFactory,
-
-	IDOMFactory,
 };

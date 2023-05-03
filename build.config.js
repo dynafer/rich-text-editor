@@ -16,7 +16,7 @@ module.exports = async (runner, config) => {
 		if (!fs.existsSync(path.join(OUTPUT_PATH, './skins'))) fs.mkdirSync(path.join(OUTPUT_PATH, './skins'));
 	});
 
-	await Task.Run(async () => await jest.run([...GetJestARGVs()]));
+	await Task.Run(async () => await jest.run([...GetJestARGVs()]), false);
 
 	await Command.Run({
 		command: 'yarn run lint',

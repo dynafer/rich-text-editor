@@ -1,127 +1,116 @@
 import { Inserter } from '@dynafer/dom-control';
-import { Arr, Obj } from '@dynafer/utils';
+import { Arr, Obj, Type, UID } from '@dynafer/utils';
 
 export type TEventListener<K extends keyof GlobalEventHandlersEventMap> = (event: GlobalEventHandlersEventMap[K]) => void;
 
-export interface IDOMFactory<E extends HTMLElement = HTMLElement> {
-	readonly Doc: Document,
-	readonly Self: E,
-	GetBody: () => HTMLElement,
-	Insert: <T extends HTMLElement>(...factories: IDOMFactory<T>[]) => IDOMFactory<T>[],
-	InsertHtml: (html: string) => void,
-	AddClass: (...classes: string[]) => void,
-	HasClass: (className: string) => boolean,
-	RemoveClass: (...classes: string[]) => void,
-	Bind: {
-		<K extends keyof GlobalEventHandlersEventMap>(eventName: K, event: TEventListener<K>, bCapture?: boolean): void;
-		(eventName: string, event: EventListener, bCapture?: boolean): void;
-	},
-	BindRoot: {
-		<K extends keyof GlobalEventHandlersEventMap>(eventName: K, event: TEventListener<K>, bCapture?: boolean): void;
-		(eventName: string, event: EventListener, bCapture?: boolean): void;
-	},
-	Unbind: {
-		<K extends keyof GlobalEventHandlersEventMap>(eventName: K, event: TEventListener<K>): void;
-		(eventName: string, event: EventListener): void;
-	},
-	UnbindRoot: {
-		<K extends keyof GlobalEventHandlersEventMap>(eventName: K, event: TEventListener<K>): void;
-		(eventName: string, event: EventListener): void;
-	},
-	GetChildren: <T extends HTMLElement>() => IDOMFactory<T>[],
-	Destroy: () => void,
-}
+const factoryMap: Record<string, DOMFactory> = {};
 
-export interface IDOMFactoryConstructor {
-	<K extends keyof HTMLElementTagNameMap>(creation: K): IDOMFactory;
-	(creation: string): IDOMFactory;
-}
+class DOMFactory<T extends HTMLElement = HTMLElement> {
+	public static readonly FACTORY_PROPERTY_NAME: string = 'factory-boundary-id';
 
-const DOMFactory: IDOMFactoryConstructor = <E extends HTMLElement>(creation: string): IDOMFactory<E> => {
-	const Doc = document;
-	const boundEvents: Record<string, EventListener[]> = {};
-	const rootBoundEvents: Record<string, EventListener[]> = {};
-	const children: IDOMFactory[] = [];
+	public readonly Doc = document;
+	public readonly Self: T;
 
-	const Self = Doc.createElement(creation) as E;
+	private readonly Id: string;
+	private readonly boundEvents: Record<string, EventListener[]> = {};
+	private readonly rootBoundEvents: Record<string, EventListener[]> = {};
 
-	const GetBody = () => Doc.body;
+	constructor(creation: string) {
+		if (!Type.IsString(creation)) creation = 'div';
 
-	const InsertFactory = <T extends HTMLElement>(...factories: IDOMFactory<T>[]): IDOMFactory<T>[] => {
-		Arr.Each(factories, child => {
-			if (!child) return;
-			Inserter.AfterInner(Self, child.Self);
-			Arr.Push(children, child);
+		this.Self = this.Doc.createElement(creation) as T;
+		this.Id = UID.CreateUUID();
+
+		Obj.SetProperty(this.Self, DOMFactory.FACTORY_PROPERTY_NAME, this.Id);
+		factoryMap[this.Id] = this;
+	}
+
+	public static FindFactory(element: Element): DOMFactory | null {
+		const id = Obj.GetProperty<string>(element, DOMFactory.FACTORY_PROPERTY_NAME);
+		return !id ? null : (factoryMap[id] ?? null);
+	}
+
+	public BindRoot<K extends keyof GlobalEventHandlersEventMap>(eventName: K, event: TEventListener<K>, bCapture?: boolean): void;
+	public BindRoot(eventName: string, event: EventListener, bCapture?: boolean): void;
+	public BindRoot(eventName: string, event: EventListener, bCapture: boolean = false) {
+		if (!this.rootBoundEvents[eventName]) this.rootBoundEvents[eventName] = [];
+		if (Arr.Contains(this.rootBoundEvents[eventName], event)) return;
+		document.addEventListener(eventName, event, bCapture);
+		Arr.Push(this.rootBoundEvents[eventName], event);
+	}
+
+	public UnbindRoot<K extends keyof GlobalEventHandlersEventMap>(eventName: K, event: TEventListener<K>): void;
+	public UnbindRoot(eventName: string, event: EventListener): void;
+	public UnbindRoot(eventName: string, event: EventListener) {
+		document.removeEventListener(eventName, event, true);
+		document.removeEventListener(eventName, event, false);
+		if (this.rootBoundEvents[eventName]) this.rootBoundEvents[eventName] = this.rootBoundEvents[eventName].filter(bound => bound !== event);
+	}
+
+	public GetBody(): HTMLElement { return this.Doc.body; }
+	public GetId(): string { return this.Id; }
+
+	public Insert(...factories: (DOMFactory | string)[]) {
+		Arr.Each(factories, factory => Inserter.AfterInner(this.Self, Type.IsString(factory) ? factory : factory.Self));
+	}
+
+	public AddClass(...classes: string[]) { this.Self.classList.add(...classes); }
+	public HasClass(className: string): boolean { return this.Self.classList.contains(className); }
+	public RemoveClass(...classes: string[]) { this.Self.classList.remove(...classes); }
+
+	public Bind<K extends keyof GlobalEventHandlersEventMap>(eventName: K, event: TEventListener<K>, bCapture?: boolean): void;
+	public Bind(eventName: string, event: EventListener, bCapture?: boolean): void;
+	public Bind(eventName: string, event: EventListener, bCapture: boolean = false) {
+		if (!this.boundEvents[eventName]) this.boundEvents[eventName] = [];
+		if (Arr.Contains(this.boundEvents[eventName], event)) return;
+		this.Self.addEventListener(eventName, event, bCapture);
+		Arr.Push(this.boundEvents[eventName], event);
+	}
+
+	public Unbind<K extends keyof GlobalEventHandlersEventMap>(eventName: K, event: TEventListener<K>): void;
+	public Unbind(eventName: string, event: EventListener): void;
+	public Unbind(eventName: string, event: EventListener) {
+		this.Self.removeEventListener(eventName, event, true);
+		this.Self.removeEventListener(eventName, event, false);
+		if (this.boundEvents[eventName]) this.boundEvents[eventName] = this.boundEvents[eventName].filter(bound => bound !== event);
+	}
+
+	public Dispatch(eventName: string) { this.Self.dispatchEvent(new Event(eventName)); }
+
+	public GetChildren<K extends HTMLElement = HTMLElement>(bFactories?: true): DOMFactory<K>[];
+	public GetChildren(bFactories: false): Element[];
+	public GetChildren(bFactories: boolean = true) {
+		if (!bFactories) return Arr.Convert(this.Self.children);
+
+		const factories: DOMFactory[] = [];
+		Arr.Each(Arr.Convert(this.Self.children), child => {
+			const factory = DOMFactory.FindFactory(child);
+			if (!factory) return;
+			Arr.Push(factories, factory);
 		});
 
-		return children as IDOMFactory<T>[];
-	};
+		return factories;
+	}
 
-	const InsertHtml = (html: string) => Inserter.AfterInner(Self, html);
+	public Destroy() {
+		Arr.WhileShift(this.GetChildren(), child => child.Destroy());
+		Arr.WhileShift(this.GetChildren(false), child => child.remove());
 
-	const AddClass = (...classes: string[]) => Self.classList.add(...classes);
-	const HasClass = (className: string): boolean => Self.classList.contains(className);
-	const RemoveClass = (...classes: string[]) => Self.classList.remove(...classes);
+		this.Dispatch('Factory:Destroyed');
 
-	const Bind = (eventName: string, event: EventListener, bCapture: boolean = false) => {
-		if (!boundEvents[eventName]) boundEvents[eventName] = [];
-		if (Arr.Contains(boundEvents[eventName], event)) return;
-		Self.addEventListener(eventName, event, bCapture);
-		Arr.Push(boundEvents[eventName], event);
-	};
+		Obj.Entries(this.boundEvents, (eventName, events) => {
+			Arr.WhileShift(events, event => this.Unbind(eventName, event));
+			delete this.boundEvents?.[eventName];
+		});
 
-	const BindRoot = (eventName: string, event: EventListener, bCapture: boolean = false) => {
-		if (!rootBoundEvents[eventName]) rootBoundEvents[eventName] = [];
-		if (Arr.Contains(rootBoundEvents[eventName], event)) return;
-		Doc.addEventListener(eventName, event, bCapture);
-		Arr.Push(rootBoundEvents[eventName], event);
-	};
+		Obj.Entries(this.rootBoundEvents, (eventName, events) => {
+			Arr.WhileShift(events, event => this.UnbindRoot(eventName, event));
+			delete this.rootBoundEvents?.[eventName];
+		});
 
-	const Unbind = (eventName: string, event: EventListener) => {
-		Self.removeEventListener(eventName, event, true);
-		Self.removeEventListener(eventName, event, false);
-		if (boundEvents[eventName]) boundEvents[eventName] = boundEvents[eventName].filter(bound => bound !== event);
-	};
-
-	const UnbindRoot = (eventName: string, event: EventListener) => {
-		Doc.removeEventListener(eventName, event, true);
-		Doc.removeEventListener(eventName, event, false);
-		if (rootBoundEvents[eventName]) rootBoundEvents[eventName] = rootBoundEvents[eventName].filter(bound => bound !== event);
-	};
-
-	const Dispatch = (eventName: string) => Self.dispatchEvent(new Event(eventName));
-
-	const GetChildren = <T extends HTMLElement>(): IDOMFactory<T>[] => children as IDOMFactory<T>[];
-
-	const Destroy = () => {
-		Arr.Each(children, child => child.Destroy());
-
-		Arr.Clean(children);
-
-		Dispatch('destroyed');
-
-		Obj.Entries(boundEvents, (eventName, events) => Arr.Each(events, event => Unbind(eventName, event)));
-		Obj.Entries(rootBoundEvents, (eventName, events) => Arr.Each(events, event => UnbindRoot(eventName, event)));
-
-		Self.remove();
-	};
-
-	return {
-		Doc,
-		Self,
-		GetBody,
-		Insert: InsertFactory,
-		InsertHtml,
-		AddClass,
-		HasClass,
-		RemoveClass,
-		Bind,
-		BindRoot,
-		Unbind,
-		UnbindRoot,
-		GetChildren,
-		Destroy,
-	};
-};
+		delete factoryMap?.[this.Id];
+		this.Self.remove();
+	}
+}
 
 export default DOMFactory;

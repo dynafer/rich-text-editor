@@ -1,18 +1,18 @@
 import { Style } from '@dynafer/dom-control';
-import { IDOMFactory, Schema, Sketcher } from '@dynafer/sketcher';
+import { DOMFactory, Schema, Sketcher } from '@dynafer/sketcher';
 import { Arr, Obj, Str } from '@dynafer/utils';
 import { CreateName, IRGBA, RGBA } from '../utils/Utils';
 import { IHue } from './Hue';
 import { IPalette } from './Palette';
 
-export interface INavigation extends IDOMFactory {
+export interface INavigation extends DOMFactory<HTMLInputElement> {
 	GetRGB: <T extends boolean>(bArray: T) => T extends true ? number[] : (string | null),
 	UpdateRGB: (rgb: IRGBA) => void,
 }
 
 const Navigation = (palette: IPalette, hue: IHue): INavigation => {
 	const inputs: Schema.IInputSchema[] = [];
-	const elements: IDOMFactory[] = [];
+	const elements: DOMFactory[] = [];
 	Arr.Each(['R', 'G', 'B', '#'], Label => {
 		const input = Sketcher.Input({ Label });
 		Arr.Push(inputs, input);
@@ -23,11 +23,9 @@ const Navigation = (palette: IPalette, hue: IHue): INavigation => {
 		TagName: CreateName('navigation'),
 		Elements: [
 			...elements,
-			{
-				TagName: 'div'
-			}
+			{ TagName: 'div' }
 		]
-	});
+	}) as INavigation;
 
 	const rgbElements = {
 		Red: inputs[0],
@@ -39,7 +37,7 @@ const Navigation = (palette: IPalette, hue: IHue): INavigation => {
 
 	const presentation = schema.GetChildren()[4];
 
-	const UpdateRGB = (rgb: IRGBA) => {
+	schema.UpdateRGB = (rgb: IRGBA) => {
 		if (!RGBA.IsValid(rgb)) return;
 
 		Obj.Entries(rgbElements, (key, inputSchema) => inputSchema.SetValue(rgb[key as 'Red'].toString()));
@@ -49,11 +47,11 @@ const Navigation = (palette: IPalette, hue: IHue): INavigation => {
 	};
 
 	const toggleError = (inputSchema: Schema.IUISchemaMap['Input'], bError: boolean) => {
-		const toggle = bError ? inputSchema.Self.AddClass : inputSchema.Self.RemoveClass;
-		toggle('error');
+		const className = 'error';
+		return bError ? inputSchema.Self.AddClass(className) : inputSchema.Self.RemoveClass(className);
 	};
 
-	const GetRGB = <T extends boolean>(bArray: T): T extends true ? number[] : (string | null) => {
+	schema.GetRGB = <T extends boolean>(bArray: T): T extends true ? number[] : (string | null) => {
 		const rgb: number[] = [];
 		Obj.Values(rgbElements, inputSchema => {
 			if (Str.IsEmpty(inputSchema.GetValue())) {
@@ -73,14 +71,14 @@ const Navigation = (palette: IPalette, hue: IHue): INavigation => {
 	};
 
 	const rgbKeyEvent = () => {
-		const rgb = GetRGB(true) as number[] | null;
+		const rgb = schema.GetRGB(true) as number[] | null;
 		if (!rgb) return;
 
 		const rgba = RGBA.ToMap(...rgb);
 
 		palette.UpdateGuide(rgba);
 		hue.UpdateGuide(rgba);
-		UpdateRGB(rgba);
+		schema.UpdateRGB(rgba);
 		toggleError(hex, false);
 	};
 
@@ -90,7 +88,7 @@ const Navigation = (palette: IPalette, hue: IHue): INavigation => {
 
 		palette.UpdateGuide(convertedRGB);
 		hue.UpdateGuide(convertedRGB);
-		UpdateRGB(convertedRGB);
+		schema.UpdateRGB(convertedRGB);
 		toggleError(hex, false);
 	};
 
@@ -102,11 +100,7 @@ const Navigation = (palette: IPalette, hue: IHue): INavigation => {
 	hex.Self.Bind('keydown', hexKeyEvent);
 	hex.Self.Bind('keyup', hexKeyEvent);
 
-	return {
-		...schema,
-		GetRGB,
-		UpdateRGB,
-	};
+	return schema;
 };
 
 export default Navigation;
