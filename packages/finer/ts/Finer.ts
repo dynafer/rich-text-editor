@@ -12,7 +12,7 @@ declare global {
 	const Finer: IFiner;
 }
 
-interface IFiner {
+export interface IFiner {
 	readonly Loaders: {
 		readonly Icon: IScriptLoader,
 		readonly Language: IScriptLoader,

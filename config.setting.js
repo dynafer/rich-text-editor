@@ -33,36 +33,23 @@ const DeleteMapFiles = () => {
 	deleteMapFile('min.css');
 };
 
-const GetJestARGVs = () => {
-	const options = {
-		preset: 'ts-jest',
-		testEnvironment: 'jest-environment-jsdom',
-		testMatch: '<rootDir>/packages/**/test/All.test.ts',
-		detectOpenHandles: true,
-		silent: true,
-		moduleNameMapper: {
-			'@dynafer/colorpicker': ['<rootDir>/packages/dynafer/colorpicker/ts/ColorPicker.ts'],
-			'@dynafer/dom-control': ['<rootDir>/packages/dynafer/dom-control/ts/DOMControl.ts'],
-			'@dynafer/interlocaliser': ['<rootDir>/packages/dynafer/interlocaliser/ts/Interlocaliser.ts'],
-			'@dynafer/sketcher': ['<rootDir>/packages/dynafer/sketcher/ts/Sketcher.ts'],
-			'@dynafer/utils': ['<rootDir>/packages/dynafer/utils/ts/Index.ts'],
-		},
-	};
-
-	const argvs = [];
-	Object.entries(options, ([key, value]) => {
-		argvs.push(`--${key}`);
-		if (typeof value === 'boolean') return;
-		if (typeof value === 'string') return argvs.push(value);
-		argvs.push(JSON.stringify(value));
-	});
-
-	return argvs;
-};
+const GetTestArgvs = () => ({
+	preset: 'ts-jest',
+	testEnvironment: 'jest-environment-jsdom',
+	testMatch: ['<rootDir>/packages/**/test/All.test.ts'],
+	detectLeaks: true,
+	moduleNameMapper: {
+		'@dynafer/colorpicker': ['<rootDir>/packages/dynafer/colorpicker/ts/ColorPicker.ts'],
+		'@dynafer/dom-control': ['<rootDir>/packages/dynafer/dom-control/ts/DOMControl.ts'],
+		'@dynafer/interlocaliser': ['<rootDir>/packages/dynafer/interlocaliser/ts/Interlocaliser.ts'],
+		'@dynafer/sketcher': ['<rootDir>/packages/dynafer/sketcher/ts/Sketcher.ts'],
+		'@dynafer/utils': ['<rootDir>/packages/dynafer/utils/ts/Index.ts'],
+	},
+});
 
 module.exports = {
 	DeleteMapFiles,
-	GetJestARGVs,
+	GetTestArgvs,
 	GLOBAL_NAME,
 	INPUT_NAME,
 	OUTPUT_PATH,
