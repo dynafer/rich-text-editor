@@ -1,7 +1,7 @@
 const { nodeResolve } = require('@rollup/plugin-node-resolve');
 const fs = require('fs');
 const path = require('path');
-const { DeleteMapFiles, GetJestARGVs, GLOBAL_NAME, INPUT_NAME, OUTPUT_PATH, PACKAGE_PATH, PLUGIN_NAMES, PROJECT_NAME, SCSS_PATH } = require('./config.setting');
+const { DeleteMapFiles, GetTestArgvs, GLOBAL_NAME, INPUT_NAME, OUTPUT_PATH, PACKAGE_PATH, PLUGIN_NAMES, PROJECT_NAME, SCSS_PATH } = require('./config.setting');
 const jest = require('jest');
 
 module.exports = async (runner, config) => {
@@ -9,6 +9,7 @@ module.exports = async (runner, config) => {
 	const Rollup = runner.Rollup;
 	const Sass = runner.Sass;
 	const Task = runner.Task;
+	const Test = runner.Test;
 	const bDevelopment = config.Mode === 'development';
 
 	await Task.Run(async () => {
@@ -16,7 +17,7 @@ module.exports = async (runner, config) => {
 		if (!fs.existsSync(path.join(OUTPUT_PATH, './skins'))) fs.mkdirSync(path.join(OUTPUT_PATH, './skins'));
 	});
 
-	await Task.Run(async () => await jest.run([...GetJestARGVs()]), false);
+	await Test.Run(GetTestArgvs());
 
 	await Command.Run({
 		command: 'yarn run lint',

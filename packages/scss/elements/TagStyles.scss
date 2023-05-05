@@ -78,7 +78,7 @@
 				background-color: #000;
 			}
 
-			iframe {
+			&:not([data-focused]) iframe {
 				pointer-events: none;
 			}
 		}

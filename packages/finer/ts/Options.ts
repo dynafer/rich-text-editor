@@ -1,11 +1,17 @@
 import { Arr, Str } from '@dynafer/utils';
 
-let projectURL: string;
+let projectURL: string = document.baseURI;
+
+const dumpURL = projectURL.split('/');
+projectURL = dumpURL.slice(0, dumpURL.length - 1).join('/');
+Arr.Clean(dumpURL);
+
 Arr.Each(document.head.querySelectorAll('script'), (loadedScript, exit) => {
 	if (!Str.Contains(loadedScript.src, 'finer.')) return;
-	const tempSrc: string[] = loadedScript.src.split('/');
+	const tempSrc = loadedScript.src.split('/');
 	projectURL = tempSrc.slice(0, tempSrc.length - 1).join('/');
 	if (Str.IsEmpty(projectURL)) projectURL = '.';
+	Arr.Clean(tempSrc);
 	exit();
 });
 
