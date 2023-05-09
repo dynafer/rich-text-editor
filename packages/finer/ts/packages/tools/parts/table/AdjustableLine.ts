@@ -9,19 +9,20 @@ const AdjustableLine = (editor: Editor, table: HTMLElement): HTMLElement => {
 	const DOM = self.DOM;
 
 	const adjustableLineGroup = DOM.Create('div', {
-		attrs: ['data-adjustable-line-group'],
+		attrs: [Options.ATTRIBUTES.ADJUSTABLE_LINE_GROUP],
 	});
 
-	const createAdjustableLine = (type: 'width' | 'height'): HTMLElement =>
-		DOM.Create('div', {
-			attrs: {
-				dataAdjustableLine: type,
-			},
+	const createAdjustableLine = (type: 'width' | 'height'): HTMLElement => {
+		const attrs: Record<string, string> = {};
+		attrs[Options.ATTRIBUTES.ADJUSTABLE_LINE] = type;
+		return DOM.Create('div', {
+			attrs,
 			styles: {
 				width: `${type === 'width' ? ADJUSTABLE_LINE_HALF_SIZE * 2 - 1 : GetClientSize(self, table, 'width')}px`,
 				height: `${type === 'width' ? GetClientSize(self, table, 'height') : ADJUSTABLE_LINE_HALF_SIZE * 2 - 1}px`,
 			}
 		});
+	};
 
 	const adjustableWidth = createAdjustableLine('width');
 	const adjustableHeight = createAdjustableLine('height');
@@ -48,7 +49,7 @@ const AdjustableLine = (editor: Editor, table: HTMLElement): HTMLElement => {
 
 		let startOffset = bWidth ? event.pageX : event.pageY;
 
-		DOM.SetAttr(adjustItem, Options.ATTRIBUTE_ADJUSTING);
+		DOM.SetAttr(adjustItem, Options.ATTRIBUTES.ADJUSTING);
 
 		const { Grid } = DOM.Element.Table.GetGridWithIndex(figureElement);
 
@@ -141,7 +142,7 @@ const AdjustableLine = (editor: Editor, table: HTMLElement): HTMLElement => {
 
 		const commonFinishAdjusting = () => {
 			DOM.Remove(fakeFigure.Figure);
-			DOM.RemoveAttr(adjustItem, Options.ATTRIBUTE_ADJUSTING);
+			DOM.RemoveAttr(adjustItem, Options.ATTRIBUTES.ADJUSTING);
 			ResetAbsolute(self, figure, figureElement);
 
 			MoveToCurrentPoint(self, figureElement, savedPoint);

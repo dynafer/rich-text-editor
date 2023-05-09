@@ -1,4 +1,5 @@
 import { Arr, Type } from '@dynafer/utils';
+import Options from '../../../Options';
 import Editor from '../../../packages/Editor';
 import BlobList from '../utils/BlobList';
 import { IPluginMediaCommand } from '../utils/Type';
@@ -55,10 +56,8 @@ const Commands = (editor: Editor) => {
 				return;
 			}
 
-			DOM.SetAttrs(media, {
-				dataOriginalWidth: width.toString(),
-				dataOriginalHeight: height.toString(),
-			});
+			DOM.SetAttr(media, Options.ATTRIBUTES.ORIGINAL_WIDTH, width.toString());
+			DOM.SetAttr(media, Options.ATTRIBUTES.ORIGINAL_HEIGHT, height.toString());
 			DOM.SetStyles(media, {
 				width: `${width}px`,
 				height: `${height}px`,

@@ -19,3 +19,7 @@
 @function getClassName($name) {
 	@return #{$projectName}-#{$name};
 }
+
+@function getAttr($name) {
+	@return #{$shortName}-#{$name};
+}

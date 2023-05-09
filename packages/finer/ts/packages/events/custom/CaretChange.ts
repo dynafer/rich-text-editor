@@ -93,7 +93,7 @@ const CaretChange = (editor: Editor) => {
 
 		if (newRange) CaretUtils.UpdateRange(newRange);
 
-		if (!DOM.HasAttr(Figure, Options.ATTRIBUTE_FOCUSED)) DOM.SetAttr(Figure, Options.ATTRIBUTE_FOCUSED);
+		if (!DOM.HasAttr(Figure, Options.ATTRIBUTES.FOCUSED)) DOM.SetAttr(Figure, Options.ATTRIBUTES.FOCUSED);
 		PartsTool.ChangePositions();
 	};
 
@@ -105,7 +105,7 @@ const CaretChange = (editor: Editor) => {
 
 		const focusableSet = BlockFormatTags.Focusable;
 
-		Arr.Each(DOM.SelectAll(Str.Join(',', ...focusableSet)), focused => DOM.RemoveAttr(focused, Options.ATTRIBUTE_FOCUSED));
+		Arr.Each(DOM.SelectAll(Str.Join(',', ...focusableSet)), focused => DOM.RemoveAttr(focused, Options.ATTRIBUTES.FOCUSED));
 
 		const node = FormatUtils.GetParentIfText(caret.Start.Node);
 
@@ -121,7 +121,7 @@ const CaretChange = (editor: Editor) => {
 			if (closest && DOM.Utils.IsChildOf(closest, focusableNode)) focusableNode = closest;
 		});
 
-		if (focusableNode) DOM.SetAttr(focusableNode, Options.ATTRIBUTE_FOCUSED);
+		if (focusableNode) DOM.SetAttr(focusableNode, Options.ATTRIBUTES.FOCUSED);
 	};
 
 	const listener = (): IEvent<Node[]> =>

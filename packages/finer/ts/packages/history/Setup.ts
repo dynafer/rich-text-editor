@@ -1,5 +1,6 @@
 import { NodeType } from '@dynafer/dom-control';
 import { Arr, Str } from '@dynafer/utils';
+import Options from '../../Options';
 import DOM from '../dom/DOM';
 import Editor from '../Editor';
 import { EInputEventType, ENativeEvents, PreventEvent } from '../events/EventSetupUtils';
@@ -14,7 +15,7 @@ const Setup = (editor: Editor): IHistoryManager => {
 
 	self.On(ENativeEvents.keydown, event => {
 		const bMoveCaret = MOVE_KEY_NAMES.has(event.code) || MOVE_KEY_NAMES.has(event.key);
-		const bKeyZ = event.code === EKeyCode.KeyZ || event.key === EKeyCode.KeyZ;
+		const bKeyZ = Arr.Contains([event.code, event.key], EKeyCode.KeyZ);
 		const bReversion = bKeyZ && event.ctrlKey;
 
 		if (!bMoveCaret && !bReversion) return;
@@ -33,7 +34,9 @@ const Setup = (editor: Editor): IHistoryManager => {
 	});
 
 	const moveByHand = (event: MouseEvent | TouchEvent) => {
-		if (!NodeType.IsNode(event.target) || DOM.Closest(event.target, { attrs: { dataFixed: 'parts-tool' } })) return;
+		const attrs: Record<string, string> = {};
+		attrs[Options.ATTRIBUTES.FIXED] = 'parts-tool';
+		if (!NodeType.IsNode(event.target) || DOM.Closest(event.target, { attrs })) return;
 		if (!historyManager.IsTexting()) return;
 		archiver.History.Record();
 		historyManager.SetTexting(false);

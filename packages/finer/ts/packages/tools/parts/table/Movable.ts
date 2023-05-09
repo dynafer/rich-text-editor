@@ -14,7 +14,7 @@ const Movable = (editor: Editor, table: HTMLElement): HTMLElement => {
 
 	const movable = DOM.Create('div', {
 		attrs: [
-			'data-movable',
+			Options.ATTRIBUTES.MOVABLE,
 			{
 				draggable: 'true',
 				title: self.Lang('plugins.parts.menu.table.move', 'Move a table'),
@@ -35,7 +35,7 @@ const Movable = (editor: Editor, table: HTMLElement): HTMLElement => {
 		const cells = DOM.Element.Table.GetAllOwnCells(FigureElement);
 		DOM.Element.Table.ToggleSelectMultipleCells(true, cells);
 
-		DOM.SetAttr(Figure, Options.ATTRIBUTE_FOCUSED);
+		DOM.SetAttr(Figure, Options.ATTRIBUTES.FOCUSED);
 
 		self.Utils.Shared.DispatchCaretChange();
 	});
@@ -60,7 +60,7 @@ const Movable = (editor: Editor, table: HTMLElement): HTMLElement => {
 		const cells = DOM.Element.Table.GetAllOwnCells(FigureElement);
 		DOM.Element.Table.ToggleSelectMultipleCells(true, cells);
 
-		DOM.SetAttr(Figure, Options.ATTRIBUTE_FOCUSED);
+		DOM.SetAttr(Figure, Options.ATTRIBUTES.FOCUSED);
 
 		const dropEvent = (e: InputEvent) => {
 			PreventEvent(e);

@@ -173,17 +173,17 @@ const DOM = (opts: TDOMCreateOption): IDom => {
 	const SetStyleText = (selector: TElement, styleText: string) => Style.SetText(selector, styleText);
 	const SetStyle = (selector: TElement, name: string, value: string) => {
 		Style.Set(selector, name, value);
-		if (opts.bEditor) SetAttr(selector, Options.ATTRIBUTE_EDITOR_STYLE, GetStyleText(selector));
+		if (opts.bEditor) SetAttr(selector, Options.ATTRIBUTES.STYLE, GetStyleText(selector));
 	};
 	const SetStyles = (selector: TElement, styles: Record<string, string>) => {
 		Style.SetAsMap(selector, styles);
-		if (opts.bEditor) SetAttr(selector, Options.ATTRIBUTE_EDITOR_STYLE, GetStyleText(selector));
+		if (opts.bEditor) SetAttr(selector, Options.ATTRIBUTES.STYLE, GetStyleText(selector));
 	};
 	const RemoveStyle = (selector: TElement, name: string) => {
 		Style.Remove(selector, name);
 		if (!opts.bEditor) return;
-		if (Str.IsEmpty(GetStyleText(selector))) return RemoveAttr(selector, Options.ATTRIBUTE_EDITOR_STYLE);
-		SetAttr(selector, Options.ATTRIBUTE_EDITOR_STYLE, GetStyleText(selector));
+		if (Str.IsEmpty(GetStyleText(selector))) return RemoveAttr(selector, Options.ATTRIBUTES.STYLE);
+		SetAttr(selector, Options.ATTRIBUTES.STYLE, GetStyleText(selector));
 	};
 	const RemoveStyles = (selector: TElement, ...names: string[]) => Arr.Each(names, name => RemoveStyle(selector, name));
 	const HasStyle = (selector: TElement, name: string, compareValue?: string): boolean =>

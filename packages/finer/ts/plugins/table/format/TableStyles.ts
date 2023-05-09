@@ -14,7 +14,7 @@ const TableStyles = (editor: Editor, format: IPluginTableCommand) => {
 
 		DOM.RemoveStyles(figure, ...SameStyles);
 		const toggleAttr = bAsText ? DOM.SetAttr : DOM.RemoveAttr;
-		toggleAttr(figure, Options.ATTRIBUTE_AS_TEXT);
+		toggleAttr(figure, Options.ATTRIBUTES.AS_TEXT);
 
 		DOM.SetStyles(figure, Styles);
 	};
@@ -23,7 +23,7 @@ const TableStyles = (editor: Editor, format: IPluginTableCommand) => {
 		const figure = DOM.Element.Figure.FindClosest(table);
 		if (!figure) return;
 
-		if (bAsText) DOM.RemoveAttr(figure, Options.ATTRIBUTE_AS_TEXT);
+		if (bAsText) DOM.RemoveAttr(figure, Options.ATTRIBUTES.AS_TEXT);
 
 		DOM.RemoveStyles(figure, ...Obj.Keys(Styles));
 	};

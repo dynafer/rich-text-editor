@@ -1,4 +1,5 @@
 import { Arr, Formula, Str, Type } from '@dynafer/utils';
+import Options from '../../../../Options';
 import Editor from '../../../Editor';
 import { CreateAdjustableEdgeSize, GetClientSize, RegisterAdjustingEvents, StartAdjustment } from '../Utils';
 import { CreateCurrentPoint, CreateFakeFigure, MakeAbsolute, MoveToCurrentPoint, ResetAbsolute, WalkGrid } from './TableToolsUtils';
@@ -9,21 +10,23 @@ const AdjustableEdge = (editor: Editor, table: HTMLElement): HTMLElement => {
 	const DOM = self.DOM;
 
 	const adjustableEdgeGroup = DOM.Create('div', {
-		attrs: ['data-adjustable-edge-group'],
+		attrs: [Options.ATTRIBUTES.ADJUSTABLE_EDGE_GROUP],
 	});
 
-	const createCommonEdge = (type: 'west' | 'east', bLeft: boolean, bTop: boolean): HTMLElement =>
-		DOM.Create('div', {
-			attrs: {
-				dataAdjustableEdge: type,
-				dataHorizontal: bLeft ? 'left' : 'right',
-				dataVertical: bTop ? 'top' : 'bottom',
-			},
+	const createCommonEdge = (type: 'west' | 'east', bLeft: boolean, bTop: boolean): HTMLElement => {
+		const attrs: Record<string, string> = {};
+		attrs[Options.ATTRIBUTES.ADJUSTABLE_EDGE] = type;
+		attrs[Options.ATTRIBUTES.HORIZONTAL] = bLeft ? 'left' : 'right';
+		attrs[Options.ATTRIBUTES.VERTICAL] = bTop ? 'top' : 'bottom';
+
+		return DOM.Create('div', {
+			attrs,
 			styles: {
 				left: CreateAdjustableEdgeSize(table.offsetLeft + (bLeft ? 0 : table.offsetWidth), true),
 				top: CreateAdjustableEdgeSize(table.offsetTop + (bTop ? 0 : table.offsetHeight), true),
 			},
 		});
+	};
 
 	const leftTopEdge = createCommonEdge('west', true, true);
 	const rightTopEdge = createCommonEdge('east', false, true);
@@ -102,10 +105,10 @@ const AdjustableEdge = (editor: Editor, table: HTMLElement): HTMLElement => {
 
 		self.ScrollSavedPosition();
 
-		const lineGroup = DOM.Select<HTMLElement>({ attrs: ['data-adjustable-line-group'] }, figure);
+		const lineGroup = DOM.Select<HTMLElement>({ attrs: [Options.ATTRIBUTES.ADJUSTABLE_LINE_GROUP] }, figure);
 		DOM.Hide(lineGroup);
 
-		const movable = DOM.Select<HTMLElement>({ attrs: ['data-movable'] }, figure);
+		const movable = DOM.Select<HTMLElement>({ attrs: [Options.ATTRIBUTES.MOVABLE] }, figure);
 		DOM.Hide(movable);
 
 		const adjustLeftDifference = (bLeft ? minLeft - oldLeft : oldLeft - minLeft) + (bLeft ? 0 : (minWidth - oldWidth));

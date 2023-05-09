@@ -15,7 +15,7 @@
 				text-decoration: underline;
 			}
 
-			&[data-focused] {
+			&[#{getAttr(focused)}] {
 				background-color: getVar(format-anchor-focused-bg);
 				text-decoration: underline;
 			}
@@ -26,7 +26,7 @@
 				background-color: getVar(format-code-hover-bg);
 			}
 
-			&[data-focused] {
+			&[#{getAttr(focused)}] {
 				background-color: getVar(format-code-focused-bg);
 			}
 		}
@@ -50,13 +50,13 @@
 				@include all-border(#ddd, 3px);
 			}
 
-			&:not([data-focused]):hover {
+			&:not([#{getAttr(focused)}]):hover {
 				hr {
 					@include all-border(getVar(hover-color), 3px);
 				}
 			}
 
-			&[data-focused] {
+			&[#{getAttr(focused)}] {
 				hr {
 					outline: getVar(selected-color) solid 3px;
 				}
@@ -78,7 +78,7 @@
 				background-color: #000;
 			}
 
-			&:not([data-focused]) iframe {
+			&:not([#{getAttr(focused)}]) iframe {
 				pointer-events: none;
 			}
 		}
@@ -88,7 +88,7 @@
 				border-collapse: collapse;
 				box-sizing: border-box;
 
-				[data-selected] {
+				[#{getAttr(selected)}] {
 					background-color: getVar(selected-color);
 				}
 
@@ -104,7 +104,7 @@
 				}
 			}
 
-			&[data-focused] {
+			&[#{getAttr(focused)}] {
 				table {
 					@include position(relative);
 				}
@@ -125,7 +125,7 @@
 			iframe,
 			video,
 			audio,
-			div[data-fake],
+			div[#{getAttr(fake)}],
 			table {
 				@include margin(null, $left: 0, $right: auto);
 
@@ -140,7 +140,7 @@
 			iframe,
 			video,
 			audio,
-			div[data-fake],
+			div[#{getAttr(fake)}],
 			table {
 				@include all-margin(auto auto);
 
@@ -156,7 +156,7 @@
 			iframe,
 			video,
 			audio,
-			div[data-fake],
+			div[#{getAttr(fake)}],
 			table {
 				@include margin(null, $left: auto, $right: 0);
 
@@ -166,7 +166,7 @@
 			}
 		}
 
-		table[data-adjusting] {
+		table[#{getAttr(adjusting)}] {
 			@include font($color: transparent);
 			border-style: dotted;
 

@@ -23,11 +23,7 @@ export enum EEditorMode {
 export interface IOptions {
 	readonly PROJECT_NAME: string,
 	readonly SHORT_NAME: string,
-	readonly ATTRIBUTE_EDITOR_STYLE: string,
-	readonly ATTRIBUTE_ADJUSTING: string,
-	readonly ATTRIBUTE_FOCUSED: string,
-	readonly ATTRIBUTE_SELECTED: string,
-	readonly ATTRIBUTE_AS_TEXT: string,
+	readonly ATTRIBUTES: Readonly<Record<Uppercase<string>, string>>,
 	readonly URLS: Record<string, string>,
 	JoinURL: (type: string, name: string) => string,
 	GetModeTag: (mode: EEditorMode) => string,
@@ -36,11 +32,36 @@ export interface IOptions {
 const Options = (): IOptions => {
 	const PROJECT_NAME = 'finer-editor';
 	const SHORT_NAME = 'finer';
-	const ATTRIBUTE_EDITOR_STYLE = 'finer-style';
-	const ATTRIBUTE_ADJUSTING = 'data-adjusting';
-	const ATTRIBUTE_FOCUSED = 'data-focused';
-	const ATTRIBUTE_SELECTED = 'data-selected';
-	const ATTRIBUTE_AS_TEXT = 'data-as-text';
+
+	const ATTRIBUTES: Record<string, string> = {};
+
+	const addAttributeNames = (...names: string[]) => Arr.WhileShift(names, name => {
+		ATTRIBUTES[Str.UpperCase(name).replace(/-/g, '_')] = Str.Merge(SHORT_NAME, '-', name);
+	});
+
+	addAttributeNames(
+		'adjustable-edge',
+		'adjustable-edge-group',
+		'adjustable-line',
+		'adjustable-line-group',
+		'adjusting',
+		'as-text',
+		'fake',
+		'fixed',
+		'focused',
+		'icon',
+		'horizontal',
+		'movable',
+		'original-height',
+		'original-width',
+		'parts-menu',
+		'remove',
+		'selected',
+		'style',
+		'type',
+		'vertical',
+	);
+
 	const URL_PREFIX: string = new URL(projectURL).href;
 
 	const URLS: Record<string, string> = {
@@ -83,11 +104,7 @@ const Options = (): IOptions => {
 	return {
 		PROJECT_NAME,
 		SHORT_NAME,
-		ATTRIBUTE_EDITOR_STYLE,
-		ATTRIBUTE_ADJUSTING,
-		ATTRIBUTE_FOCUSED,
-		ATTRIBUTE_SELECTED,
-		ATTRIBUTE_AS_TEXT,
+		ATTRIBUTES,
 		URLS,
 		JoinURL,
 		GetModeTag,

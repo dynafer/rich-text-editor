@@ -1,3 +1,4 @@
+import Options from '../../../Options';
 import Editor from '../../../packages/Editor';
 import { IPartsToolAttacher } from '../../../packages/tools/types/PartsType';
 import { COMMAND_NAMES_MAP, GetMenuText } from '../Utils';
@@ -19,7 +20,7 @@ const TableMenu = (editor: Editor): ITableMenu => {
 		});
 
 		const button = formatUI.CreateIconButton(GetMenuText(self, 'remove.figure', 'Remove the figure'), 'Trash');
-		DOM.SetAttr(button, 'data-remove');
+		DOM.SetAttr(button, Options.ATTRIBUTES.REMOVE);
 
 		formatUI.BindClickEvent(button, () => self.Commander.Run(COMMAND_NAMES_MAP.TABLE_REMOVE, tableMenu));
 
@@ -30,7 +31,7 @@ const TableMenu = (editor: Editor): ITableMenu => {
 
 	const Create: IPartsToolAttacher = (e: Editor, table: HTMLElement): HTMLElement => {
 		const tableMenu = DOM.Create('div', {
-			attrs: ['data-parts-menu']
+			attrs: [Options.ATTRIBUTES.PARTS_MENU]
 		});
 
 		DOM.Insert(tableMenu, Alignment(self, table, tableMenu), RowColumn(self, table, tableMenu), createGroupWithoutFormat(tableMenu));

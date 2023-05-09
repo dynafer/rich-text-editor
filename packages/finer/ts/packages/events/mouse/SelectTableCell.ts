@@ -1,4 +1,6 @@
+import { NodeType } from '@dynafer/dom-control';
 import { Arr } from '@dynafer/utils';
+import Options from '../../../Options';
 import Editor from '../../Editor';
 import { ENativeEvents } from '../EventSetupUtils';
 
@@ -7,16 +9,19 @@ const SelectTableCell = (editor: Editor, event: MouseEvent | TouchEvent) => {
 	const DOM = self.DOM;
 	let bDragged = false;
 
-	const bTools = !!DOM.Closest(event.composedPath()[0] as Node, {
-		attrs: { dataFixed: 'parts-tool' }
-	});
+	const target = event.composedPath()[0];
+	if (!NodeType.IsNode(target)) return;
+
+	const attrs: Record<string, string> = {};
+	attrs[Options.ATTRIBUTES.FIXED] = 'parts-tool';
+	const bTools = !!DOM.Closest(target, { attrs });
 
 	if (bTools) return;
 
 	const selectedCells = DOM.Element.Table.GetSelectedCells(self);
 	DOM.Element.Table.ToggleSelectMultipleCells(false, selectedCells);
 
-	const { Table, Row, Cell } = DOM.Element.Table.Find(event.composedPath()[0]);
+	const { Table, Row, Cell } = DOM.Element.Table.Find(target);
 	if (!Table || !Row || !Cell) return;
 
 	const rows = DOM.Element.Table.GetAllOwnRows(Table);

@@ -147,7 +147,8 @@ const DOMUtils = (): IDOMUtils => {
 		return selector;
 	};
 
-	const isPartsTool = (node: Node | null): node is Element => NodeType.IsElement(node) && node.getAttribute('data-fixed') === 'parts-tool';
+	const isPartsTool = (node: Node | null): node is Element =>
+		NodeType.IsElement(node) && node.getAttribute(Options.ATTRIBUTES.FIXED) === 'parts-tool';
 
 	const getDeepestChild = (node: Node, bFirst: boolean): Node | null => {
 		let child: Node | null = node;

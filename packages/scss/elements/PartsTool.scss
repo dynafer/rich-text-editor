@@ -1,12 +1,12 @@
 @import './ToolsMenu';
 
 @mixin parts-tools {
-	[data-fixed='parts-tool'] {
+	[#{getAttr(fixed)}='parts-tool'] {
 		& {
 			z-index: 9999;
 		}
 
-		[data-movable] {
+		[#{getAttr(movable)}] {
 			@include position(absolute, calc(0px - 1rem), 0);
 			@include all-border(getVar(parts-default-color) !important, 3px);
 			@include all-margin(0px);
@@ -22,8 +22,8 @@
 			}
 		}
 
-		[data-adjustable-edge-group] {
-			[data-adjustable-edge] {
+		[#{getAttr(adjustable-edge-group)}] {
+			[#{getAttr(adjustable-edge)}] {
 				@include position(absolute);
 				@include all-margin(0px);
 				@include square(0.75rem);
@@ -31,54 +31,54 @@
 				background-color: getVar(parts-default-color);
 				z-index: 9999999;
 
-				&[data-adjustable-edge='east'] {
+				&[#{getAttr(adjustable-edge)}='east'] {
 					cursor: ne-resize;
 				}
 
-				&[data-adjustable-edge='west'] {
+				&[#{getAttr(adjustable-edge)}='west'] {
 					cursor: nw-resize;
 				}
 			}
 		}
 
-		&[data-type='table-tool'] {
-			[data-adjustable-line-group] {
-				[data-adjustable-line] {
+		&[#{getAttr(type)}='table-tool'] {
+			[#{getAttr(adjustable-line-group)}] {
+				[#{getAttr(adjustable-line)}] {
 					@include position(absolute);
 					@include all-margin(0px);
 					z-index: 99999;
 
-					&[data-adjusting] {
+					&[#{getAttr(adjusting)}] {
 						background-color: getVar(parts-default-color);
 					}
 				}
 
-				[data-adjustable-line='width'] {
+				[#{getAttr(adjustable-line)}='width'] {
 					cursor: col-resize;
 				}
 
-				[data-adjustable-line='height'] {
+				[#{getAttr(adjustable-line)}='height'] {
 					cursor: row-resize;
 				}
 			}
 		}
 
-		&[data-type='media-tool'] {
-			[data-adjustable-line-group] {
-				[data-adjustable-line] {
+		&[#{getAttr(type)}='media-tool'] {
+			[#{getAttr(adjustable-line-group)}] {
+				[#{getAttr(adjustable-line)}] {
 					@include position(absolute);
 					@include all-margin(0px);
 					background-color: getVar(parts-default-color);
 					z-index: 99999;
 				}
 
-				[data-adjustable-line='left'],
-				[data-adjustable-line='right'] {
+				[#{getAttr(adjustable-line)}='left'],
+				[#{getAttr(adjustable-line)}='right'] {
 					cursor: col-resize;
 				}
 
-				[data-adjustable-line='top'],
-				[data-adjustable-line='bottom'] {
+				[#{getAttr(adjustable-line)}='top'],
+				[#{getAttr(adjustable-line)}='bottom'] {
 					cursor: row-resize;
 				}
 			}

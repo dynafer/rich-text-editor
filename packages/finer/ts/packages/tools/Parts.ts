@@ -26,7 +26,7 @@ const PartsTool = (editor: Editor): IPartsTool => {
 	Manager.Attach(DefaultParts.Table);
 
 	DOM.On(self.GetWin(), Finer.NativeEventMap.scroll, () =>
-		Arr.Each(DOM.SelectAll<HTMLElement>({ attrs: ['data-parts-menu'] }), menu => {
+		Arr.Each(DOM.SelectAll<HTMLElement>({ attrs: [Options.ATTRIBUTES.PARTS_MENU] }), menu => {
 			const { Figure, FigureElement } = DOM.Element.Figure.Find<HTMLElement>(menu);
 			if (!Figure || !FigureElement) return;
 
@@ -54,7 +54,7 @@ const PartsTool = (editor: Editor): IPartsTool => {
 
 	const SelectFocused = <T extends boolean = false>(bAll: T | false = false, type?: string): T extends false ? (HTMLElement | null) : HTMLElement[] => {
 		const select = !bAll ? DOM.Select<HTMLElement> : DOM.SelectAll<HTMLElement>;
-		const attrs: (string | Record<string, string>)[] = [Options.ATTRIBUTE_FOCUSED];
+		const attrs: (string | Record<string, string>)[] = [Options.ATTRIBUTES.FOCUSED];
 		if (Type.IsString(type)) Arr.Push(attrs, { type });
 		return select({ tagName: DOM.Element.Figure.Selector, attrs }) as T extends false ? (HTMLElement | null) : HTMLElement[];
 	};
@@ -86,7 +86,7 @@ const PartsTool = (editor: Editor): IPartsTool => {
 
 		Arr.Each(focusedFigures, focused => {
 			if (!!except && focused === except) return;
-			DOM.RemoveAttr(focused, Options.ATTRIBUTE_FOCUSED);
+			DOM.RemoveAttr(focused, Options.ATTRIBUTES.FOCUSED);
 		});
 
 		HideAll(except);

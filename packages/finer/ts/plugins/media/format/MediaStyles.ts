@@ -14,7 +14,7 @@ const MediaStyles = (editor: Editor, format: IPluginMediaCommand) => {
 
 		DOM.RemoveStyles(figure, ...SameStyles);
 		const toggleAttr = bAsText ? DOM.SetAttr : DOM.RemoveAttr;
-		toggleAttr(figure, Options.ATTRIBUTE_AS_TEXT);
+		toggleAttr(figure, Options.ATTRIBUTES.AS_TEXT);
 
 		DOM.SetStyles(figure, Styles);
 		return figure;
@@ -24,7 +24,7 @@ const MediaStyles = (editor: Editor, format: IPluginMediaCommand) => {
 		const figure = DOM.Element.Figure.FindClosest(media);
 		if (!figure) return null;
 
-		if (bAsText) DOM.RemoveAttr(figure, Options.ATTRIBUTE_AS_TEXT);
+		if (bAsText) DOM.RemoveAttr(figure, Options.ATTRIBUTES.AS_TEXT);
 
 		DOM.RemoveStyles(figure, ...Obj.Keys(Styles));
 		return figure;

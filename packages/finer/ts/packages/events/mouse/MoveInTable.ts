@@ -1,3 +1,4 @@
+import Options from '../../../Options';
 import Editor from '../../Editor';
 import { CreateAdjustableLineSize } from '../../tools/parts/Utils';
 
@@ -15,11 +16,11 @@ const MoveInTable = (editor: Editor, event: MouseEvent) => {
 	const targetCell = DOM.Element.Table.FindClosestCell<HTMLElement>(target);
 	if (!targetCell) return;
 
-	const selectAdjustable = (type: 'width' | 'height'): HTMLElement => DOM.Select<HTMLElement>({
-		attrs: {
-			dataAdjustableLine: type
-		}
-	}, Figure);
+	const selectAdjustable = (type: 'width' | 'height'): HTMLElement => {
+		const attrs: Record<string, string> = {};
+		attrs[Options.ATTRIBUTES.ADJUSTABLE_LINE] = type;
+		return DOM.Select<HTMLElement>({ attrs }, Figure);
+	};
 
 	const adjustableWidth = selectAdjustable('width');
 	const adjustableHeight = selectAdjustable('height');

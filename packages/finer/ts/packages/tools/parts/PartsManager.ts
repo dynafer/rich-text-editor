@@ -1,5 +1,6 @@
 import { NodeType } from '@dynafer/dom-control';
 import { Arr, Type } from '@dynafer/utils';
+import Options from '../../../Options';
 import Editor from '../../Editor';
 import { IPartsToolAttacher } from '../types/PartsType';
 
@@ -56,12 +57,10 @@ const PartsManager = (editor: Editor): IPartsManager => {
 	};
 
 	const Create = (name: string, element: HTMLElement): HTMLElement => {
-		const parts = DOM.Create('div', {
-			attrs: {
-				dataType: `${name}-tool`,
-				dataFixed: 'parts-tool',
-			},
-		});
+		const attrs: Record<string, string> = {};
+		attrs[Options.ATTRIBUTES.TYPE] = `${name}-tool`;
+		attrs[Options.ATTRIBUTES.FIXED] = 'parts-tool';
+		const parts = DOM.Create('div', { attrs });
 
 		const partList: HTMLElement[] = [];
 		if (attachedPartTools[name]) Arr.Each(attachedPartTools[name], create => Arr.Push(partList, create(self, element)));
@@ -72,7 +71,9 @@ const PartsManager = (editor: Editor): IPartsManager => {
 	};
 
 	const SelectParts = <T extends boolean>(bAll: T, parent?: Node): T extends true ? HTMLElement[] : (HTMLElement | null) => {
-		const selectOption = { attrs: { dataFixed: 'parts-tool' } };
+		const attrs: Record<string, string> = {};
+		attrs[Options.ATTRIBUTES.FIXED] = 'parts-tool';
+		const selectOption = { attrs };
 
 		if (!bAll && !!parent) {
 			const allParts = DOM.SelectAll(selectOption, parent);
@@ -95,7 +96,7 @@ const PartsManager = (editor: Editor): IPartsManager => {
 	};
 
 	const IsParts = (selector?: Node | EventTarget | null): boolean =>
-		!NodeType.IsNode(selector) ? false : DOM.HasAttr(selector, 'data-fixed', 'parts-tool');
+		!NodeType.IsNode(selector) ? false : DOM.HasAttr(selector, Options.ATTRIBUTES.FIXED, 'parts-tool');
 
 	const ChangePositions = () => Arr.Each(partListeners, listener => listener(self));
 

@@ -1,3 +1,4 @@
+import Options from '../../../../Options';
 import Editor from '../../../Editor';
 
 interface IFakeFigure {
@@ -27,7 +28,7 @@ export const CreateFakeFigure = (editor: Editor, figure: HTMLElement, figureElem
 	});
 
 	const Media = DOM.Create('div', {
-		attrs: ['data-fake']
+		attrs: [Options.ATTRIBUTES.FAKE]
 	});
 
 	DOM.SetStyles(Media, {
@@ -43,18 +44,22 @@ export const CreateFakeFigure = (editor: Editor, figure: HTMLElement, figureElem
 	};
 };
 
-export const CreateFakeMedia = (editor: Editor, figureElement: HTMLElement) =>
-	editor.DOM.Create('div', {
-		attrs: {
-			dataOriginalWidth: editor.DOM.GetAttr(figureElement, 'data-original-width') ?? '0',
-			dataOriginalHeight: editor.DOM.GetAttr(figureElement, 'data-original-height') ?? '0',
-		},
+export const CreateFakeMedia = (editor: Editor, figureElement: HTMLElement): HTMLElement => {
+	const self = editor;
+	const DOM = self.DOM;
+
+	const attrs: Record<string, string> = {};
+	attrs[Options.ATTRIBUTES.ORIGINAL_WIDTH] = DOM.GetAttr(figureElement, Options.ATTRIBUTES.ORIGINAL_WIDTH) ?? '0';
+	attrs[Options.ATTRIBUTES.ORIGINAL_HEIGHT] = DOM.GetAttr(figureElement, Options.ATTRIBUTES.ORIGINAL_HEIGHT) ?? '0';
+	return DOM.Create('div', {
+		attrs,
 		styles: {
 			backgroundColor: 'rgba(0, 0, 0, 0.7)',
-			width: editor.DOM.GetStyle(figureElement, 'width'),
-			height: editor.DOM.GetStyle(figureElement, 'height'),
+			width: DOM.GetStyle(figureElement, 'width'),
+			height: DOM.GetStyle(figureElement, 'height'),
 		}
 	});
+};
 
 export const MakeAbsolute = (editor: Editor, fakeFigure: IFakeFigure, figure: HTMLElement, figureElement: HTMLElement) => {
 	const self = editor;

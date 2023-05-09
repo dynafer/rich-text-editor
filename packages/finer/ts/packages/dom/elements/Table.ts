@@ -104,12 +104,12 @@ const Table = (): ITable => {
 	const GetSelectedCells = (editor: Editor, table?: Element, bSelected: boolean = true): HTMLTableCellElement[] =>
 		editor.DOM.SelectAll<HTMLTableCellElement>({
 			tagName: [...CellSet],
-			attrs: [Options.ATTRIBUTE_SELECTED],
+			attrs: [Options.ATTRIBUTES.SELECTED],
 			bNot: !bSelected,
 		}, table ?? editor.GetBody());
 
 	const ToggleSelectCell = (bSelected: boolean, cell: Element) =>
-		bSelected ? cell.setAttribute(Options.ATTRIBUTE_SELECTED, '') : cell.removeAttribute(Options.ATTRIBUTE_SELECTED);
+		bSelected ? cell.setAttribute(Options.ATTRIBUTES.SELECTED, '') : cell.removeAttribute(Options.ATTRIBUTES.SELECTED);
 
 	const ToggleSelectMultipleCells = (bSelected: boolean, cells: Element[]) =>
 		Arr.Each(cells, cell => ToggleSelectCell(bSelected, cell));

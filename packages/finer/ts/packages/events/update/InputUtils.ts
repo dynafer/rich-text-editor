@@ -74,7 +74,7 @@ const InputUtils = (editor: Editor) => {
 		}, fragment);
 
 		Arr.Each(styleElements, styleElement => {
-			const editorStyle = DOM.GetAttr(styleElement, Options.ATTRIBUTE_EDITOR_STYLE) ?? '';
+			const editorStyle = DOM.GetAttr(styleElement, Options.ATTRIBUTES.STYLE) ?? '';
 			const elementName = DOM.Utils.GetNodeName(styleElement);
 			if (!Str.IsEmpty(editorStyle)) return DOM.SetStyleText(styleElement, editorStyle);
 			if (!DOM.Utils.IsSpan(styleElement)) return DOM.RemoveAttr(styleElement, 'style');

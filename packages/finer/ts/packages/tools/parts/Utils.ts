@@ -33,7 +33,7 @@ const getToolsMenu = (editor: Editor, target: HTMLElement): HTMLElement | null =
 	const { Figure } = DOM.Element.Figure.Find<HTMLElement>(target);
 	if (!Figure) return null;
 
-	return DOM.Select<HTMLElement>({ attrs: ['data-parts-menu'] }, Figure);
+	return DOM.Select<HTMLElement>({ attrs: [Options.ATTRIBUTES.PARTS_MENU] }, Figure);
 };
 
 export const StartAdjustment = (editor: Editor, callback: TStartAdjustingEvent, ...targets: Element[]) => {
@@ -85,14 +85,12 @@ export const ChangePartsMenuOptionList = (editor: Editor, menu: HTMLElement) => 
 	}, menu);
 
 	Arr.Each(optionLists, optionList => {
-		const uiType = DOM.GetAttr(optionList, 'data-type');
+		const uiType = DOM.GetAttr(optionList, Options.ATTRIBUTES.TYPE);
 		if (!uiType) return;
 
-		const selection = DOM.Select<HTMLElement>({
-			attrs: {
-				dataType: uiType
-			}
-		}, menu);
+		const attrs: Record<string, string> = {};
+		attrs[Options.ATTRIBUTES.TYPE] = uiType;
+		const selection = DOM.Select<HTMLElement>({ attrs }, menu);
 		if (!selection) return;
 
 		self.Formatter.UI.SetOptionListInToolsMenuCoordinate(self, selection, optionList);
@@ -111,14 +109,13 @@ export const ChangeAllPositions = (editor: Editor) => {
 		const { Figure, FigureType, FigureElement } = DOM.Element.Figure.Find<HTMLElement>(parts);
 		if (!Figure || !FigureType || !FigureElement) return;
 
-		Arr.Each(DOM.SelectAll({ attrs: ['data-movable'] }, parts), movable =>
+		Arr.Each(DOM.SelectAll({ attrs: [Options.ATTRIBUTES.MOVABLE] }, parts), movable =>
 			DOM.SetStyle(movable, 'left', CreateMovableHorizontalSize(FigureElement.offsetLeft + FigureElement.offsetWidth / 2, true))
 		);
 
-		const attributeLine = 'data-adjustable-line';
-		Arr.Each(DOM.SelectAll({ attrs: [attributeLine] }, parts), line => {
+		Arr.Each(DOM.SelectAll({ attrs: [Options.ATTRIBUTES.ADJUSTABLE_LINE] }, parts), line => {
 			const styles: Record<string, string> = {};
-			const lineType = DOM.GetAttr(line, attributeLine);
+			const lineType = DOM.GetAttr(line, Options.ATTRIBUTES.ADJUSTABLE_LINE);
 
 			switch (FigureType) {
 				case 'table':
@@ -140,9 +137,9 @@ export const ChangeAllPositions = (editor: Editor) => {
 			DOM.SetStyles(line, styles);
 		});
 
-		Arr.Each(DOM.SelectAll({ attrs: ['data-adjustable-edge'] }, parts), edge => {
-			const bLeft = DOM.HasAttr(edge, 'data-horizontal', 'left');
-			const bTop = DOM.HasAttr(edge, 'data-vertical', 'top');
+		Arr.Each(DOM.SelectAll({ attrs: [Options.ATTRIBUTES.ADJUSTABLE_EDGE] }, parts), edge => {
+			const bLeft = DOM.HasAttr(edge, Options.ATTRIBUTES.HORIZONTAL, 'left');
+			const bTop = DOM.HasAttr(edge, Options.ATTRIBUTES.VERTICAL, 'top');
 
 			DOM.SetStyles(edge, {
 				left: CreateAdjustableEdgeSize(FigureElement.offsetLeft + (bLeft ? 0 : FigureElement.offsetWidth), true),
@@ -150,8 +147,8 @@ export const ChangeAllPositions = (editor: Editor) => {
 			});
 		});
 
-		Arr.Each(DOM.SelectAll<HTMLElement>({ attrs: ['data-parts-menu'] }, parts), menu => {
-			if (!DOM.HasAttr(Figure, Options.ATTRIBUTE_FOCUSED)) return DOM.Hide(menu);
+		Arr.Each(DOM.SelectAll<HTMLElement>({ attrs: [Options.ATTRIBUTES.PARTS_MENU] }, parts), menu => {
+			if (!DOM.HasAttr(Figure, Options.ATTRIBUTES.FOCUSED)) return DOM.Hide(menu);
 			DOM.Show(menu);
 
 			const newStyles: Record<string, string> = {};
@@ -162,7 +159,7 @@ export const ChangeAllPositions = (editor: Editor) => {
 			const menuCentredLeftPosition = figureElementRightPosition - menu.offsetWidth - halfDifference;
 			const menuCentredRightPosition = menuCentredLeftPosition + menu.offsetWidth;
 
-			const bAsText = DOM.HasAttr(Figure, Options.ATTRIBUTE_AS_TEXT);
+			const bAsText = DOM.HasAttr(Figure, Options.ATTRIBUTES.AS_TEXT);
 			const bOutOfBody = bAsText && figureRightPosition > DOM.Doc.body.offsetWidth;
 
 			if (menuCentredLeftPosition < 0 && !bOutOfBody)
