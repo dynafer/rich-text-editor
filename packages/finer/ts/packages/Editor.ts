@@ -153,12 +153,16 @@ class Editor {
 
 	// scrollX and scrollY getter and setter
 	public SaveScrollPosition() {
-		this.mScrollX = this.DOM.GetRoot().scrollLeft;
-		this.mScrollY = this.DOM.GetRoot().scrollTop;
+		const root = this.DOM.GetRoot();
+
+		this.mScrollX = Type.IsNumber(root.scrollLeft) ? root.scrollLeft : -1;
+		this.mScrollY = Type.IsNumber(root.scrollTop) ? root.scrollTop : -1;
 	}
 	public ScrollSavedPosition() {
-		if (this.mScrollX !== -1) this.DOM.GetRoot().scroll({ left: this.mScrollX });
-		if (this.mScrollY !== -1) this.DOM.GetRoot().scroll({ top: this.mScrollY });
+		const root = this.DOM.GetRoot();
+
+		if (this.mScrollX !== -1) root.scroll?.({ left: this.mScrollX });
+		if (this.mScrollY !== -1) root.scroll?.({ top: this.mScrollY });
 
 		this.mScrollX = -1;
 		this.mScrollY = -1;
@@ -233,7 +237,7 @@ class Editor {
 		const fake = DOM.Create('div');
 		DOM.CloneAndInsert(fake, true, ...this.GetLines());
 		Arr.WhileShift(this.Tools.Parts.Manager.SelectParts(true, fake), parts => DOM.Remove(parts));
-		Arr.WhileShift(DOM.SelectAll({ attrs: [Options.ATTRIBUTE_EDITOR_STYLE] }, fake), styleElems => DOM.RemoveAttr(styleElems, Options.ATTRIBUTE_EDITOR_STYLE));
+		Arr.WhileShift(DOM.SelectAll({ attrs: [Options.ATTRIBUTES.STYLE] }, fake), styleElems => DOM.RemoveAttr(styleElems, Options.ATTRIBUTES.STYLE));
 		const html = DOM.GetHTML(fake);
 		DOM.Remove(fake);
 		return html;

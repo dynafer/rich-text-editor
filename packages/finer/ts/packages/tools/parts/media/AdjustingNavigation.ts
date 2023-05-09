@@ -1,4 +1,5 @@
 import { Formula } from '@dynafer/utils';
+import Options from '../../../../Options';
 import DOM from '../../../dom/DOM';
 import Editor from '../../../Editor';
 
@@ -24,7 +25,8 @@ const AdjustingNavigation = (editor: Editor, media: HTMLElement, fakeMedia: HTML
 		if (DOM.Utils.IsImage(media)) return bWidth ? media.naturalWidth : media.naturalHeight;
 		if (DOM.Utils.IsVideo(media)) return bWidth ? media.videoWidth : media.videoHeight;
 		const standard = bWidth ? STANDARD_IFRAME_WIDTH : STANDARD_IFRAME_HEIGHT;
-		const originalSize = parseFloat(DOM.GetAttr(media, `data-original-${type}`) ?? '0');
+		const originalName = bWidth ? Options.ATTRIBUTES.ORIGINAL_WIDTH : Options.ATTRIBUTES.ORIGINAL_HEIGHT;
+		const originalSize = parseFloat(DOM.GetAttr(media, originalName) ?? '0');
 		return originalSize === 0 ? standard : originalSize;
 	};
 

@@ -8,8 +8,8 @@
     "lint": "eslint -c ../../.eslintrc.json ts/*.ts"
   },
   "dependencies": {
-    "@types/node": "^18.11.18",
-    "tslib": "^2.4.0"
+    "@types/node": "^20.1.1",
+    "tslib": "^2.5.0"
   },
   "license": "MIT"
 }

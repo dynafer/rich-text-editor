@@ -118,7 +118,7 @@ export const MakeAbsolute = (editor: Editor, fakeFigure: IFakeFigure, figure: HT
 		height: `${fakeFigure.Table.offsetHeight}px`,
 	});
 
-	DOM.SetAttr(figureElement, Options.ATTRIBUTE_ADJUSTING);
+	DOM.SetAttr(figureElement, Options.ATTRIBUTES.ADJUSTING);
 };
 
 export const ResetAbsolute = (editor: Editor, figure: HTMLElement, figureElement: HTMLElement) => {
@@ -128,7 +128,7 @@ export const ResetAbsolute = (editor: Editor, figure: HTMLElement, figureElement
 	DOM.RemoveStyles(figureElement, 'position', 'left', 'top', 'width', 'height');
 	DOM.RemoveStyles(figure, 'position', 'left', 'top', 'width', 'height');
 
-	DOM.RemoveAttr(figureElement, Options.ATTRIBUTE_ADJUSTING);
+	DOM.RemoveAttr(figureElement, Options.ATTRIBUTES.ADJUSTING);
 
 	const dumpFloat = DOM.GetAttr(figure, 'dump-float');
 	if (dumpFloat) {

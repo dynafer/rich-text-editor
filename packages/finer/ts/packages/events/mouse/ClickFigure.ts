@@ -18,7 +18,7 @@ const ClickFigure = (editor: Editor, event: MouseEvent | TouchEvent) => {
 		self.Utils.Shared.DispatchCaretChange([Figure]);
 	}
 
-	DOM.SetAttr(Figure, Options.ATTRIBUTE_FOCUSED);
+	DOM.SetAttr(Figure, Options.ATTRIBUTES.FOCUSED);
 	PartsTool.ChangePositions();
 };
 

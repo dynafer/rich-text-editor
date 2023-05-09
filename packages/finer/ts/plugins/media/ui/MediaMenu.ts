@@ -1,4 +1,5 @@
 import { Arr, Obj } from '@dynafer/utils';
+import Options from '../../../Options';
 import Editor from '../../../packages/Editor';
 import { IPartsToolAttacher } from '../../../packages/tools/types/PartsType';
 import { IPluginMediaUI } from '../UI';
@@ -69,7 +70,7 @@ const MediaMenu = (editor: Editor, ui: IPluginMediaUI): IMediaMenu => {
 
 		const button = DOM.Create('button', {
 			attrs: [
-				'data-remove',
+				Options.ATTRIBUTES.REMOVE,
 				{ title: GetMenuText(self, 'remove.figure', 'Remove the figure') }
 			],
 			class: DOM.Utils.CreateUEID('icon-button', false),
@@ -88,7 +89,7 @@ const MediaMenu = (editor: Editor, ui: IPluginMediaUI): IMediaMenu => {
 
 	const Create: IPartsToolAttacher = (): HTMLElement => {
 		const mediaMenu = DOM.Create('div', {
-			attrs: ['data-parts-menu']
+			attrs: [Options.ATTRIBUTES.PARTS_MENU]
 		});
 
 		Obj.Values(uiFormats, formats => DOM.Insert(mediaMenu, createGroup(mediaMenu, formats)));

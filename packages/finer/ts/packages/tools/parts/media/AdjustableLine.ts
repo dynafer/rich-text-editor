@@ -1,4 +1,5 @@
 import { Str } from '@dynafer/utils';
+import Options from '../../../../Options';
 import Editor from '../../../Editor';
 import { ADJUSTABLE_LINE_HALF_SIZE, RegisterAdjustingEvents, StartAdjustment } from '../Utils';
 import AdjustingNavigation from './AdjustingNavigation';
@@ -9,15 +10,15 @@ const AdjustableLine = (editor: Editor, media: HTMLElement): HTMLElement => {
 	const DOM = self.DOM;
 
 	const adjustableLineGroup = DOM.Create('div', {
-		attrs: ['data-adjustable-line-group'],
+		attrs: [Options.ATTRIBUTES.ADJUSTABLE_LINE_GROUP],
 	});
 
 	const createAdjustableLine = (type: 'left' | 'top' | 'right' | 'bottom'): HTMLElement => {
 		const bHorizontal = type === 'left' || type === 'right';
+		const attrs: Record<string, string> = {};
+		attrs[Options.ATTRIBUTES.ADJUSTABLE_LINE] = type;
 		return DOM.Create('div', {
-			attrs: {
-				dataAdjustableLine: type,
-			},
+			attrs,
 			styles: {
 				width: `${bHorizontal ? ADJUSTABLE_LINE_HALF_SIZE : media.offsetWidth}px`,
 				height: `${bHorizontal ? media.offsetHeight : ADJUSTABLE_LINE_HALF_SIZE}px`,
@@ -101,7 +102,7 @@ const AdjustableLine = (editor: Editor, media: HTMLElement): HTMLElement => {
 
 		self.ScrollSavedPosition();
 
-		const edgeGroup = DOM.Select<HTMLElement>({ attrs: ['data-adjustable-edge-group'] }, Figure);
+		const edgeGroup = DOM.Select<HTMLElement>({ attrs: [Options.ATTRIBUTES.ADJUSTABLE_EDGE_GROUP] }, Figure);
 		DOM.Hide(edgeGroup);
 
 		const setMinimumSize = () => {

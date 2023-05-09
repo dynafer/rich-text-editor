@@ -1,4 +1,5 @@
 import { Arr, Str, Type } from '@dynafer/utils';
+import Options from '../../Options';
 import DOM from '../dom/DOM';
 import Editor from '../Editor';
 import { ENativeEvents, PreventEvent } from '../events/EventSetupUtils';
@@ -150,7 +151,7 @@ const FormatUI = (): IFormatUI => {
 			tagName: 'div',
 			type: 'options'
 		});
-		DOM.SetAttr(optionList, 'data-type', type);
+		DOM.SetAttr(optionList, Options.ATTRIBUTES.TYPE, type);
 		DOM.Insert(optionList, ...items);
 		return optionList;
 	};
@@ -273,7 +274,7 @@ const FormatUI = (): IFormatUI => {
 		};
 
 		DOM.On(Input, ENativeEvents.keyup, event => {
-			if (event.key !== Finer.KeyCode.Enter && event.code !== Finer.KeyCode.Enter) return;
+			if (!Arr.Contains([event.key, event.code], EKeyCode.Enter)) return;
 			PreventEvent(event);
 			callback();
 		});
@@ -333,7 +334,7 @@ const FormatUI = (): IFormatUI => {
 		const selectOptionList = (): Element | null => DOM.Select({
 			class: DOM.Utils.CreateUEID('options', false)
 		}, root ?? self.Frame.Root);
-		const hasTypeAttribute = (): boolean => !!selectOptionList() && DOM.GetAttr(selectOptionList(), 'data-type') === type;
+		const hasTypeAttribute = (): boolean => !!selectOptionList() && DOM.GetAttr(selectOptionList(), Options.ATTRIBUTES.TYPE) === type;
 
 		const destroyOptionList = () => DestoryOpenedOptionList(self);
 

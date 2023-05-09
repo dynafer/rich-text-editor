@@ -3,7 +3,7 @@
 @import '../mixins/_optionList';
 
 @mixin parts-menu {
-	[data-parts-menu] {
+	[#{getAttr(parts-menu)}] {
 		@include position(absolute);
 		@include all-border(getVar(parts-menu-border));
 		@include round(getVar(parts-menu-radius));
@@ -33,7 +33,7 @@
 				@include all-padding(0.2rem);
 				@include all-border(none, $important: true);
 
-				&[data-remove] {
+				&[#{getAttr(remove)}] {
 					&:hover {
 						background-color: getVar(parts-menu-item-remove-hover-bg);
 

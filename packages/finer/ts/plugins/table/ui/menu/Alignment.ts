@@ -35,7 +35,7 @@ const Alignment = (editor: Editor, table: HTMLElement, tableMenu: HTMLElement): 
 
 		Arr.Each(STYLE_COMMANDS, (format, exit) => {
 			const { Name, Styles, bAsText } = format;
-			if (bAsText && !DOM.HasAttr(Figure, Options.ATTRIBUTE_AS_TEXT)) return;
+			if (bAsText && !DOM.HasAttr(Figure, Options.ATTRIBUTES.AS_TEXT)) return;
 
 			let bSameFormat: boolean | null = null;
 
@@ -116,11 +116,9 @@ const Alignment = (editor: Editor, table: HTMLElement, tableMenu: HTMLElement): 
 
 	const firstFormat = findFormat(table);
 	const { Wrapper, Button } = formatUI.CreateIconWrapSet(uiTitle, firstFormat.Icon);
-	DOM.SetAttr(Button, 'data-icon', firstFormat.Icon);
-	DOM.SetAttrs(Wrapper, [
-		'no-border',
-		{ dataType: uiType }
-	]);
+	DOM.SetAttr(Button, Options.ATTRIBUTES.ICON, firstFormat.Icon);
+	DOM.SetAttr(Wrapper, 'no-border');
+	DOM.SetAttr(Wrapper, Options.ATTRIBUTES.TYPE, uiType);
 
 	formatUI.BindOptionListEvent(self, {
 		type: uiType,
@@ -137,8 +135,8 @@ const Alignment = (editor: Editor, table: HTMLElement, tableMenu: HTMLElement): 
 
 	detector.Register(() => {
 		const foundFormat = findFormat(Wrapper);
-		if (DOM.GetAttr(Button, 'data-icon') === foundFormat.Icon) return;
-		DOM.SetAttr(Button, 'data-icon', foundFormat.Icon);
+		if (DOM.GetAttr(Button, Options.ATTRIBUTES.ICON) === foundFormat.Icon) return;
+		DOM.SetAttr(Button, Options.ATTRIBUTES.ICON, foundFormat.Icon);
 		DOM.SetHTML(Button, Finer.Icons.Get(foundFormat.Icon));
 	});
 
