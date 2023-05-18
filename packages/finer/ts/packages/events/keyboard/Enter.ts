@@ -2,7 +2,7 @@ import Editor from '../../Editor';
 import { PreventEvent } from '../EventSetupUtils';
 import { EKeyCode } from './KeyboardUtils';
 
-const EnterEvent = (editor: Editor, event: KeyboardEvent) => {
+const Enter = (editor: Editor, event: KeyboardEvent) => {
 	const self = editor;
 	const DOM = self.DOM;
 	const CaretUtils = self.Utils.Caret;
@@ -31,4 +31,4 @@ const EnterEvent = (editor: Editor, event: KeyboardEvent) => {
 	self.Utils.Shared.DispatchCaretChange([newParagraph]);
 };
 
-export default EnterEvent;
+export default Enter;

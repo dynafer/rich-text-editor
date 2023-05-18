@@ -82,12 +82,13 @@ const DOMEventUtils = (): IDOMEventUtils => {
 	};
 
 	const FindAndUnbindDetached = (): Promise<void> =>
-		new Promise(() =>
+		new Promise(resolve => {
 			Arr.WhileShift(Obj.Values(boundaries), boundary => {
 				if (!NodeType.IsElement(boundary.element) || boundary.element.ownerDocument.contains(boundary.element)) return;
 				UnbindAll(boundary.element);
-			})
-		);
+			});
+			resolve();
+		});
 
 	const Destroy = () =>
 		Obj.Values(boundaries, boundEvent => UnbindAll(boundEvent.element));

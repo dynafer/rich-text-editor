@@ -5,7 +5,6 @@ import DOM, { IDom, TEventListener } from './dom/DOM';
 import { IConfiguration } from './EditorConfigure';
 import EditorDestroy from './EditorDestroy';
 import EditorFrame, { IEditorFrame } from './EditorFrame';
-import EditorSetup from './EditorSetup';
 import EditorToolbar, { IEditorToolbar } from './EditorToolbar';
 import EditorUtils, { IEditorUtils } from './editorUtils/EditorUtils';
 import { IEvent } from './editorUtils/EventUtils';
@@ -21,14 +20,14 @@ import { IPartsTool } from './tools/Parts';
 import { IResizerTool } from './tools/Resizer';
 import { IResizeOption } from './tools/types/ResizerType';
 
-enum ELoadingStatus {
-	SHOW = 'SHOW',
-	HIDE = 'HIDE'
-}
-
 interface IEditorTools {
 	readonly Parts: IPartsTool,
 	readonly Resizer: IResizerTool,
+}
+
+export enum ELoadingStatus {
+	SHOW = 'SHOW',
+	HIDE = 'HIDE'
 }
 
 class Editor {
@@ -64,10 +63,6 @@ class Editor {
 		this.History = HistorySetup(this);
 		this.Notification = NotificationManager(this);
 		this.Toolbar = EditorToolbar(this);
-
-		EditorSetup(this)
-			.then(() => this.toggleLoading(ELoadingStatus.HIDE))
-			.catch(error => this.Notify(ENotificationStatus.ERROR, error, true));
 	}
 
 	public Notify(type: ENotificationStatus, text: string, bDestroy?: boolean) {
@@ -285,7 +280,7 @@ class Editor {
 		return text;
 	}
 
-	private toggleLoading(status: ELoadingStatus) {
+	public ToggleLoading(status: ELoadingStatus) {
 		const toggle = status === ELoadingStatus.HIDE ? DOM.Hide : DOM.Show;
 		toggle(this.Frame.Loading);
 	}
