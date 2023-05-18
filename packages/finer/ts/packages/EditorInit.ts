@@ -1,6 +1,8 @@
 import { Type } from '@dynafer/utils';
-import Editor from './Editor';
+import Editor, { ELoadingStatus } from './Editor';
 import Configure, { IConfiguration, TConfigurationKey } from './EditorConfigure';
+import EditorSetup from './EditorSetup';
+import { ENotificationStatus } from './managers/NotificationManager';
 
 export type TEditorInit = (config: Record<string, TConfigurationKey>) => Promise<Editor | unknown>;
 
@@ -26,7 +28,15 @@ const EditorInit = (config: Record<string, TConfigurationKey>): Promise<Editor |
 
 	return new Promise(resolve => {
 		before()
-			.then(() => resolve(new Editor(configuration)))
+			.then(() => {
+				const editor = new Editor(configuration);
+				EditorSetup(editor)
+					.then(() => {
+						editor.ToggleLoading(ELoadingStatus.HIDE);
+						resolve(editor);
+					})
+					.catch(error => editor.Notify(ENotificationStatus.ERROR, error, true));
+			})
 			.catch(console.error);
 	});
 };

@@ -3,7 +3,7 @@ import Editor from '../../Editor';
 import FormatUtils from '../../formatter/FormatUtils';
 import { ENativeEvents, PreventEvent } from '../EventSetupUtils';
 
-const DragMedia = (editor: Editor, event: DragEvent) => {
+const DragFigure = (editor: Editor, event: DragEvent) => {
 	const self = editor;
 	const DOM = self.DOM;
 	const CaretUtils = self.Utils.Caret;
@@ -62,4 +62,4 @@ const DragMedia = (editor: Editor, event: DragEvent) => {
 	self.On(ENativeEvents.beforeinput, dropMedia, true);
 };
 
-export default DragMedia;
+export default DragFigure;
