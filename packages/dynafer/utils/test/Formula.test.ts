@@ -30,20 +30,16 @@ const TestFormula = () =>
 			});
 		});
 
-		describe('Percent', () => {
-			it('should calculate the percentage of one number compared to another', () => {
-				expect(Formula.Percent(50, 100)).toBe(50);
-				expect(Formula.Percent(75, 150)).toBe(50);
-				expect(Formula.Percent(1, 3)).toBeCloseTo(33.33, 2);
-			});
+		it('should calculate the percentage of one number compared to another with Percent()', () => {
+			expect(Formula.Percent(50, 100)).toBe(50);
+			expect(Formula.Percent(75, 150)).toBe(50);
+			expect(Formula.Percent(1, 3)).toBeCloseTo(33.33, 2);
 		});
 
-		describe('RevertPercent', () => {
-			it('should calculate the value of a percentage compared to a base number', () => {
-				expect(Formula.RevertPercent(50, 100)).toBe(50);
-				expect(Formula.RevertPercent(50, 150)).toBe(75);
-				expect(Formula.RevertPercent(33.33, 3)).toBeCloseTo(1, 2);
-			});
+		it('should calculate the value of a percentage compared to a base number with RevertPercent()', () => {
+			expect(Formula.RevertPercent(50, 100)).toBe(50);
+			expect(Formula.RevertPercent(50, 150)).toBe(75);
+			expect(Formula.RevertPercent(33.33, 3)).toBeCloseTo(1, 2);
 		});
 	});
 
