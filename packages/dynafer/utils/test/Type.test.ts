@@ -42,4 +42,5 @@ const TestType = () =>
 			it('returns false for non-undefined values', () => expect(Type.IsUndefined(null)).toBe(false));
 		});
 	});
+
 export default TestType;

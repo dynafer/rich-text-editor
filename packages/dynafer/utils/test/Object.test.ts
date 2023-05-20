@@ -21,7 +21,7 @@ const TestObject = () =>
 			it('should exit early if the exit function is called in the callback', () => {
 				const obj = { a: 1, b: 2, c: 3 };
 				const callback = jest.fn((key, value, exit) => {
-					if (key === 'b') exit();
+					if (key === 'b' && value === 2) exit();
 				});
 				Obj.Entries(obj, callback);
 				expect(callback).toHaveBeenCalledTimes(2);
@@ -134,7 +134,6 @@ const TestObject = () =>
 				expect(Obj.HasProperty<typeof obj>(obj, 'a')).toBe(false);
 			});
 		});
-
 	});
 
 export default TestObject;

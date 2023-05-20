@@ -4,7 +4,6 @@ const TestUID = () =>
 	describe('@dynafer/utils/UID', () => {
 		describe('CreateUEID', () => {
 			it('adds a number to the end of the given id', () => expect(UID.CreateUEID('foo', true)).toMatch(/^foo-\d+$/));
-
 			it('does not add a number to the end of the given id if bAddNum is false', () => expect(UID.CreateUEID('foo', false)).toBe('foo'));
 
 			it('increments the number for each subsequent call with the same id', () => {
@@ -27,4 +26,5 @@ const TestUID = () =>
 			});
 		});
 	});
+
 export default TestUID;

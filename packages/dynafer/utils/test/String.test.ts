@@ -2,7 +2,6 @@ import * as Str from '../ts/String';
 
 const TestString = () =>
 	describe('@dynafer/utils/String', () => {
-
 		describe('isEmpty', () => {
 			it('returns true for empty strings', () => expect(Str.IsEmpty('')).toBe(true));
 			it('returns false for non-empty strings', () => expect(Str.IsEmpty('hello')).toBe(false));

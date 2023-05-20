@@ -20,21 +20,25 @@ const TestAttribute = () =>
 			expect(element.getAttribute('class')).toBe('button');
 		});
 
-		it('should get the value of an attribute with Get()', () => {
-			element.setAttribute('data-id', '123');
-			expect(Attribute.Get(element, 'data-id')).toBe('123');
+		describe('Get', () => {
+			it('should get the value of an attribute', () => {
+				element.setAttribute('data-id', '123');
+				expect(Attribute.Get(element, 'data-id')).toBe('123');
+			});
+
+			it('should return null if an attribute does not exist', () => expect(Attribute.Get(element, 'data-id')).toBeNull());
 		});
 
-		it('should return null if an attribute does not exist with Get()', () => expect(Attribute.Get(element, 'data-id')).toBeNull());
+		describe('Has', () => {
+			it('should return true if an element has an attribute with a specific value', () => {
+				element.setAttribute('data-id', '123');
+				expect(Attribute.Has(element, 'data-id', '123')).toBe(true);
+			});
 
-		it('should return true if an element has an attribute with a specific value with Has()', () => {
-			element.setAttribute('data-id', '123');
-			expect(Attribute.Has(element, 'data-id', '123')).toBe(true);
-		});
-
-		it('should return false if an element does not have an attribute with a specific value with Has()', () => {
-			element.setAttribute('data-id', '123');
-			expect(Attribute.Has(element, 'data-id', '456')).toBe(false);
+			it('should return false if an element does not have an attribute with a specific value', () => {
+				element.setAttribute('data-id', '123');
+				expect(Attribute.Has(element, 'data-id', '456')).toBe(false);
+			});
 		});
 
 		it('should remove an attribute from an element with Remove()', () => {

@@ -16,12 +16,14 @@ const TestLanguageStorage = () =>
 			expect(LanguageStorage.Languages).toEqual({ en: map });
 		});
 
-		it('should return the value for a given key in the language map with Get()', () => {
-			LanguageStorage.Add('en', 'greeting', 'Hello');
-			expect(LanguageStorage.Get('en', 'greeting')).toBe('Hello');
-		});
+		describe('Get', () => {
+			it('should return the value for a given key in the language map', () => {
+				LanguageStorage.Add('en', 'greeting', 'Hello');
+				expect(LanguageStorage.Get('en', 'greeting')).toBe('Hello');
+			});
 
-		it('should return null if the key does not exist in the language map with Get()', () => expect(LanguageStorage.Get('en', 'greeting')).toBeNull());
+			it('should return null if the key does not exist in the language map', () => expect(LanguageStorage.Get('en', 'greeting')).toBeNull());
+		});
 
 		it('should remove a language from the language map with Remove()', () => {
 			LanguageStorage.Add('en', 'greeting', 'Hello');
