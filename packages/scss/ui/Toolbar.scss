@@ -55,6 +55,7 @@
 		}
 
 		.#{getClassName(icon-group)} {
+			@include flex(center, $inline: true);
 			@include all-border(none);
 			@include height(getVar(toolbar-item-size));
 
