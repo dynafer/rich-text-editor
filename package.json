@@ -6,13 +6,12 @@
     "packages/**/*"
   ],
   "devDependencies": {
-    "@dynafer/build-toolkit": "^1.0.61",
+    "@dynafer/build-toolkit": "^1.0.62",
     "@finer-group/eslint-plugin": "^0.1.0",
     "@rollup/plugin-node-resolve": "^15.0.2",
     "@types/jest": "^29.5.1",
     "@types/node": "^20.1.1",
     "eslint": "^8.40.0",
-    "jest-environment-jsdom": "^29.5.0",
     "patch-package": "^7.0.0",
     "ts-jest": "^29.1.0",
     "tslib": "^2.5.0",
