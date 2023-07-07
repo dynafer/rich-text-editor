@@ -1,7 +1,7 @@
 {
 	"root": true,
 	"extends": [
-		"plugin:@dynafer/editor/editor"
+		"plugin:@dynafer/editor"
 	],
 	"parserOptions": {
 		"project": "**/tsconfig.json",
