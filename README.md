@@ -62,3 +62,6 @@ RichEditor.Init({
 	- Default: vertical
 	- Available: horizontal, vertical, all
 	- You can check the skins with example files in ***example/resizable*** folder.
+
+# License
+[MIT](https://github.com/dynafer/rich-text-editor/blob/main/LICENSE.txt)
