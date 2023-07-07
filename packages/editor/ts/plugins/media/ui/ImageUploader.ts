@@ -7,7 +7,7 @@ import { IPluginsMediaFormatUI } from '../utils/Type';
 import { COMMAND_NAMES_MAP, GetAllowedExtensions } from '../utils/Utils';
 
 type TImageConfiguration = TConfigurationCommon<IBlobList, Promise<string>>;
-type TUploadCallback = TConfigurationCallback<IBlobList, Promise<string>>;
+type TUploadCallback = TConfigurationCallback<IBlobList, Promise<string | string[]>>;
 
 const ImageUploader = (editor: Editor, ui: IPluginMediaUI) => {
 	const self = editor;
@@ -56,7 +56,14 @@ const ImageUploader = (editor: Editor, ui: IPluginMediaUI) => {
 		}
 
 		uploadCallback(BlobList(...files))
-			.then(url => self.Commander.Run<File[] | string>(COMMAND_NAMES_MAP.IMAGE_CREATE, url))
+			.then(urls => {
+				if (Type.IsString(urls))
+					return self.Commander.Run<File[] | string>(COMMAND_NAMES_MAP.IMAGE_CREATE, urls);
+
+				Arr.Each(urls, url =>
+					self.Commander.Run<File[] | string>(COMMAND_NAMES_MAP.IMAGE_CREATE, url)
+				);
+			})
 			.catch(error => self.Notification.Dispatch(self.Notification.STATUS_MAP.ERROR, error, false));
 	});
 

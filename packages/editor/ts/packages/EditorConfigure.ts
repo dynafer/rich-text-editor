@@ -55,7 +55,7 @@ const Configure = (config: Record<string, TConfigurationKey>): IConfiguration =>
 		ToolbarGroup = config.toolbarGroup as Record<string, string[]> ?? {};
 		if (ToolbarGroup && !Type.IsObject(ToolbarGroup)) throw new Error('Configuration: Toolbar Group must be an object.');
 	} else {
-		Toolbar = ['styles', 'history', 'basic', 'script', 'font', 'color', 'alignment', 'indentation', 'info'];
+		Toolbar = ['styles', 'history', 'selectAll', 'basic', 'script', 'font', 'color', 'alignment', 'indentation', 'hr', 'info'];
 		ToolbarGroup = {
 			styles: ['heading_style', 'block_style'],
 			history: ['undo', 'redo'],

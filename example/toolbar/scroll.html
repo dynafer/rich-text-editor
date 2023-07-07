@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Editor</title>
+
+	<script type="text/javascript" src="../editor/editor.min.js"></script>
+</head>
+
+<body style="margin: 0;">
+	<textarea id="editor">
+		<p>Type any texts!</p>
+	</textarea>
+</body>
+
+<script type="text/javascript">
+	'use strict';
+	RichEditor.Init({
+		selector: document.querySelector('#editor'),
+		mode: 'classic',
+		plugins: [],
+		toolbar: ['styles', 'history', 'selectAll', 'basic', 'script', 'font', 'color', 'alignment', 'indentation', 'hr', 'info'],
+		toolbar_group: {
+			styles: ['heading_style', 'block_style'],
+			history: ['undo', 'redo'],
+			font: ['fontSize', 'fontFamily'],
+			basic: ['bold', 'italic', 'underline', 'strikethrough', 'code'],
+			color: ['foreColor', 'backColor'],
+			script: ['subscript', 'superscript'],
+		},
+		fontSizeOptions: ['9pt', '10pt', '12pt', '18pt', '24pt', '48pt', '96pt'],
+		fontFamilyOptions: {
+			Arial: 'arial, sans-serif',
+			'Arial Black': 'arial black, sans-serif',
+			'Courier New': 'courier new, monospace',
+			Georgia: 'georgia, serif',
+			Helvetica: 'helvetica, sans-serif',
+			'Lucida Console': 'lucida console',
+			Monaco: 'monaco',
+			'Noto Sans': 'noto sans, sans-serif',
+			'Times New Soman': 'times new roman, serif',
+			Verdana: 'verdana, sans-serif',
+		},
+		indentationSize: '3rem',
+		toolbarStyle: 'scroll',
+	}).then(editor => {
+		// do something
+	}).catch(err => console.log(err));
+</script>
+
+</html>

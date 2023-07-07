@@ -4,4 +4,3 @@ node_modules
 .rollup.cache
 build
 node-modules
-example

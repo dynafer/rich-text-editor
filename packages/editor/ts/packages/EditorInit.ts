@@ -8,7 +8,6 @@ export type TEditorInit = (config: Record<string, TConfigurationKey>) => Promise
 
 const EditorInit = (config: Record<string, TConfigurationKey>): Promise<Editor | unknown> => {
 	if (!Type.IsString(config.iconPack)) config.iconPack = 'default';
-	if (!Type.IsString(config.language)) config.language = 'en-GB';
 
 	const configuration: IConfiguration = Configure(config);
 
