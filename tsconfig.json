@@ -2,8 +2,8 @@
 	"extends": "./tsconfig.shared.json",
 	"compilerOptions": {
 		"paths": {
-			"finer": ["packages/finer/ts/Finer"],
-			"finer/packages/*": ["packages/finer/ts/packages/*"],
+			"editor": ["packages/editor/ts/RichEditor"],
+			"editor/packages/*": ["packages/editor/ts/packages/*"],
 
 			"@dynafer/colorpicker": ["packages/dynafer/colorpicker/ts/ColorPicker"],
 			"@dynafer/dom-control": ["packages/dynafer/dom-control/ts/DOMControl"],
@@ -15,8 +15,8 @@
 	"include": [
 		"packages/dynafer/**/*.ts",
 		"packages/dynafer/**/*.d.ts",
-		"packages/finer/**/*.ts",
-		"packages/finer/**/*.d.ts"
+		"packages/editor/**/*.ts",
+		"packages/editor/**/*.d.ts"
 	],
 	"exclude": [
 		"packages/**/build/**/*.ts"

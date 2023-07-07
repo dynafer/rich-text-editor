@@ -1,1 +1,1 @@
-# finer-editor
+# rich-text-editor

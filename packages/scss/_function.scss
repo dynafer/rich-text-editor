@@ -9,11 +9,11 @@
 }
 
 @function getVar($name) {
-	@return var(--finer-#{$name});
+	@return var(--editor-#{$name});
 }
 
 @function getVarName($name) {
-	@return --finer-#{$name};
+	@return --editor-#{$name};
 }
 
 @function getClassName($name) {

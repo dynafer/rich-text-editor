@@ -2,13 +2,13 @@ const fs = require('fs');
 const path = require('path');
 
 const OUTPUT_PATH = './build';
-const PROJECT_NAME = 'finer';
-const GLOBAL_NAME = 'Finer';
+const PROJECT_NAME = 'editor';
+const GLOBAL_NAME = 'RichEditor';
 
-const INPUT_NAME = PROJECT_NAME.split('').reduce((pre, cur, index) => `${index === 1 ? pre.toUpperCase() : pre}${cur}`);
+const INPUT_NAME = GLOBAL_NAME;
 
 const PACKAGE_PATH = './packages';
-const PLUGIN_NAMES = fs.readdirSync(path.join(PACKAGE_PATH, './finer/ts/plugins'));
+const PLUGIN_NAMES = fs.readdirSync(path.join(PACKAGE_PATH, './editor/ts/plugins'));
 
 const SCSS_PATH = path.join(PACKAGE_PATH, './scss');
 
