@@ -1,8 +1,8 @@
 # Rich Text Editor
 
 ## Preparation
-- ### Node.js
-- ### Yarn
+- Node.js
+- Yarn
 
 ## Begin
 ```bash
