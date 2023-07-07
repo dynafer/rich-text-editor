@@ -13,7 +13,7 @@
     "lint": "eslint -c ../../../.eslintrc.json ts/*.ts"
   },
   "dependencies": {
-    "tslib": "^2.5.0"
+    "tslib": "^2.6.0"
   },
   "type": "module",
   "main": "build/lib/DOMControl.js",

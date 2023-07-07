@@ -6,16 +6,16 @@
     "packages/**/*"
   ],
   "devDependencies": {
-    "@dynafer/build-toolkit": "^1.0.62",
-    "@dynafer/eslint-plugin-editor": "^0.0.1",
-    "@rollup/plugin-node-resolve": "^15.0.2",
-    "@types/jest": "^29.5.1",
-    "@types/node": "^20.1.1",
-    "eslint": "^8.40.0",
+    "@dynafer/build-toolkit": "^1.0.64",
+    "@dynafer/eslint-plugin": "^0.0.2",
+    "@rollup/plugin-node-resolve": "^15.1.0",
+    "@types/jest": "^29.5.2",
+    "@types/node": "^20.4.0",
+    "eslint": "^8.44.0",
     "patch-package": "^7.0.0",
-    "ts-jest": "^29.1.0",
-    "tslib": "^2.5.0",
-    "typescript": "^5.0.4"
+    "ts-jest": "^29.1.1",
+    "tslib": "^2.6.0",
+    "typescript": "^5.1.6"
   },
   "scripts": {
     "preinstall": "node -e \"if(!process.env.npm_execpath.includes('yarn')) throw new Error('You must use yarn.')\"",
