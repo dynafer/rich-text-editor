@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Editor</title>
+
+	<script type="text/javascript" src="../editor/editor.min.js"></script>
+</head>
+
+<body style="margin: 0;">
+	<textarea id="editor">
+		<p>Type any texts!</p>
+	</textarea>
+</body>
+
+<script type="text/javascript">
+	'use strict';
+	RichEditor.Init({
+		selector: document.querySelector('#editor'),
+		mode: 'classic',
+		plugins: ['table'],
+		toolbar: ['history', 'basic', 'alignment', 'indentation', 'selectAll', 'table', 'info'],
+		toolbarGroup: {
+			history: ['undo', 'redo'],
+			font: ['fontSize', 'fontFamily'],
+			basic: ['bold', 'italic', 'underline', 'strikethrough', 'code'],
+		}
+	}).then(editor => {
+		// do something
+	}).catch(err => console.log(err));
+</script>
+
+</html>
