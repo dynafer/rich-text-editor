@@ -26,6 +26,6 @@ module.exports = async (runner) => {
 		dir: path.join(svgPath, `./${iconPack}`),
 		output: path.resolve(buildLibPath, `./${iconPack}`, './IconPack.js'),
 		type: 'argument',
-		naming: 'Finer.Icons.Register'
+		naming: 'RichEditor.Icons.Register'
 	}));
 };

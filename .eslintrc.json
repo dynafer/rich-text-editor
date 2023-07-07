@@ -1,7 +1,7 @@
 {
 	"root": true,
 	"extends": [
-		"plugin:@finer-group/editor"
+		"plugin:@dynafer/editor/editor"
 	],
 	"parserOptions": {
 		"project": "**/tsconfig.json",
@@ -19,5 +19,5 @@
 			}
 		}
 	},
-	"ignorePatterns": ["*.js", "*.json", "packages/**/build/**/*.ts", "packages/finer/ts/plugins/template/**/*", "example/**/*.ts"]
+	"ignorePatterns": ["*.js", "*.json", "packages/**/build/**/*.ts", "packages/editor/ts/plugins/template/**/*", "example/**/*.ts"]
 }

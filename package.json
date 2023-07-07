@@ -7,7 +7,7 @@
   ],
   "devDependencies": {
     "@dynafer/build-toolkit": "^1.0.62",
-    "@finer-group/eslint-plugin": "^0.1.0",
+    "@dynafer/eslint-plugin-editor": "^0.0.1",
     "@rollup/plugin-node-resolve": "^15.0.2",
     "@types/jest": "^29.5.1",
     "@types/node": "^20.1.1",
@@ -27,12 +27,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/finer-group/finer-editor.git"
+    "url": "https://github.com/dynafer/rich-text-editor.git"
   },
   "keywords": [],
   "author": "Dynafer",
   "bugs": {
-    "url": "https://github.com/finer-group/finer-editor/issues"
+    "url": "https://github.com/dynafer/rich-text-editor/issues"
   },
-  "homepage": "https://github.com/finer-group/finer-editor#readme"
+  "homepage": "https://github.com/dynafer/rich-text-editor#readme"
 }

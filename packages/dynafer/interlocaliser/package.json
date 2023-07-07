@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "repository": {
     "type": "git",
-    "url": "https://github.com/finer-group/finer-editor.git",
+    "url": "https://github.com/dynafer/rich-text-editor.git",
     "directory": "packages/dynafer/interlocaliser"
   },
   "author": "Dynafer",
