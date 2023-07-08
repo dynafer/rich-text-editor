@@ -1,5 +1,9 @@
 # Rich Text Editor
 
+### [Buy me a coffee!](https://www.buymeacoffee.com/dynaferkim)
+
+<br>
+
 ## Preparation
 - Node.js
 - Yarn
